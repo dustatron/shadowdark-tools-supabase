@@ -1,0 +1,325 @@
+openapi: 3.0.0
+info:
+  title: Lists API
+  version: 1.0.0
+  description: API for monster list management
+
+paths:
+  /api/lists:
+    get:
+      summary: Get user's lists
+      security:
+        - bearerAuth: []
+      responses:
+        '200':
+          description: User's lists
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/List'
+
+    post:
+      summary: Create new list
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateListRequest'
+      responses:
+        '201':
+          description: List created
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/List'
+
+  /api/lists/{id}:
+    get:
+      summary: Get list details with items
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        '200':
+          description: List with items
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ListWithItems'
+
+    put:
+      summary: Update list
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UpdateListRequest'
+      responses:
+        '200':
+          description: List updated
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/List'
+
+    delete:
+      summary: Delete list
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        '204':
+          description: List deleted
+
+  /api/lists/{id}/items:
+    post:
+      summary: Add item to list
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/AddListItemRequest'
+      responses:
+        '201':
+          description: Item added to list
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ListItem'
+
+  /api/lists/{id}/items/{itemId}:
+    put:
+      summary: Update list item quantity
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+        - name: itemId
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                quantity:
+                  type: integer
+                  minimum: 1
+      responses:
+        '200':
+          description: Item updated
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ListItem'
+
+    delete:
+      summary: Remove item from list
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+        - name: itemId
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        '204':
+          description: Item removed from list
+
+components:
+  schemas:
+    List:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        name:
+          type: string
+        description:
+          type: string
+        party_level:
+          type: integer
+        challenge_level_min:
+          type: integer
+        challenge_level_max:
+          type: integer
+        xp_budget:
+          type: integer
+        item_count:
+          type: integer
+        total_xp:
+          type: integer
+        created_at:
+          type: string
+          format: date-time
+        updated_at:
+          type: string
+          format: date-time
+
+    ListWithItems:
+      allOf:
+        - $ref: '#/components/schemas/List'
+        - type: object
+          properties:
+            items:
+              type: array
+              items:
+                $ref: '#/components/schemas/ListItem'
+
+    ListItem:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        item_type:
+          type: string
+          enum: [monster, group]
+        item_id:
+          type: string
+          format: uuid
+        quantity:
+          type: integer
+        monster:
+          $ref: '#/components/schemas/Monster'
+        group:
+          $ref: '#/components/schemas/Group'
+        created_at:
+          type: string
+          format: date-time
+
+    CreateListRequest:
+      type: object
+      required:
+        - name
+      properties:
+        name:
+          type: string
+          minLength: 1
+          maxLength: 100
+        description:
+          type: string
+          maxLength: 500
+        party_level:
+          type: integer
+          minimum: 1
+          maximum: 20
+        challenge_level_min:
+          type: integer
+          minimum: 1
+          maximum: 20
+        challenge_level_max:
+          type: integer
+          minimum: 1
+          maximum: 20
+        xp_budget:
+          type: integer
+          minimum: 0
+
+    UpdateListRequest:
+      allOf:
+        - $ref: '#/components/schemas/CreateListRequest'
+
+    AddListItemRequest:
+      type: object
+      required:
+        - item_type
+        - item_id
+      properties:
+        item_type:
+          type: string
+          enum: [monster, group]
+        item_id:
+          type: string
+          format: uuid
+        quantity:
+          type: integer
+          minimum: 1
+          default: 1
+
+    Monster:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        name:
+          type: string
+        challenge_level:
+          type: integer
+        hit_points:
+          type: integer
+        armor_class:
+          type: integer
+
+    Group:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        name:
+          type: string
+        combined_stats:
+          type: object
+
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer

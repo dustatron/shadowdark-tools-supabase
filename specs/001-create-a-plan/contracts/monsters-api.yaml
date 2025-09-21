@@ -1,0 +1,381 @@
+openapi: 3.0.0
+info:
+  title: Monsters API
+  version: 1.0.0
+  description: API for monster search, management, and CRUD operations
+
+paths:
+  /api/monsters:
+    get:
+      summary: Search and list monsters
+      parameters:
+        - name: q
+          in: query
+          schema:
+            type: string
+          description: Search query
+        - name: fuzziness
+          in: query
+          schema:
+            type: string
+            enum: [low, medium, high]
+          description: Fuzzy search level
+        - name: min_cl
+          in: query
+          schema:
+            type: integer
+            minimum: 1
+            maximum: 20
+          description: Minimum challenge level
+        - name: max_cl
+          in: query
+          schema:
+            type: integer
+            minimum: 1
+            maximum: 20
+          description: Maximum challenge level
+        - name: tags
+          in: query
+          schema:
+            type: array
+            items:
+              type: string
+          description: Filter by tags
+        - name: type
+          in: query
+          schema:
+            type: string
+            enum: [official, custom, public]
+          description: Monster type filter
+        - name: limit
+          in: query
+          schema:
+            type: integer
+            default: 20
+            maximum: 100
+          description: Number of results
+        - name: offset
+          in: query
+          schema:
+            type: integer
+            default: 0
+          description: Pagination offset
+      responses:
+        '200':
+          description: List of monsters
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  monsters:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/Monster'
+                  total:
+                    type: integer
+                  has_more:
+                    type: boolean
+
+    post:
+      summary: Create custom monster
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateMonsterRequest'
+      responses:
+        '201':
+          description: Monster created
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Monster'
+        '400':
+          description: Validation error
+        '401':
+          description: Unauthorized
+
+  /api/monsters/{id}:
+    get:
+      summary: Get monster details
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        '200':
+          description: Monster details
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Monster'
+        '404':
+          description: Monster not found
+
+    put:
+      summary: Update custom monster
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UpdateMonsterRequest'
+      responses:
+        '200':
+          description: Monster updated
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Monster'
+        '403':
+          description: Not monster owner
+        '404':
+          description: Monster not found
+
+    delete:
+      summary: Delete custom monster
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        '204':
+          description: Monster deleted
+        '403':
+          description: Not monster owner
+        '404':
+          description: Monster not found
+
+  /api/monsters/{id}/copy:
+    post:
+      summary: Copy monster for customization
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        '201':
+          description: Monster copied
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Monster'
+
+  /api/monsters/random:
+    get:
+      summary: Get random monster
+      parameters:
+        - name: filters
+          in: query
+          schema:
+            type: string
+          description: JSON encoded filter object
+      responses:
+        '200':
+          description: Random monster
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Monster'
+
+components:
+  schemas:
+    Monster:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        name:
+          type: string
+        challenge_level:
+          type: integer
+          minimum: 1
+          maximum: 20
+        hit_points:
+          type: integer
+          minimum: 1
+        armor_class:
+          type: integer
+          minimum: 1
+          maximum: 21
+        speed:
+          type: string
+        attacks:
+          type: array
+          items:
+            $ref: '#/components/schemas/Attack'
+        abilities:
+          type: array
+          items:
+            $ref: '#/components/schemas/Ability'
+        treasure:
+          $ref: '#/components/schemas/Treasure'
+        tags:
+          $ref: '#/components/schemas/Tags'
+        source:
+          type: string
+        author_notes:
+          type: string
+        icon_url:
+          type: string
+          format: uri
+        art_url:
+          type: string
+          format: uri
+        is_official:
+          type: boolean
+        is_public:
+          type: boolean
+        user_id:
+          type: string
+          format: uuid
+        created_at:
+          type: string
+          format: date-time
+        updated_at:
+          type: string
+          format: date-time
+
+    CreateMonsterRequest:
+      type: object
+      required:
+        - name
+        - challenge_level
+        - hit_points
+        - armor_class
+        - speed
+        - source
+      properties:
+        name:
+          type: string
+          minLength: 1
+          maxLength: 100
+        challenge_level:
+          type: integer
+          minimum: 1
+          maximum: 20
+        hit_points:
+          type: integer
+          minimum: 1
+        armor_class:
+          type: integer
+          minimum: 1
+          maximum: 21
+        speed:
+          type: string
+        attacks:
+          type: array
+          items:
+            $ref: '#/components/schemas/Attack'
+        abilities:
+          type: array
+          items:
+            $ref: '#/components/schemas/Ability'
+        treasure:
+          $ref: '#/components/schemas/Treasure'
+        tags:
+          $ref: '#/components/schemas/Tags'
+        source:
+          type: string
+        author_notes:
+          type: string
+        icon_url:
+          type: string
+          format: uri
+        art_url:
+          type: string
+          format: uri
+        is_public:
+          type: boolean
+          default: false
+
+    UpdateMonsterRequest:
+      allOf:
+        - $ref: '#/components/schemas/CreateMonsterRequest'
+
+    Attack:
+      type: object
+      required:
+        - name
+        - type
+        - damage
+      properties:
+        name:
+          type: string
+        type:
+          type: string
+          enum: [melee, ranged, spell]
+        damage:
+          type: string
+        range:
+          type: string
+        description:
+          type: string
+
+    Ability:
+      type: object
+      required:
+        - name
+        - description
+      properties:
+        name:
+          type: string
+        description:
+          type: string
+
+    Treasure:
+      type: object
+      properties:
+        type:
+          type: string
+          enum: [coins, items, mixed, none]
+        amount:
+          type: string
+        items:
+          type: array
+          items:
+            type: string
+
+    Tags:
+      type: object
+      properties:
+        type:
+          type: array
+          items:
+            type: string
+        location:
+          type: array
+          items:
+            type: string
+
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
