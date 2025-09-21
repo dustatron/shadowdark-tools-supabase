@@ -1,50 +1,100 @@
-# [PROJECT_NAME] Constitution
-<!-- Example: Spec Constitution, TaskFlow Constitution, etc. -->
+<!--
+Sync Impact Report:
+Version change: 1.1.0 → 1.2.0
+Modified sections:
+- Development Standards (updated to reflect actual Next.js + Supabase implementation)
+- Technology stack corrected: shadcn/ui instead of Mantine, @supabase/ssr for auth
+- Added specific project structure requirements based on starter template
+Templates requiring updates:
+- ✅ .specify/templates/plan-template.md (Constitution Check references this document)
+- ✅ .specify/templates/spec-template.md (Review checklist aligns with principles)
+- ✅ .specify/templates/tasks-template.md (TDD workflow enforced by Test-First principle)
+-->
+
+# SD GM Tools Constitution
 
 ## Core Principles
 
-### [PRINCIPLE_1_NAME]
-<!-- Example: I. Library-First -->
-[PRINCIPLE_1_DESCRIPTION]
-<!-- Example: Every feature starts as a standalone library; Libraries must be self-contained, independently testable, documented; Clear purpose required - no organizational-only libraries -->
+### I. Component-First
+Every feature starts as a reusable React component with clear responsibilities. Components MUST be self-contained, independently testable, and thoroughly documented. Each component serves a specific functional purpose for the Shadowdark Monster Manager web application.
 
-### [PRINCIPLE_2_NAME]
-<!-- Example: II. CLI Interface -->
-[PRINCIPLE_2_DESCRIPTION]
-<!-- Example: Every library exposes functionality via CLI; Text in/out protocol: stdin/args → stdout, errors → stderr; Support JSON + human-readable formats -->
+**Rationale**: Modular component architecture enables easier testing, reuse across different UI contexts, and cleaner separation of concerns for complex gaming features.
 
-### [PRINCIPLE_3_NAME]
-<!-- Example: III. Test-First (NON-NEGOTIABLE) -->
-[PRINCIPLE_3_DESCRIPTION]
-<!-- Example: TDD mandatory: Tests written → User approved → Tests fail → Then implement; Red-Green-Refactor cycle strictly enforced -->
+### II. API-First
+Every feature exposes functionality via well-defined API contracts. RESTful endpoints with consistent request/response patterns. MUST support JSON for data exchange and proper HTTP status codes for error handling.
 
-### [PRINCIPLE_4_NAME]
-<!-- Example: IV. Integration Testing -->
-[PRINCIPLE_4_DESCRIPTION]
-<!-- Example: Focus areas requiring integration tests: New library contract tests, Contract changes, Inter-service communication, Shared schemas -->
+**Rationale**: API-first design ensures clear separation between frontend and backend, enables testing of business logic independently, and provides flexibility for future integrations.
 
-### [PRINCIPLE_5_NAME]
-<!-- Example: V. Observability, VI. Versioning & Breaking Changes, VII. Simplicity -->
-[PRINCIPLE_5_DESCRIPTION]
-<!-- Example: Text I/O ensures debuggability; Structured logging required; Or: MAJOR.MINOR.BUILD format; Or: Start simple, YAGNI principles -->
+### III. Test-First (NON-NEGOTIABLE)
+Test-Driven Development is mandatory: Tests written → User approved → Tests fail → Then implement. Red-Green-Refactor cycle strictly enforced. Target 40% test coverage minimum with both unit tests (Vitest) and E2E tests (Playwright).
 
-## [SECTION_2_NAME]
-<!-- Example: Additional Constraints, Security Requirements, Performance Standards, etc. -->
+**Rationale**: Gaming tools require high reliability - incorrect monster stats, encounter generation, or data validation can disrupt game master preparation and live sessions.
 
-[SECTION_2_CONTENT]
-<!-- Example: Technology stack requirements, compliance standards, deployment policies, etc. -->
+### IV. Integration Testing
+Focus areas requiring integration tests: Database operations, Authentication flows, File uploads, Search functionality, Encounter generation algorithms. All user workflows from login to content creation MUST have E2E test coverage.
 
-## [SECTION_3_NAME]
-<!-- Example: Development Workflow, Review Process, Quality Gates, etc. -->
+**Rationale**: Web applications have complex interdependencies (user auth, data persistence, external services) that unit tests alone cannot validate. Gaming data flows are critical to user experience.
 
-[SECTION_3_CONTENT]
-<!-- Example: Code review requirements, testing gates, deployment approval process, etc. -->
+### V. Simplicity
+Start with MVP features, apply YAGNI principles. Structured logging required for all user-facing operations. Prefer explicit Shadowdark rule implementations over generic gaming frameworks. Avoid premature optimization.
+
+**Rationale**: Game masters need tools that work reliably and intuitively - unnecessary complexity increases development time, bug potential, and user confusion.
+
+### VI. Data Integrity
+All gaming data MUST be validated using Zod schemas at API boundaries. Shadowdark rule compliance is enforced (e.g., XP calculations, stat ranges). Database constraints prevent invalid states. User-generated content undergoes validation before persistence.
+
+**Rationale**: Incorrect gaming data can invalidate entire encounters or sessions. Data integrity ensures game masters can trust the tool's calculations and recommendations.
+
+### VII. Community Safety
+Public content sharing requires moderation capabilities. Flagging system with admin review processes. Clear content policies and enforcement mechanisms. User-generated content defaults to private with explicit opt-in for public sharing.
+
+**Rationale**: Community features enable valuable content sharing but require safeguards against inappropriate content that could harm user experience or violate platform policies.
+
+## Development Standards
+
+Web application MUST follow Next.js App Router conventions with TypeScript. Component library uses shadcn/ui built on Radix UI primitives with Tailwind CSS styling. Database operations use Supabase with Row Level Security (RLS) and @supabase/ssr for cookie-based authentication. All gaming data schemas use Zod validation and MUST be version-controlled and backward-compatible.
+
+**Technology Stack**:
+- **Frontend**: Next.js 15+ (App Router), TypeScript, React 19, shadcn/ui, Tailwind CSS, Lucide React icons
+- **Backend**: Supabase (Postgres + Auth + RLS), @supabase/ssr for server-side auth
+- **Development**: ESLint, Prettier, next-themes for dark mode
+- **Deployment**: Vercel with automatic GitHub integration
+
+**Project Structure Requirements**:
+```
+app/
+├── app/                 # Next.js App Router pages
+├── components/          # Reusable React components
+├── lib/                # Utilities and Supabase clients
+├── middleware.ts       # Auth and routing middleware
+└── package.json        # Dependencies and scripts
+```
+
+Performance targets: Page loads under 2 seconds, search results within 500ms, optimized images, infinite scrolling for large datasets.
+
+## Quality Assurance
+
+Code review requirements include constitutional compliance verification. All Shadowdark rule calculations MUST have corresponding validation tests. Database policies MUST be tested in development environment before deployment.
+
+**Security Requirements**:
+- Supabase RLS for data access control with proper policies for user-owned and public content
+- @supabase/ssr for secure cookie-based authentication across SSR and client components
+- Zod validation at all API boundaries and form inputs
+- Next.js middleware for route protection and auth checks
+- Environment variables properly configured for Supabase connection
+
+**Testing Requirements**:
+- Unit tests for components and utilities (target 40% coverage minimum)
+- Integration tests for Supabase operations and auth flows
+- E2E tests for critical user journeys (auth, content creation, search)
+- Database policy testing in development environment
+
+Content moderation: Flagging system for user-generated content, admin dashboard for content review, audit logging for moderation actions.
 
 ## Governance
-<!-- Example: Constitution supersedes all other practices; Amendments require documentation, approval, migration plan -->
 
-[GOVERNANCE_RULES]
-<!-- Example: All PRs/reviews must verify compliance; Complexity must be justified; Use [GUIDANCE_FILE] for runtime development guidance -->
+This Constitution supersedes all other development practices. Amendments require documentation of change rationale, approval process, and migration plan for existing tools.
 
-**Version**: [CONSTITUTION_VERSION] | **Ratified**: [RATIFICATION_DATE] | **Last Amended**: [LAST_AMENDED_DATE]
-<!-- Example: Version: 2.1.1 | Ratified: 2025-06-13 | Last Amended: 2025-07-16 -->
+All pull requests and reviews MUST verify compliance with constitutional principles. Complexity that violates principles must be justified with specific game master needs. Development guidance is maintained in agent-specific files (e.g., CLAUDE.md, GEMINI.md) for runtime development support.
+
+**Version**: 1.2.0 | **Ratified**: 2025-09-21 | **Last Amended**: 2025-09-21
