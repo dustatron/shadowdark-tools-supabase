@@ -6,7 +6,7 @@
 ## Execution Flow (main)
 ```
 1. Load plan.md from feature directory
-   → ✅ COMPLETE: Next.js + Supabase + Mantinestack identified
+   → ✅ COMPLETE: Next.js + Supabase + Mantine stack identified
 2. Load optional design documents:
    → ✅ COMPLETE: data-model.md: 10 entities extracted → model tasks
    → ✅ COMPLETE: contracts/: 2 API files → contract test tasks
@@ -29,28 +29,31 @@
 - **Next.js App Router Structure**: `app/`, `components/`, `lib/` at repository root
 - **Database**: Supabase migrations in `supabase/migrations/`
 - **Tests**: `__tests__/` following Next.js conventions
+- **Starter Data**: Official monsters from `starter-data/monsters.json` (243 Shadowdark Core monsters)
 
 ## Phase 3.1: Setup & Database
-- [x] T001 Install required dependencies (Supabase, shadcn/ui, Zod, React Hook Form, Vitest, Playwright)
-- [ ] T002 Configure Supabase project and environment variables
-- [ ] T003 [P] Setup ESLint and Prettier configuration
-- [ ] T004 [P] Configure Vitest for unit testing
-- [ ] T005 [P] Configure Playwright for E2E testing
-- [ ] T006 Create Supabase database migration for user_profiles table
-- [ ] T007 Create Supabase database migration for official_monsters table
-- [ ] T008 Create Supabase database migration for user_monsters table
-- [ ] T009 Create Supabase database migration for user_groups table
-- [ ] T010 Create Supabase database migration for user_lists and list_items tables
-- [ ] T011 Create Supabase database migration for encounter_tables and encounter_slots tables
-- [ ] T012 Create Supabase database migration for flags and audit_logs tables
-- [ ] T013 Create Supabase database migration for tag_types and tag_locations tables
-- [ ] T014 Create Supabase database migration for user_favorites table
-- [ ] T015 Create all_monsters database view combining official and public custom monsters
-- [ ] T016 Setup Row Level Security (RLS) policies for all tables
-- [ ] T017 Create database indexes for performance optimization
+- [x] T001 Install required dependencies (Supabase, Mantine UI, Zod, React Hook Form, Vitest, Playwright)
+- [x] T002 Configure Supabase project and environment variables
+- [x] T003 [P] Setup ESLint and Prettier configuration
+- [x] T004 [P] Configure Vitest for unit testing
+- [x] T005 [P] Configure Playwright for E2E testing
+- [x] T006 Create Supabase database migration for user_profiles table
+- [x] T007 Create Supabase database migration for official_monsters table
+- [x] T008 Create Supabase database migration for user_monsters table
+- [x] T009 Create Supabase database migration for user_groups table
+- [x] T010 Create Supabase database migration for user_lists and list_items tables
+- [x] T011 Create Supabase database migration for encounter_tables and encounter_slots tables
+- [x] T012 Create Supabase database migration for flags and audit_logs tables
+- [x] T013 Create Supabase database migration for tag_types and tag_locations tables
+- [x] T014 Create Supabase database migration for user_favorites table
+- [x] T015 Create all_monsters database view combining official and public custom monsters
+- [x] T016 Setup Row Level Security (RLS) policies for all tables
+- [x] T017 Create database indexes for performance optimization
+- [x] T017.1 BONUS: Create official monsters seed migration from starter-data/monsters.json (243 monsters)
 
 ## Phase 3.2: Tests First (TDD) ⚠️ MUST COMPLETE BEFORE 3.3
 **CRITICAL: These tests MUST be written and MUST FAIL before ANY implementation**
+**NOTE: All UI component tests updated to use Mantine components instead of shadcn/ui**
 
 ### Contract Tests
 - [ ] T018 [P] Contract test GET /api/monsters in __tests__/api/monsters-get.test.ts
@@ -104,16 +107,16 @@
 - [ ] T056 Implement DELETE /api/lists/[id] endpoint in app/api/lists/[id]/route.ts
 - [ ] T057 Implement POST /api/lists/[id]/items endpoint in app/api/lists/[id]/items/route.ts
 
-### UI Components
-- [ ] T058 [P] Create MonsterCard component in components/monsters/monster-card.tsx
-- [ ] T059 [P] Create MonsterSearch component in components/monsters/monster-search.tsx
-- [ ] T060 [P] Create MonsterForm component in components/monsters/monster-form.tsx
-- [ ] T061 [P] Create MonsterDetails component in components/monsters/monster-details.tsx
-- [ ] T062 [P] Create ListCard component in components/lists/list-card.tsx
-- [ ] T063 [P] Create ListForm component in components/lists/list-form.tsx
-- [ ] T064 [P] Create ListManager component in components/lists/list-manager.tsx
-- [ ] T065 [P] Create EncounterTable component in components/encounters/encounter-table.tsx
-- [ ] T066 [P] Create EncounterGenerator component in components/encounters/encounter-generator.tsx
+### UI Components (Mantine)
+- [ ] T058 [P] Create MonsterCard component using Mantine Card in components/monsters/monster-card.tsx
+- [ ] T059 [P] Create MonsterSearch component using Mantine TextInput and Select in components/monsters/monster-search.tsx
+- [ ] T060 [P] Create MonsterForm component using Mantine Form and inputs in components/monsters/monster-form.tsx
+- [ ] T061 [P] Create MonsterDetails component using Mantine Paper and Text in components/monsters/monster-details.tsx
+- [ ] T062 [P] Create ListCard component using Mantine Card in components/lists/list-card.tsx
+- [ ] T063 [P] Create ListForm component using Mantine Form in components/lists/list-form.tsx
+- [ ] T064 [P] Create ListManager component using Mantine Table and ActionIcon in components/lists/list-manager.tsx
+- [ ] T065 [P] Create EncounterTable component using Mantine Table in components/encounters/encounter-table.tsx
+- [ ] T066 [P] Create EncounterGenerator component using Mantine Button and Modal in components/encounters/encounter-generator.tsx
 
 ### App Router Pages
 - [ ] T067 Create main dashboard page in app/dashboard/page.tsx
@@ -131,10 +134,10 @@
 - [ ] T077 Implement fuzzy search functionality using pg_trgm in lib/search/fuzzy-search.ts
 - [ ] T078 Create monster import script for official data in scripts/import-monsters.ts
 - [ ] T079 Implement image upload integration with Cloudinary in lib/upload/cloudinary.ts
-- [ ] T080 Create group management functionality in components/groups/group-manager.tsx
+- [ ] T080 Create group management functionality using Mantine components in components/groups/group-manager.tsx
 - [ ] T081 Implement encounter table generation logic in lib/encounters/table-generator.ts
-- [ ] T082 Create content flagging system in components/moderation/flag-form.tsx
-- [ ] T083 Implement admin moderation dashboard in components/admin/moderation-dashboard.tsx
+- [ ] T082 Create content flagging system using Mantine Modal and Form in components/moderation/flag-form.tsx
+- [ ] T083 Implement admin moderation dashboard using Mantine DataGrid in components/admin/moderation-dashboard.tsx
 - [ ] T084 Create guest user session management in lib/auth/guest-session.ts
 
 ## Phase 3.5: Integration & Middleware
@@ -151,10 +154,10 @@
 - [ ] T093 [P] E2E tests using Playwright in __tests__/e2e/full-workflow.spec.ts
 - [ ] T094 [P] Create API documentation in docs/api.md
 - [ ] T095 [P] Create user guide documentation in docs/user-guide.md
-- [ ] T096 Add responsive design optimizations for mobile
-- [ ] T097 Implement dark mode functionality
+- [ ] T096 Add responsive design optimizations using Mantine responsive utilities
+- [ ] T097 Implement dark mode using Mantine ColorSchemeProvider
 - [ ] T098 Create data export functionality (JSON/Markdown)
-- [ ] T099 Implement print-friendly views
+- [ ] T099 Implement print-friendly views using Mantine styles
 - [ ] T100 Final code review and refactoring
 
 ## Dependencies

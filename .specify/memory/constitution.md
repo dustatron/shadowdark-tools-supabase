@@ -1,10 +1,10 @@
 <!--
 Sync Impact Report:
-Version change: 1.1.0 → 1.2.0
+Version change: 1.2.0 → 1.3.0
 Modified sections:
-- Development Standards (updated to reflect actual Next.js + Supabase implementation)
-- Technology stack corrected: shadcn/ui instead of Mantine, @supabase/ssr for auth
-- Added specific project structure requirements based on starter template
+- Development Standards (updated to reflect Mantine UI instead of shadcn/ui)
+- Technology stack corrected: Mantine UI with Emotion for styling, @tabler/icons-react for icons
+- Component library changed from shadcn/ui to Mantine for better accessibility and documentation
 Templates requiring updates:
 - ✅ .specify/templates/plan-template.md (Constitution Check references this document)
 - ✅ .specify/templates/spec-template.md (Review checklist aligns with principles)
@@ -52,12 +52,12 @@ Public content sharing requires moderation capabilities. Flagging system with ad
 
 ## Development Standards
 
-Web application MUST follow Next.js App Router conventions with TypeScript. Component library uses shadcn/ui built on Radix UI primitives with Tailwind CSS styling. Database operations use Supabase with Row Level Security (RLS) and @supabase/ssr for cookie-based authentication. All gaming data schemas use Zod validation and MUST be version-controlled and backward-compatible.
+Web application MUST follow Next.js App Router conventions with TypeScript. Component library uses Mantine UI with Emotion for CSS-in-JS styling and theming. Database operations use Supabase with Row Level Security (RLS) and @supabase/ssr for cookie-based authentication. All gaming data schemas use Zod validation and MUST be version-controlled and backward-compatible.
 
 **Technology Stack**:
-- **Frontend**: Next.js 15+ (App Router), TypeScript, React 19, shadcn/ui, Tailwind CSS, Lucide React icons
+- **Frontend**: Next.js 15+ (App Router), TypeScript, React 19, Mantine UI, Emotion CSS-in-JS, @tabler/icons-react
 - **Backend**: Supabase (Postgres + Auth + RLS), @supabase/ssr for server-side auth
-- **Development**: ESLint, Prettier, next-themes for dark mode
+- **Development**: ESLint, Prettier, Mantine built-in dark mode
 - **Deployment**: Vercel with automatic GitHub integration
 
 **Project Structure Requirements**:
@@ -97,4 +97,4 @@ This Constitution supersedes all other development practices. Amendments require
 
 All pull requests and reviews MUST verify compliance with constitutional principles. Complexity that violates principles must be justified with specific game master needs. Development guidance is maintained in agent-specific files (e.g., CLAUDE.md, GEMINI.md) for runtime development support.
 
-**Version**: 1.2.0 | **Ratified**: 2025-09-21 | **Last Amended**: 2025-09-21
+**Version**: 1.3.0 | **Ratified**: 2025-09-21 | **Last Amended**: 2025-09-21

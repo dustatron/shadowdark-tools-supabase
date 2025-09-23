@@ -1,9 +1,4 @@
-import { clsx, type ClassValue } from "clsx";
-import { twMerge } from "tailwind-merge";
-
-export function cn(...inputs: ClassValue[]) {
-  return twMerge(clsx(inputs));
-}
+// Utility functions for the Shadowdark Monster Manager
 
 // This check can be removed, it is just for tutorial purposes
 export const hasEnvVars =
