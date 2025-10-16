@@ -4,6 +4,8 @@ import { ThemeProvider } from "next-themes";
 import { MantineProvider } from "@/src/components/providers/MantineProvider";
 import { RootProvider } from "@/src/components/providers/RootProvider";
 import "@mantine/core/styles.css";
+import { Notifications } from "@mantine/notifications";
+import "@mantine/notifications/styles.css";
 import "./globals.css";
 
 const defaultUrl = process.env.VERCEL_URL
@@ -37,6 +39,7 @@ export default function RootLayout({
           disableTransitionOnChange
         >
           <MantineProvider>
+            <Notifications />
             <RootProvider>{children}</RootProvider>
           </MantineProvider>
         </ThemeProvider>
