@@ -1,10 +1,10 @@
-'use client';
+"use client";
 
-import { AppShell, Container } from '@mantine/core';
-import { Header } from './Header';
-import { ReactNode, useEffect, useState } from 'react';
-import { createSupabaseClient } from '@/src/lib/supabase/client';
-import { notifications } from '@mantine/notifications';
+import { AppShell, Container } from "@mantine/core";
+import { Header } from "@/src/components/layout/Header";
+import { ReactNode, useEffect, useState } from "react";
+import { createSupabaseClient } from "@/src/lib/supabase/client";
+import { notifications } from "@mantine/notifications";
 
 interface User {
   id: string;
@@ -13,11 +13,11 @@ interface User {
   role?: string;
 }
 
-interface LayoutProps {
+interface RootProviderProps {
   children: ReactNode;
 }
 
-export function Layout({ children }: LayoutProps) {
+export function RootProvider({ children }: RootProviderProps) {
   const [user, setUser] = useState<User | null>(null);
   const [loading, setLoading] = useState(true);
   const supabase = createSupabaseClient();
@@ -51,9 +51,9 @@ export function Layout({ children }: LayoutProps) {
   const fetchUserProfile = async (userId: string) => {
     try {
       const { data, error } = await supabase
-        .from('user_profiles')
-        .select('*')
-        .eq('id', userId)
+        .from("user_profiles")
+        .select("*")
+        .eq("id", userId)
         .single();
 
       if (error) throw error;
@@ -65,11 +65,11 @@ export function Layout({ children }: LayoutProps) {
         role: data.role,
       });
     } catch (error) {
-      console.error('Error fetching user profile:', error);
+      console.error("Error fetching user profile:", error);
       notifications.show({
-        title: 'Error',
-        message: 'Failed to load user profile',
-        color: 'red',
+        title: "Error",
+        message: "Failed to load user profile",
+        color: "red",
       });
     } finally {
       setLoading(false);
@@ -83,25 +83,22 @@ export function Layout({ children }: LayoutProps) {
 
       setUser(null);
       notifications.show({
-        title: 'Success',
-        message: 'Logged out successfully',
-        color: 'green',
+        title: "Success",
+        message: "Logged out successfully",
+        color: "green",
       });
     } catch (error) {
-      console.error('Error signing out:', error);
+      console.error("Error signing out:", error);
       notifications.show({
-        title: 'Error',
-        message: 'Failed to sign out',
-        color: 'red',
+        title: "Error",
+        message: "Failed to sign out",
+        color: "red",
       });
     }
   };
 
   return (
-    <AppShell
-      header={{ height: 60 }}
-      padding="md"
-    >
+    <AppShell header={{ height: 60 }} padding="md">
       <AppShell.Header>
         <Header user={user} onLogout={handleLogout} />
       </AppShell.Header>

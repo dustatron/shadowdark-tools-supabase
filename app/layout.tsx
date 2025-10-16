@@ -1,6 +1,9 @@
 import type { Metadata } from "next";
 import { Geist } from "next/font/google";
 import { ThemeProvider } from "next-themes";
+import { MantineProvider } from "@/src/components/providers/MantineProvider";
+import { RootProvider } from "@/src/components/providers/RootProvider";
+import "@mantine/core/styles.css";
 import "./globals.css";
 
 const defaultUrl = process.env.VERCEL_URL
@@ -33,7 +36,9 @@ export default function RootLayout({
           enableSystem
           disableTransitionOnChange
         >
-          {children}
+          <MantineProvider>
+            <RootProvider>{children}</RootProvider>
+          </MantineProvider>
         </ThemeProvider>
       </body>
     </html>
