@@ -23,58 +23,26 @@ export function RootProvider({ children }: RootProviderProps) {
   const supabase = createSupabaseClient();
 
   useEffect(() => {
-    // Get initial session
-    supabase.auth.getSession().then(({ data: { session } }) => {
-      if (session?.user) {
-        fetchUserProfile(session.user.id);
-      } else {
-        setUser(null);
-        setLoading(false);
-      }
-    });
-
-    // Listen for auth changes
     const {
       data: { subscription },
-    } = supabase.auth.onAuthStateChange(async (event, session) => {
+    } = supabase.auth.onAuthStateChange((_event, session) => {
       if (session?.user) {
-        await fetchUserProfile(session.user.id);
+        setUser({
+          id: session.user.id,
+          email: session.user.email!,
+          display_name: session.user.user_metadata?.display_name,
+          role: session.user.app_metadata?.role,
+        });
       } else {
         setUser(null);
-        setLoading(false);
       }
+      setLoading(false);
     });
 
-    return () => subscription.unsubscribe();
+    return () => {
+      subscription.unsubscribe();
+    };
   }, []);
-
-  const fetchUserProfile = async (userId: string) => {
-    try {
-      const { data, error } = await supabase
-        .from("user_profiles")
-        .select("*")
-        .eq("id", userId)
-        .single();
-
-      if (error) throw error;
-
-      setUser({
-        id: data.id,
-        email: data.email,
-        display_name: data.display_name,
-        role: data.role,
-      });
-    } catch (error) {
-      console.error("Error fetching user profile:", error);
-      notifications.show({
-        title: "Error",
-        message: "Failed to load user profile",
-        color: "red",
-      });
-    } finally {
-      setLoading(false);
-    }
-  };
 
   const handleLogout = async () => {
     try {

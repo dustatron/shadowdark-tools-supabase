@@ -59,15 +59,15 @@ export function Header({ user, onLogout }: HeaderProps) {
         <Button variant="subtle" component={Link} href="/monsters">
           Monsters
         </Button>
-        <Button variant="subtle" component={Link} href="/encounters">
+        <Button variant="subtle" component={Link} href="/spells">
+          Spells
+        </Button>
+        {/* <Button variant="subtle" component={Link} href="/encounters">
           Encounters
         </Button>
         <Button variant="subtle" component={Link} href="/lists">
           Lists
-        </Button>
-        <Button variant="subtle" component={Link} href="/spells">
-          Spells
-        </Button>
+        </Button> */}
       </Group>
 
       {/* User actions */}
@@ -158,13 +158,6 @@ export function Header({ user, onLogout }: HeaderProps) {
               href="/auth/login"
             >
               Login
-            </Button>
-            <Button
-              leftSection={<IconUserPlus size={16} />}
-              component={Link}
-              href="/auth/sign-up"
-            >
-              Sign Up
             </Button>
           </Group>
         )}
