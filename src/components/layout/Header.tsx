@@ -155,14 +155,14 @@ export function Header({ user, onLogout }: HeaderProps) {
               variant="subtle"
               leftSection={<IconLogin size={16} />}
               component={Link}
-              href="/login"
+              href="/auth/login"
             >
               Login
             </Button>
             <Button
               leftSection={<IconUserPlus size={16} />}
               component={Link}
-              href="/register"
+              href="/auth/sign-up"
             >
               Sign Up
             </Button>
