@@ -85,9 +85,6 @@ export async function GET(request: NextRequest) {
     } = await supabase.auth.getUser();
     const isAuthenticated = !!user;
 
-    // Initialize Supabase client
-    const supabase = await createClient();
-
     // Build queries for official and user monsters
     let officialQuery = supabase
       .from("official_monsters")
@@ -190,72 +187,33 @@ export async function GET(request: NextRequest) {
     officialQuery = officialQuery.order("name", { ascending: true });
     if (userQuery) userQuery = userQuery.order("name", { ascending: true });
 
-    // Apply challenge level filters
-    if (params.min_cl !== undefined) {
-      query = query.gte("challenge_level", params.min_cl);
-    }
-    if (params.max_cl !== undefined) {
-      query = query.lte("challenge_level", params.max_cl);
-    }
-
-    // Apply type filter (only official for now)
-    if (params.type && params.type !== "official") {
-      return NextResponse.json(
-        {
-          error: "Type not supported",
-          message: "Only 'official' type is supported in this version",
-        },
-        { status: 400 },
-      );
-    }
-
-    // Get count first for accurate total (without pagination)
-    const officialCountQuery = officialQuery.clone().range(0, -1);
-    const userCountQuery = userQuery ? userQuery.clone().range(0, -1) : null;
-
-    const [officialCountResult, userCountResult] = await Promise.all([
-      officialCountQuery,
-      userCountQuery
-        ? userCountQuery
-        : Promise.resolve({ count: 0, error: null }),
+    // Execute queries with pagination and get counts
+    const [officialResult, userResult] = await Promise.all([
+      officialQuery.range(params.offset, params.offset + params.limit - 1),
+      userQuery
+        ? userQuery.range(params.offset, params.offset + params.limit - 1)
+        : Promise.resolve({ data: [], count: 0, error: null }),
     ]);
 
-    let totalOfficial = officialCountResult.count || 0;
-    let totalUser = userCountResult.count || 0;
+    const totalOfficial = officialResult.count || 0;
+    const totalUser = userResult.count || 0;
     const total = totalOfficial + totalUser;
 
-    // Now apply pagination to data queries
-    officialQuery = officialQuery.range(
-      params.offset,
-      params.offset + params.limit - 1,
-    );
-    if (userQuery) {
-      userQuery = userQuery.range(
-        params.offset,
-        params.offset + params.limit - 1,
-      );
+    if (officialResult.error) {
+      console.error("Official query error:", officialResult.error);
     }
-
-    const [officialDataResult, userDataResult] = await Promise.all([
-      officialQuery,
-      userQuery ? userQuery : Promise.resolve({ data: [], error: null }),
-    ]);
-
-    if (officialDataResult.error) {
-      console.error("Official query error:", officialDataResult.error);
-    }
-    if (userDataResult.error) {
-      console.error("User query error:", userDataResult.error);
+    if (userResult.error) {
+      console.error("User query error:", userResult.error);
     }
 
     // Combine and enhance data
-    const officialMonsters = (officialDataResult.data || []).map((m: any) => ({
+    const officialMonsters = (officialResult.data || []).map((m: any) => ({
       ...m,
       is_official: true,
       is_public: true,
     }));
 
-    const userMonsters = (userDataResult.data || []).map((m: any) => ({
+    const userMonsters = (userResult.data || []).map((m: any) => ({
       ...m,
       is_official: false,
       is_public: m.is_public || false,

@@ -3,7 +3,7 @@
 import { AppShell, Container } from '@mantine/core';
 import { Header } from './Header';
 import { ReactNode, useEffect, useState } from 'react';
-import { createSupabaseClient } from '@/lib/supabase/client';
+import { createSupabaseClient } from '@/src/lib/supabase/client';
 import { notifications } from '@mantine/notifications';
 
 interface User {

@@ -1,7 +1,6 @@
 'use client';
 
 import {
-  Header as MantineHeader,
   Group,
   Button,
   Text,
@@ -45,8 +44,7 @@ export function Header({ user, onLogout }: HeaderProps) {
   const isAdmin = user?.role === 'admin' || user?.role === 'moderator';
 
   return (
-    <MantineHeader height={60} px="md">
-      <Group justify="space-between" h="100%">
+    <Group justify="space-between" h="100%" px="md">
         {/* Logo/Brand */}
         <Group>
           <Link href="/" style={{ textDecoration: 'none', color: 'inherit' }}>
@@ -177,6 +175,5 @@ export function Header({ user, onLogout }: HeaderProps) {
           )}
         </Group>
       </Group>
-    </MantineHeader>
   );
 }

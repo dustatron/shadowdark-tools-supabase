@@ -198,7 +198,7 @@ const migrationContent = `-- Seed official monsters from Shadowdark starter data
 ${sqlStatements.join('\n')}
 `;
 
-const migrationPath = path.join(__dirname, '..', 'supabase', 'migrations', '20250921000008_seed_official_monsters.sql');
+const migrationPath = path.join(__dirname, '..', 'supabase', 'migrations', '20250921000014_seed_official_monsters.sql');
 fs.writeFileSync(migrationPath, migrationContent);
 
 console.log(`Generated migration with ${transformedMonsters.length} monsters`);

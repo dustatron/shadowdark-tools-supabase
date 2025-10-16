@@ -6,7 +6,7 @@ import { EmptyState } from '../ui/EmptyState';
 import { LoadingSpinner } from '../ui/LoadingSpinner';
 import { ErrorAlert } from '../ui/ErrorAlert';
 import { Pagination } from '../ui/Pagination';
-import { IconDragon } from '@tabler/icons-react';
+import { IconSearch } from '@tabler/icons-react';
 
 interface Monster {
   id: string;
@@ -97,7 +97,7 @@ export function MonsterList({
   if (monsters.length === 0) {
     return (
       <EmptyState
-        icon={<IconDragon size={48} />}
+        icon={<IconSearch size={48} />}
         title={emptyStateTitle}
         description={emptyStateDescription}
         action={onCreateMonster ? {

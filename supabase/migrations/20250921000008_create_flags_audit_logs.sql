@@ -165,6 +165,12 @@ $$ LANGUAGE plpgsql;
 -- Row Level Security policies for flags
 ALTER TABLE public.flags ENABLE ROW LEVEL SECURITY;
 
+-- Drop existing policies if they exist
+DROP POLICY IF EXISTS "flags_select" ON public.flags;
+DROP POLICY IF EXISTS "flags_insert" ON public.flags;
+DROP POLICY IF EXISTS "flags_update" ON public.flags;
+DROP POLICY IF EXISTS "flags_delete" ON public.flags;
+
 -- Users can read their own flags, admins can read all flags
 CREATE POLICY "flags_select" ON public.flags
     FOR SELECT USING (
@@ -209,6 +215,12 @@ CREATE POLICY "flags_delete" ON public.flags
 
 -- Row Level Security policies for audit_logs
 ALTER TABLE public.audit_logs ENABLE ROW LEVEL SECURITY;
+
+-- Drop existing policies if they exist
+DROP POLICY IF EXISTS "audit_logs_select" ON public.audit_logs;
+DROP POLICY IF EXISTS "audit_logs_insert" ON public.audit_logs;
+DROP POLICY IF EXISTS "audit_logs_no_update" ON public.audit_logs;
+DROP POLICY IF EXISTS "audit_logs_no_delete" ON public.audit_logs;
 
 -- Only admins can read audit logs
 CREATE POLICY "audit_logs_select" ON public.audit_logs
