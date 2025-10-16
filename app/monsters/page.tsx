@@ -1,13 +1,10 @@
-'use client';
+"use client";
 
-import { useState, useEffect } from 'react';
-import { MantineProvider } from '@mantine/core';
-import { Notifications } from '@mantine/notifications';
-import { Layout } from '@/src/components/layout/Layout';
-import { MonsterList } from '@/src/components/monsters/MonsterList';
-import { MonsterFilters } from '@/src/components/monsters/MonsterFilters';
-import '@mantine/core/styles.css';
-import '@mantine/notifications/styles.css';
+import { useState, useEffect } from "react";
+import { MonsterList } from "@/src/components/monsters/MonsterList";
+import { MonsterFilters } from "@/src/components/monsters/MonsterFilters";
+import "@mantine/core/styles.css";
+import "@mantine/notifications/styles.css";
 
 interface Monster {
   id: string;
@@ -18,7 +15,7 @@ interface Monster {
   speed: string;
   attacks: Array<{
     name: string;
-    type: 'melee' | 'ranged';
+    type: "melee" | "ranged";
     damage: string;
     range: string;
     description?: string;
@@ -33,7 +30,7 @@ interface Monster {
   };
   source: string;
   author_notes?: string;
-  monster_type?: 'official' | 'user';
+  monster_type?: "official" | "user";
   creator_id?: string;
 }
 
@@ -46,11 +43,11 @@ interface FilterValues {
 }
 
 const DEFAULT_FILTERS: FilterValues = {
-  search: '',
+  search: "",
   challengeLevelRange: [1, 20],
   types: [],
   locations: [],
-  sources: []
+  sources: [],
 };
 
 export default function MonstersPage() {
@@ -62,7 +59,7 @@ export default function MonstersPage() {
     page: 1,
     limit: 20,
     total: 0,
-    totalPages: 0
+    totalPages: 0,
   });
 
   // Available filter options
@@ -90,21 +87,21 @@ export default function MonstersPage() {
 
       // API expects 'q' for search query
       if (filters.search) {
-        params.append('q', filters.search);
+        params.append("q", filters.search);
       }
 
       // API expects 'min_cl' and 'max_cl' for challenge level
       if (filters.challengeLevelRange[0] > 1) {
-        params.append('min_cl', filters.challengeLevelRange[0].toString());
+        params.append("min_cl", filters.challengeLevelRange[0].toString());
       }
 
       if (filters.challengeLevelRange[1] < 20) {
-        params.append('max_cl', filters.challengeLevelRange[1].toString());
+        params.append("max_cl", filters.challengeLevelRange[1].toString());
       }
 
       // API expects 'tags' for both types and locations
       if (filters.types.length > 0) {
-        params.append('tags', filters.types.join(','));
+        params.append("tags", filters.types.join(","));
       }
 
       // Note: The current API doesn't support separate location filtering yet
@@ -113,7 +110,7 @@ export default function MonstersPage() {
       const response = await fetch(`/api/monsters?${params.toString()}`);
 
       if (!response.ok) {
-        throw new Error('Failed to fetch monsters');
+        throw new Error("Failed to fetch monsters");
       }
 
       const data = await response.json();
@@ -123,10 +120,10 @@ export default function MonstersPage() {
       // Calculate total pages from the API response
       const totalPages = Math.ceil((data.total || 0) / pagination.limit);
 
-      setPagination(prev => ({
+      setPagination((prev) => ({
         ...prev,
         total: data.total || 0,
-        totalPages: totalPages
+        totalPages: totalPages,
       }));
 
       // Extract unique filter options from results
@@ -137,10 +134,10 @@ export default function MonstersPage() {
 
         data.monsters.forEach((monster: Monster) => {
           if (monster.tags?.type) {
-            monster.tags.type.forEach(t => types.add(t));
+            monster.tags.type.forEach((t) => types.add(t));
           }
           if (monster.tags?.location) {
-            monster.tags.location.forEach(l => locations.add(l));
+            monster.tags.location.forEach((l) => locations.add(l));
           }
           if (monster.source) {
             sources.add(monster.source);
@@ -152,8 +149,8 @@ export default function MonstersPage() {
         setAvailableSources(Array.from(sources).sort());
       }
     } catch (err) {
-      console.error('Error fetching monsters:', err);
-      setError(err instanceof Error ? err.message : 'An error occurred');
+      console.error("Error fetching monsters:", err);
+      setError(err instanceof Error ? err.message : "An error occurred");
     } finally {
       setLoading(false);
     }
@@ -161,48 +158,45 @@ export default function MonstersPage() {
 
   const handleFiltersChange = (newFilters: FilterValues) => {
     setFilters(newFilters);
-    setPagination(prev => ({ ...prev, page: 1 })); // Reset to page 1 when filters change
+    setPagination((prev) => ({ ...prev, page: 1 })); // Reset to page 1 when filters change
   };
 
   const handlePageChange = (page: number) => {
-    setPagination(prev => ({ ...prev, page }));
+    setPagination((prev) => ({ ...prev, page }));
   };
 
   const handlePageSizeChange = (pageSize: number) => {
-    setPagination(prev => ({ ...prev, limit: pageSize, page: 1 }));
+    setPagination((prev) => ({ ...prev, limit: pageSize, page: 1 }));
   };
 
   return (
-    <MantineProvider>
-      <Notifications />
-      <Layout>
-        <div style={{ padding: '20px' }}>
-          <h1 style={{ fontSize: '2rem', fontWeight: 'bold', marginBottom: '1.5rem' }}>
-            Monsters
-          </h1>
+    <div style={{ padding: "20px" }}>
+      <h1
+        style={{ fontSize: "2rem", fontWeight: "bold", marginBottom: "1.5rem" }}
+      >
+        Monsters
+      </h1>
 
-          <div style={{ marginBottom: '20px' }}>
-            <MonsterFilters
-              filters={filters}
-              onFiltersChange={handleFiltersChange}
-              availableTypes={availableTypes}
-              availableLocations={availableLocations}
-              availableSources={availableSources}
-              loading={loading}
-            />
-          </div>
+      <div style={{ marginBottom: "20px" }}>
+        <MonsterFilters
+          filters={filters}
+          onFiltersChange={handleFiltersChange}
+          availableTypes={availableTypes}
+          availableLocations={availableLocations}
+          availableSources={availableSources}
+          loading={loading}
+        />
+      </div>
 
-          <MonsterList
-            monsters={monsters}
-            pagination={pagination}
-            loading={loading}
-            error={error || undefined}
-            onPageChange={handlePageChange}
-            onPageSizeChange={handlePageSizeChange}
-            onRetry={fetchMonsters}
-          />
-        </div>
-      </Layout>
-    </MantineProvider>
+      <MonsterList
+        monsters={monsters}
+        pagination={pagination}
+        loading={loading}
+        error={error || undefined}
+        onPageChange={handlePageChange}
+        onPageSizeChange={handlePageSizeChange}
+        onRetry={fetchMonsters}
+      />
+    </div>
   );
 }
