@@ -61,7 +61,7 @@ paths:
             default: 0
           description: Pagination offset
       responses:
-        '200':
+        "200":
           description: List of monsters
           content:
             application/json:
@@ -71,7 +71,7 @@ paths:
                   monsters:
                     type: array
                     items:
-                      $ref: '#/components/schemas/Monster'
+                      $ref: "#/components/schemas/Monster"
                   total:
                     type: integer
                   has_more:
@@ -86,17 +86,17 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/CreateMonsterRequest'
+              $ref: "#/components/schemas/CreateMonsterRequest"
       responses:
-        '201':
+        "201":
           description: Monster created
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/Monster'
-        '400':
+                $ref: "#/components/schemas/Monster"
+        "400":
           description: Validation error
-        '401':
+        "401":
           description: Unauthorized
 
   /api/monsters/{id}:
@@ -110,13 +110,13 @@ paths:
             type: string
             format: uuid
       responses:
-        '200':
+        "200":
           description: Monster details
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/Monster'
-        '404':
+                $ref: "#/components/schemas/Monster"
+        "404":
           description: Monster not found
 
     put:
@@ -135,17 +135,17 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/UpdateMonsterRequest'
+              $ref: "#/components/schemas/UpdateMonsterRequest"
       responses:
-        '200':
+        "200":
           description: Monster updated
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/Monster'
-        '403':
+                $ref: "#/components/schemas/Monster"
+        "403":
           description: Not monster owner
-        '404':
+        "404":
           description: Monster not found
 
     delete:
@@ -160,11 +160,11 @@ paths:
             type: string
             format: uuid
       responses:
-        '204':
+        "204":
           description: Monster deleted
-        '403':
+        "403":
           description: Not monster owner
-        '404':
+        "404":
           description: Monster not found
 
   /api/monsters/{id}/copy:
@@ -180,12 +180,12 @@ paths:
             type: string
             format: uuid
       responses:
-        '201':
+        "201":
           description: Monster copied
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/Monster'
+                $ref: "#/components/schemas/Monster"
 
   /api/monsters/random:
     get:
@@ -197,12 +197,12 @@ paths:
             type: string
           description: JSON encoded filter object
       responses:
-        '200':
+        "200":
           description: Random monster
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/Monster'
+                $ref: "#/components/schemas/Monster"
 
 components:
   schemas:
@@ -230,15 +230,15 @@ components:
         attacks:
           type: array
           items:
-            $ref: '#/components/schemas/Attack'
+            $ref: "#/components/schemas/Attack"
         abilities:
           type: array
           items:
-            $ref: '#/components/schemas/Ability'
+            $ref: "#/components/schemas/Ability"
         treasure:
-          $ref: '#/components/schemas/Treasure'
+          $ref: "#/components/schemas/Treasure"
         tags:
-          $ref: '#/components/schemas/Tags'
+          $ref: "#/components/schemas/Tags"
         source:
           type: string
         author_notes:
@@ -293,15 +293,15 @@ components:
         attacks:
           type: array
           items:
-            $ref: '#/components/schemas/Attack'
+            $ref: "#/components/schemas/Attack"
         abilities:
           type: array
           items:
-            $ref: '#/components/schemas/Ability'
+            $ref: "#/components/schemas/Ability"
         treasure:
-          $ref: '#/components/schemas/Treasure'
+          $ref: "#/components/schemas/Treasure"
         tags:
-          $ref: '#/components/schemas/Tags'
+          $ref: "#/components/schemas/Tags"
         source:
           type: string
         author_notes:
@@ -318,7 +318,7 @@ components:
 
     UpdateMonsterRequest:
       allOf:
-        - $ref: '#/components/schemas/CreateMonsterRequest'
+        - $ref: "#/components/schemas/CreateMonsterRequest"
 
     Attack:
       type: object

@@ -17,8 +17,8 @@ beforeAll(() => {
   // JWT secret for testing
   process.env.JWT_SECRET = "test-jwt-secret";
 
-  // Node environment
-  process.env.NODE_ENV = "test";
+  // Node environment is already set by vitest
+  // process.env.NODE_ENV = "test";
 });
 
 // Global error handler for unhandled promises

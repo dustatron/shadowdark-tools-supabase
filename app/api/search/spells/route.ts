@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
-import { createSupabaseServerClient } from "@/src/lib/supabase/server";
+import { createClient } from "@/src/lib/supabase/server";
 import { z } from "zod";
 
 // Schema for search parameters
@@ -18,7 +18,7 @@ const SearchParamsSchema = z.object({
 // GET /api/search/spells - Advanced search for spells
 export async function GET(request: NextRequest) {
   try {
-    const supabase = createSupabaseServerClient();
+    const supabase = await createClient();
     const { searchParams } = new URL(request.url);
 
     // Parse and validate query parameters

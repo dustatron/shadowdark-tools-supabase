@@ -1,12 +1,12 @@
-'use client';
+"use client";
 
-import { SimpleGrid, Stack } from '@mantine/core';
-import { MonsterCard } from './MonsterCard';
-import { EmptyState } from '../ui/EmptyState';
-import { LoadingSpinner } from '../ui/LoadingSpinner';
-import { ErrorAlert } from '../ui/ErrorAlert';
-import { Pagination } from '../ui/Pagination';
-import { IconSearch } from '@tabler/icons-react';
+import { SimpleGrid, Stack } from "@mantine/core";
+import { MonsterCard } from "./MonsterCard";
+import { EmptyState } from "../ui/EmptyState";
+import { LoadingSpinner } from "../ui/LoadingSpinner";
+import { ErrorAlert } from "../ui/ErrorAlert";
+import { Pagination } from "../ui/Pagination";
+import { IconSearch } from "@tabler/icons-react";
 
 interface Monster {
   id: string;
@@ -17,7 +17,7 @@ interface Monster {
   speed: string;
   attacks: Array<{
     name: string;
-    type: 'melee' | 'ranged';
+    type: "melee" | "ranged";
     damage: string;
     range: string;
     description?: string;
@@ -32,7 +32,7 @@ interface Monster {
   };
   source: string;
   author_notes?: string;
-  monster_type?: 'official' | 'user';
+  monster_type?: "official" | "user";
   creator_id?: string;
 }
 
@@ -77,8 +77,8 @@ export function MonsterList({
   onRetry,
   onCreateMonster,
   compact = false,
-  emptyStateTitle = 'No monsters found',
-  emptyStateDescription = 'Try adjusting your search filters or create a new monster.'
+  emptyStateTitle = "No monsters found",
+  emptyStateDescription = "Try adjusting your search filters or create a new monster.",
 }: MonsterListProps) {
   if (loading) {
     return <LoadingSpinner message="Loading monsters..." />;
@@ -100,20 +100,21 @@ export function MonsterList({
         icon={<IconSearch size={48} />}
         title={emptyStateTitle}
         description={emptyStateDescription}
-        action={onCreateMonster ? {
-          label: 'Create Monster',
-          onClick: onCreateMonster
-        } : undefined}
+        action={
+          onCreateMonster
+            ? {
+                label: "Create Monster",
+                onClick: onCreateMonster,
+              }
+            : undefined
+        }
       />
     );
   }
 
   return (
     <Stack gap="lg">
-      <SimpleGrid
-        cols={{ base: 1, sm: 2, lg: compact ? 4 : 3 }}
-        spacing="md"
-      >
+      <SimpleGrid cols={{ base: 1, sm: 2, lg: compact ? 4 : 3 }} spacing="md">
         {monsters.map((monster) => (
           <MonsterCard
             key={monster.id}

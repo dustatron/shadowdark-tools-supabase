@@ -1,4 +1,4 @@
-import { describe, it, expect, beforeAll, afterAll } from 'vitest';
+import { describe, it, expect, beforeAll, afterAll } from "vitest";
 
 /**
  * Contract Test: POST /api/monsters
@@ -13,41 +13,41 @@ import { describe, it, expect, beforeAll, afterAll } from 'vitest';
  * - Returns: Monster schema (201), ValidationError (400), Unauthorized (401)
  */
 
-const API_BASE = process.env.NEXT_PUBLIC_API_BASE || 'http://localhost:3000';
+const API_BASE = process.env.NEXT_PUBLIC_API_BASE || "http://localhost:3000";
 
 // Mock auth token for testing (in real tests, this would be from test setup)
-const MOCK_AUTH_TOKEN = 'mock-jwt-token';
-const INVALID_AUTH_TOKEN = 'invalid-token';
+const MOCK_AUTH_TOKEN = "mock-jwt-token";
+const INVALID_AUTH_TOKEN = "invalid-token";
 
-describe('POST /api/monsters - Contract Tests', () => {
+describe("POST /api/monsters - Contract Tests", () => {
   const validMonsterData = {
-    name: 'Test Orc Warrior',
+    name: "Test Orc Warrior",
     challenge_level: 2,
     hit_points: 15,
     armor_class: 13,
-    speed: '30 ft',
-    source: 'Custom Test',
+    speed: "30 ft",
+    source: "Custom Test",
     attacks: [
       {
-        name: 'Scimitar',
-        type: 'melee',
-        damage: '1d6+3',
-        range: '5 ft',
-        description: 'Slashing damage'
-      }
+        name: "Scimitar",
+        type: "melee",
+        damage: "1d6+3",
+        range: "5 ft",
+        description: "Slashing damage",
+      },
     ],
     abilities: [
       {
-        name: 'Aggressive',
-        description: 'Can move up to speed toward an enemy as bonus action'
-      }
+        name: "Aggressive",
+        description: "Can move up to speed toward an enemy as bonus action",
+      },
     ],
     tags: {
-      type: ['humanoid'],
-      location: ['mountain', 'wasteland']
+      type: ["humanoid"],
+      location: ["mountain", "wasteland"],
     },
-    author_notes: 'A test monster for validation',
-    is_public: false
+    author_notes: "A test monster for validation",
+    is_public: false,
   };
 
   beforeAll(async () => {
@@ -59,12 +59,12 @@ describe('POST /api/monsters - Contract Tests', () => {
     // Cleanup test data if needed
   });
 
-  describe('Authentication Requirements', () => {
-    it('should return 401 when no authentication token is provided', async () => {
+  describe("Authentication Requirements", () => {
+    it("should return 401 when no authentication token is provided", async () => {
       const response = await fetch(`${API_BASE}/api/monsters`, {
-        method: 'POST',
+        method: "POST",
         headers: {
-          'Content-Type': 'application/json',
+          "Content-Type": "application/json",
         },
         body: JSON.stringify(validMonsterData),
       });
@@ -72,16 +72,16 @@ describe('POST /api/monsters - Contract Tests', () => {
       expect(response.status).toBe(401);
 
       const data = await response.json();
-      expect(data).toHaveProperty('error');
-      expect(data.error).toContain('unauthorized');
+      expect(data).toHaveProperty("error");
+      expect(data.error).toContain("unauthorized");
     });
 
-    it('should return 401 when invalid authentication token is provided', async () => {
+    it("should return 401 when invalid authentication token is provided", async () => {
       const response = await fetch(`${API_BASE}/api/monsters`, {
-        method: 'POST',
+        method: "POST",
         headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${INVALID_AUTH_TOKEN}`,
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${INVALID_AUTH_TOKEN}`,
         },
         body: JSON.stringify(validMonsterData),
       });
@@ -89,46 +89,54 @@ describe('POST /api/monsters - Contract Tests', () => {
       expect(response.status).toBe(401);
 
       const data = await response.json();
-      expect(data).toHaveProperty('error');
+      expect(data).toHaveProperty("error");
     });
   });
 
-  describe('Successful Monster Creation', () => {
-    it('should create a custom monster with valid data and authentication', async () => {
+  describe("Successful Monster Creation", () => {
+    it("should create a custom monster with valid data and authentication", async () => {
       const response = await fetch(`${API_BASE}/api/monsters`, {
-        method: 'POST',
+        method: "POST",
         headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${MOCK_AUTH_TOKEN}`,
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${MOCK_AUTH_TOKEN}`,
         },
         body: JSON.stringify(validMonsterData),
       });
 
       expect(response.status).toBe(201);
-      expect(response.headers.get('content-type')).toContain('application/json');
+      expect(response.headers.get("content-type")).toContain(
+        "application/json",
+      );
 
       const data = await response.json();
 
       // Validate returned Monster schema
-      expect(data).toHaveProperty('id');
-      expect(data).toHaveProperty('name', validMonsterData.name);
-      expect(data).toHaveProperty('challenge_level', validMonsterData.challenge_level);
-      expect(data).toHaveProperty('hit_points', validMonsterData.hit_points);
-      expect(data).toHaveProperty('armor_class', validMonsterData.armor_class);
-      expect(data).toHaveProperty('speed', validMonsterData.speed);
-      expect(data).toHaveProperty('attacks');
-      expect(data).toHaveProperty('abilities');
-      expect(data).toHaveProperty('tags');
-      expect(data).toHaveProperty('source', validMonsterData.source);
-      expect(data).toHaveProperty('author_notes', validMonsterData.author_notes);
-      expect(data).toHaveProperty('is_public', validMonsterData.is_public);
-      expect(data).toHaveProperty('is_official', false);
-      expect(data).toHaveProperty('user_id');
-      expect(data).toHaveProperty('created_at');
-      expect(data).toHaveProperty('updated_at');
+      expect(data).toHaveProperty("id");
+      expect(data).toHaveProperty("name", validMonsterData.name);
+      expect(data).toHaveProperty(
+        "challenge_level",
+        validMonsterData.challenge_level,
+      );
+      expect(data).toHaveProperty("hit_points", validMonsterData.hit_points);
+      expect(data).toHaveProperty("armor_class", validMonsterData.armor_class);
+      expect(data).toHaveProperty("speed", validMonsterData.speed);
+      expect(data).toHaveProperty("attacks");
+      expect(data).toHaveProperty("abilities");
+      expect(data).toHaveProperty("tags");
+      expect(data).toHaveProperty("source", validMonsterData.source);
+      expect(data).toHaveProperty(
+        "author_notes",
+        validMonsterData.author_notes,
+      );
+      expect(data).toHaveProperty("is_public", validMonsterData.is_public);
+      expect(data).toHaveProperty("is_official", false);
+      expect(data).toHaveProperty("user_id");
+      expect(data).toHaveProperty("created_at");
+      expect(data).toHaveProperty("updated_at");
 
       // Validate field types and constraints
-      expect(typeof data.id).toBe('string');
+      expect(typeof data.id).toBe("string");
       expect(data.challenge_level).toBeGreaterThanOrEqual(1);
       expect(data.challenge_level).toBeLessThanOrEqual(20);
       expect(data.hit_points).toBeGreaterThanOrEqual(1);
@@ -146,35 +154,35 @@ describe('POST /api/monsters - Contract Tests', () => {
 
       // Validate attack structure
       const attack = data.attacks[0];
-      expect(attack).toHaveProperty('name');
-      expect(attack).toHaveProperty('type');
-      expect(attack).toHaveProperty('damage');
-      expect(attack).toHaveProperty('range');
+      expect(attack).toHaveProperty("name");
+      expect(attack).toHaveProperty("type");
+      expect(attack).toHaveProperty("damage");
+      expect(attack).toHaveProperty("range");
 
       // Validate ability structure
       const ability = data.abilities[0];
-      expect(ability).toHaveProperty('name');
-      expect(ability).toHaveProperty('description');
+      expect(ability).toHaveProperty("name");
+      expect(ability).toHaveProperty("description");
 
       // Validate tags structure
-      expect(data.tags).toHaveProperty('type');
-      expect(data.tags).toHaveProperty('location');
+      expect(data.tags).toHaveProperty("type");
+      expect(data.tags).toHaveProperty("location");
       expect(Array.isArray(data.tags.type)).toBe(true);
       expect(Array.isArray(data.tags.location)).toBe(true);
     });
 
-    it('should create a public monster when is_public is true', async () => {
+    it("should create a public monster when is_public is true", async () => {
       const publicMonsterData = {
         ...validMonsterData,
-        name: 'Test Public Goblin',
-        is_public: true
+        name: "Test Public Goblin",
+        is_public: true,
       };
 
       const response = await fetch(`${API_BASE}/api/monsters`, {
-        method: 'POST',
+        method: "POST",
         headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${MOCK_AUTH_TOKEN}`,
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${MOCK_AUTH_TOKEN}`,
         },
         body: JSON.stringify(publicMonsterData),
       });
@@ -183,17 +191,17 @@ describe('POST /api/monsters - Contract Tests', () => {
 
       const data = await response.json();
       expect(data.is_public).toBe(true);
-      expect(data.name).toBe('Test Public Goblin');
+      expect(data.name).toBe("Test Public Goblin");
     });
 
-    it('should default is_public to false when not specified', async () => {
+    it("should default is_public to false when not specified", async () => {
       const { is_public, ...monsterWithoutPublicFlag } = validMonsterData;
 
       const response = await fetch(`${API_BASE}/api/monsters`, {
-        method: 'POST',
+        method: "POST",
         headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${MOCK_AUTH_TOKEN}`,
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${MOCK_AUTH_TOKEN}`,
         },
         body: JSON.stringify(monsterWithoutPublicFlag),
       });
@@ -205,19 +213,19 @@ describe('POST /api/monsters - Contract Tests', () => {
     });
   });
 
-  describe('Validation Requirements', () => {
-    it('should return 400 when required fields are missing', async () => {
+  describe("Validation Requirements", () => {
+    it("should return 400 when required fields are missing", async () => {
       const invalidData = {
         // Missing required fields: name, challenge_level, hit_points, armor_class, speed, source
         attacks: [],
-        abilities: []
+        abilities: [],
       };
 
       const response = await fetch(`${API_BASE}/api/monsters`, {
-        method: 'POST',
+        method: "POST",
         headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${MOCK_AUTH_TOKEN}`,
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${MOCK_AUTH_TOKEN}`,
         },
         body: JSON.stringify(invalidData),
       });
@@ -225,21 +233,21 @@ describe('POST /api/monsters - Contract Tests', () => {
       expect(response.status).toBe(400);
 
       const data = await response.json();
-      expect(data).toHaveProperty('error');
-      expect(data.error).toContain('validation');
+      expect(data).toHaveProperty("error");
+      expect(data.error).toContain("validation");
     });
 
-    it('should return 400 when name is too long', async () => {
+    it("should return 400 when name is too long", async () => {
       const invalidData = {
         ...validMonsterData,
-        name: 'A'.repeat(101) // Exceeds 100 character limit
+        name: "A".repeat(101), // Exceeds 100 character limit
       };
 
       const response = await fetch(`${API_BASE}/api/monsters`, {
-        method: 'POST',
+        method: "POST",
         headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${MOCK_AUTH_TOKEN}`,
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${MOCK_AUTH_TOKEN}`,
         },
         body: JSON.stringify(invalidData),
       });
@@ -247,20 +255,20 @@ describe('POST /api/monsters - Contract Tests', () => {
       expect(response.status).toBe(400);
 
       const data = await response.json();
-      expect(data).toHaveProperty('error');
+      expect(data).toHaveProperty("error");
     });
 
-    it('should return 400 when challenge_level is out of range', async () => {
+    it("should return 400 when challenge_level is out of range", async () => {
       const invalidData = {
         ...validMonsterData,
-        challenge_level: 25 // Exceeds maximum of 20
+        challenge_level: 25, // Exceeds maximum of 20
       };
 
       const response = await fetch(`${API_BASE}/api/monsters`, {
-        method: 'POST',
+        method: "POST",
         headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${MOCK_AUTH_TOKEN}`,
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${MOCK_AUTH_TOKEN}`,
         },
         body: JSON.stringify(invalidData),
       });
@@ -269,14 +277,14 @@ describe('POST /api/monsters - Contract Tests', () => {
 
       const invalidDataLow = {
         ...validMonsterData,
-        challenge_level: 0 // Below minimum of 1
+        challenge_level: 0, // Below minimum of 1
       };
 
       const response2 = await fetch(`${API_BASE}/api/monsters`, {
-        method: 'POST',
+        method: "POST",
         headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${MOCK_AUTH_TOKEN}`,
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${MOCK_AUTH_TOKEN}`,
         },
         body: JSON.stringify(invalidDataLow),
       });
@@ -284,17 +292,17 @@ describe('POST /api/monsters - Contract Tests', () => {
       expect(response2.status).toBe(400);
     });
 
-    it('should return 400 when hit_points is invalid', async () => {
+    it("should return 400 when hit_points is invalid", async () => {
       const invalidData = {
         ...validMonsterData,
-        hit_points: 0 // Below minimum of 1
+        hit_points: 0, // Below minimum of 1
       };
 
       const response = await fetch(`${API_BASE}/api/monsters`, {
-        method: 'POST',
+        method: "POST",
         headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${MOCK_AUTH_TOKEN}`,
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${MOCK_AUTH_TOKEN}`,
         },
         body: JSON.stringify(invalidData),
       });
@@ -302,17 +310,17 @@ describe('POST /api/monsters - Contract Tests', () => {
       expect(response.status).toBe(400);
     });
 
-    it('should return 400 when armor_class is out of range', async () => {
+    it("should return 400 when armor_class is out of range", async () => {
       const invalidDataHigh = {
         ...validMonsterData,
-        armor_class: 22 // Exceeds maximum of 21
+        armor_class: 22, // Exceeds maximum of 21
       };
 
       const response = await fetch(`${API_BASE}/api/monsters`, {
-        method: 'POST',
+        method: "POST",
         headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${MOCK_AUTH_TOKEN}`,
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${MOCK_AUTH_TOKEN}`,
         },
         body: JSON.stringify(invalidDataHigh),
       });
@@ -321,14 +329,14 @@ describe('POST /api/monsters - Contract Tests', () => {
 
       const invalidDataLow = {
         ...validMonsterData,
-        armor_class: 0 // Below minimum of 1
+        armor_class: 0, // Below minimum of 1
       };
 
       const response2 = await fetch(`${API_BASE}/api/monsters`, {
-        method: 'POST',
+        method: "POST",
         headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${MOCK_AUTH_TOKEN}`,
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${MOCK_AUTH_TOKEN}`,
         },
         body: JSON.stringify(invalidDataLow),
       });
@@ -336,22 +344,22 @@ describe('POST /api/monsters - Contract Tests', () => {
       expect(response2.status).toBe(400);
     });
 
-    it('should return 400 when attack structure is invalid', async () => {
+    it("should return 400 when attack structure is invalid", async () => {
       const invalidData = {
         ...validMonsterData,
         attacks: [
           {
             // Missing required fields: name, type, damage
-            range: '5 ft'
-          }
-        ]
+            range: "5 ft",
+          },
+        ],
       };
 
       const response = await fetch(`${API_BASE}/api/monsters`, {
-        method: 'POST',
+        method: "POST",
         headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${MOCK_AUTH_TOKEN}`,
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${MOCK_AUTH_TOKEN}`,
         },
         body: JSON.stringify(invalidData),
       });
@@ -359,22 +367,22 @@ describe('POST /api/monsters - Contract Tests', () => {
       expect(response.status).toBe(400);
     });
 
-    it('should return 400 when ability structure is invalid', async () => {
+    it("should return 400 when ability structure is invalid", async () => {
       const invalidData = {
         ...validMonsterData,
         abilities: [
           {
             // Missing required field: description
-            name: 'Test Ability'
-          }
-        ]
+            name: "Test Ability",
+          },
+        ],
       };
 
       const response = await fetch(`${API_BASE}/api/monsters`, {
-        method: 'POST',
+        method: "POST",
         headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${MOCK_AUTH_TOKEN}`,
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${MOCK_AUTH_TOKEN}`,
         },
         body: JSON.stringify(invalidData),
       });
@@ -383,19 +391,19 @@ describe('POST /api/monsters - Contract Tests', () => {
     });
   });
 
-  describe('Content Security', () => {
-    it('should sanitize input to prevent XSS attacks', async () => {
+  describe("Content Security", () => {
+    it("should sanitize input to prevent XSS attacks", async () => {
       const maliciousData = {
         ...validMonsterData,
         name: '<script>alert("xss")</script>',
-        author_notes: '<img src="x" onerror="alert(1)">'
+        author_notes: '<img src="x" onerror="alert(1)">',
       };
 
       const response = await fetch(`${API_BASE}/api/monsters`, {
-        method: 'POST',
+        method: "POST",
         headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${MOCK_AUTH_TOKEN}`,
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${MOCK_AUTH_TOKEN}`,
         },
         body: JSON.stringify(maliciousData),
       });
@@ -403,25 +411,25 @@ describe('POST /api/monsters - Contract Tests', () => {
       if (response.status === 201) {
         const data = await response.json();
         // Script tags should be sanitized or escaped
-        expect(data.name).not.toContain('<script>');
-        expect(data.author_notes).not.toContain('<img');
+        expect(data.name).not.toContain("<script>");
+        expect(data.author_notes).not.toContain("<img");
       } else {
         // Or the request should be rejected
         expect(response.status).toBe(400);
       }
     });
 
-    it('should enforce reasonable limits on text fields', async () => {
+    it("should enforce reasonable limits on text fields", async () => {
       const oversizedData = {
         ...validMonsterData,
-        author_notes: 'A'.repeat(10000) // Very long description
+        author_notes: "A".repeat(10000), // Very long description
       };
 
       const response = await fetch(`${API_BASE}/api/monsters`, {
-        method: 'POST',
+        method: "POST",
         headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${MOCK_AUTH_TOKEN}`,
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${MOCK_AUTH_TOKEN}`,
         },
         body: JSON.stringify(oversizedData),
       });
@@ -431,18 +439,18 @@ describe('POST /api/monsters - Contract Tests', () => {
     });
   });
 
-  describe('Edge Cases', () => {
-    it('should handle empty attacks array', async () => {
+  describe("Edge Cases", () => {
+    it("should handle empty attacks array", async () => {
       const dataWithEmptyAttacks = {
         ...validMonsterData,
-        attacks: []
+        attacks: [],
       };
 
       const response = await fetch(`${API_BASE}/api/monsters`, {
-        method: 'POST',
+        method: "POST",
         headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${MOCK_AUTH_TOKEN}`,
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${MOCK_AUTH_TOKEN}`,
         },
         body: JSON.stringify(dataWithEmptyAttacks),
       });
@@ -454,17 +462,17 @@ describe('POST /api/monsters - Contract Tests', () => {
       expect(data.attacks.length).toBe(0);
     });
 
-    it('should handle empty abilities array', async () => {
+    it("should handle empty abilities array", async () => {
       const dataWithEmptyAbilities = {
         ...validMonsterData,
-        abilities: []
+        abilities: [],
       };
 
       const response = await fetch(`${API_BASE}/api/monsters`, {
-        method: 'POST',
+        method: "POST",
         headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${MOCK_AUTH_TOKEN}`,
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${MOCK_AUTH_TOKEN}`,
         },
         body: JSON.stringify(dataWithEmptyAbilities),
       });
@@ -476,17 +484,17 @@ describe('POST /api/monsters - Contract Tests', () => {
       expect(data.abilities.length).toBe(0);
     });
 
-    it('should handle null treasure data', async () => {
+    it("should handle null treasure data", async () => {
       const dataWithNullTreasure = {
         ...validMonsterData,
-        treasure: null
+        treasure: null,
       };
 
       const response = await fetch(`${API_BASE}/api/monsters`, {
-        method: 'POST',
+        method: "POST",
         headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${MOCK_AUTH_TOKEN}`,
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${MOCK_AUTH_TOKEN}`,
         },
         body: JSON.stringify(dataWithNullTreasure),
       });
@@ -498,15 +506,15 @@ describe('POST /api/monsters - Contract Tests', () => {
     });
   });
 
-  describe('Performance Requirements', () => {
-    it('should create monster within reasonable time', async () => {
+  describe("Performance Requirements", () => {
+    it("should create monster within reasonable time", async () => {
       const startTime = Date.now();
 
       const response = await fetch(`${API_BASE}/api/monsters`, {
-        method: 'POST',
+        method: "POST",
         headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${MOCK_AUTH_TOKEN}`,
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${MOCK_AUTH_TOKEN}`,
         },
         body: JSON.stringify(validMonsterData),
       });

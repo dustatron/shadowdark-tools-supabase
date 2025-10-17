@@ -1,4 +1,4 @@
-'use client';
+"use client";
 
 import {
   Card,
@@ -13,7 +13,7 @@ import {
   Button,
   Divider,
   Box,
-} from '@mantine/core';
+} from "@mantine/core";
 import {
   IconDots,
   IconEdit,
@@ -26,9 +26,9 @@ import {
   IconSword,
   IconShield,
   IconRun,
-} from '@tabler/icons-react';
-import { useState } from 'react';
-import Link from 'next/link';
+} from "@tabler/icons-react";
+import { useState } from "react";
+import Link from "next/link";
 
 interface Monster {
   id: string;
@@ -39,7 +39,7 @@ interface Monster {
   speed: string;
   attacks: Array<{
     name: string;
-    type: 'melee' | 'ranged';
+    type: "melee" | "ranged";
     damage: string;
     range: string;
     description?: string;
@@ -54,7 +54,7 @@ interface Monster {
   };
   source: string;
   author_notes?: string;
-  monster_type?: 'official' | 'user';
+  monster_type?: "official" | "user";
   creator_id?: string;
 }
 
@@ -77,16 +77,22 @@ export function MonsterCard({
   onToggleFavorite,
   isFavorited = false,
   showActions = true,
-  compact = false
+  compact = false,
 }: MonsterCardProps) {
   const [expanded, setExpanded] = useState(false);
 
-  const canEdit = monster.monster_type === 'user' && monster.creator_id === currentUserId;
+  const canEdit =
+    monster.monster_type === "user" && monster.creator_id === currentUserId;
   const canDelete = canEdit;
 
-  const challengeLevelColor = monster.challenge_level <= 3 ? 'green' :
-                             monster.challenge_level <= 7 ? 'yellow' :
-                             monster.challenge_level <= 12 ? 'orange' : 'red';
+  const challengeLevelColor =
+    monster.challenge_level <= 3
+      ? "green"
+      : monster.challenge_level <= 7
+        ? "yellow"
+        : monster.challenge_level <= 12
+          ? "orange"
+          : "red";
 
   return (
     <Card shadow="sm" padding="md" radius="md" withBorder>
@@ -106,7 +112,7 @@ export function MonsterCard({
                   <Badge variant="outline" size="sm">
                     {monster.source}
                   </Badge>
-                  {monster.monster_type === 'user' && (
+                  {monster.monster_type === "user" && (
                     <Badge variant="light" color="blue" size="sm">
                       Custom
                     </Badge>
@@ -119,10 +125,14 @@ export function MonsterCard({
                   {onToggleFavorite && (
                     <ActionIcon
                       variant="subtle"
-                      color={isFavorited ? 'red' : 'gray'}
+                      color={isFavorited ? "red" : "gray"}
                       onClick={() => onToggleFavorite(monster)}
                     >
-                      {isFavorited ? <IconHeartFilled size={16} /> : <IconHeart size={16} />}
+                      {isFavorited ? (
+                        <IconHeartFilled size={16} />
+                      ) : (
+                        <IconHeart size={16} />
+                      )}
                     </ActionIcon>
                   )}
 
@@ -209,99 +219,111 @@ export function MonsterCard({
             </Badge>
           ))}
           {monster.tags.location.map((location, index) => (
-            <Badge key={`location-${index}`} variant="outline" size="xs" color="gray">
+            <Badge
+              key={`location-${index}`}
+              variant="outline"
+              size="xs"
+              color="gray"
+            >
               {location}
             </Badge>
           ))}
         </Group>
 
         {/* Expandable Details */}
-        {!compact && (monster.attacks.length > 0 || monster.abilities.length > 0) && (
-          <>
-            <Button
-              variant="subtle"
-              size="xs"
-              rightSection={expanded ? <IconChevronUp size={14} /> : <IconChevronDown size={14} />}
-              onClick={() => setExpanded(!expanded)}
-            >
-              {expanded ? 'Hide Details' : 'Show Details'}
-            </Button>
+        {!compact &&
+          (monster.attacks.length > 0 || monster.abilities.length > 0) && (
+            <>
+              <Button
+                variant="subtle"
+                size="xs"
+                rightSection={
+                  expanded ? (
+                    <IconChevronUp size={14} />
+                  ) : (
+                    <IconChevronDown size={14} />
+                  )
+                }
+                onClick={() => setExpanded(!expanded)}
+              >
+                {expanded ? "Hide Details" : "Show Details"}
+              </Button>
 
-            <Collapse in={expanded}>
-              <Stack gap="md">
-                {/* Attacks */}
-                {monster.attacks.length > 0 && (
-                  <Box>
-                    <Group gap="xs" mb="xs">
-                      <IconSword size={16} />
-                      <Text fw={500} size="sm">
-                        Attacks
-                      </Text>
-                    </Group>
-                    <Stack gap="xs">
-                      {monster.attacks.map((attack, index) => (
-                        <Box key={index} pl="md">
-                          <Group gap="xs">
-                            <Text size="sm" fw={500}>
-                              {attack.name}
-                            </Text>
-                            <Badge size="xs" variant="outline">
-                              {attack.type}
-                            </Badge>
-                            <Text size="sm" c="dimmed">
-                              {attack.damage} ({attack.range})
-                            </Text>
-                          </Group>
-                          {attack.description && (
-                            <Text size="xs" c="dimmed" pl="sm">
-                              {attack.description}
-                            </Text>
-                          )}
-                        </Box>
-                      ))}
-                    </Stack>
-                  </Box>
-                )}
+              <Collapse in={expanded}>
+                <Stack gap="md">
+                  {/* Attacks */}
+                  {monster.attacks.length > 0 && (
+                    <Box>
+                      <Group gap="xs" mb="xs">
+                        <IconSword size={16} />
+                        <Text fw={500} size="sm">
+                          Attacks
+                        </Text>
+                      </Group>
+                      <Stack gap="xs">
+                        {monster.attacks.map((attack, index) => (
+                          <Box key={index} pl="md">
+                            <Group gap="xs">
+                              <Text size="sm" fw={500}>
+                                {attack.name}
+                              </Text>
+                              <Badge size="xs" variant="outline">
+                                {attack.type}
+                              </Badge>
+                              <Text size="sm" c="dimmed">
+                                {attack.damage} ({attack.range})
+                              </Text>
+                            </Group>
+                            {attack.description && (
+                              <Text size="xs" c="dimmed" pl="sm">
+                                {attack.description}
+                              </Text>
+                            )}
+                          </Box>
+                        ))}
+                      </Stack>
+                    </Box>
+                  )}
 
-                {/* Abilities */}
-                {monster.abilities.length > 0 && (
-                  <Box>
-                    <Text fw={500} size="sm" mb="xs">
-                      Abilities
-                    </Text>
-                    <Stack gap="xs">
-                      {monster.abilities.map((ability, index) => (
-                        <Box key={index} pl="md">
-                          <Text size="sm" fw={500}>
-                            {ability.name}
-                          </Text>
-                          <Text size="xs" c="dimmed">
-                            {ability.description}
-                          </Text>
-                        </Box>
-                      ))}
-                    </Stack>
-                  </Box>
-                )}
-
-                {/* Author Notes */}
-                {monster.author_notes && (
-                  <>
-                    <Divider />
+                  {/* Abilities */}
+                  {monster.abilities.length > 0 && (
                     <Box>
                       <Text fw={500} size="sm" mb="xs">
-                        Notes
+                        Abilities
                       </Text>
-                      <Text size="sm" c="dimmed">
-                        {monster.author_notes}
-                      </Text>
+                      <Stack gap="xs">
+                        {monster.abilities.map((ability, index) => (
+                          <Box key={index} pl="md">
+                            <Text size="sm" fw={500}>
+                              {ability.name}
+                            </Text>
+                            <Text size="xs" c="dimmed">
+                              {ability.description}
+                            </Text>
+                          </Box>
+                        ))}
+                      </Stack>
                     </Box>
-                  </>
-                )}
-              </Stack>
-            </Collapse>
-          </>
-        )}
+                  )}
+
+                  {/* Author Notes */}
+                  {monster.author_notes && (
+                    <>
+                      <Divider />
+                      <Box>
+                        <Text fw={500} size="sm" mb="xs">
+                          Notes
+                        </Text>
+                        <Text size="sm" c="dimmed">
+                          {monster.author_notes}
+                        </Text>
+                      </Box>
+                    </>
+                  )}
+                </Stack>
+              </Collapse>
+            </>
+          )}
       </Stack>
     </Card>
   );

@@ -1,7 +1,7 @@
-'use client';
+"use client";
 
-import { Paper, Group, Text, Grid } from '@mantine/core';
-import { IconHeart, IconShield, IconRun } from '@tabler/icons-react';
+import { Paper, Group, Text, Grid } from "@mantine/core";
+import { IconHeart, IconShield, IconRun } from "@tabler/icons-react";
 
 interface MonsterStatBlockProps {
   hitPoints: number;
@@ -14,7 +14,7 @@ export function MonsterStatBlock({
   hitPoints,
   armorClass,
   speed,
-  compact = false
+  compact = false,
 }: MonsterStatBlockProps) {
   if (compact) {
     return (

@@ -35,11 +35,13 @@ supabase/migrations/
    - Copy the token
 
 2. **Login to Supabase CLI**:
+
    ```bash
    supabase login --token YOUR_ACCESS_TOKEN
    ```
 
 3. **Link your project**:
+
    ```bash
    supabase link --project-ref hvtkkugamifjglxkqsrc
    ```
@@ -83,12 +85,14 @@ export SUPABASE_ACCESS_TOKEN="your_token_here"
 After deployment, verify the setup:
 
 1. Check that tables are created:
+
    ```sql
    SELECT table_name FROM information_schema.tables
    WHERE table_schema = 'public';
    ```
 
 2. Verify monster data:
+
    ```sql
    SELECT COUNT(*) FROM official_monsters;
    -- Should return 243
@@ -102,6 +106,7 @@ After deployment, verify the setup:
 ## Next Steps
 
 Once migrations are deployed:
+
 1. ✅ Database setup complete
 2. 🔄 Continue with Phase 3.2: Test implementation
 3. ⏳ Phase 3.3: API endpoint implementation

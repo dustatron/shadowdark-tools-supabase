@@ -1,11 +1,19 @@
-'use client';
+"use client";
 
-import { Paper, Title, Stack, Text, Group, Badge, Divider } from '@mantine/core';
-import { IconSword } from '@tabler/icons-react';
+import {
+  Paper,
+  Title,
+  Stack,
+  Text,
+  Group,
+  Badge,
+  Divider,
+} from "@mantine/core";
+import { IconSword } from "@tabler/icons-react";
 
 interface Attack {
   name: string;
-  type: 'melee' | 'ranged';
+  type: "melee" | "ranged";
   damage: string;
   range: string;
   description?: string;

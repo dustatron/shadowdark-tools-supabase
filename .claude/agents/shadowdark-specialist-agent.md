@@ -70,19 +70,19 @@ Score | Modifier
 
 ```typescript
 export function getAbilityModifier(score: number): number {
-  if (score <= 4) return -4
-  if (score <= 6) return -3
-  if (score <= 8) return -2
-  if (score <= 10) return -1
-  if (score <= 12) return 0
-  if (score <= 14) return 1
-  if (score <= 16) return 2
-  if (score <= 18) return 3
-  return 4 // 19-20
+  if (score <= 4) return -4;
+  if (score <= 6) return -3;
+  if (score <= 8) return -2;
+  if (score <= 10) return -1;
+  if (score <= 12) return 0;
+  if (score <= 14) return 1;
+  if (score <= 16) return 2;
+  if (score <= 18) return 3;
+  return 4; // 19-20
 }
 
 export function formatModifier(modifier: number): string {
-  return modifier >= 0 ? `+${modifier}` : `${modifier}`
+  return modifier >= 0 ? `+${modifier}` : `${modifier}`;
 }
 ```
 
@@ -101,22 +101,22 @@ export function formatModifier(modifier: number): string {
 
 ```typescript
 interface ClassFeatures {
-  hitDiceType: 'd4' | 'd6' | 'd8' | 'd10' | 'd12'
-  weaponMastery?: string[]
-  armorProficiency: string[]
-  specialAbilities: string[]
+  hitDiceType: "d4" | "d6" | "d8" | "d10" | "d12";
+  weaponMastery?: string[];
+  armorProficiency: string[];
+  specialAbilities: string[];
   spellcasting?: {
-    spellsKnown: number[]
-    spellSlots: number[][]
-  }
+    spellsKnown: number[];
+    spellSlots: number[][];
+  };
 }
 
 const FIGHTER_FEATURES: ClassFeatures = {
-  hitDiceType: 'd8',
-  weaponMastery: ['all'],
-  armorProficiency: ['all armor', 'shields'],
-  specialAbilities: ['Weapon Mastery', 'Grit'],
-}
+  hitDiceType: "d8",
+  weaponMastery: ["all"],
+  armorProficiency: ["all armor", "shields"],
+  specialAbilities: ["Weapon Mastery", "Grit"],
+};
 ```
 
 ### Combat Mechanics
@@ -147,34 +147,34 @@ Weapon damage + STR modifier (melee) or DEX modifier (ranged)
 
 ```typescript
 export interface AttackResult {
-  hit: boolean
-  critical: boolean
-  damage: number
-  roll: number
-  total: number
+  hit: boolean;
+  critical: boolean;
+  damage: number;
+  roll: number;
+  total: number;
 }
 
 export function resolveAttack(params: {
-  attackBonus: number
-  targetAC: number
-  weaponDamage: string // e.g., "1d8"
-  damageModifier: number
+  attackBonus: number;
+  targetAC: number;
+  weaponDamage: string; // e.g., "1d8"
+  damageModifier: number;
 }): AttackResult {
-  const roll = rollD20()
-  const total = roll + params.attackBonus
-  const hit = total >= params.targetAC
-  const critical = roll === 20
+  const roll = rollD20();
+  const total = roll + params.attackBonus;
+  const hit = total >= params.targetAC;
+  const critical = roll === 20;
 
-  let damage = 0
+  let damage = 0;
   if (hit) {
-    const baseDamage = parseDiceRoll(params.weaponDamage)
+    const baseDamage = parseDiceRoll(params.weaponDamage);
     damage = critical
       ? baseDamage * 2 + params.damageModifier
-      : baseDamage + params.damageModifier
-    damage = Math.max(0, damage) // Can't have negative damage
+      : baseDamage + params.damageModifier;
+    damage = Math.max(0, damage); // Can't have negative damage
   }
 
-  return { hit, critical, damage, roll, total }
+  return { hit, critical, damage, roll, total };
 }
 ```
 
@@ -184,45 +184,45 @@ export function resolveAttack(params: {
 
 ```typescript
 interface Monster {
-  name: string
-  type: MonsterType
-  level: number // Monster level (1-10+)
+  name: string;
+  type: MonsterType;
+  level: number; // Monster level (1-10+)
 
   // Defense
-  armorClass: number
-  hitDice: string // e.g., "2d8+2"
-  averageHP: number
+  armorClass: number;
+  hitDice: string; // e.g., "2d8+2"
+  averageHP: number;
 
   // Offense
-  attackBonus: number
-  damage: string // e.g., "1d6+2"
-  attacks?: number // Multiple attacks per round
+  attackBonus: number;
+  damage: string; // e.g., "1d6+2"
+  attacks?: number; // Multiple attacks per round
 
   // Attributes
-  speed: number // In feet
-  alignment?: string
+  speed: number; // In feet
+  alignment?: string;
 
   // Special abilities
   specialAbilities: Array<{
-    name: string
-    description: string
-  }>
+    name: string;
+    description: string;
+  }>;
 
   // Saves
   saves?: {
-    strength?: number
-    dexterity?: number
-    constitution?: number
-    intelligence?: number
-    wisdom?: number
-    charisma?: number
-  }
+    strength?: number;
+    dexterity?: number;
+    constitution?: number;
+    intelligence?: number;
+    wisdom?: number;
+    charisma?: number;
+  };
 
   // Environment
-  environment: string[]
+  environment: string[];
 
   // Treasure
-  treasureType?: string
+  treasureType?: string;
 }
 ```
 
@@ -233,14 +233,14 @@ export function estimateMonsterDifficulty(
   monster: Monster,
   partyLevel: number,
   partySize: number,
-): 'easy' | 'medium' | 'hard' | 'deadly' {
-  const levelDiff = monster.level - partyLevel
-  const effectiveLevel = monster.level + (partySize < 4 ? 1 : 0)
+): "easy" | "medium" | "hard" | "deadly" {
+  const levelDiff = monster.level - partyLevel;
+  const effectiveLevel = monster.level + (partySize < 4 ? 1 : 0);
 
-  if (effectiveLevel <= partyLevel - 2) return 'easy'
-  if (effectiveLevel <= partyLevel) return 'medium'
-  if (effectiveLevel <= partyLevel + 1) return 'hard'
-  return 'deadly'
+  if (effectiveLevel <= partyLevel - 2) return "easy";
+  if (effectiveLevel <= partyLevel) return "medium";
+  if (effectiveLevel <= partyLevel + 1) return "hard";
+  return "deadly";
 }
 ```
 
@@ -256,27 +256,27 @@ const SPELL_SLOTS: Record<number, number[]> = {
   4: [3, 3], // Level 4: 3 tier-1, 3 tier-2
   5: [4, 3, 2], // Level 5: 4 tier-1, 3 tier-2, 2 tier-3
   // ... continues
-}
+};
 ```
 
 **Spell Structure:**
 
 ```typescript
 interface Spell {
-  name: string
-  tier: 1 | 2 | 3 | 4 | 5
-  school: 'Arcane' | 'Divine'
-  castingTime: string
-  range: string
-  duration: string
-  description: string
+  name: string;
+  tier: 1 | 2 | 3 | 4 | 5;
+  school: "Arcane" | "Divine";
+  castingTime: string;
+  range: string;
+  duration: string;
+  description: string;
 
   // Game effects
-  requiresConcentration?: boolean
+  requiresConcentration?: boolean;
   savingThrow?: {
-    ability: 'STR' | 'DEX' | 'CON' | 'INT' | 'WIS' | 'CHA'
-    effect: string
-  }
+    ability: "STR" | "DEX" | "CON" | "INT" | "WIS" | "CHA";
+    effect: string;
+  };
 }
 ```
 
@@ -286,26 +286,26 @@ interface Spell {
 
 ```typescript
 interface LightSource {
-  type: 'torch' | 'lantern' | 'candle' | 'magical'
-  remainingRounds: number // Real-time tracking
-  radius: number // In feet
-  brightLight: number
-  dimLight: number
+  type: "torch" | "lantern" | "candle" | "magical";
+  remainingRounds: number; // Real-time tracking
+  radius: number; // In feet
+  brightLight: number;
+  dimLight: number;
 }
 
 const TORCH: LightSource = {
-  type: 'torch',
+  type: "torch",
   remainingRounds: 60, // 1 hour = 60 rounds
   radius: 30,
   brightLight: 30,
   dimLight: 30,
-}
+};
 
 export function tickLightSource(source: LightSource): LightSource {
   return {
     ...source,
     remainingRounds: Math.max(0, source.remainingRounds - 1),
-  }
+  };
 }
 ```
 
@@ -315,24 +315,24 @@ export function tickLightSource(source: LightSource): LightSource {
 
 ```typescript
 interface Talent {
-  name: string
-  description: string
-  classRestriction?: string[]
-  prerequisite?: string
+  name: string;
+  description: string;
+  classRestriction?: string[];
+  prerequisite?: string;
 }
 
 const TALENTS = {
   ambush: {
-    name: 'Ambush',
-    description: 'Gain advantage on your first attack against surprised foes',
+    name: "Ambush",
+    description: "Gain advantage on your first attack against surprised foes",
   },
   backstab: {
-    name: 'Backstab',
-    description: 'When you hit with advantage, add +1d6 damage per 2 levels',
-    classRestriction: ['Rogue'],
+    name: "Backstab",
+    description: "When you hit with advantage, add +1d6 damage per 2 levels",
+    classRestriction: ["Rogue"],
   },
   // ... more talents
-}
+};
 ```
 
 ### Death & Dying
@@ -341,29 +341,29 @@ const TALENTS = {
 
 ```typescript
 export function checkDeath(currentHP: number, maxHP: number, damage: number) {
-  const newHP = currentHP - damage
+  const newHP = currentHP - damage;
 
   if (newHP <= 0) {
-    const excessDamage = Math.abs(newHP)
+    const excessDamage = Math.abs(newHP);
 
     if (excessDamage >= maxHP) {
-      return { status: 'instant_death', hp: 0 }
+      return { status: "instant_death", hp: 0 };
     }
 
-    return { status: 'dying', hp: 0, deathTimer: 1 } // Start death timer
+    return { status: "dying", hp: 0, deathTimer: 1 }; // Start death timer
   }
 
-  return { status: 'alive', hp: newHP }
+  return { status: "alive", hp: newHP };
 }
 
-export function deathSave(): 'stabilize' | 'continue_dying' | 'death' {
-  const roll = rollD20()
+export function deathSave(): "stabilize" | "continue_dying" | "death" {
+  const roll = rollD20();
 
-  if (roll === 20) return 'stabilize' // Natural 20 = stabilize at 1 HP
-  if (roll >= 15) return 'stabilize' // 15+ = stabilize at 0 HP
-  if (roll === 1) return 'death' // Natural 1 = death
+  if (roll === 20) return "stabilize"; // Natural 20 = stabilize at 1 HP
+  if (roll >= 15) return "stabilize"; // 15+ = stabilize at 0 HP
+  if (roll === 1) return "death"; // Natural 1 = death
 
-  return 'continue_dying' // Continue dying, increment timer
+  return "continue_dying"; // Continue dying, increment timer
 }
 ```
 
@@ -373,15 +373,15 @@ export function deathSave(): 'stabilize' | 'continue_dying' | 'death' {
 
 ```typescript
 export function rollWithAdvantage(): number {
-  const roll1 = rollD20()
-  const roll2 = rollD20()
-  return Math.max(roll1, roll2)
+  const roll1 = rollD20();
+  const roll2 = rollD20();
+  return Math.max(roll1, roll2);
 }
 
 export function rollWithDisadvantage(): number {
-  const roll1 = rollD20()
-  const roll2 = rollD20()
-  return Math.min(roll1, roll2)
+  const roll1 = rollD20();
+  const roll2 = rollD20();
+  return Math.min(roll1, roll2);
 }
 ```
 
@@ -465,24 +465,24 @@ For Shadowdark-related tasks, you provide:
 ```typescript
 // Implement Shadowdark character creation
 export async function createCharacter(params: {
-  name: string
-  class: CharacterClass
-  abilityScores: AbilityScores
-  background: string
-  alignment: string
+  name: string;
+  class: CharacterClass;
+  abilityScores: AbilityScores;
+  background: string;
+  alignment: string;
 }) {
   // Calculate starting HP (max HD + CON modifier)
-  const conModifier = getAbilityModifier(params.abilityScores.constitution)
-  const classHD = CLASS_HIT_DICE[params.class]
-  const startingHP = getMaxDieValue(classHD) + conModifier
+  const conModifier = getAbilityModifier(params.abilityScores.constitution);
+  const classHD = CLASS_HIT_DICE[params.class];
+  const startingHP = getMaxDieValue(classHD) + conModifier;
 
   // Starting gear based on class
-  const startingGear = getClassStartingGear(params.class)
+  const startingGear = getClassStartingGear(params.class);
 
   // Calculate AC (10 + armor + DEX mod)
-  const armor = startingGear.find((item) => item.type === 'armor')
-  const dexMod = getAbilityModifier(params.abilityScores.dexterity)
-  const armorClass = 10 + (armor?.acBonus ?? 0) + dexMod
+  const armor = startingGear.find((item) => item.type === "armor");
+  const dexMod = getAbilityModifier(params.abilityScores.dexterity);
+  const armorClass = 10 + (armor?.acBonus ?? 0) + dexMod;
 
   return {
     ...params,
@@ -492,7 +492,7 @@ export async function createCharacter(params: {
     maxHitPoints: startingHP,
     armorClass,
     gear: startingGear,
-  }
+  };
 }
 ```
 
@@ -501,24 +501,24 @@ export async function createCharacter(params: {
 ```typescript
 // Build balanced Shadowdark encounters
 export function buildEncounter(params: {
-  partyLevel: number
-  partySize: number
-  difficulty: 'easy' | 'medium' | 'hard' | 'deadly'
+  partyLevel: number;
+  partySize: number;
+  difficulty: "easy" | "medium" | "hard" | "deadly";
 }) {
   const targetMonsterLevel = calculateTargetMonsterLevel(
     params.partyLevel,
     params.difficulty,
-  )
+  );
 
   const suggestions = MONSTER_DATABASE.filter(
     (monster) => Math.abs(monster.level - targetMonsterLevel) <= 1,
-  )
+  );
 
   return {
     recommendedMonsterLevel: targetMonsterLevel,
     suggestions,
     notes: getEncounterDesignNotes(params),
-  }
+  };
 }
 ```
 

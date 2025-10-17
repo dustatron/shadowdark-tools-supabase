@@ -1,74 +1,91 @@
-import { NextRequest, NextResponse } from 'next/server';
-import { createSupabaseServerClient } from '@/src/lib/supabase/server';
-import { z } from 'zod';
+import { NextRequest, NextResponse } from "next/server";
+import { createClient } from "@/lib/supabase/server";
+import { z } from "zod";
 
 // Schema for monster updates
-const MonsterUpdateSchema = z.object({
-  name: z.string().min(1).max(100).optional(),
-  challenge_level: z.number().int().min(1).max(20).optional(),
-  hit_points: z.number().int().min(1).optional(),
-  armor_class: z.number().int().min(1).max(25).optional(),
-  speed: z.string().min(1).optional(),
-  attacks: z.array(z.object({
-    name: z.string(),
-    type: z.enum(['melee', 'ranged']),
-    damage: z.string(),
-    range: z.string(),
-    description: z.string().optional()
-  })).optional(),
-  abilities: z.array(z.object({
-    name: z.string(),
-    description: z.string()
-  })).optional(),
-  treasure: z.string().nullable().optional(),
-  tags: z.object({
-    type: z.array(z.string()),
-    location: z.array(z.string())
-  }).optional(),
-  author_notes: z.string().nullable().optional()
-}).refine(data => Object.keys(data).length > 0, {
-  message: "At least one field must be provided for update"
-});
+const MonsterUpdateSchema = z
+  .object({
+    name: z.string().min(1).max(100).optional(),
+    challenge_level: z.number().int().min(1).max(20).optional(),
+    hit_points: z.number().int().min(1).optional(),
+    armor_class: z.number().int().min(1).max(25).optional(),
+    speed: z.string().min(1).optional(),
+    attacks: z
+      .array(
+        z.object({
+          name: z.string(),
+          type: z.enum(["melee", "ranged"]),
+          damage: z.string(),
+          range: z.string(),
+          description: z.string().optional(),
+        }),
+      )
+      .optional(),
+    abilities: z
+      .array(
+        z.object({
+          name: z.string(),
+          description: z.string(),
+        }),
+      )
+      .optional(),
+    treasure: z.string().nullable().optional(),
+    tags: z
+      .object({
+        type: z.array(z.string()),
+        location: z.array(z.string()),
+      })
+      .optional(),
+    author_notes: z.string().nullable().optional(),
+  })
+  .refine((data) => Object.keys(data).length > 0, {
+    message: "At least one field must be provided for update",
+  });
 
 // GET /api/monsters/[id] - Get specific monster
 export async function GET(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> },
 ) {
   try {
-    const supabase = createSupabaseServerClient();
-    const { id } = params;
+    const supabase = await createClient();
+    const { id } = await params;
 
     // First try to get from all_monsters view (includes both official and user monsters)
     const { data: monster, error } = await supabase
-      .from('all_monsters')
-      .select('*')
-      .eq('id', id)
+      .from("all_monsters")
+      .select("*")
+      .eq("id", id)
       .single();
 
     if (error || !monster) {
-      console.error('Database error fetching monster:', error);
-      return NextResponse.json(
-        { error: 'Monster not found' },
-        { status: 404 }
-      );
+      console.error("Database error fetching monster:", error);
+      return NextResponse.json({ error: "Monster not found" }, { status: 404 });
     }
 
     // Parse JSON fields if they're strings
     const responseMonster = {
       ...monster,
-      attacks: typeof monster.attacks === 'string' ? JSON.parse(monster.attacks) : monster.attacks,
-      abilities: typeof monster.abilities === 'string' ? JSON.parse(monster.abilities) : monster.abilities,
-      tags: typeof monster.tags === 'string' ? JSON.parse(monster.tags) : monster.tags
+      attacks:
+        typeof monster.attacks === "string"
+          ? JSON.parse(monster.attacks)
+          : monster.attacks,
+      abilities:
+        typeof monster.abilities === "string"
+          ? JSON.parse(monster.abilities)
+          : monster.abilities,
+      tags:
+        typeof monster.tags === "string"
+          ? JSON.parse(monster.tags)
+          : monster.tags,
     };
 
     return NextResponse.json(responseMonster);
-
   } catch (error) {
-    console.error('API error:', error);
+    console.error("API error:", error);
     return NextResponse.json(
-      { error: 'Internal server error' },
-      { status: 500 }
+      { error: "Internal server error" },
+      { status: 500 },
     );
   }
 }
@@ -76,40 +93,40 @@ export async function GET(
 // PUT /api/monsters/[id] - Update user monster
 export async function PUT(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> },
 ) {
   try {
-    const supabase = createSupabaseServerClient();
-    const { id } = params;
+    const supabase = await createClient();
+    const { id } = await params;
 
     // Get current user
-    const { data: { user }, error: authError } = await supabase.auth.getUser();
+    const {
+      data: { user },
+      error: authError,
+    } = await supabase.auth.getUser();
 
     if (authError || !user) {
       return NextResponse.json(
-        { error: 'Authentication required' },
-        { status: 401 }
+        { error: "Authentication required" },
+        { status: 401 },
       );
     }
 
     // Check if monster exists and user owns it
     const { data: existingMonster, error: fetchError } = await supabase
-      .from('user_monsters')
-      .select('creator_id')
-      .eq('id', id)
+      .from("user_monsters")
+      .select("creator_id")
+      .eq("id", id)
       .single();
 
     if (fetchError || !existingMonster) {
-      return NextResponse.json(
-        { error: 'Monster not found' },
-        { status: 404 }
-      );
+      return NextResponse.json({ error: "Monster not found" }, { status: 404 });
     }
 
     if (existingMonster.creator_id !== user.id) {
       return NextResponse.json(
-        { error: 'Forbidden: You can only edit your own monsters' },
-        { status: 403 }
+        { error: "Forbidden: You can only edit your own monsters" },
+        { status: 403 },
       );
     }
 
@@ -118,7 +135,7 @@ export async function PUT(
     const validatedData = MonsterUpdateSchema.parse(body);
 
     // Prepare update data (stringify JSON fields)
-    const updateData: any = { ...validatedData };
+    const updateData: Record<string, any> = { ...validatedData };
     if (updateData.attacks) {
       updateData.attacks = JSON.stringify(updateData.attacks);
     }
@@ -131,17 +148,17 @@ export async function PUT(
 
     // Update the monster
     const { data: monster, error } = await supabase
-      .from('user_monsters')
+      .from("user_monsters")
       .update(updateData)
-      .eq('id', id)
+      .eq("id", id)
       .select()
       .single();
 
     if (error) {
-      console.error('Database error:', error);
+      console.error("Database error:", error);
       return NextResponse.json(
-        { error: 'Failed to update monster' },
-        { status: 500 }
+        { error: "Failed to update monster" },
+        { status: 500 },
       );
     }
 
@@ -150,26 +167,25 @@ export async function PUT(
       ...monster,
       attacks: JSON.parse(monster.attacks),
       abilities: JSON.parse(monster.abilities),
-      tags: JSON.parse(monster.tags)
+      tags: JSON.parse(monster.tags),
     };
 
     return NextResponse.json(responseMonster);
-
   } catch (error) {
     if (error instanceof z.ZodError) {
       return NextResponse.json(
         {
-          error: 'Validation error',
-          details: error.errors
+          error: "Validation error",
+          details: error.format(),
         },
-        { status: 400 }
+        { status: 400 },
       );
     }
 
-    console.error('API error:', error);
+    console.error("API error:", error);
     return NextResponse.json(
-      { error: 'Internal server error' },
-      { status: 500 }
+      { error: "Internal server error" },
+      { status: 500 },
     );
   }
 }
@@ -177,64 +193,63 @@ export async function PUT(
 // DELETE /api/monsters/[id] - Delete user monster
 export async function DELETE(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> },
 ) {
   try {
-    const supabase = createSupabaseServerClient();
-    const { id } = params;
+    const supabase = await createClient();
+    const { id } = await params;
 
     // Get current user
-    const { data: { user }, error: authError } = await supabase.auth.getUser();
+    const {
+      data: { user },
+      error: authError,
+    } = await supabase.auth.getUser();
 
     if (authError || !user) {
       return NextResponse.json(
-        { error: 'Authentication required' },
-        { status: 401 }
+        { error: "Authentication required" },
+        { status: 401 },
       );
     }
 
     // Check if monster exists and user owns it
     const { data: existingMonster, error: fetchError } = await supabase
-      .from('user_monsters')
-      .select('creator_id')
-      .eq('id', id)
+      .from("user_monsters")
+      .select("creator_id")
+      .eq("id", id)
       .single();
 
     if (fetchError || !existingMonster) {
-      return NextResponse.json(
-        { error: 'Monster not found' },
-        { status: 404 }
-      );
+      return NextResponse.json({ error: "Monster not found" }, { status: 404 });
     }
 
     if (existingMonster.creator_id !== user.id) {
       return NextResponse.json(
-        { error: 'Forbidden: You can only delete your own monsters' },
-        { status: 403 }
+        { error: "Forbidden: You can only delete your own monsters" },
+        { status: 403 },
       );
     }
 
     // Delete the monster
     const { error } = await supabase
-      .from('user_monsters')
+      .from("user_monsters")
       .delete()
-      .eq('id', id);
+      .eq("id", id);
 
     if (error) {
-      console.error('Database error:', error);
+      console.error("Database error:", error);
       return NextResponse.json(
-        { error: 'Failed to delete monster' },
-        { status: 500 }
+        { error: "Failed to delete monster" },
+        { status: 500 },
       );
     }
 
-    return NextResponse.json({ message: 'Monster deleted successfully' });
-
+    return NextResponse.json({ message: "Monster deleted successfully" });
   } catch (error) {
-    console.error('API error:', error);
+    console.error("API error:", error);
     return NextResponse.json(
-      { error: 'Internal server error' },
-      { status: 500 }
+      { error: "Internal server error" },
+      { status: 500 },
     );
   }
 }

@@ -1,4 +1,4 @@
-'use client';
+"use client";
 
 import {
   Modal,
@@ -16,15 +16,15 @@ import {
   Divider,
   Grid,
   Box,
-} from '@mantine/core';
-import { useForm } from '@mantine/form';
-import { IconPlus, IconTrash } from '@tabler/icons-react';
-import { notifications } from '@mantine/notifications';
-import { useState } from 'react';
+} from "@mantine/core";
+import { useForm } from "@mantine/form";
+import { IconPlus, IconTrash } from "@tabler/icons-react";
+import { notifications } from "@mantine/notifications";
+import { useState } from "react";
 
 interface Attack {
   name: string;
-  type: 'melee' | 'ranged';
+  type: "melee" | "ranged";
   damage: string;
   range: string;
   description: string;
@@ -53,7 +53,7 @@ interface MonsterFormData {
 interface Monster extends MonsterFormData {
   id?: string;
   source?: string;
-  monster_type?: 'official' | 'user';
+  monster_type?: "official" | "user";
 }
 
 interface MonsterFormProps {
@@ -65,18 +65,38 @@ interface MonsterFormProps {
 }
 
 const MONSTER_TYPES = [
-  'beast', 'celestial', 'dragon', 'elemental', 'fey', 'fiend',
-  'giant', 'humanoid', 'monstrosity', 'ooze', 'plant', 'undead'
+  "beast",
+  "celestial",
+  "dragon",
+  "elemental",
+  "fey",
+  "fiend",
+  "giant",
+  "humanoid",
+  "monstrosity",
+  "ooze",
+  "plant",
+  "undead",
 ];
 
 const LOCATIONS = [
-  'any', 'cave', 'city', 'coastal', 'desert', 'dungeon',
-  'forest', 'mountain', 'plains', 'swamp', 'underground', 'water'
+  "any",
+  "cave",
+  "city",
+  "coastal",
+  "desert",
+  "dungeon",
+  "forest",
+  "mountain",
+  "plains",
+  "swamp",
+  "underground",
+  "water",
 ];
 
 const ATTACK_TYPES = [
-  { value: 'melee', label: 'Melee' },
-  { value: 'ranged', label: 'Ranged' }
+  { value: "melee", label: "Melee" },
+  { value: "ranged", label: "Ranged" },
 ];
 
 export function MonsterForm({
@@ -84,34 +104,44 @@ export function MonsterForm({
   onClose,
   onSubmit,
   monster = null,
-  loading = false
+  loading = false,
 }: MonsterFormProps) {
   const [submitting, setSubmitting] = useState(false);
 
   const form = useForm<MonsterFormData>({
     initialValues: {
-      name: monster?.name || '',
+      name: monster?.name || "",
       challenge_level: monster?.challenge_level || 1,
       hit_points: monster?.hit_points || 10,
       armor_class: monster?.armor_class || 10,
-      speed: monster?.speed || 'near',
+      speed: monster?.speed || "near",
       attacks: monster?.attacks || [],
       abilities: monster?.abilities || [],
       tags: {
         type: monster?.tags?.type || [],
-        location: monster?.tags?.location || []
+        location: monster?.tags?.location || [],
       },
-      author_notes: monster?.author_notes || ''
+      author_notes: monster?.author_notes || "",
     },
     validate: {
-      name: (value) => (value.length < 1 ? 'Name is required' : null),
-      challenge_level: (value) => (value < 1 || value > 20 ? 'Challenge level must be 1-20' : null),
-      hit_points: (value) => (value < 1 ? 'Hit points must be at least 1' : null),
-      armor_class: (value) => (value < 1 || value > 25 ? 'Armor class must be 1-25' : null),
-      speed: (value) => (value.length < 1 ? 'Speed is required' : null),
-      'tags.type': (value) => (value.length === 0 ? 'At least one monster type is required' : null),
-      'tags.location': (value) => (value.length === 0 ? 'At least one location is required' : null)
-    }
+      name: (value) => (value.length < 1 ? "Name is required" : null),
+      challenge_level: (value) =>
+        value < 1 || value > 20 ? "Challenge level must be 1-20" : null,
+      hit_points: (value) =>
+        value < 1 ? "Hit points must be at least 1" : null,
+      armor_class: (value) =>
+        value < 1 || value > 25 ? "Armor class must be 1-25" : null,
+      speed: (value) => (value.length < 1 ? "Speed is required" : null),
+      tags: (value) => {
+        if (value.type.length === 0) {
+          return "At least one monster type is required";
+        }
+        if (value.location.length === 0) {
+          return "At least one location is required";
+        }
+        return null;
+      },
+    },
   });
 
   const handleSubmit = async (values: MonsterFormData) => {
@@ -121,15 +151,16 @@ export function MonsterForm({
       form.reset();
       onClose();
       notifications.show({
-        title: 'Success',
-        message: `Monster ${monster ? 'updated' : 'created'} successfully`,
-        color: 'green'
+        title: "Success",
+        message: `Monster ${monster ? "updated" : "created"} successfully`,
+        color: "green",
       });
     } catch (error: any) {
       notifications.show({
-        title: 'Error',
-        message: error.message || `Failed to ${monster ? 'update' : 'create'} monster`,
-        color: 'red'
+        title: "Error",
+        message:
+          error.message || `Failed to ${monster ? "update" : "create"} monster`,
+        color: "red",
       });
     } finally {
       setSubmitting(false);
@@ -137,28 +168,28 @@ export function MonsterForm({
   };
 
   const addAttack = () => {
-    form.insertListItem('attacks', {
-      name: '',
-      type: 'melee' as const,
-      damage: '1d6',
-      range: 'close',
-      description: ''
+    form.insertListItem("attacks", {
+      name: "",
+      type: "melee" as const,
+      damage: "1d6",
+      range: "close",
+      description: "",
     });
   };
 
   const removeAttack = (index: number) => {
-    form.removeListItem('attacks', index);
+    form.removeListItem("attacks", index);
   };
 
   const addAbility = () => {
-    form.insertListItem('abilities', {
-      name: '',
-      description: ''
+    form.insertListItem("abilities", {
+      name: "",
+      description: "",
     });
   };
 
   const removeAbility = (index: number) => {
-    form.removeListItem('abilities', index);
+    form.removeListItem("abilities", index);
   };
 
   const handleClose = () => {
@@ -170,7 +201,7 @@ export function MonsterForm({
     <Modal
       opened={opened}
       onClose={handleClose}
-      title={monster ? 'Edit Monster' : 'Create Monster'}
+      title={monster ? "Edit Monster" : "Create Monster"}
       size="lg"
       closeOnClickOutside={false}
     >
@@ -183,7 +214,7 @@ export function MonsterForm({
                 label="Name"
                 placeholder="Monster name"
                 required
-                {...form.getInputProps('name')}
+                {...form.getInputProps("name")}
               />
             </Grid.Col>
             <Grid.Col span={6}>
@@ -193,7 +224,7 @@ export function MonsterForm({
                 min={1}
                 max={20}
                 required
-                {...form.getInputProps('challenge_level')}
+                {...form.getInputProps("challenge_level")}
               />
             </Grid.Col>
             <Grid.Col span={6}>
@@ -202,7 +233,7 @@ export function MonsterForm({
                 placeholder="HP"
                 min={1}
                 required
-                {...form.getInputProps('hit_points')}
+                {...form.getInputProps("hit_points")}
               />
             </Grid.Col>
             <Grid.Col span={6}>
@@ -212,7 +243,7 @@ export function MonsterForm({
                 min={1}
                 max={25}
                 required
-                {...form.getInputProps('armor_class')}
+                {...form.getInputProps("armor_class")}
               />
             </Grid.Col>
             <Grid.Col span={6}>
@@ -220,7 +251,7 @@ export function MonsterForm({
                 label="Speed"
                 placeholder="e.g., near, far, close"
                 required
-                {...form.getInputProps('speed')}
+                {...form.getInputProps("speed")}
               />
             </Grid.Col>
           </Grid>
@@ -233,7 +264,7 @@ export function MonsterForm({
                 placeholder="Select types"
                 data={MONSTER_TYPES}
                 required
-                {...form.getInputProps('tags.type')}
+                {...form.getInputProps("tags.type")}
               />
             </Grid.Col>
             <Grid.Col span={6}>
@@ -242,7 +273,7 @@ export function MonsterForm({
                 placeholder="Select locations"
                 data={LOCATIONS}
                 required
-                {...form.getInputProps('tags.location')}
+                {...form.getInputProps("tags.location")}
               />
             </Grid.Col>
           </Grid>
@@ -338,7 +369,9 @@ export function MonsterForm({
                         placeholder="Ability description"
                         autosize
                         minRows={2}
-                        {...form.getInputProps(`abilities.${index}.description`)}
+                        {...form.getInputProps(
+                          `abilities.${index}.description`,
+                        )}
                       />
                     </Grid.Col>
                     <Grid.Col span={1}>
@@ -363,7 +396,7 @@ export function MonsterForm({
             placeholder="Additional notes about this monster..."
             autosize
             minRows={3}
-            {...form.getInputProps('author_notes')}
+            {...form.getInputProps("author_notes")}
           />
 
           <Divider />
@@ -373,11 +406,8 @@ export function MonsterForm({
             <Button variant="subtle" onClick={handleClose}>
               Cancel
             </Button>
-            <Button
-              type="submit"
-              loading={submitting || loading}
-            >
-              {monster ? 'Update Monster' : 'Create Monster'}
+            <Button type="submit" loading={submitting || loading}>
+              {monster ? "Update Monster" : "Create Monster"}
             </Button>
           </Group>
         </Stack>

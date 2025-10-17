@@ -1,17 +1,17 @@
-'use client';
+"use client";
 
-import { Loader, Center, Stack, Text } from '@mantine/core';
+import { Loader, Center, Stack, Text } from "@mantine/core";
 
 interface LoadingSpinnerProps {
-  size?: 'sm' | 'md' | 'lg' | 'xl';
+  size?: "sm" | "md" | "lg" | "xl";
   message?: string;
   centered?: boolean;
 }
 
 export function LoadingSpinner({
-  size = 'md',
-  message = 'Loading...',
-  centered = true
+  size = "md",
+  message = "Loading...",
+  centered = true,
 }: LoadingSpinnerProps) {
   const content = (
     <Stack align="center" gap="md">

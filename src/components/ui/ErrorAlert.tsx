@@ -1,20 +1,20 @@
-'use client';
+"use client";
 
-import { Alert, Button, Group } from '@mantine/core';
-import { IconAlertCircle, IconRefresh } from '@tabler/icons-react';
+import { Alert, Button, Group } from "@mantine/core";
+import { IconAlertCircle, IconRefresh } from "@tabler/icons-react";
 
 interface ErrorAlertProps {
   title?: string;
   message: string;
   onRetry?: () => void;
-  variant?: 'light' | 'filled' | 'outline';
+  variant?: "light" | "filled" | "outline";
 }
 
 export function ErrorAlert({
-  title = 'Error',
+  title = "Error",
   message,
   onRetry,
-  variant = 'light'
+  variant = "light",
 }: ErrorAlertProps) {
   return (
     <Alert
@@ -24,9 +24,7 @@ export function ErrorAlert({
       variant={variant}
     >
       <Group justify="space-between" align="flex-start">
-        <div style={{ flex: 1 }}>
-          {message}
-        </div>
+        <div style={{ flex: 1 }}>{message}</div>
         {onRetry && (
           <Button
             variant="subtle"

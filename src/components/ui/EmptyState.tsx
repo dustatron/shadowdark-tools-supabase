@@ -1,8 +1,8 @@
-'use client';
+"use client";
 
-import { Center, Stack, Text, Button, ThemeIcon } from '@mantine/core';
-import { IconPlus } from '@tabler/icons-react';
-import { ReactNode } from 'react';
+import { Center, Stack, Text, Button, ThemeIcon } from "@mantine/core";
+import { IconPlus } from "@tabler/icons-react";
+import { ReactNode } from "react";
 
 interface EmptyStateProps {
   icon?: ReactNode;
@@ -19,7 +19,7 @@ export function EmptyState({
   icon,
   title,
   description,
-  action
+  action,
 }: EmptyStateProps) {
   return (
     <Center py="xl">

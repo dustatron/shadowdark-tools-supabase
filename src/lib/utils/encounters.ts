@@ -16,7 +16,7 @@ export interface Monster {
 export interface EncounterSettings {
   challengeLevel: number;
   partySize: number;
-  difficulty: 'easy' | 'medium' | 'hard' | 'deadly';
+  difficulty: "easy" | "medium" | "hard" | "deadly";
   monsterTypes?: string[];
   location?: string;
   maxMonsters?: number;
@@ -47,7 +47,7 @@ export const ENCOUNTER_MULTIPLIERS: Record<number, number> = {
   12: 4.0,
   13: 4.5,
   14: 4.5,
-  15: 5.0
+  15: 5.0,
 };
 
 export function getEncounterMultiplier(monsterCount: number): number {
@@ -55,12 +55,15 @@ export function getEncounterMultiplier(monsterCount: number): number {
 }
 
 // Difficulty thresholds per character level (XP)
-export const DIFFICULTY_THRESHOLDS_PER_LEVEL: Record<number, {
-  easy: number;
-  medium: number;
-  hard: number;
-  deadly: number;
-}> = {
+export const DIFFICULTY_THRESHOLDS_PER_LEVEL: Record<
+  number,
+  {
+    easy: number;
+    medium: number;
+    hard: number;
+    deadly: number;
+  }
+> = {
   1: { easy: 25, medium: 50, hard: 75, deadly: 100 },
   2: { easy: 50, medium: 100, hard: 150, deadly: 200 },
   3: { easy: 75, medium: 150, hard: 225, deadly: 300 },
@@ -80,25 +83,26 @@ export const DIFFICULTY_THRESHOLDS_PER_LEVEL: Record<number, {
   17: { easy: 2000, medium: 4000, hard: 6000, deadly: 8000 },
   18: { easy: 2100, medium: 4200, hard: 6300, deadly: 8400 },
   19: { easy: 2400, medium: 4800, hard: 7200, deadly: 9600 },
-  20: { easy: 2800, medium: 5600, hard: 8400, deadly: 11200 }
+  20: { easy: 2800, medium: 5600, hard: 8400, deadly: 11200 },
 };
 
 export function getDifficultyThresholds(partyLevel: number, partySize: number) {
-  const thresholds = DIFFICULTY_THRESHOLDS_PER_LEVEL[Math.min(partyLevel, 20)] ||
-                    DIFFICULTY_THRESHOLDS_PER_LEVEL[20];
+  const thresholds =
+    DIFFICULTY_THRESHOLDS_PER_LEVEL[Math.min(partyLevel, 20)] ||
+    DIFFICULTY_THRESHOLDS_PER_LEVEL[20];
 
   return {
     easy: thresholds.easy * partySize,
     medium: thresholds.medium * partySize,
     hard: thresholds.hard * partySize,
-    deadly: thresholds.deadly * partySize
+    deadly: thresholds.deadly * partySize,
   };
 }
 
 export function calculateEncounterDifficulty(
   monsters: Monster[],
   partyLevel: number,
-  partySize: number
+  partySize: number,
 ): {
   difficulty: string;
   totalXp: number;
@@ -114,15 +118,15 @@ export function calculateEncounterDifficulty(
 
   let difficulty: string;
   if (totalXp < thresholds.easy) {
-    difficulty = 'trivial';
+    difficulty = "trivial";
   } else if (totalXp < thresholds.medium) {
-    difficulty = 'easy';
+    difficulty = "easy";
   } else if (totalXp < thresholds.hard) {
-    difficulty = 'medium';
+    difficulty = "medium";
   } else if (totalXp < thresholds.deadly) {
-    difficulty = 'hard';
+    difficulty = "hard";
   } else {
-    difficulty = 'deadly';
+    difficulty = "deadly";
   }
 
   return {
@@ -130,39 +134,44 @@ export function calculateEncounterDifficulty(
     totalXp,
     baseXp,
     multiplier,
-    thresholds
+    thresholds,
   };
 }
 
 // Generate balanced encounter
 export function generateBalancedEncounter(
   monsterPool: Monster[],
-  settings: EncounterSettings
+  settings: EncounterSettings,
 ): GeneratedEncounter | null {
-  const thresholds = getDifficultyThresholds(settings.challengeLevel, settings.partySize);
+  const thresholds = getDifficultyThresholds(
+    settings.challengeLevel,
+    settings.partySize,
+  );
   const targetXp = thresholds[settings.difficulty];
 
   // Filter monsters by level range and criteria
   const minLevel = Math.max(1, settings.challengeLevel - 2);
   const maxLevel = Math.min(20, settings.challengeLevel + 2);
 
-  let filteredPool = monsterPool.filter(monster =>
-    monster.challenge_level >= minLevel &&
-    monster.challenge_level <= maxLevel
+  let filteredPool = monsterPool.filter(
+    (monster) =>
+      monster.challenge_level >= minLevel &&
+      monster.challenge_level <= maxLevel,
   );
 
   // Apply type filter
   if (settings.monsterTypes && settings.monsterTypes.length > 0) {
-    filteredPool = filteredPool.filter(monster =>
-      settings.monsterTypes!.some(type => monster.tags.type.includes(type))
+    filteredPool = filteredPool.filter((monster) =>
+      settings.monsterTypes!.some((type) => monster.tags.type.includes(type)),
     );
   }
 
   // Apply location filter
   if (settings.location) {
-    filteredPool = filteredPool.filter(monster =>
-      monster.tags.location.includes(settings.location!) ||
-      monster.tags.location.includes('any')
+    filteredPool = filteredPool.filter(
+      (monster) =>
+        monster.tags.location.includes(settings.location!) ||
+        monster.tags.location.includes("any"),
     );
   }
 
@@ -181,11 +190,12 @@ export function generateBalancedEncounter(
 
     const currentMultiplier = getEncounterMultiplier(encounter.length + 1);
     const currentBaseXp = encounter.reduce((sum, m) => sum + m.xp, 0);
-    const remainingXp = (targetXp - currentBaseXp * currentMultiplier) / currentMultiplier;
+    const remainingXp =
+      (targetXp - currentBaseXp * currentMultiplier) / currentMultiplier;
 
     // Find monsters that fit in remaining budget (with some flexibility)
-    const candidates = filteredPool.filter(monster =>
-      monster.xp <= remainingXp * 1.5
+    const candidates = filteredPool.filter(
+      (monster) => monster.xp <= remainingXp * 1.5,
     );
 
     if (candidates.length === 0) break;
@@ -199,12 +209,17 @@ export function generateBalancedEncounter(
 
     // Add some randomness while favoring better fits
     const topCandidates = candidates.slice(0, Math.min(5, candidates.length));
-    const selectedMonster = topCandidates[Math.floor(Math.random() * topCandidates.length)];
+    const selectedMonster =
+      topCandidates[Math.floor(Math.random() * topCandidates.length)];
 
     encounter.push(selectedMonster);
 
     // Check if we're close enough to target
-    const result = calculateEncounterDifficulty(encounter, settings.challengeLevel, settings.partySize);
+    const result = calculateEncounterDifficulty(
+      encounter,
+      settings.challengeLevel,
+      settings.partySize,
+    );
     if (result.totalXp >= targetXp * 0.8) break;
   }
 
@@ -212,10 +227,17 @@ export function generateBalancedEncounter(
     return null;
   }
 
-  const result = calculateEncounterDifficulty(encounter, settings.challengeLevel, settings.partySize);
+  const result = calculateEncounterDifficulty(
+    encounter,
+    settings.challengeLevel,
+    settings.partySize,
+  );
 
   // Calculate balance score (how close to target difficulty)
-  const balanceScore = Math.max(0, 100 - Math.abs(result.totalXp - targetXp) / targetXp * 100);
+  const balanceScore = Math.max(
+    0,
+    100 - (Math.abs(result.totalXp - targetXp) / targetXp) * 100,
+  );
 
   return {
     monsters: encounter,
@@ -223,7 +245,7 @@ export function generateBalancedEncounter(
     baseXp: result.baseXp,
     multiplier: result.multiplier,
     difficulty: result.difficulty,
-    balanceScore
+    balanceScore,
   };
 }
 
@@ -236,7 +258,11 @@ export function rollMultipleDice(count: number, sides: number): number[] {
   return Array.from({ length: count }, () => rollDice(sides));
 }
 
-export function parseDiceString(diceString: string): { count: number; sides: number; modifier: number } {
+export function parseDiceString(diceString: string): {
+  count: number;
+  sides: number;
+  modifier: number;
+} {
   const match = diceString.match(/(\d+)d(\d+)([+-]\d+)?/i);
   if (!match) {
     return { count: 1, sides: 6, modifier: 0 };
@@ -245,7 +271,7 @@ export function parseDiceString(diceString: string): { count: number; sides: num
   return {
     count: parseInt(match[1]),
     sides: parseInt(match[2]),
-    modifier: match[3] ? parseInt(match[3]) : 0
+    modifier: match[3] ? parseInt(match[3]) : 0,
   };
 }
 

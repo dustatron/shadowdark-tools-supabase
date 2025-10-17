@@ -5,6 +5,7 @@
 **Shadowdark Monster Manager** is a comprehensive web application designed to assist Game Masters (GMs) in managing monsters and generating encounters for the Shadowdark TTRPG (tabletop role-playing game). The application provides tools for searching official monsters, creating custom content, building encounter lists, and generating random encounter tables.
 
 ### Current Status
+
 - **Phase**: Early Development / Foundation & Database Setup
 - **Branch**: main
 - **Key Feature**: Monsters and Spells lookup implemented with basic CRUD operations
@@ -13,6 +14,7 @@
 ## Tech Stack
 
 ### Frontend
+
 - **Framework**: Next.js 15 (App Router) with TypeScript
 - **UI Library**: Mantine UI 8.3.1 (primary component library)
 - **Styling**: Tailwind CSS 3.4.1
@@ -21,6 +23,7 @@
 - **Icons**: @tabler/icons-react 3.35, Lucide React 0.545
 
 ### Backend & Infrastructure
+
 - **Database**: Supabase (PostgreSQL with Row Level Security)
 - **Authentication**: Supabase Auth (@supabase/ssr, @supabase/supabase-js)
 - **ORM/Client**: Direct Supabase client (no additional ORM)
@@ -28,12 +31,14 @@
 - **Deployment**: Vercel (configured, auto-deploy from GitHub)
 
 ### Testing
+
 - **Unit/Integration**: Vitest 3.2.4 with jsdom 27.0
 - **Component Testing**: @testing-library/react 16.3
 - **E2E Testing**: Playwright 1.55
 - **Coverage Target**: 40% for MVP
 
 ### Development Tools
+
 - **Linting**: ESLint 9 with Next.js config + Prettier 3.6.2
 - **Type Checking**: TypeScript 5
 - **Build Tool**: Next.js with Turbopack (dev mode)
@@ -41,6 +46,7 @@
 ## Architecture Patterns
 
 ### Next.js App Router Structure
+
 ```
 app/
 ├── api/                    # API route handlers
@@ -59,6 +65,7 @@ app/
 ### Database Architecture
 
 **Key Tables:**
+
 - `official_monsters` - Official Shadowdark monsters (read-only)
 - `user_monsters` - User-created custom monsters
 - `official_spells` - Official Shadowdark spells (read-only)
@@ -72,10 +79,12 @@ app/
 - `user_profiles` - Extended user information
 
 **Views:**
+
 - `all_monsters` - UNION of official + public user monsters
 - `all_spells` - UNION of official + public user spells
 
 **Security:**
+
 - Row Level Security (RLS) policies on all tables
 - User ownership checks (auth.uid() = user_id)
 - Public content read access
@@ -93,6 +102,7 @@ app/
 ## Project Philosophy & Constraints
 
 ### Shadowdark RPG Specific
+
 - All game mechanics must be faithful to official Shadowdark rules
 - Monster stats follow Shadowdark stat block format
 - Challenge Level (CL) system for encounter balance
@@ -100,6 +110,7 @@ app/
 - Emphasis on deadly but fair gameplay
 
 ### Development Principles
+
 - **User-Owned Content**: Users own their custom monsters, lists, tables
 - **Community-First**: Public sharing with moderation tools
 - **Guest-Friendly**: Limited features for pre-auth users (localStorage)
@@ -108,6 +119,7 @@ app/
 - **Licensing Compliance**: Respect Shadowdark IP/licensing
 
 ### MVP Scope (Out of Scope)
+
 - Advanced sharing/collaboration features
 - Real-time multiplayer features
 - Full WCAG accessibility (basic only)
@@ -119,6 +131,7 @@ app/
 ## Current Implementation Status
 
 ### ✅ Completed Features
+
 1. **Authentication Flow**
    - Supabase Auth integration (email/password)
    - Login, signup, password reset pages
@@ -144,6 +157,7 @@ app/
    - Search function with fuzzy matching
 
 ### 🚧 In Progress / Planned
+
 1. **Custom Monster Creation**
    - Form validation with Zod
    - JSONB fields for attacks/abilities/treasure
@@ -178,18 +192,21 @@ app/
 ## Code Conventions
 
 ### File Naming
+
 - Components: PascalCase (e.g., `MonsterCard.tsx`)
 - Pages: lowercase (e.g., `page.tsx`)
 - Utilities: camelCase (e.g., `createClient.ts`)
 - Types: PascalCase with `.types.ts` suffix
 
 ### TypeScript
+
 - Strict mode enabled
 - Zod schemas for validation (co-located with components)
 - Type inference preferred over explicit types
 - Interface for object shapes, type for unions/primitives
 
 ### Component Structure
+
 ```typescript
 'use client' // Only if needed
 
@@ -210,12 +227,14 @@ export default function ComponentName({ props }: Props) {
 ```
 
 ### Supabase Client Usage
+
 - **Server Components**: Use `createClient()` from `@/lib/supabase/server`
 - **Client Components**: Use `createClient()` from `@/lib/supabase/client`
 - **Server Actions**: Use server client, check auth status
 - **API Routes**: Use server client with proper error handling
 
 ### Styling
+
 - Tailwind for utility classes
 - Mantine for complex components (forms, tables, modals)
 - CSS modules only when necessary
@@ -294,6 +313,7 @@ Available workflow commands:
 ## Important Files & Locations
 
 ### Configuration
+
 - `package.json` - Dependencies and scripts
 - `tsconfig.json` - TypeScript configuration
 - `next.config.mjs` - Next.js configuration
@@ -301,22 +321,26 @@ Available workflow commands:
 - `.env.local` - Environment variables (not in repo)
 
 ### Documentation
+
 - `project-plan/prd.md` - Complete Product Requirements Document
 - `project-plan/IMPLEMENTATION_PLAN.md` - Development phases and timeline
 - `specs/001-create-a-plan/` - Feature specification directory
 - `README.md` - General setup instructions
 
 ### Database
+
 - `supabase/migrations/` - Database migration files (chronological)
 - `supabase/config.toml` - Supabase project configuration
 
 ### Source Code
+
 - `app/` - Next.js App Router pages and API routes
 - `components/` - Reusable React components
 - `lib/` - Utility functions, Supabase clients, types
 - `scripts/` - Utility scripts (data transformation, etc.)
 
 ### Testing
+
 - `__tests__/` - Test files
 - `vitest.config.mjs` - Vitest configuration
 - `playwright.config.ts` - Playwright E2E configuration
@@ -324,12 +348,14 @@ Available workflow commands:
 ## Development Workflow
 
 ### Starting Development
+
 ```bash
 npm install              # Install dependencies
 npm run dev             # Start dev server (localhost:3000)
 ```
 
 ### Database Work
+
 ```bash
 # Supabase CLI required for local development
 supabase start          # Start local Supabase
@@ -338,6 +364,7 @@ supabase db reset       # Reset local DB (rerun migrations)
 ```
 
 ### Code Quality
+
 ```bash
 npm run lint            # Run ESLint
 npm run lint:fix        # Fix ESLint errors
@@ -346,6 +373,7 @@ npm run format:check    # Check formatting
 ```
 
 ### Testing
+
 ```bash
 npm test                # Run unit tests (watch mode)
 npm run test:run        # Run unit tests (single run)
@@ -355,6 +383,7 @@ npm run test:e2e:ui     # Run E2E tests with UI
 ```
 
 ### Git Workflow
+
 - Main branch: `main`
 - Feature branches: descriptive names (e.g., `feature/monster-groups`)
 - Commit messages: Conventional Commits style preferred
@@ -375,6 +404,7 @@ NEXT_PUBLIC_CLOUDINARY_UPLOAD_PRESET=your_upload_preset
 ## Common Patterns & Best Practices
 
 ### Data Fetching
+
 ```typescript
 // Server Component (preferred)
 import { createClient } from '@/lib/supabase/server'
@@ -387,25 +417,27 @@ export default async function Page() {
 ```
 
 ### Forms with Validation
+
 ```typescript
-import { useForm } from 'react-hook-form'
-import { zodResolver } from '@hookform/resolvers/zod'
-import { z } from 'zod'
+import { useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { z } from "zod";
 
 const schema = z.object({
   name: z.string().min(1),
   challengeLevel: z.number().min(1).max(20),
-})
+});
 
 export function MonsterForm() {
   const form = useForm({
     resolver: zodResolver(schema),
-  })
+  });
   // ... form implementation
 }
 ```
 
 ### RLS Policy Pattern
+
 ```sql
 -- User can read their own content and public content
 CREATE POLICY "Users can read own and public monsters"
@@ -426,12 +458,14 @@ USING (
 ## Resources & References
 
 ### Official Documentation
+
 - [Shadowdark RPG](https://www.thearcanelibrary.com/pages/shadowdark) - Official game rules
 - [Next.js Docs](https://nextjs.org/docs) - Framework documentation
 - [Supabase Docs](https://supabase.com/docs) - Backend/database docs
 - [Mantine UI](https://mantine.dev/) - Component library docs
 
 ### Project-Specific
+
 - See `project-plan/prd.md` for complete feature requirements
 - See `.claude/agents/shadowdark-specialist-agent.md` for Shadowdark game mechanics reference
 - See `specs/001-create-a-plan/` for current feature specification
@@ -439,6 +473,7 @@ USING (
 ## Getting Help
 
 When working on this project:
+
 1. **Game Rules Questions**: Use the `shadowdark-specialist` agent
 2. **Database Design**: Use the `supabase-db-architect` agent
 3. **Architecture Decisions**: Use the `nextjs-architect` agent
@@ -446,4 +481,5 @@ When working on this project:
 5. **Feature Planning**: Use the `frontend-pm` agent or `/specify` command
 
 ## Last Updated
+
 October 16, 2025 - Initial claude.md creation

@@ -1,4 +1,4 @@
-'use client';
+"use client";
 
 import {
   Card,
@@ -13,16 +13,16 @@ import {
   ActionIcon,
   Grid,
   Select,
-} from '@mantine/core';
+} from "@mantine/core";
 import {
   IconSearch,
   IconFilter,
   IconFilterOff,
   IconChevronDown,
   IconChevronUp,
-} from '@tabler/icons-react';
-import { useState, useEffect } from 'react';
-import { useDebouncedValue } from '@mantine/hooks';
+} from "@tabler/icons-react";
+import { useState, useEffect } from "react";
+import { useDebouncedValue } from "@mantine/hooks";
 
 interface FilterValues {
   search: string;
@@ -42,11 +42,11 @@ interface MonsterFiltersProps {
 }
 
 const DEFAULT_FILTERS: FilterValues = {
-  search: '',
+  search: "",
   challengeLevelRange: [1, 20],
   types: [],
   locations: [],
-  sources: []
+  sources: [],
 };
 
 export function MonsterFilters({
@@ -55,7 +55,7 @@ export function MonsterFilters({
   availableTypes = [],
   availableLocations = [],
   availableSources = [],
-  loading = false
+  loading = false,
 }: MonsterFiltersProps) {
   const [expanded, setExpanded] = useState(false);
   const [localSearch, setLocalSearch] = useState(filters.search);
@@ -67,7 +67,7 @@ export function MonsterFilters({
     if (debouncedSearch !== filters.search) {
       onFiltersChange({
         ...filters,
-        search: debouncedSearch
+        search: debouncedSearch,
       });
     }
   }, [debouncedSearch]);
@@ -75,30 +75,30 @@ export function MonsterFilters({
   const handleFilterChange = (key: keyof FilterValues, value: any) => {
     onFiltersChange({
       ...filters,
-      [key]: value
+      [key]: value,
     });
   };
 
   const clearFilters = () => {
-    setLocalSearch('');
+    setLocalSearch("");
     onFiltersChange(DEFAULT_FILTERS);
   };
 
-  const hasActiveFilters = (
-    filters.search !== '' ||
+  const hasActiveFilters =
+    filters.search !== "" ||
     filters.challengeLevelRange[0] !== 1 ||
     filters.challengeLevelRange[1] !== 20 ||
     filters.types.length > 0 ||
     filters.locations.length > 0 ||
-    filters.sources.length > 0
-  );
+    filters.sources.length > 0;
 
   const activeFilterCount = [
-    filters.search !== '',
-    filters.challengeLevelRange[0] !== 1 || filters.challengeLevelRange[1] !== 20,
+    filters.search !== "",
+    filters.challengeLevelRange[0] !== 1 ||
+      filters.challengeLevelRange[1] !== 20,
     filters.types.length > 0,
     filters.locations.length > 0,
-    filters.sources.length > 0
+    filters.sources.length > 0,
   ].filter(Boolean).length;
 
   return (
@@ -117,10 +117,14 @@ export function MonsterFilters({
 
           <Group gap="xs">
             <Button
-              variant={expanded ? 'filled' : 'light'}
+              variant={expanded ? "filled" : "light"}
               leftSection={<IconFilter size={16} />}
               rightSection={
-                expanded ? <IconChevronUp size={14} /> : <IconChevronDown size={14} />
+                expanded ? (
+                  <IconChevronUp size={14} />
+                ) : (
+                  <IconChevronDown size={14} />
+                )
               }
               onClick={() => setExpanded(!expanded)}
             >
@@ -152,20 +156,23 @@ export function MonsterFilters({
               {/* Challenge Level Range */}
               <Grid.Col span={12}>
                 <Text size="sm" fw={500} mb="xs">
-                  Challenge Level: {filters.challengeLevelRange[0]} - {filters.challengeLevelRange[1]}
+                  Challenge Level: {filters.challengeLevelRange[0]} -{" "}
+                  {filters.challengeLevelRange[1]}
                 </Text>
                 <RangeSlider
                   min={1}
                   max={20}
                   step={1}
                   value={filters.challengeLevelRange}
-                  onChange={(value) => handleFilterChange('challengeLevelRange', value)}
+                  onChange={(value) =>
+                    handleFilterChange("challengeLevelRange", value)
+                  }
                   marks={[
-                    { value: 1, label: '1' },
-                    { value: 5, label: '5' },
-                    { value: 10, label: '10' },
-                    { value: 15, label: '15' },
-                    { value: 20, label: '20' },
+                    { value: 1, label: "1" },
+                    { value: 5, label: "5" },
+                    { value: 10, label: "10" },
+                    { value: 15, label: "15" },
+                    { value: 20, label: "20" },
                   ]}
                   disabled={loading}
                 />
@@ -176,9 +183,12 @@ export function MonsterFilters({
                 <MultiSelect
                   label="Monster Types"
                   placeholder="Select types"
-                  data={availableTypes.map(type => ({ value: type, label: type }))}
+                  data={availableTypes.map((type) => ({
+                    value: type,
+                    label: type,
+                  }))}
                   value={filters.types}
-                  onChange={(value) => handleFilterChange('types', value)}
+                  onChange={(value) => handleFilterChange("types", value)}
                   searchable
                   clearable
                   disabled={loading}
@@ -190,9 +200,12 @@ export function MonsterFilters({
                 <MultiSelect
                   label="Locations"
                   placeholder="Select locations"
-                  data={availableLocations.map(loc => ({ value: loc, label: loc }))}
+                  data={availableLocations.map((loc) => ({
+                    value: loc,
+                    label: loc,
+                  }))}
                   value={filters.locations}
-                  onChange={(value) => handleFilterChange('locations', value)}
+                  onChange={(value) => handleFilterChange("locations", value)}
                   searchable
                   clearable
                   disabled={loading}
@@ -204,9 +217,12 @@ export function MonsterFilters({
                 <MultiSelect
                   label="Sources"
                   placeholder="Select sources"
-                  data={availableSources.map(source => ({ value: source, label: source }))}
+                  data={availableSources.map((source) => ({
+                    value: source,
+                    label: source,
+                  }))}
                   value={filters.sources}
-                  onChange={(value) => handleFilterChange('sources', value)}
+                  onChange={(value) => handleFilterChange("sources", value)}
                   searchable
                   clearable
                   disabled={loading}

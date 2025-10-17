@@ -62,7 +62,7 @@ export interface DatabaseList {
 export interface DatabaseListItem {
   id: string; // UUID
   list_id: string; // UUID
-  item_type: 'monster' | 'group';
+  item_type: "monster" | "group";
   item_id: string; // UUID
   quantity: number;
   created_at: string;
@@ -82,7 +82,7 @@ export interface DatabaseEncounterSlot {
   id: string; // UUID
   table_id: string; // UUID
   slot_number: number; // 1 to die_size
-  item_type: 'monster' | 'group';
+  item_type: "monster" | "group";
   item_id: string; // UUID
   created_at: string;
 }
@@ -101,19 +101,19 @@ export interface DatabaseTagLocation {
 
 export interface DatabaseFavorite {
   user_id: string; // UUID
-  item_type: 'monster' | 'group';
+  item_type: "monster" | "group";
   item_id: string; // UUID
   created_at: string;
 }
 
 export interface DatabaseFlag {
   id: string; // UUID
-  flagged_item_type: 'monster' | 'group';
+  flagged_item_type: "monster" | "group";
   flagged_item_id: string; // UUID
   reporter_user_id: string; // UUID
-  reason: 'inappropriate' | 'copyright' | 'spam' | 'inaccurate' | 'other';
+  reason: "inappropriate" | "copyright" | "spam" | "inaccurate" | "other";
   comment: string;
-  status: 'pending' | 'resolved' | 'dismissed';
+  status: "pending" | "resolved" | "dismissed";
   resolved_at?: string;
   resolved_by?: string; // UUID
   created_at: string;
@@ -132,7 +132,7 @@ export interface DatabaseAuditLog {
 
 export interface MonsterAttack {
   name: string;
-  type: 'melee' | 'ranged' | 'spell';
+  type: "melee" | "ranged" | "spell";
   damage: string;
   range?: string;
   description?: string;
@@ -144,7 +144,7 @@ export interface MonsterAbility {
 }
 
 export interface MonsterTreasure {
-  type?: 'coins' | 'items' | 'mixed' | 'none';
+  type?: "coins" | "items" | "mixed" | "none";
   amount?: string;
   items?: string[];
 }
@@ -193,18 +193,18 @@ export interface ListItemWithDetails extends DatabaseListItem {
 // Database View Types
 
 export interface AllMonstersView extends DatabaseMonster {
-  type: 'official' | 'custom';
+  type: "official" | "custom";
 }
 
 // Search and Filter Types
 
 export interface MonsterSearchFilters {
   q?: string;
-  fuzziness?: 'low' | 'medium' | 'high';
+  fuzziness?: "low" | "medium" | "high";
   min_cl?: number;
   max_cl?: number;
   tags?: string[];
-  type?: 'official' | 'custom' | 'public';
+  type?: "official" | "custom" | "public";
   limit?: number;
   offset?: number;
 }
@@ -213,7 +213,7 @@ export interface RandomMonsterFilters {
   challenge_level_min?: number;
   challenge_level_max?: number;
   tags?: string[];
-  type?: 'official' | 'custom' | 'public';
+  type?: "official" | "custom" | "public";
 }
 
 // Auth and Session Types
@@ -245,7 +245,7 @@ export interface ValidationError extends APIError {
 
 // Utility Types
 
-export type SortDirection = 'asc' | 'desc';
+export type SortDirection = "asc" | "desc";
 
 export interface PaginationParams {
   limit: number;
@@ -287,7 +287,7 @@ export interface SupabaseSession {
 
 // Row Level Security Policy Types
 
-export type RLSPolicy = 'SELECT' | 'INSERT' | 'UPDATE' | 'DELETE';
+export type RLSPolicy = "SELECT" | "INSERT" | "UPDATE" | "DELETE";
 
 export interface RLSContext {
   user_id?: string;
@@ -297,27 +297,27 @@ export interface RLSContext {
 
 // Export utility type helpers
 
-export type WithoutTimestamps<T> = Omit<T, 'created_at' | 'updated_at'>;
-export type WithoutId<T> = Omit<T, 'id'>;
+export type WithoutTimestamps<T> = Omit<T, "created_at" | "updated_at">;
+export type WithoutId<T> = Omit<T, "id">;
 export type CreateInput<T> = WithoutTimestamps<WithoutId<T>>;
 export type UpdateInput<T> = Partial<WithoutTimestamps<WithoutId<T>>>;
 
 // Database table names (for type safety)
 
 export const TABLE_NAMES = {
-  USERS: 'user_profiles',
-  OFFICIAL_MONSTERS: 'official_monsters',
-  USER_MONSTERS: 'user_monsters',
-  USER_GROUPS: 'user_groups',
-  USER_LISTS: 'user_lists',
-  LIST_ITEMS: 'list_items',
-  ENCOUNTER_TABLES: 'encounter_tables',
-  ENCOUNTER_SLOTS: 'encounter_slots',
-  TAG_TYPES: 'tag_types',
-  TAG_LOCATIONS: 'tag_locations',
-  USER_FAVORITES: 'user_favorites',
-  FLAGS: 'flags',
-  AUDIT_LOGS: 'audit_logs'
+  USERS: "user_profiles",
+  OFFICIAL_MONSTERS: "official_monsters",
+  USER_MONSTERS: "user_monsters",
+  USER_GROUPS: "user_groups",
+  USER_LISTS: "user_lists",
+  LIST_ITEMS: "list_items",
+  ENCOUNTER_TABLES: "encounter_tables",
+  ENCOUNTER_SLOTS: "encounter_slots",
+  TAG_TYPES: "tag_types",
+  TAG_LOCATIONS: "tag_locations",
+  USER_FAVORITES: "user_favorites",
+  FLAGS: "flags",
+  AUDIT_LOGS: "audit_logs",
 } as const;
 
-export type TableName = typeof TABLE_NAMES[keyof typeof TABLE_NAMES];
+export type TableName = (typeof TABLE_NAMES)[keyof typeof TABLE_NAMES];

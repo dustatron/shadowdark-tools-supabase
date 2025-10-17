@@ -1,6 +1,6 @@
-'use client';
+"use client";
 
-import { Paper, Title, Stack, Text, Divider } from '@mantine/core';
+import { Paper, Title, Stack, Text, Divider } from "@mantine/core";
 
 interface Ability {
   name: string;
@@ -14,7 +14,7 @@ interface MonsterAbilitiesDisplayProps {
 
 export function MonsterAbilitiesDisplay({
   abilities,
-  title = 'Special Abilities'
+  title = "Special Abilities",
 }: MonsterAbilitiesDisplayProps) {
   if (abilities.length === 0) {
     return null;

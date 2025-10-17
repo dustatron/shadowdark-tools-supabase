@@ -1,13 +1,13 @@
-import { describe, it, expect } from 'vitest';
+import { describe, it, expect } from "vitest";
 
 // Test suite for authentication API endpoints
-describe('Authentication API Contract Tests', () => {
-  describe('POST /api/auth/register', () => {
-    it('should register new user with valid data', async () => {
+describe("Authentication API Contract Tests", () => {
+  describe("POST /api/auth/register", () => {
+    it("should register new user with valid data", async () => {
       const userData = {
-        email: 'test@example.com',
-        password: 'securepassword123',
-        displayName: 'Test User'
+        email: "test@example.com",
+        password: "securepassword123",
+        displayName: "Test User",
       };
 
       // Note: This test needs proper test environment setup
@@ -20,22 +20,22 @@ describe('Authentication API Contract Tests', () => {
       expect(true).toBe(true); // Placeholder until auth implementation
     });
 
-    it('should reject registration with invalid email', async () => {
+    it("should reject registration with invalid email", async () => {
       const userData = {
-        email: 'invalid-email',
-        password: 'securepassword123',
-        displayName: 'Test User'
+        email: "invalid-email",
+        password: "securepassword123",
+        displayName: "Test User",
       };
 
       // Test validation
       expect(true).toBe(true); // Placeholder
     });
 
-    it('should reject registration with weak password', async () => {
+    it("should reject registration with weak password", async () => {
       const userData = {
-        email: 'test@example.com',
-        password: '123', // Too weak
-        displayName: 'Test User'
+        email: "test@example.com",
+        password: "123", // Too weak
+        displayName: "Test User",
       };
 
       // Test validation
@@ -43,21 +43,21 @@ describe('Authentication API Contract Tests', () => {
     });
   });
 
-  describe('POST /api/auth/login', () => {
-    it('should login user with valid credentials', async () => {
+  describe("POST /api/auth/login", () => {
+    it("should login user with valid credentials", async () => {
       const credentials = {
-        email: 'test@example.com',
-        password: 'securepassword123'
+        email: "test@example.com",
+        password: "securepassword123",
       };
 
       // Note: This test needs proper test environment setup
       expect(true).toBe(true); // Placeholder
     });
 
-    it('should reject login with invalid credentials', async () => {
+    it("should reject login with invalid credentials", async () => {
       const credentials = {
-        email: 'test@example.com',
-        password: 'wrongpassword'
+        email: "test@example.com",
+        password: "wrongpassword",
       };
 
       // Test rejection
@@ -65,30 +65,30 @@ describe('Authentication API Contract Tests', () => {
     });
   });
 
-  describe('POST /api/auth/logout', () => {
-    it('should logout authenticated user', async () => {
+  describe("POST /api/auth/logout", () => {
+    it("should logout authenticated user", async () => {
       // Test logout functionality
       expect(true).toBe(true); // Placeholder
     });
   });
 
-  describe('GET /api/auth/profile', () => {
-    it('should return user profile for authenticated user', async () => {
+  describe("GET /api/auth/profile", () => {
+    it("should return user profile for authenticated user", async () => {
       // Test profile retrieval
       expect(true).toBe(true); // Placeholder
     });
 
-    it('should return 401 for unauthenticated request', async () => {
+    it("should return 401 for unauthenticated request", async () => {
       // Test auth requirement
       expect(true).toBe(true); // Placeholder
     });
   });
 
-  describe('PUT /api/auth/profile', () => {
-    it('should update user profile for authenticated user', async () => {
+  describe("PUT /api/auth/profile", () => {
+    it("should update user profile for authenticated user", async () => {
       const updateData = {
-        displayName: 'Updated Name',
-        bio: 'Updated bio'
+        displayName: "Updated Name",
+        bio: "Updated bio",
       };
 
       // Test profile update

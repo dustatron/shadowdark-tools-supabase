@@ -11,14 +11,14 @@ paths:
       security:
         - bearerAuth: []
       responses:
-        '200':
+        "200":
           description: User's lists
           content:
             application/json:
               schema:
                 type: array
                 items:
-                  $ref: '#/components/schemas/List'
+                  $ref: "#/components/schemas/List"
 
     post:
       summary: Create new list
@@ -29,14 +29,14 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/CreateListRequest'
+              $ref: "#/components/schemas/CreateListRequest"
       responses:
-        '201':
+        "201":
           description: List created
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/List'
+                $ref: "#/components/schemas/List"
 
   /api/lists/{id}:
     get:
@@ -51,12 +51,12 @@ paths:
             type: string
             format: uuid
       responses:
-        '200':
+        "200":
           description: List with items
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/ListWithItems'
+                $ref: "#/components/schemas/ListWithItems"
 
     put:
       summary: Update list
@@ -74,14 +74,14 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/UpdateListRequest'
+              $ref: "#/components/schemas/UpdateListRequest"
       responses:
-        '200':
+        "200":
           description: List updated
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/List'
+                $ref: "#/components/schemas/List"
 
     delete:
       summary: Delete list
@@ -95,7 +95,7 @@ paths:
             type: string
             format: uuid
       responses:
-        '204':
+        "204":
           description: List deleted
 
   /api/lists/{id}/items:
@@ -115,14 +115,14 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/AddListItemRequest'
+              $ref: "#/components/schemas/AddListItemRequest"
       responses:
-        '201':
+        "201":
           description: Item added to list
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/ListItem'
+                $ref: "#/components/schemas/ListItem"
 
   /api/lists/{id}/items/{itemId}:
     put:
@@ -153,12 +153,12 @@ paths:
                   type: integer
                   minimum: 1
       responses:
-        '200':
+        "200":
           description: Item updated
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/ListItem'
+                $ref: "#/components/schemas/ListItem"
 
     delete:
       summary: Remove item from list
@@ -178,7 +178,7 @@ paths:
             type: string
             format: uuid
       responses:
-        '204':
+        "204":
           description: Item removed from list
 
 components:
@@ -214,13 +214,13 @@ components:
 
     ListWithItems:
       allOf:
-        - $ref: '#/components/schemas/List'
+        - $ref: "#/components/schemas/List"
         - type: object
           properties:
             items:
               type: array
               items:
-                $ref: '#/components/schemas/ListItem'
+                $ref: "#/components/schemas/ListItem"
 
     ListItem:
       type: object
@@ -237,9 +237,9 @@ components:
         quantity:
           type: integer
         monster:
-          $ref: '#/components/schemas/Monster'
+          $ref: "#/components/schemas/Monster"
         group:
-          $ref: '#/components/schemas/Group'
+          $ref: "#/components/schemas/Group"
         created_at:
           type: string
           format: date-time
@@ -274,7 +274,7 @@ components:
 
     UpdateListRequest:
       allOf:
-        - $ref: '#/components/schemas/CreateListRequest'
+        - $ref: "#/components/schemas/CreateListRequest"
 
     AddListItemRequest:
       type: object

@@ -4,6 +4,7 @@
 **Prerequisites**: plan.md (required), research.md, data-model.md, contracts/, quickstart.md
 
 ## Execution Flow (main)
+
 ```
 1. Load plan.md from feature directory
    → ✅ COMPLETE: Next.js + Supabase + Mantine stack identified
@@ -22,16 +23,19 @@
 ```
 
 ## Format: `[ID] [P?] Description`
+
 - **[P]**: Can run in parallel (different files, no dependencies)
 - Include exact file paths in descriptions
 
 ## Path Conventions
+
 - **Next.js App Router Structure**: `app/`, `components/`, `lib/` at repository root
 - **Database**: Supabase migrations in `supabase/migrations/`
 - **Tests**: `__tests__/` following Next.js conventions
 - **Starter Data**: Official monsters from `starter-data/monsters.json` (243 Shadowdark Core monsters)
 
 ## Phase 3.1: Setup & Database
+
 - [x] T001 Install required dependencies (Supabase, Mantine UI, Zod, React Hook Form, Vitest, Playwright)
 - [x] T002 Configure Supabase project and environment variables
 - [x] T003 [P] Setup ESLint and Prettier configuration
@@ -52,47 +56,53 @@
 - [x] T017.1 BONUS: Create official monsters seed migration from starter-data/monsters.json (243 monsters)
 
 ## Phase 3.2: Tests First (TDD) ⚠️ MUST COMPLETE BEFORE 3.3
+
 **CRITICAL: These tests MUST be written and MUST FAIL before ANY implementation**
 **NOTE: All UI component tests updated to use Mantine components instead of shadcn/ui**
 
 ### Contract Tests
-- [ ] T018 [P] Contract test GET /api/monsters in __tests__/api/monsters-get.test.ts
-- [ ] T019 [P] Contract test POST /api/monsters in __tests__/api/monsters-post.test.ts
-- [ ] T020 [P] Contract test GET /api/monsters/{id} in __tests__/api/monsters-id-get.test.ts
-- [ ] T021 [P] Contract test PUT /api/monsters/{id} in __tests__/api/monsters-id-put.test.ts
-- [ ] T022 [P] Contract test DELETE /api/monsters/{id} in __tests__/api/monsters-id-delete.test.ts
-- [ ] T023 [P] Contract test POST /api/monsters/{id}/copy in __tests__/api/monsters-copy.test.ts
-- [ ] T024 [P] Contract test GET /api/monsters/random in __tests__/api/monsters-random.test.ts
-- [ ] T025 [P] Contract test GET /api/lists in __tests__/api/lists-get.test.ts
-- [ ] T026 [P] Contract test POST /api/lists in __tests__/api/lists-post.test.ts
-- [ ] T027 [P] Contract test GET /api/lists/{id} in __tests__/api/lists-id-get.test.ts
-- [ ] T028 [P] Contract test PUT /api/lists/{id} in __tests__/api/lists-id-put.test.ts
-- [ ] T029 [P] Contract test DELETE /api/lists/{id} in __tests__/api/lists-id-delete.test.ts
-- [ ] T030 [P] Contract test POST /api/lists/{id}/items in __tests__/api/lists-items-post.test.ts
+
+- [ ] T018 [P] Contract test GET /api/monsters in **tests**/api/monsters-get.test.ts
+- [ ] T019 [P] Contract test POST /api/monsters in **tests**/api/monsters-post.test.ts
+- [ ] T020 [P] Contract test GET /api/monsters/{id} in **tests**/api/monsters-id-get.test.ts
+- [ ] T021 [P] Contract test PUT /api/monsters/{id} in **tests**/api/monsters-id-put.test.ts
+- [ ] T022 [P] Contract test DELETE /api/monsters/{id} in **tests**/api/monsters-id-delete.test.ts
+- [ ] T023 [P] Contract test POST /api/monsters/{id}/copy in **tests**/api/monsters-copy.test.ts
+- [ ] T024 [P] Contract test GET /api/monsters/random in **tests**/api/monsters-random.test.ts
+- [ ] T025 [P] Contract test GET /api/lists in **tests**/api/lists-get.test.ts
+- [ ] T026 [P] Contract test POST /api/lists in **tests**/api/lists-post.test.ts
+- [ ] T027 [P] Contract test GET /api/lists/{id} in **tests**/api/lists-id-get.test.ts
+- [ ] T028 [P] Contract test PUT /api/lists/{id} in **tests**/api/lists-id-put.test.ts
+- [ ] T029 [P] Contract test DELETE /api/lists/{id} in **tests**/api/lists-id-delete.test.ts
+- [ ] T030 [P] Contract test POST /api/lists/{id}/items in **tests**/api/lists-items-post.test.ts
 
 ### Integration Tests
-- [ ] T031 [P] Integration test user registration and authentication in __tests__/integration/auth.test.ts
-- [ ] T032 [P] Integration test monster search and discovery in __tests__/integration/monster-search.test.ts
-- [ ] T033 [P] Integration test custom monster creation in __tests__/integration/monster-creation.test.ts
-- [ ] T034 [P] Integration test list management in __tests__/integration/list-management.test.ts
-- [ ] T035 [P] Integration test encounter table generation in __tests__/integration/encounter-generation.test.ts
-- [ ] T036 [P] Integration test community features in __tests__/integration/community.test.ts
-- [ ] T037 [P] Integration test guest user experience in __tests__/integration/guest-experience.test.ts
-- [ ] T038 [P] Integration test admin dashboard in __tests__/integration/admin-dashboard.test.ts
+
+- [ ] T031 [P] Integration test user registration and authentication in **tests**/integration/auth.test.ts
+- [ ] T032 [P] Integration test monster search and discovery in **tests**/integration/monster-search.test.ts
+- [ ] T033 [P] Integration test custom monster creation in **tests**/integration/monster-creation.test.ts
+- [ ] T034 [P] Integration test list management in **tests**/integration/list-management.test.ts
+- [ ] T035 [P] Integration test encounter table generation in **tests**/integration/encounter-generation.test.ts
+- [ ] T036 [P] Integration test community features in **tests**/integration/community.test.ts
+- [ ] T037 [P] Integration test guest user experience in **tests**/integration/guest-experience.test.ts
+- [ ] T038 [P] Integration test admin dashboard in **tests**/integration/admin-dashboard.test.ts
 
 ## Phase 3.3: Core Implementation (ONLY after tests are failing)
 
 ### Data Validation & Types
+
 - [ ] T039 Create Zod schemas for monster validation in lib/validations/monster.ts
 - [ ] T040 Create Zod schemas for list validation in lib/validations/list.ts
 - [ ] T041 Create TypeScript types for all entities in lib/types/database.ts
 
 ### Supabase Configuration
+
 - [ ] T042 Configure Supabase client for browser in lib/supabase/client.ts
 - [ ] T043 Configure Supabase client for server in lib/supabase/server.ts
 - [ ] T044 Create authentication helpers in lib/auth/helpers.ts
 
 ### API Routes
+
 - [ ] T045 Implement GET /api/monsters endpoint in app/api/monsters/route.ts
 - [ ] T046 Implement POST /api/monsters endpoint in app/api/monsters/route.ts
 - [ ] T047 Implement GET /api/monsters/[id] endpoint in app/api/monsters/[id]/route.ts
@@ -108,6 +118,7 @@
 - [ ] T057 Implement POST /api/lists/[id]/items endpoint in app/api/lists/[id]/items/route.ts
 
 ### UI Components (Mantine)
+
 - [ ] T058 [P] Create MonsterCard component using Mantine Card in components/monsters/monster-card.tsx
 - [ ] T059 [P] Create MonsterSearch component using Mantine TextInput and Select in components/monsters/monster-search.tsx
 - [ ] T060 [P] Create MonsterForm component using Mantine Form and inputs in components/monsters/monster-form.tsx
@@ -119,6 +130,7 @@
 - [ ] T066 [P] Create EncounterGenerator component using Mantine Button and Modal in components/encounters/encounter-generator.tsx
 
 ### App Router Pages
+
 - [ ] T067 Create main dashboard page in app/dashboard/page.tsx
 - [ ] T068 Create monster search page in app/monsters/page.tsx
 - [ ] T069 Create monster details page in app/monsters/[id]/page.tsx
@@ -131,6 +143,7 @@
 - [ ] T076 Create admin dashboard page in app/admin/page.tsx
 
 ## Phase 3.4: Advanced Features
+
 - [ ] T077 Implement fuzzy search functionality using pg_trgm in lib/search/fuzzy-search.ts
 - [ ] T078 Create monster import script for official data in scripts/import-monsters.ts
 - [ ] T079 Implement image upload integration with Cloudinary in lib/upload/cloudinary.ts
@@ -141,17 +154,19 @@
 - [ ] T084 Create guest user session management in lib/auth/guest-session.ts
 
 ## Phase 3.5: Integration & Middleware
+
 - [ ] T085 Update middleware.ts for authentication and admin route protection
 - [ ] T086 Implement error handling and logging middleware
 - [ ] T087 Create database connection pooling optimization
 - [ ] T088 Implement caching strategy for frequently accessed data
 
 ## Phase 3.6: Polish & Testing
-- [ ] T089 [P] Unit tests for monster validation in __tests__/unit/monster-validation.test.ts
-- [ ] T090 [P] Unit tests for search functionality in __tests__/unit/search.test.ts
-- [ ] T091 [P] Unit tests for encounter generation in __tests__/unit/encounter-generation.test.ts
-- [ ] T092 [P] Performance tests for search endpoints in __tests__/performance/search-performance.test.ts
-- [ ] T093 [P] E2E tests using Playwright in __tests__/e2e/full-workflow.spec.ts
+
+- [ ] T089 [P] Unit tests for monster validation in **tests**/unit/monster-validation.test.ts
+- [ ] T090 [P] Unit tests for search functionality in **tests**/unit/search.test.ts
+- [ ] T091 [P] Unit tests for encounter generation in **tests**/unit/encounter-generation.test.ts
+- [ ] T092 [P] Performance tests for search endpoints in **tests**/performance/search-performance.test.ts
+- [ ] T093 [P] E2E tests using Playwright in **tests**/e2e/full-workflow.spec.ts
 - [ ] T094 [P] Create API documentation in docs/api.md
 - [ ] T095 [P] Create user guide documentation in docs/user-guide.md
 - [ ] T096 Add responsive design optimizations using Mantine responsive utilities
@@ -163,6 +178,7 @@
 ## Dependencies
 
 ### Critical Path Dependencies
+
 - **Setup Phase (T001-T017)** blocks all other phases
 - **Database migrations (T006-T017)** must complete before API routes (T045-T057)
 - **Contract tests (T018-T030)** must FAIL before implementation begins
@@ -171,6 +187,7 @@
 - **Supabase configuration (T042-T044)** blocks API routes and authentication
 
 ### Implementation Dependencies
+
 - T039-T041 (validation) → T045-T057 (API routes)
 - T042-T044 (Supabase config) → T045-T057 (API routes)
 - T045-T057 (API routes) → T058-T076 (UI components and pages)
@@ -181,6 +198,7 @@
 ## Parallel Execution Examples
 
 ### Phase 3.1 Setup (Parallel)
+
 ```bash
 # These can run simultaneously:
 Task: "Configure ESLint and Prettier configuration"
@@ -189,6 +207,7 @@ Task: "Configure Playwright for E2E testing"
 ```
 
 ### Phase 3.2 Contract Tests (Parallel)
+
 ```bash
 # All contract tests can run simultaneously:
 Task: "Contract test GET /api/monsters in __tests__/api/monsters-get.test.ts"
@@ -199,6 +218,7 @@ Task: "Contract test DELETE /api/monsters/{id} in __tests__/api/monsters-id-dele
 ```
 
 ### Phase 3.2 Integration Tests (Parallel)
+
 ```bash
 # All integration tests can run simultaneously:
 Task: "Integration test user registration and authentication in __tests__/integration/auth.test.ts"
@@ -209,6 +229,7 @@ Task: "Integration test encounter table generation in __tests__/integration/enco
 ```
 
 ### Phase 3.3 UI Components (Parallel)
+
 ```bash
 # UI components in different files can run simultaneously:
 Task: "Create MonsterCard component in components/monsters/monster-card.tsx"
@@ -217,6 +238,7 @@ Task: "Create EncounterTable component in components/encounters/encounter-table.
 ```
 
 ### Phase 3.6 Polish (Parallel)
+
 ```bash
 # Final polish tasks can run simultaneously:
 Task: "Unit tests for monster validation in __tests__/unit/monster-validation.test.ts"
@@ -227,6 +249,7 @@ Task: "Create user guide documentation in docs/user-guide.md"
 ```
 
 ## Notes
+
 - **[P] tasks** = different files, no dependencies between them
 - **TDD requirement**: Verify all tests FAIL before implementing corresponding features
 - **Constitutional compliance**: Each task follows component-first, API-first, and test-first principles

@@ -12,9 +12,11 @@ This document provides step-by-step testing scenarios to validate the core funct
 ## Test Scenario 1: User Registration and Authentication
 
 ### Objective
+
 Verify that users can register, login, and access the application
 
 ### Steps
+
 1. Navigate to the application homepage
 2. Click "Sign Up" button
 3. Enter valid email and password
@@ -23,6 +25,7 @@ Verify that users can register, login, and access the application
 6. Verify redirect to dashboard
 
 ### Expected Results
+
 - User account is created successfully
 - Email verification works (if enabled)
 - Login redirects to dashboard
@@ -31,9 +34,11 @@ Verify that users can register, login, and access the application
 ## Test Scenario 2: Monster Search and Discovery
 
 ### Objective
+
 Verify the core search functionality works correctly
 
 ### Steps
+
 1. Login as a test user
 2. Navigate to the search page
 3. Search for "goblin" in the search bar
@@ -43,6 +48,7 @@ Verify the core search functionality works correctly
 7. Click "Random Monster" button
 
 ### Expected Results
+
 - Search returns relevant monsters containing "goblin"
 - Filters correctly narrow results
 - Fuzzy search finds related monsters
@@ -52,9 +58,11 @@ Verify the core search functionality works correctly
 ## Test Scenario 3: Custom Monster Creation
 
 ### Objective
+
 Verify users can create and manage custom monsters
 
 ### Steps
+
 1. Login as a test user
 2. Navigate to "Create Monster" page
 3. Fill in required fields:
@@ -75,6 +83,7 @@ Verify users can create and manage custom monsters
 8. Verify monster appears in search results
 
 ### Expected Results
+
 - Custom monster is created with validation
 - XP is automatically calculated (CL 2 = 50 XP)
 - Monster can be edited by owner
@@ -84,9 +93,11 @@ Verify users can create and manage custom monsters
 ## Test Scenario 4: List Management
 
 ### Objective
+
 Verify users can create and manage encounter lists
 
 ### Steps
+
 1. Login as a test user
 2. Create a new list named "Forest Encounters"
 3. Set party level to 3, XP budget to 200
@@ -99,6 +110,7 @@ Verify users can create and manage encounter lists
 10. Duplicate the list
 
 ### Expected Results
+
 - List is created with metadata
 - Monsters can be added from search results
 - XP totals are calculated automatically
@@ -109,9 +121,11 @@ Verify users can create and manage encounter lists
 ## Test Scenario 5: Encounter Table Generation
 
 ### Objective
+
 Verify encounter table creation and rolling
 
 ### Steps
+
 1. Login as a test user
 2. Navigate to encounter generation
 3. Select "Forest Encounters" list as source
@@ -123,6 +137,7 @@ Verify encounter table creation and rolling
 9. Test rolling the modified table
 
 ### Expected Results
+
 - Encounter table is generated with 6 slots
 - Slots are populated from the list
 - Table can be saved and retrieved
@@ -133,9 +148,11 @@ Verify encounter table creation and rolling
 ## Test Scenario 6: Community Features
 
 ### Objective
+
 Verify community content sharing and moderation
 
 ### Steps
+
 1. Login as user A
 2. Create a custom monster and mark as public
 3. Logout and login as user B
@@ -148,6 +165,7 @@ Verify community content sharing and moderation
 10. Verify flag status updates
 
 ### Expected Results
+
 - Public monsters appear in community browser
 - Users can use others' public content
 - Flagging system works correctly
@@ -158,9 +176,11 @@ Verify community content sharing and moderation
 ## Test Scenario 7: Guest User Experience
 
 ### Objective
+
 Verify guest users have limited but functional access
 
 ### Steps
+
 1. Visit application without logging in
 2. Search public monsters
 3. Create temporary list (should hit limit at 3)
@@ -170,6 +190,7 @@ Verify guest users have limited but functional access
 7. Register account and verify data migration
 
 ### Expected Results
+
 - Guests can search public content
 - Temporary lists work with limits
 - Encounter generation has session limits
@@ -180,9 +201,11 @@ Verify guest users have limited but functional access
 ## Test Scenario 8: Admin Dashboard
 
 ### Objective
+
 Verify administrative functions work correctly
 
 ### Steps
+
 1. Login as admin user
 2. Access admin dashboard
 3. Import official monsters via bulk script
@@ -193,6 +216,7 @@ Verify administrative functions work correctly
 8. Edit an official monster
 
 ### Expected Results
+
 - Admin dashboard is accessible to admin only
 - Bulk import validates and imports data
 - Tag management updates available options
@@ -203,9 +227,11 @@ Verify administrative functions work correctly
 ## Test Scenario 9: Mobile Responsiveness
 
 ### Objective
+
 Verify application works on mobile devices
 
 ### Steps
+
 1. Access application on mobile browser
 2. Test navigation menu (hamburger menu)
 3. Perform monster search with touch interface
@@ -215,6 +241,7 @@ Verify application works on mobile devices
 7. Verify all buttons and forms are touch-friendly
 
 ### Expected Results
+
 - Mobile layout adapts properly
 - Navigation works on small screens
 - Touch interface is responsive
@@ -225,9 +252,11 @@ Verify application works on mobile devices
 ## Test Scenario 10: Data Export and Print
 
 ### Objective
+
 Verify export and print functionality
 
 ### Steps
+
 1. Login as a test user
 2. Create a monster with full details
 3. Export monster as JSON
@@ -238,6 +267,7 @@ Verify export and print functionality
 8. Print encounter table
 
 ### Expected Results
+
 - JSON exports contain complete data
 - Markdown exports are human-readable
 - List exports include all items
@@ -247,6 +277,7 @@ Verify export and print functionality
 ## Performance Validation
 
 ### Load Testing
+
 1. Simulate 50 concurrent users searching
 2. Verify page load times < 2 seconds
 3. Verify search response times < 500ms
@@ -254,6 +285,7 @@ Verify export and print functionality
 5. Monitor database query performance
 
 ### Expected Performance
+
 - Search results within 500ms
 - Page loads within 2 seconds
 - Smooth infinite scrolling
@@ -263,6 +295,7 @@ Verify export and print functionality
 ## Security Validation
 
 ### Authentication Testing
+
 1. Test password reset flow
 2. Verify session timeout
 3. Test SQL injection on search inputs
@@ -270,6 +303,7 @@ Verify export and print functionality
 5. Verify RLS policies prevent data access
 
 ### Authorization Testing
+
 1. Verify users can only edit their own content
 2. Test admin-only access restrictions
 3. Verify private content visibility
@@ -278,6 +312,7 @@ Verify export and print functionality
 ## Data Integrity Validation
 
 ### Validation Testing
+
 1. Test invalid monster statistics (negative HP, invalid CL)
 2. Test XP calculation accuracy
 3. Test data consistency across updates
@@ -287,6 +322,7 @@ Verify export and print functionality
 ## Troubleshooting
 
 ### Common Issues
+
 1. **Search returns no results**: Check database seeding
 2. **Authentication fails**: Verify Supabase configuration
 3. **Images don't load**: Check Cloudinary setup
@@ -294,6 +330,7 @@ Verify export and print functionality
 5. **Mobile layout broken**: Verify Tailwind CSS compilation
 
 ### Debug Steps
+
 1. Check browser console for errors
 2. Verify network requests in dev tools
 3. Check Supabase logs for database errors

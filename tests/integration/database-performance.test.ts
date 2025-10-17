@@ -1,32 +1,31 @@
-import { describe, it, expect, beforeAll } from 'vitest';
-import { createSupabaseServerClient } from '@/lib/supabase/server';
+import { describe, it, expect, beforeAll } from "vitest";
+import { createSupabaseServerClient } from "@/lib/supabase/server";
 
 // Integration tests for database performance and optimization
-describe('Database Performance Integration Tests', () => {
+describe("Database Performance Integration Tests", () => {
   let supabase: any;
 
   beforeAll(async () => {
     supabase = createSupabaseServerClient();
   });
 
-  describe('Search Performance', () => {
-    it('should perform full-text search efficiently', async () => {
-      const searchTerms = ['dragon', 'goblin', 'undead', 'humanoid', 'beast'];
+  describe("Search Performance", () => {
+    it("should perform full-text search efficiently", async () => {
+      const searchTerms = ["dragon", "goblin", "undead", "humanoid", "beast"];
 
       for (const term of searchTerms) {
         const startTime = Date.now();
 
-        const searchResponse = await supabase
-          .rpc('search_monsters', {
-            search_query: term,
-            min_level: 1,
-            max_level: 10,
-            monster_types: null,
-            locations: null,
-            sources: null,
-            result_limit: 20,
-            result_offset: 0
-          });
+        const searchResponse = await supabase.rpc("search_monsters", {
+          search_query: term,
+          min_level: 1,
+          max_level: 10,
+          monster_types: null,
+          locations: null,
+          sources: null,
+          result_limit: 20,
+          result_offset: 0,
+        });
 
         const endTime = Date.now();
         const duration = endTime - startTime;
@@ -37,38 +36,38 @@ describe('Database Performance Integration Tests', () => {
         // Verify search relevance
         if (searchResponse.data.length > 0) {
           searchResponse.data.forEach((monster: any) => {
-            const searchableText = `${monster.name} ${monster.author_notes || ''}`.toLowerCase();
+            const searchableText =
+              `${monster.name} ${monster.author_notes || ""}`.toLowerCase();
             expect(searchableText).toContain(term.toLowerCase());
           });
         }
       }
     });
 
-    it('should handle complex filter combinations efficiently', async () => {
+    it("should handle complex filter combinations efficiently", async () => {
       const complexFilters = [
         {
-          search_query: 'humanoid',
+          search_query: "humanoid",
           min_level: 2,
           max_level: 6,
-          monster_types: ['humanoid', 'beast'],
-          locations: ['forest', 'mountain'],
-          sources: ['Shadowdark Core']
+          monster_types: ["humanoid", "beast"],
+          locations: ["forest", "mountain"],
+          sources: ["Shadowdark Core"],
         },
         {
-          search_query: 'undead',
+          search_query: "undead",
           min_level: 3,
           max_level: 8,
-          monster_types: ['undead'],
-          locations: ['cave', 'dungeon'],
-          sources: ['Shadowdark Core']
-        }
+          monster_types: ["undead"],
+          locations: ["cave", "dungeon"],
+          sources: ["Shadowdark Core"],
+        },
       ];
 
       for (const filters of complexFilters) {
         const startTime = Date.now();
 
-        const searchResponse = await supabase
-          .rpc('search_monsters', filters);
+        const searchResponse = await supabase.rpc("search_monsters", filters);
 
         const endTime = Date.now();
         const duration = endTime - startTime;
@@ -78,20 +77,25 @@ describe('Database Performance Integration Tests', () => {
 
         // Verify all filters are applied correctly
         searchResponse.data.forEach((monster: any) => {
-          expect(monster.challenge_level).toBeGreaterThanOrEqual(filters.min_level);
-          expect(monster.challenge_level).toBeLessThanOrEqual(filters.max_level);
+          expect(monster.challenge_level).toBeGreaterThanOrEqual(
+            filters.min_level,
+          );
+          expect(monster.challenge_level).toBeLessThanOrEqual(
+            filters.max_level,
+          );
 
           if (filters.monster_types) {
-            const hasMatchingType = filters.monster_types.some(type =>
-              monster.tags.type.includes(type)
+            const hasMatchingType = filters.monster_types.some((type) =>
+              monster.tags.type.includes(type),
             );
             expect(hasMatchingType).toBe(true);
           }
 
           if (filters.locations) {
-            const hasMatchingLocation = filters.locations.some(location =>
-              monster.tags.location.includes(location) ||
-              monster.tags.location.includes('any')
+            const hasMatchingLocation = filters.locations.some(
+              (location) =>
+                monster.tags.location.includes(location) ||
+                monster.tags.location.includes("any"),
             );
             expect(hasMatchingLocation).toBe(true);
           }
@@ -103,24 +107,23 @@ describe('Database Performance Integration Tests', () => {
       }
     });
 
-    it('should handle large result sets with pagination efficiently', async () => {
+    it("should handle large result sets with pagination efficiently", async () => {
       const pageSize = 50;
       const totalPages = 5;
 
       for (let page = 0; page < totalPages; page++) {
         const startTime = Date.now();
 
-        const searchResponse = await supabase
-          .rpc('search_monsters', {
-            search_query: '',
-            min_level: 1,
-            max_level: 10,
-            monster_types: null,
-            locations: null,
-            sources: null,
-            result_limit: pageSize,
-            result_offset: page * pageSize
-          });
+        const searchResponse = await supabase.rpc("search_monsters", {
+          search_query: "",
+          min_level: 1,
+          max_level: 10,
+          monster_types: null,
+          locations: null,
+          sources: null,
+          result_limit: pageSize,
+          result_offset: page * pageSize,
+        });
 
         const endTime = Date.now();
         const duration = endTime - startTime;
@@ -132,55 +135,55 @@ describe('Database Performance Integration Tests', () => {
     });
   });
 
-  describe('Index Performance', () => {
-    it('should utilize indexes for common query patterns', async () => {
+  describe("Index Performance", () => {
+    it("should utilize indexes for common query patterns", async () => {
       // Test queries that should use specific indexes
       const indexTestCases = [
         {
-          description: 'Challenge level range queries',
+          description: "Challenge level range queries",
           test: async () => {
             const response = await supabase
-              .from('official_monsters')
-              .select('*')
-              .gte('challenge_level', 3)
-              .lte('challenge_level', 7)
+              .from("official_monsters")
+              .select("*")
+              .gte("challenge_level", 3)
+              .lte("challenge_level", 7)
               .limit(10);
             return response;
-          }
+          },
         },
         {
-          description: 'Name prefix searches',
+          description: "Name prefix searches",
           test: async () => {
             const response = await supabase
-              .from('official_monsters')
-              .select('*')
-              .ilike('name', 'G%')
+              .from("official_monsters")
+              .select("*")
+              .ilike("name", "G%")
               .limit(10);
             return response;
-          }
+          },
         },
         {
-          description: 'Source filtering',
+          description: "Source filtering",
           test: async () => {
             const response = await supabase
-              .from('official_monsters')
-              .select('*')
-              .eq('source', 'Shadowdark Core')
+              .from("official_monsters")
+              .select("*")
+              .eq("source", "Shadowdark Core")
               .limit(10);
             return response;
-          }
+          },
         },
         {
-          description: 'Tag-based filtering',
+          description: "Tag-based filtering",
           test: async () => {
             const response = await supabase
-              .from('official_monsters')
-              .select('*')
-              .contains('tags', { type: ['humanoid'] })
+              .from("official_monsters")
+              .select("*")
+              .contains("tags", { type: ["humanoid"] })
               .limit(10);
             return response;
-          }
-        }
+          },
+        },
       ];
 
       for (const testCase of indexTestCases) {
@@ -194,14 +197,14 @@ describe('Database Performance Integration Tests', () => {
       }
     });
 
-    it('should perform efficiently with concurrent read operations', async () => {
+    it("should perform efficiently with concurrent read operations", async () => {
       // Simulate multiple concurrent read operations
       const concurrentQueries = Array.from({ length: 10 }, (_, i) =>
         supabase
-          .from('official_monsters')
-          .select('*')
-          .eq('challenge_level', (i % 5) + 1)
-          .limit(5)
+          .from("official_monsters")
+          .select("*")
+          .eq("challenge_level", (i % 5) + 1)
+          .limit(5),
       );
 
       const startTime = Date.now();
@@ -210,7 +213,7 @@ describe('Database Performance Integration Tests', () => {
       const duration = endTime - startTime;
 
       // All queries should succeed
-      results.forEach(result => {
+      results.forEach((result) => {
         expect(result.error).toBeNull();
       });
 
@@ -219,20 +222,19 @@ describe('Database Performance Integration Tests', () => {
     });
   });
 
-  describe('Database Function Performance', () => {
-    it('should execute random monster generation efficiently', async () => {
+  describe("Database Function Performance", () => {
+    it("should execute random monster generation efficiently", async () => {
       const testCases = [
         { count: 1, min_level: 1, max_level: 10 },
         { count: 5, min_level: 2, max_level: 6 },
         { count: 10, min_level: 1, max_level: 5 },
-        { count: 20, min_level: 3, max_level: 8 }
+        { count: 20, min_level: 3, max_level: 8 },
       ];
 
       for (const testCase of testCases) {
         const startTime = Date.now();
 
-        const response = await supabase
-          .rpc('get_random_monsters', testCase);
+        const response = await supabase.rpc("get_random_monsters", testCase);
 
         const endTime = Date.now();
         const duration = endTime - startTime;
@@ -243,17 +245,20 @@ describe('Database Performance Integration Tests', () => {
 
         // Verify results meet criteria
         response.data.forEach((monster: any) => {
-          expect(monster.challenge_level).toBeGreaterThanOrEqual(testCase.min_level);
-          expect(monster.challenge_level).toBeLessThanOrEqual(testCase.max_level);
+          expect(monster.challenge_level).toBeGreaterThanOrEqual(
+            testCase.min_level,
+          );
+          expect(monster.challenge_level).toBeLessThanOrEqual(
+            testCase.max_level,
+          );
         });
       }
     });
 
-    it('should handle database statistics efficiently', async () => {
+    it("should handle database statistics efficiently", async () => {
       const startTime = Date.now();
 
-      const response = await supabase
-        .rpc('get_database_stats');
+      const response = await supabase.rpc("get_database_stats");
 
       const endTime = Date.now();
       const duration = endTime - startTime;
@@ -262,17 +267,16 @@ describe('Database Performance Integration Tests', () => {
       expect(duration).toBeLessThan(500); // Stats calculation should be fast
 
       // Verify expected statistics structure
-      expect(response.data).toHaveProperty('total_official_monsters');
-      expect(response.data).toHaveProperty('total_user_monsters');
-      expect(response.data).toHaveProperty('total_lists');
-      expect(response.data).toHaveProperty('total_encounters');
+      expect(response.data).toHaveProperty("total_official_monsters");
+      expect(response.data).toHaveProperty("total_user_monsters");
+      expect(response.data).toHaveProperty("total_lists");
+      expect(response.data).toHaveProperty("total_encounters");
     });
 
-    it('should update search statistics efficiently', async () => {
+    it("should update search statistics efficiently", async () => {
       const startTime = Date.now();
 
-      const response = await supabase
-        .rpc('update_search_statistics');
+      const response = await supabase.rpc("update_search_statistics");
 
       const endTime = Date.now();
       const duration = endTime - startTime;
@@ -282,43 +286,43 @@ describe('Database Performance Integration Tests', () => {
     });
   });
 
-  describe('Memory and Resource Usage', () => {
-    it('should handle large JSON operations efficiently', async () => {
+  describe("Memory and Resource Usage", () => {
+    it("should handle large JSON operations efficiently", async () => {
       // Test operations with large JSON data (attacks, abilities, tags)
       const largeJsonTests = [
         {
-          description: 'Complex attacks JSON',
+          description: "Complex attacks JSON",
           test: async () => {
             const response = await supabase
-              .from('official_monsters')
-              .select('name, attacks')
-              .not('attacks', 'eq', '[]')
+              .from("official_monsters")
+              .select("name, attacks")
+              .not("attacks", "eq", "[]")
               .limit(50);
             return response;
-          }
+          },
         },
         {
-          description: 'Complex abilities JSON',
+          description: "Complex abilities JSON",
           test: async () => {
             const response = await supabase
-              .from('official_monsters')
-              .select('name, abilities')
-              .not('abilities', 'eq', '[]')
+              .from("official_monsters")
+              .select("name, abilities")
+              .not("abilities", "eq", "[]")
               .limit(50);
             return response;
-          }
+          },
         },
         {
-          description: 'Tag filtering operations',
+          description: "Tag filtering operations",
           test: async () => {
             const response = await supabase
-              .from('official_monsters')
-              .select('name, tags')
-              .contains('tags', { type: ['humanoid'] })
+              .from("official_monsters")
+              .select("name, tags")
+              .contains("tags", { type: ["humanoid"] })
               .limit(30);
             return response;
-          }
-        }
+          },
+        },
       ];
 
       for (const test of largeJsonTests) {
@@ -339,13 +343,13 @@ describe('Database Performance Integration Tests', () => {
             expect(Array.isArray(monster.abilities)).toBe(true);
           }
           if (monster.tags) {
-            expect(typeof monster.tags).toBe('object');
+            expect(typeof monster.tags).toBe("object");
           }
         });
       }
     });
 
-    it('should maintain performance under sustained load', async () => {
+    it("should maintain performance under sustained load", async () => {
       // Simulate sustained database operations
       const operations = [];
 
@@ -353,37 +357,35 @@ describe('Database Performance Integration Tests', () => {
       for (let i = 0; i < 20; i++) {
         if (i % 4 === 0) {
           operations.push(
-            supabase.rpc('search_monsters', {
-              search_query: 'test',
+            supabase.rpc("search_monsters", {
+              search_query: "test",
               min_level: 1,
               max_level: 5,
               monster_types: null,
               locations: null,
               sources: null,
               result_limit: 10,
-              result_offset: 0
-            })
+              result_offset: 0,
+            }),
           );
         } else if (i % 4 === 1) {
           operations.push(
-            supabase.rpc('get_random_monsters', {
+            supabase.rpc("get_random_monsters", {
               monster_count: 3,
               min_level: 1,
-              max_level: 10
-            })
+              max_level: 10,
+            }),
           );
         } else if (i % 4 === 2) {
           operations.push(
             supabase
-              .from('official_monsters')
-              .select('*')
-              .eq('challenge_level', (i % 5) + 1)
-              .limit(5)
+              .from("official_monsters")
+              .select("*")
+              .eq("challenge_level", (i % 5) + 1)
+              .limit(5),
           );
         } else {
-          operations.push(
-            supabase.rpc('get_database_stats')
-          );
+          operations.push(supabase.rpc("get_database_stats"));
         }
       }
 
@@ -393,7 +395,7 @@ describe('Database Performance Integration Tests', () => {
       const duration = endTime - startTime;
 
       // All operations should succeed
-      results.forEach(result => {
+      results.forEach((result) => {
         expect(result.error).toBeNull();
       });
 

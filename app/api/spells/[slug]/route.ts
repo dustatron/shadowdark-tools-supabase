@@ -1,14 +1,14 @@
 import { NextRequest, NextResponse } from "next/server";
-import { createSupabaseServerClient } from "@/src/lib/supabase/server";
+import { createClient } from "@/src/lib/supabase/server";
 
 // GET /api/spells/[slug] - Get specific spell
 export async function GET(
   request: NextRequest,
-  { params }: { params: { slug: string } },
+  { params }: { params: Promise<{ slug: string }> },
 ) {
   try {
-    const supabase = createSupabaseServerClient();
-    const { slug } = params;
+    const supabase = await createClient();
+    const { slug } = await params;
 
     const { data: spell, error } = await supabase
       .from("all_spells")

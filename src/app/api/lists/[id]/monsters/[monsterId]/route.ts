@@ -1,83 +1,84 @@
-import { NextRequest, NextResponse } from 'next/server';
-import { createSupabaseServerClient } from '@/lib/supabase/server';
+import { NextRequest, NextResponse } from "next/server";
+import { createClient } from "@/lib/supabase/server";
 
 // DELETE /api/lists/[id]/monsters/[monsterId] - Remove monster from list
 export async function DELETE(
   request: NextRequest,
-  { params }: { params: { id: string; monsterId: string } }
+  { params }: { params: Promise<{ id: string; monsterId: string }> },
 ) {
   try {
-    const supabase = createSupabaseServerClient();
-    const { id: listId, monsterId } = params;
+    const supabase = await createClient();
+    const { id: listId, monsterId } = await params;
 
     // Get current user
-    const { data: { user }, error: authError } = await supabase.auth.getUser();
+    const {
+      data: { user },
+      error: authError,
+    } = await supabase.auth.getUser();
 
     if (authError || !user) {
       return NextResponse.json(
-        { error: 'Authentication required' },
-        { status: 401 }
+        { error: "Authentication required" },
+        { status: 401 },
       );
     }
 
     // Check if list exists and user owns it
     const { data: existingList, error: fetchError } = await supabase
-      .from('user_lists')
-      .select('creator_id')
-      .eq('id', listId)
+      .from("user_lists")
+      .select("creator_id")
+      .eq("id", listId)
       .single();
 
     if (fetchError || !existingList) {
-      return NextResponse.json(
-        { error: 'List not found' },
-        { status: 404 }
-      );
+      return NextResponse.json({ error: "List not found" }, { status: 404 });
     }
 
     if (existingList.creator_id !== user.id) {
       return NextResponse.json(
-        { error: 'Forbidden: You can only modify your own lists' },
-        { status: 403 }
+        { error: "Forbidden: You can only modify your own lists" },
+        { status: 403 },
       );
     }
 
     // Check if monster is in the list
     const { data: listMonster, error: listMonsterError } = await supabase
-      .from('user_list_monsters')
-      .select('id')
-      .eq('list_id', listId)
-      .eq('monster_id', monsterId)
+      .from("user_list_monsters")
+      .select("id")
+      .eq("list_id", listId)
+      .eq("monster_id", monsterId)
       .single();
 
     if (listMonsterError || !listMonster) {
       return NextResponse.json(
-        { error: 'Monster not found in list' },
-        { status: 404 }
+        { error: "Monster not found in list" },
+        { status: 404 },
       );
     }
 
     // Remove monster from list
     const { error } = await supabase
-      .from('user_list_monsters')
+      .from("user_list_monsters")
       .delete()
-      .eq('list_id', listId)
-      .eq('monster_id', monsterId);
+      .eq("list_id", listId)
+      .eq("monster_id", monsterId);
 
     if (error) {
-      console.error('Database error:', error);
+      console.error("Database error:", error);
       return NextResponse.json(
-        { error: 'Failed to remove monster from list' },
-        { status: 500 }
+        { error: "Failed to remove monster from list" },
+        { status: 500 },
       );
     }
 
-    return NextResponse.json({ message: 'Monster removed from list successfully' });
-
+    return NextResponse.json({
+      message: "Monster removed from list successfully",
+    });
   } catch (error) {
-    console.error('API error:', error);
+    console.error("API error:", error);
     return NextResponse.json(
-      { error: 'Internal server error' },
-      { status: 500 }
+      { error: "Internal server error" },
+      { status: 500 },
     );
   }
 }

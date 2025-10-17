@@ -7,7 +7,7 @@ const uuidSchema = z.string().uuid();
 export const attackSchema = z.object({
   name: z.string().min(1, "Attack name is required"),
   type: z.enum(["melee", "ranged", "spell"], {
-    required_error: "Attack type must be melee, ranged, or spell",
+    message: "Attack type must be melee, ranged, or spell",
   }),
   damage: z.string().min(1, "Attack damage is required"),
   range: z.string().optional(),
@@ -42,10 +42,7 @@ export const monsterSchema = z.object({
     .int()
     .min(1, "Challenge level must be at least 1")
     .max(20, "Challenge level must be at most 20"),
-  hit_points: z
-    .number()
-    .int()
-    .min(1, "Hit points must be at least 1"),
+  hit_points: z.number().int().min(1, "Hit points must be at least 1"),
   armor_class: z
     .number()
     .int()
@@ -78,10 +75,7 @@ export const createMonsterSchema = z.object({
     .int()
     .min(1, "Challenge level must be at least 1")
     .max(20, "Challenge level must be at most 20"),
-  hit_points: z
-    .number()
-    .int()
-    .min(1, "Hit points must be at least 1"),
+  hit_points: z.number().int().min(1, "Hit points must be at least 1"),
   armor_class: z
     .number()
     .int()
@@ -129,11 +123,7 @@ export const monsterSearchSchema = z.object({
     .min(1, "Limit must be at least 1")
     .max(100, "Limit must be at most 100")
     .default(20),
-  offset: z
-    .number()
-    .int()
-    .min(0, "Offset must be at least 0")
-    .default(0),
+  offset: z.number().int().min(0, "Offset must be at least 0").default(0),
 });
 
 // Monster search response schema

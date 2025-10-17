@@ -1,39 +1,47 @@
-import { NextRequest, NextResponse } from 'next/server';
-import { createSupabaseServerClient } from '@/lib/supabase/server';
-import { z } from 'zod';
+import { NextRequest, NextResponse } from "next/server";
+import { createClient } from "@/lib/supabase/server";
+import { z } from "zod";
 
 // Schema for user updates
-const UserUpdateSchema = z.object({
-  role: z.enum(['user', 'moderator', 'admin']).optional(),
-  is_banned: z.boolean().optional(),
-  ban_reason: z.string().max(500).nullable().optional()
-}).refine(data => {
-  // If banning user, require ban reason
-  if (data.is_banned === true && !data.ban_reason) {
-    return false;
-  }
-  return true;
-}, {
-  message: "Ban reason is required when banning a user"
-});
+const UserUpdateSchema = z
+  .object({
+    role: z.enum(["user", "moderator", "admin"]).optional(),
+    is_banned: z.boolean().optional(),
+    ban_reason: z.string().max(500).nullable().optional(),
+  })
+  .refine(
+    (data) => {
+      // If banning user, require ban reason
+      if (data.is_banned === true && !data.ban_reason) {
+        return false;
+      }
+      return true;
+    },
+    {
+      message: "Ban reason is required when banning a user",
+    },
+  );
 
 // Helper function to check admin access
 async function checkAdminAccess(supabase: any) {
-  const { data: { user }, error: authError } = await supabase.auth.getUser();
+  const {
+    data: { user },
+    error: authError,
+  } = await supabase.auth.getUser();
 
   if (authError || !user) {
-    return { error: 'Authentication required', status: 401 };
+    return { error: "Authentication required", status: 401 };
   }
 
   // Check if user has admin role
   const { data: profile, error: profileError } = await supabase
-    .from('user_profiles')
-    .select('role')
-    .eq('id', user.id)
+    .from("user_profiles")
+    .select("role")
+    .eq("id", user.id)
     .single();
 
-  if (profileError || !profile || profile.role !== 'admin') {
-    return { error: 'Admin access required', status: 403 };
+  if (profileError || !profile || profile.role !== "admin") {
+    return { error: "Admin access required", status: 403 };
   }
 
   return { user, profile };
@@ -42,18 +50,18 @@ async function checkAdminAccess(supabase: any) {
 // PUT /api/admin/users/[id] - Update user role or ban status
 export async function PUT(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> },
 ) {
   try {
-    const supabase = createSupabaseServerClient();
-    const { id: targetUserId } = params;
+    const supabase = await createClient();
+    const { id: targetUserId } = await params;
 
     // Check admin access
     const adminCheck = await checkAdminAccess(supabase);
     if (adminCheck.error) {
       return NextResponse.json(
         { error: adminCheck.error },
-        { status: adminCheck.status }
+        { status: adminCheck.status },
       );
     }
 
@@ -62,23 +70,20 @@ export async function PUT(
     // Prevent self-modification
     if (adminUser.id === targetUserId) {
       return NextResponse.json(
-        { error: 'Cannot modify your own account' },
-        { status: 400 }
+        { error: "Cannot modify your own account" },
+        { status: 400 },
       );
     }
 
     // Check if target user exists
     const { data: existingUser, error: fetchError } = await supabase
-      .from('user_profiles')
-      .select('*')
-      .eq('id', targetUserId)
+      .from("user_profiles")
+      .select("*")
+      .eq("id", targetUserId)
       .single();
 
     if (fetchError || !existingUser) {
-      return NextResponse.json(
-        { error: 'User not found' },
-        { status: 404 }
-      );
+      return NextResponse.json({ error: "User not found" }, { status: 404 });
     }
 
     // Parse and validate request body
@@ -86,16 +91,20 @@ export async function PUT(
     const validatedData = UserUpdateSchema.parse(body);
 
     // Prevent demoting the last admin
-    if (validatedData.role && validatedData.role !== 'admin' && existingUser.role === 'admin') {
+    if (
+      validatedData.role &&
+      validatedData.role !== "admin" &&
+      existingUser.role === "admin"
+    ) {
       const { count: adminCount } = await supabase
-        .from('user_profiles')
-        .select('*', { count: 'exact', head: true })
-        .eq('role', 'admin');
+        .from("user_profiles")
+        .select("*", { count: "exact", head: true })
+        .eq("role", "admin");
 
       if (adminCount && adminCount <= 1) {
         return NextResponse.json(
-          { error: 'Cannot demote the last admin user' },
-          { status: 400 }
+          { error: "Cannot demote the last admin user" },
+          { status: 400 },
         );
       }
     }
@@ -105,22 +114,26 @@ export async function PUT(
     if (validatedData.role) updateData.role = validatedData.role;
     if (validatedData.is_banned !== undefined) {
       updateData.is_banned = validatedData.is_banned;
-      updateData.ban_reason = validatedData.is_banned ? validatedData.ban_reason : null;
-      updateData.banned_at = validatedData.is_banned ? new Date().toISOString() : null;
+      updateData.ban_reason = validatedData.is_banned
+        ? validatedData.ban_reason
+        : null;
+      updateData.banned_at = validatedData.is_banned
+        ? new Date().toISOString()
+        : null;
     }
 
     const { data: updatedUser, error } = await supabase
-      .from('user_profiles')
+      .from("user_profiles")
       .update(updateData)
-      .eq('id', targetUserId)
+      .eq("id", targetUserId)
       .select()
       .single();
 
     if (error) {
-      console.error('Database error:', error);
+      console.error("Database error:", error);
       return NextResponse.json(
-        { error: 'Failed to update user' },
-        { status: 500 }
+        { error: "Failed to update user" },
+        { status: 500 },
       );
     }
 
@@ -138,32 +151,36 @@ export async function PUT(
       }
     }
 
-    await supabase.rpc('create_audit_log', {
-      p_action_type: validatedData.is_banned ? 'user_ban' : validatedData.role ? 'role_change' : 'user_update',
+    await supabase.rpc("create_audit_log", {
+      p_action_type: validatedData.is_banned
+        ? "user_ban"
+        : validatedData.role
+          ? "role_change"
+          : "user_update",
       p_admin_user_id: adminUser.id,
-      p_target_type: 'user',
+      p_target_type: "user",
       p_target_id: targetUserId,
       p_details: JSON.stringify(actionDetails),
-      p_notes: validatedData.ban_reason || `Updated user ${existingUser.display_name}`
+      p_notes:
+        validatedData.ban_reason || `Updated user ${existingUser.display_name}`,
     });
 
     return NextResponse.json(updatedUser);
-
   } catch (error) {
     if (error instanceof z.ZodError) {
       return NextResponse.json(
         {
-          error: 'Validation error',
-          details: error.errors
+          error: "Validation error",
+          details: error.issues,
         },
-        { status: 400 }
+        { status: 400 },
       );
     }
 
-    console.error('API error:', error);
+    console.error("API error:", error);
     return NextResponse.json(
-      { error: 'Internal server error' },
-      { status: 500 }
+      { error: "Internal server error" },
+      { status: 500 },
     );
   }
 }

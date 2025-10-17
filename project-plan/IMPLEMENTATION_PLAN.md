@@ -1,11 +1,13 @@
 # Shadowdark Monster Manager - Implementation Plan
 
 ## Overview
+
 This document outlines the comprehensive implementation plan to transform the current Next.js + Supabase starter into the full Shadowdark Monster Manager web application as specified in the PRD.
 
 ## Current State Assessment
 
 ### Foundation Strengths
+
 - ✅ Next.js 15 with App Router configured
 - ✅ Supabase authentication working
 - ✅ TypeScript and ESLint setup
@@ -14,6 +16,7 @@ This document outlines the comprehensive implementation plan to transform the cu
 - ✅ Middleware for auth protection
 
 ### Migration Requirements
+
 - **UI Framework**: Transition from shadcn/ui to Mantine (gradual migration)
 - **State Management**: Add Zustand for global state
 - **Database**: Design and implement comprehensive schema
@@ -24,9 +27,11 @@ This document outlines the comprehensive implementation plan to transform the cu
 ### Phase 1: Foundation & Database (2-3 weeks)
 
 #### 1.1 Database Schema Implementation
+
 Create comprehensive Supabase database with the following tables:
 
 **Core Tables:**
+
 ```sql
 -- Users and profiles
 user_profiles (id, user_id, display_name, bio, avatar_url, is_admin, created_at)
@@ -55,6 +60,7 @@ tag_locations (id, name, created_at)
 ```
 
 **Views:**
+
 ```sql
 -- Combined view for search
 all_monsters (combining official_monsters and public user_monsters)
@@ -62,6 +68,7 @@ all_groups (public user_groups)
 ```
 
 #### 1.2 Row Level Security (RLS) Policies
+
 ```sql
 -- User-owned data policies
 ALTER TABLE user_monsters ENABLE ROW LEVEL SECURITY;
@@ -81,6 +88,7 @@ CREATE POLICY "Admins have full access" ON official_monsters
 ```
 
 #### 1.3 Package Dependencies
+
 ```json
 {
   "@mantine/core": "^7.x",
@@ -105,9 +113,10 @@ CREATE POLICY "Admins have full access" ON official_monsters
 ```
 
 #### 1.4 State Management Setup
+
 ```typescript
 // lib/store/monsters.ts
-import { create } from 'zustand';
+import { create } from "zustand";
 
 interface MonsterStore {
   searchQuery: string;
@@ -120,7 +129,7 @@ interface MonsterStore {
 }
 
 export const useMonsterStore = create<MonsterStore>((set, get) => ({
-  searchQuery: '',
+  searchQuery: "",
   searchFilters: {},
   searchResults: [],
   isLoading: false,
@@ -129,10 +138,11 @@ export const useMonsterStore = create<MonsterStore>((set, get) => ({
 ```
 
 #### 1.5 Monster Import Script
+
 ```typescript
 // scripts/import-monsters.ts
-import { createClient } from '@supabase/supabase-js';
-import { z } from 'zod';
+import { createClient } from "@supabase/supabase-js";
+import { z } from "zod";
 
 const MonsterSchema = z.object({
   name: z.string(),
@@ -140,20 +150,26 @@ const MonsterSchema = z.object({
   hitPoints: z.number().min(1),
   armorClass: z.number().min(1).max(21),
   speed: z.string(),
-  attacks: z.array(z.object({
-    name: z.string(),
-    type: z.string(),
-    damage: z.string(),
-    range: z.string().optional(),
-  })),
-  abilities: z.array(z.object({
-    name: z.string(),
-    description: z.string(),
-  })),
-  treasure: z.object({
-    type: z.string(),
-    amount: z.string(),
-  }).optional(),
+  attacks: z.array(
+    z.object({
+      name: z.string(),
+      type: z.string(),
+      damage: z.string(),
+      range: z.string().optional(),
+    }),
+  ),
+  abilities: z.array(
+    z.object({
+      name: z.string(),
+      description: z.string(),
+    }),
+  ),
+  treasure: z
+    .object({
+      type: z.string(),
+      amount: z.string(),
+    })
+    .optional(),
   tags: z.object({
     type: z.array(z.string()),
     location: z.array(z.string()),
@@ -162,19 +178,19 @@ const MonsterSchema = z.object({
 });
 
 async function importMonsters(jsonFile: string) {
-  const data = JSON.parse(await fs.readFile(jsonFile, 'utf-8'));
+  const data = JSON.parse(await fs.readFile(jsonFile, "utf-8"));
   const validated = z.array(MonsterSchema).parse(data);
 
   const supabase = createClient(url, serviceKey);
-  const { error } = await supabase
-    .from('official_monsters')
-    .insert(validated.map(monster => ({
+  const { error } = await supabase.from("official_monsters").insert(
+    validated.map((monster) => ({
       ...monster,
       attacks: JSON.stringify(monster.attacks),
       abilities: JSON.stringify(monster.abilities),
       treasure: JSON.stringify(monster.treasure),
       tags: JSON.stringify(monster.tags),
-    })));
+    })),
+  );
 
   if (error) throw error;
   console.log(`Imported ${validated.length} monsters`);
@@ -184,19 +200,19 @@ async function importMonsters(jsonFile: string) {
 ### Phase 2: Core Monster Management (2-3 weeks)
 
 #### 2.1 Search Infrastructure
+
 ```typescript
 // lib/search/fuzzy-search.ts
 export class FuzzySearchService {
   static async searchMonsters(query: string, filters: SearchFilters) {
-    const { data, error } = await supabase
-      .rpc('fuzzy_search_monsters', {
-        search_term: query,
-        fuzziness_level: filters.fuzziness || 'medium',
-        min_challenge_level: filters.minCL,
-        max_challenge_level: filters.maxCL,
-        tag_types: filters.tagTypes,
-        tag_locations: filters.tagLocations,
-      });
+    const { data, error } = await supabase.rpc("fuzzy_search_monsters", {
+      search_term: query,
+      fuzziness_level: filters.fuzziness || "medium",
+      min_challenge_level: filters.minCL,
+      max_challenge_level: filters.maxCL,
+      tag_types: filters.tagTypes,
+      tag_locations: filters.tagLocations,
+    });
 
     if (error) throw error;
     return data;
@@ -205,6 +221,7 @@ export class FuzzySearchService {
 ```
 
 **Database Function:**
+
 ```sql
 CREATE OR REPLACE FUNCTION fuzzy_search_monsters(
   search_term TEXT,
@@ -260,6 +277,7 @@ $$;
 ```
 
 #### 2.2 Monster Components
+
 ```typescript
 // components/monsters/MonsterCard.tsx
 import { Card, Badge, Group, Text, ActionIcon } from '@mantine/core';
@@ -307,6 +325,7 @@ export function MonsterCard({ monster, onAddToList, onFavorite, onView }: Monste
 ```
 
 #### 2.3 Search Interface
+
 ```typescript
 // components/search/MonsterSearch.tsx
 import { TextInput, Select, MultiSelect, Group, Button } from '@mantine/core';
@@ -395,6 +414,7 @@ export function MonsterSearch() {
 ### Phase 3: Advanced Features (2-3 weeks)
 
 #### 3.1 Monster Groups/Packs
+
 ```typescript
 // components/groups/GroupBuilder.tsx
 import { DndContext, closestCenter, DragEndEvent } from '@dnd-kit/core';
@@ -458,35 +478,40 @@ export function GroupBuilder() {
 ```
 
 #### 3.2 Encounter Table Generation
+
 ```typescript
 // lib/encounters/table-generator.ts
 export class EncounterTableGenerator {
   static generateTable(
     monsters: Monster[],
     dieSize: number,
-    distribution: 'uniform' | 'manual' = 'uniform'
+    distribution: "uniform" | "manual" = "uniform",
   ): EncounterTable {
-    if (distribution === 'uniform') {
+    if (distribution === "uniform") {
       return this.generateUniformTable(monsters, dieSize);
     }
     return this.generateManualTable(monsters, dieSize);
   }
 
-  private static generateUniformTable(monsters: Monster[], dieSize: number): EncounterTable {
+  private static generateUniformTable(
+    monsters: Monster[],
+    dieSize: number,
+  ): EncounterTable {
     const slots: EncounterSlot[] = [];
     const monstersPerSlot = Math.ceil(monsters.length / dieSize);
 
     for (let i = 1; i <= dieSize; i++) {
       const slotMonsters = monsters.slice(
         (i - 1) * monstersPerSlot,
-        i * monstersPerSlot
+        i * monstersPerSlot,
       );
 
       if (slotMonsters.length > 0) {
-        const randomMonster = slotMonsters[Math.floor(Math.random() * slotMonsters.length)];
+        const randomMonster =
+          slotMonsters[Math.floor(Math.random() * slotMonsters.length)];
         slots.push({
           slotNumber: i,
-          itemType: 'monster',
+          itemType: "monster",
           itemId: randomMonster.id,
           monster: randomMonster,
         });
@@ -503,7 +528,9 @@ export class EncounterTableGenerator {
 
   static rollTable(table: EncounterTable): EncounterSlot {
     const roll = Math.floor(Math.random() * table.dieSize) + 1;
-    return table.slots.find(slot => slot.slotNumber === roll) || table.slots[0];
+    return (
+      table.slots.find((slot) => slot.slotNumber === roll) || table.slots[0]
+    );
   }
 }
 ```
@@ -511,6 +538,7 @@ export class EncounterTableGenerator {
 ### Phase 4: Community & Admin (1-2 weeks)
 
 #### 4.1 Public Sharing & Discovery
+
 ```typescript
 // components/community/CommunityBrowser.tsx
 export function CommunityBrowser() {
@@ -560,6 +588,7 @@ export function CommunityBrowser() {
 ```
 
 #### 4.2 Flagging System
+
 ```typescript
 // components/moderation/FlagModal.tsx
 export function FlagModal({ content, opened, onClose, onSubmit }: FlagModalProps) {
@@ -612,6 +641,7 @@ export function FlagModal({ content, opened, onClose, onSubmit }: FlagModalProps
 ```
 
 #### 4.3 Admin Dashboard
+
 ```typescript
 // app/admin/page.tsx
 export default function AdminDashboard() {
@@ -651,6 +681,7 @@ export default function AdminDashboard() {
 ### Phase 5: Polish & Testing (1-2 weeks)
 
 #### 5.1 Performance Optimizations
+
 ```typescript
 // components/search/VirtualizedResults.tsx
 import { FixedSizeList as List } from 'react-window';
@@ -676,6 +707,7 @@ export function VirtualizedResults({ monsters }: { monsters: Monster[] }) {
 ```
 
 #### 5.2 Testing Infrastructure
+
 ```typescript
 // __tests__/utils/test-utils.tsx
 import { render, RenderOptions } from '@testing-library/react';
@@ -707,6 +739,7 @@ export { customRender as render };
 ```
 
 **Test Examples:**
+
 ```typescript
 // __tests__/components/MonsterCard.test.tsx
 import { render, screen, fireEvent } from '../utils/test-utils';
@@ -735,44 +768,44 @@ describe('MonsterCard', () => {
 
 ```typescript
 // e2e/monster-search.spec.ts
-import { test, expect } from '@playwright/test';
+import { test, expect } from "@playwright/test";
 
-test.describe('Monster Search', () => {
+test.describe("Monster Search", () => {
   test.beforeEach(async ({ page }) => {
-    await page.goto('/dashboard');
-    await page.waitForLoadState('networkidle');
+    await page.goto("/dashboard");
+    await page.waitForLoadState("networkidle");
   });
 
-  test('should search for monsters and display results', async ({ page }) => {
+  test("should search for monsters and display results", async ({ page }) => {
     // Enter search term
-    await page.fill('[data-testid=search-input]', 'goblin');
-    await page.waitForSelector('[data-testid=search-results]');
+    await page.fill("[data-testid=search-input]", "goblin");
+    await page.waitForSelector("[data-testid=search-results]");
 
     // Verify results are displayed
-    const results = page.locator('[data-testid=monster-card]');
+    const results = page.locator("[data-testid=monster-card]");
     await expect(results).not.toHaveCount(0);
 
     // Verify first result contains search term
     const firstResult = results.first();
-    await expect(firstResult).toContainText('goblin', { ignoreCase: true });
+    await expect(firstResult).toContainText("goblin", { ignoreCase: true });
   });
 
-  test('should filter by challenge level', async ({ page }) => {
+  test("should filter by challenge level", async ({ page }) => {
     // Set challenge level filter
-    await page.selectOption('[data-testid=min-cl-filter]', '3');
-    await page.selectOption('[data-testid=max-cl-filter]', '5');
+    await page.selectOption("[data-testid=min-cl-filter]", "3");
+    await page.selectOption("[data-testid=max-cl-filter]", "5");
 
     // Perform search
-    await page.fill('[data-testid=search-input]', '');
-    await page.waitForSelector('[data-testid=search-results]');
+    await page.fill("[data-testid=search-input]", "");
+    await page.waitForSelector("[data-testid=search-results]");
 
     // Verify all results are within CL range
-    const clBadges = page.locator('[data-testid=cl-badge]');
+    const clBadges = page.locator("[data-testid=cl-badge]");
     const count = await clBadges.count();
 
     for (let i = 0; i < count; i++) {
       const clText = await clBadges.nth(i).textContent();
-      const cl = parseInt(clText?.replace('CL ', '') || '0');
+      const cl = parseInt(clText?.replace("CL ", "") || "0");
       expect(cl).toBeGreaterThanOrEqual(3);
       expect(cl).toBeLessThanOrEqual(5);
     }
@@ -783,6 +816,7 @@ test.describe('Monster Search', () => {
 ## Environment Configuration
 
 ### Required Environment Variables
+
 ```env
 # Existing Supabase
 NEXT_PUBLIC_SUPABASE_URL=your-project-url
@@ -802,6 +836,7 @@ ADMIN_EMAIL=admin@yourdomain.com
 ```
 
 ### Vercel Deployment Configuration
+
 ```json
 {
   "buildCommand": "npm run build",
@@ -825,18 +860,21 @@ ADMIN_EMAIL=admin@yourdomain.com
 ## Security Considerations
 
 ### Input Validation
+
 - All user inputs validated with Zod schemas
 - JSONB fields sanitized before storage
 - Markdown content sanitized to prevent XSS
 - File uploads restricted by type and size
 
 ### Database Security
+
 - Row Level Security (RLS) on all user tables
 - Service role key only in server-side functions
 - Regular backup strategy for user data
 - Audit logging for all admin actions
 
 ### Content Moderation
+
 - Automated content scanning for inappropriate material
 - Community flagging system with admin review
 - Rate limiting on content creation
@@ -845,18 +883,21 @@ ADMIN_EMAIL=admin@yourdomain.com
 ## Performance Targets
 
 ### Page Load Performance
+
 - **Landing Page**: < 1.5 seconds
 - **Dashboard**: < 2 seconds
 - **Search Results**: < 500ms for response
 - **Monster Details**: < 1 second
 
 ### Database Performance
+
 - **Search Queries**: < 300ms average
 - **CRUD Operations**: < 100ms average
 - **Image Uploads**: < 5 seconds
 - **Bulk Operations**: < 10 seconds
 
 ### Scalability Targets
+
 - **Concurrent Users**: 100+ simultaneous
 - **Database Size**: 10,000+ monsters, 1,000+ users
 - **Storage**: 1GB+ images and assets
@@ -865,18 +906,21 @@ ADMIN_EMAIL=admin@yourdomain.com
 ## Success Metrics
 
 ### User Engagement
+
 - **Monthly Active Users**: 500+ within 6 months
 - **Session Duration**: 15+ minutes average
 - **Feature Adoption**: 70%+ users create lists
 - **Return Rate**: 30%+ weekly active users
 
 ### Content Quality
+
 - **User-Generated Content**: 100+ custom monsters/month
 - **Flag Rate**: < 5% of public content
 - **Admin Response Time**: < 24 hours for flags
 - **Content Approval Rate**: > 90%
 
 ### Technical Performance
+
 - **Uptime**: 99.9%
 - **Error Rate**: < 1% of requests
 - **Page Speed Score**: > 90
@@ -885,18 +929,21 @@ ADMIN_EMAIL=admin@yourdomain.com
 ## Risk Mitigation
 
 ### Technical Risks
+
 - **Database Performance**: Implement proper indexing and query optimization
 - **Image Storage Costs**: Set Cloudinary optimization rules and monitoring
 - **Search Accuracy**: Fine-tune fuzzy search algorithms with user feedback
 - **Mobile Performance**: Progressive Web App features for offline access
 
 ### Content Risks
+
 - **Copyright Infringement**: Clear terms of service and DMCA process
 - **Inappropriate Content**: Robust moderation tools and community reporting
 - **Data Loss**: Regular backups and disaster recovery procedures
 - **Privacy Compliance**: GDPR-compliant data handling and user controls
 
 ### Business Risks
+
 - **User Adoption**: Strong onboarding flow and feature discovery
 - **Community Growth**: Incentivize high-quality content creation
 - **Revenue Model**: Plan for premium features and sustainability
