@@ -1,5 +1,5 @@
-import { Container, Title } from '@mantine/core';
-import { MonsterCreateEditForm } from '@/src/components/monsters/MonsterCreateEditForm';
+import { Container, Title } from "@mantine/core";
+import { MonsterCreateEditForm } from "@/src/components/monsters/MonsterCreateEditForm";
 
 export default function CreateMonsterPage() {
   return (

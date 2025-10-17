@@ -1,0 +1,10 @@
+{
+  "permissions": {
+    "allow": [
+      "Read(//Users/dmccord/Projects/vibeCode/shadowdark-tools-supabase/app/monsters/[id]/**)",
+      "Read(//Users/dmccord/Projects/vibeCode/shadowdark-tools-supabase/app/api/monsters/[id]/**)"
+    ],
+    "deny": [],
+    "ask": []
+  }
+}

@@ -1,6 +1,6 @@
-'use client';
+"use client";
 
-import { useState } from 'react';
+import { useState } from "react";
 import {
   TextInput,
   NumberInput,
@@ -18,62 +18,62 @@ import {
   Select,
   MultiSelect,
   Alert,
-} from '@mantine/core';
-import { useForm } from '@mantine/form';
-import { notifications } from '@mantine/notifications';
+} from "@mantine/core";
+import { useForm } from "@mantine/form";
+import { notifications } from "@mantine/notifications";
 import {
   IconPlus,
   IconTrash,
   IconAlertCircle,
   IconCheck,
-} from '@tabler/icons-react';
-import { useRouter } from 'next/navigation';
-import { z } from 'zod';
-import { IconSelector } from '../ui/IconSelector';
-import { createMonsterSchema } from '@/lib/validations/monster';
+} from "@tabler/icons-react";
+import { useRouter } from "next/navigation";
+import { z } from "zod";
+import { IconSelector } from "../ui/IconSelector";
+import { createMonsterSchema } from "@/lib/validations/monster";
 
 // Shadowdark-specific constants
 const MOVEMENT_SPEEDS = [
-  { value: 'near', label: 'Near (30ft)' },
-  { value: 'close', label: 'Close (60ft)' },
-  { value: 'far', label: 'Far (120ft+)' },
-  { value: 'custom', label: 'Custom' },
+  { value: "near", label: "Near (30ft)" },
+  { value: "close", label: "Close (60ft)" },
+  { value: "far", label: "Far (120ft+)" },
+  { value: "custom", label: "Custom" },
 ];
 
 const ATTACK_TYPES = [
-  { value: 'melee', label: 'Melee' },
-  { value: 'ranged', label: 'Ranged' },
-  { value: 'spell', label: 'Spell' },
+  { value: "melee", label: "Melee" },
+  { value: "ranged", label: "Ranged" },
+  { value: "spell", label: "Spell" },
 ];
 
 const COMMON_TAGS = {
   type: [
-    'Aberration',
-    'Beast',
-    'Celestial',
-    'Construct',
-    'Dragon',
-    'Elemental',
-    'Fey',
-    'Fiend',
-    'Giant',
-    'Humanoid',
-    'Monstrosity',
-    'Ooze',
-    'Plant',
-    'Undead',
+    "Aberration",
+    "Beast",
+    "Celestial",
+    "Construct",
+    "Dragon",
+    "Elemental",
+    "Fey",
+    "Fiend",
+    "Giant",
+    "Humanoid",
+    "Monstrosity",
+    "Ooze",
+    "Plant",
+    "Undead",
   ],
   location: [
-    'Dungeon',
-    'Forest',
-    'Mountain',
-    'Swamp',
-    'Desert',
-    'Ocean',
-    'City',
-    'Underground',
-    'Planar',
-    'Arctic',
+    "Dungeon",
+    "Forest",
+    "Mountain",
+    "Swamp",
+    "Desert",
+    "Ocean",
+    "City",
+    "Underground",
+    "Planar",
+    "Arctic",
   ],
 };
 
@@ -81,14 +81,14 @@ interface MonsterCreateEditFormProps {
   initialData?: z.infer<typeof createMonsterSchema> & { id?: string };
   onSubmit?: (data: z.infer<typeof createMonsterSchema>) => Promise<void>;
   onCancel?: () => void;
-  mode?: 'create' | 'edit';
+  mode?: "create" | "edit";
 }
 
 export function MonsterCreateEditForm({
   initialData,
   onSubmit,
   onCancel,
-  mode = 'create',
+  mode = "create",
 }: MonsterCreateEditFormProps) {
   const router = useRouter();
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -96,19 +96,19 @@ export function MonsterCreateEditForm({
 
   const form = useForm({
     initialValues: {
-      name: initialData?.name || '',
+      name: initialData?.name || "",
       challenge_level: initialData?.challenge_level || 1,
       hit_points: initialData?.hit_points || 10,
       armor_class: initialData?.armor_class || 10,
-      speed: initialData?.speed || 'near',
-      customSpeed: '',
+      speed: initialData?.speed || "near",
+      customSpeed: "",
       attacks: initialData?.attacks || [],
       abilities: initialData?.abilities || [],
       treasure: initialData?.treasure || null,
       tags: initialData?.tags || { type: [], location: [] },
-      source: initialData?.source || 'Custom',
-      author_notes: initialData?.author_notes || '',
-      icon_url: initialData?.icon_url || '',
+      source: initialData?.source || "Custom",
+      author_notes: initialData?.author_notes || "",
+      icon_url: initialData?.icon_url || "",
       is_public: initialData?.is_public ?? false,
     },
     validate: (values) => {
@@ -129,7 +129,7 @@ export function MonsterCreateEditForm({
           const errors: Record<string, string> = {};
           error.issues.forEach((err) => {
             if (err.path.length > 0) {
-              const path = err.path.join('.');
+              const path = err.path.join(".");
               errors[path] = err.message;
             }
           });
@@ -142,12 +142,11 @@ export function MonsterCreateEditForm({
 
   const handleSubmit = async (values: typeof form.values) => {
     setIsSubmitting(true);
-
     try {
       // Prepare the data
       const submitData = {
         ...values,
-        speed: values.speed === 'custom' ? values.customSpeed : values.speed,
+        speed: values.speed === "custom" ? values.customSpeed : values.speed,
         icon_url: values.icon_url || undefined, // Transform empty string to undefined
       };
 
@@ -159,16 +158,17 @@ export function MonsterCreateEditForm({
         await onSubmit(finalData as z.infer<typeof createMonsterSchema>);
       } else {
         // Default API submission
-        const url = mode === 'edit' && initialData?.id
-          ? `/api/monsters/${initialData.id}`
-          : '/api/monsters';
+        const url =
+          mode === "edit" && initialData?.id
+            ? `/api/monsters/${initialData.id}`
+            : "/api/monsters";
 
-        const method = mode === 'edit' ? 'PUT' : 'POST';
+        const method = mode === "edit" ? "PUT" : "POST";
 
         const response = await fetch(url, {
           method,
           headers: {
-            'Content-Type': 'application/json',
+            "Content-Type": "application/json",
           },
           body: JSON.stringify(finalData),
         });
@@ -181,9 +181,9 @@ export function MonsterCreateEditForm({
         const monster = await response.json();
 
         notifications.show({
-          title: 'Success',
-          message: `Monster ${mode === 'create' ? 'created' : 'updated'} successfully!`,
-          color: 'green',
+          title: "Success",
+          message: `Monster ${mode === "create" ? "created" : "updated"} successfully!`,
+          color: "green",
           icon: <IconCheck />,
         });
 
@@ -193,9 +193,10 @@ export function MonsterCreateEditForm({
     } catch (error) {
       console.error(`Error ${mode}ing monster:`, error);
       notifications.show({
-        title: 'Error',
-        message: error instanceof Error ? error.message : `Failed to ${mode} monster`,
-        color: 'red',
+        title: "Error",
+        message:
+          error instanceof Error ? error.message : `Failed to ${mode} monster`,
+        color: "red",
         icon: <IconAlertCircle />,
       });
     } finally {
@@ -204,19 +205,19 @@ export function MonsterCreateEditForm({
   };
 
   const addAttack = () => {
-    form.insertListItem('attacks', {
-      name: '',
-      type: 'melee',
-      damage: '',
-      range: '',
-      description: '',
+    form.insertListItem("attacks", {
+      name: "",
+      type: "melee",
+      damage: "",
+      range: "",
+      description: "",
     });
   };
 
   const addAbility = () => {
-    form.insertListItem('abilities', {
-      name: '',
-      description: '',
+    form.insertListItem("abilities", {
+      name: "",
+      description: "",
     });
   };
 
@@ -233,7 +234,7 @@ export function MonsterCreateEditForm({
               label="Monster Name"
               placeholder="Enter monster name"
               required
-              {...form.getInputProps('name')}
+              {...form.getInputProps("name")}
             />
 
             <SimpleGrid cols={{ base: 1, sm: 3 }}>
@@ -243,7 +244,7 @@ export function MonsterCreateEditForm({
                 min={1}
                 max={20}
                 required
-                {...form.getInputProps('challenge_level')}
+                {...form.getInputProps("challenge_level")}
               />
 
               <NumberInput
@@ -251,7 +252,7 @@ export function MonsterCreateEditForm({
                 placeholder="Minimum 1"
                 min={1}
                 required
-                {...form.getInputProps('hit_points')}
+                {...form.getInputProps("hit_points")}
               />
 
               <NumberInput
@@ -260,7 +261,7 @@ export function MonsterCreateEditForm({
                 min={1}
                 max={21}
                 required
-                {...form.getInputProps('armor_class')}
+                {...form.getInputProps("armor_class")}
               />
             </SimpleGrid>
 
@@ -270,13 +271,13 @@ export function MonsterCreateEditForm({
                 placeholder="Select speed"
                 data={MOVEMENT_SPEEDS}
                 required
-                value={customSpeed ? 'custom' : form.values.speed}
+                value={customSpeed ? "custom" : form.values.speed}
                 onChange={(value) => {
-                  if (value === 'custom') {
+                  if (value === "custom") {
                     setCustomSpeed(true);
                   } else {
                     setCustomSpeed(false);
-                    form.setFieldValue('speed', value || 'near');
+                    form.setFieldValue("speed", value || "near");
                   }
                 }}
               />
@@ -284,7 +285,7 @@ export function MonsterCreateEditForm({
                 <TextInput
                   mt="xs"
                   placeholder="e.g., fly 60ft, swim 30ft"
-                  {...form.getInputProps('customSpeed')}
+                  {...form.getInputProps("customSpeed")}
                 />
               )}
             </div>
@@ -292,7 +293,7 @@ export function MonsterCreateEditForm({
             <IconSelector
               label="Monster Icon"
               value={form.values.icon_url}
-              onChange={(icon) => form.setFieldValue('icon_url', icon || '')}
+              onChange={(icon) => form.setFieldValue("icon_url", icon || "")}
             />
           </Stack>
         </Paper>
@@ -312,7 +313,7 @@ export function MonsterCreateEditForm({
 
           {form.values.attacks.length === 0 && (
             <Alert variant="light" color="gray">
-              No attacks added yet. Click "Add Attack" to create one.
+              No attacks added yet. Click &quot;Add Attack&quot; to create one.
             </Alert>
           )}
 
@@ -326,7 +327,7 @@ export function MonsterCreateEditForm({
                   <ActionIcon
                     color="red"
                     variant="subtle"
-                    onClick={() => form.removeListItem('attacks', index)}
+                    onClick={() => form.removeListItem("attacks", index)}
                   >
                     <IconTrash size={16} />
                   </ActionIcon>
@@ -376,7 +377,8 @@ export function MonsterCreateEditForm({
 
           {form.values.abilities.length === 0 && (
             <Alert variant="light" color="gray">
-              No abilities added yet. Click "Add Ability" to create one.
+              No abilities added yet. Click &quot;Add Ability&quot; to create
+              one.
             </Alert>
           )}
 
@@ -390,7 +392,7 @@ export function MonsterCreateEditForm({
                   <ActionIcon
                     color="red"
                     variant="subtle"
-                    onClick={() => form.removeListItem('abilities', index)}
+                    onClick={() => form.removeListItem("abilities", index)}
                   >
                     <IconTrash size={16} />
                   </ActionIcon>
@@ -419,8 +421,10 @@ export function MonsterCreateEditForm({
             <Textarea
               label="Treasure"
               placeholder="Treasure description (optional)"
-              {...form.getInputProps('treasure')}
-              onChange={(e) => form.setFieldValue('treasure', e.target.value || null)}
+              {...form.getInputProps("treasure")}
+              onChange={(e) =>
+                form.setFieldValue("treasure", e.target.value || null)
+              }
             />
 
             <MultiSelect
@@ -429,7 +433,7 @@ export function MonsterCreateEditForm({
               data={COMMON_TAGS.type}
               searchable
               clearable
-              {...form.getInputProps('tags.type')}
+              {...form.getInputProps("tags.type")}
             />
 
             <MultiSelect
@@ -438,25 +442,25 @@ export function MonsterCreateEditForm({
               data={COMMON_TAGS.location}
               searchable
               clearable
-              {...form.getInputProps('tags.location')}
+              {...form.getInputProps("tags.location")}
             />
 
             <TextInput
               label="Source"
               placeholder="e.g., Homebrew, Campaign Name"
-              {...form.getInputProps('source')}
+              {...form.getInputProps("source")}
             />
 
             <Textarea
               label="Author Notes"
               placeholder="Additional notes or context (optional)"
-              {...form.getInputProps('author_notes')}
+              {...form.getInputProps("author_notes")}
             />
 
             <Switch
               label="Make this monster public"
               description="Allow other users to view and use this monster"
-              {...form.getInputProps('is_public', { type: 'checkbox' })}
+              {...form.getInputProps("is_public", { type: "checkbox" })}
             />
           </Stack>
         </Paper>
@@ -470,7 +474,7 @@ export function MonsterCreateEditForm({
             Cancel
           </Button>
           <Button type="submit" loading={isSubmitting}>
-            {mode === 'create' ? 'Create Monster' : 'Save Changes'}
+            {mode === "create" ? "Create Monster" : "Save Changes"}
           </Button>
         </Group>
       </Stack>

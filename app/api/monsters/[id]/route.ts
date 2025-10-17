@@ -61,12 +61,51 @@ export async function GET(
       );
     }
 
-    // First try to get from all_monsters view (includes both official and user monsters)
-    const { data: monster, error } = await supabase
-      .from("all_monsters")
+    // Get current user
+    const {
+      data: { user },
+    } = await supabase.auth.getUser();
+
+    // First try official_monsters
+    let { data: monster, error } = await supabase
+      .from("official_monsters")
       .select("*")
       .eq("id", id)
       .single();
+
+    // If not found in official, try user_monsters
+    if (!monster) {
+      const { data: userMonster, error: userError } = await supabase
+        .from("user_monsters")
+        .select("*")
+        .eq("id", id)
+        .single();
+
+      // Check if user monster exists and is accessible
+      if (userMonster) {
+        // Monster is accessible if it's public OR user owns it
+        if (
+          userMonster.is_public ||
+          (user && userMonster.user_id === user.id)
+        ) {
+          monster = {
+            ...userMonster,
+            monster_type: "custom",
+            is_official: false,
+          };
+          error = null;
+        }
+      }
+    } else {
+      // Add official monster metadata
+      monster = {
+        ...monster,
+        monster_type: "official",
+        is_official: true,
+        is_public: true,
+        user_id: null,
+      };
+    }
 
     if (error || !monster) {
       console.error("Database error fetching monster:", error);
