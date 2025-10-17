@@ -87,11 +87,11 @@ export async function GET(request: NextRequest) {
     const isAuthenticated = !!user;
 
     // Build queries for official and user monsters
-    let officialQuery = supabase
+    let officialQuery: any = supabase
       .from("official_monsters")
       .select("*", { count: "exact" });
 
-    let userQuery;
+    let userQuery: any;
     if (params.type === "official") {
       userQuery = null;
     } else if (params.type === "custom") {

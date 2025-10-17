@@ -287,10 +287,10 @@ export const shadowdarkMonsterSchema = z
         data.hit_points <= hpRange.max * 2
       );
     },
-    (data) => ({
-      message: `Hit points seem unusual for CL ${data.challenge_level}. Suggested range: ${suggestHitPoints(data.challenge_level).min}-${suggestHitPoints(data.challenge_level).max}`,
+    {
+      message: "Hit points seem unusual for the challenge level",
       path: ["hit_points"],
-    }),
+    },
   );
 
 /**

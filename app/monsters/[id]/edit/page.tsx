@@ -12,7 +12,7 @@ export default function EditMonsterPage() {
   const router = useRouter();
   const monsterId = params?.id as string;
 
-  const [monster, setMonster] = useState(null);
+  const [monster, setMonster] = useState<any>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 

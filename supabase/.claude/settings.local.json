@@ -15,7 +15,8 @@
       "Bash(psql:*)",
       "mcp__supabase__execute_sql",
       "Bash(npm run lint)",
-      "Bash(npm run format)"
+      "Bash(npm run format)",
+      "Bash(npx tsc:*)"
     ],
     "deny": [],
     "ask": []

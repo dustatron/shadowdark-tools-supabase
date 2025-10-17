@@ -1,5 +1,5 @@
 import { describe, it, expect, beforeAll, afterAll } from "vitest";
-import { createSupabaseServerClient } from "@/lib/supabase/server";
+import { createClient } from "@/lib/supabase/server";
 
 // Integration tests for complete monster management workflows
 describe("Monster Management Integration Tests", () => {
@@ -8,7 +8,7 @@ describe("Monster Management Integration Tests", () => {
   let createdMonsterId: string;
 
   beforeAll(async () => {
-    supabase = createSupabaseServerClient();
+    supabase = await createClient();
     // Note: In real implementation, we'd set up test user authentication
     testUserId = "test-user-id";
   });

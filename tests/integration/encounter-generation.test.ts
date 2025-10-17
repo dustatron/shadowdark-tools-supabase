@@ -1,12 +1,12 @@
 import { describe, it, expect, beforeAll } from "vitest";
-import { createSupabaseServerClient } from "@/lib/supabase/server";
+import { createClient } from "@/lib/supabase/server";
 
 // Integration tests for encounter generation workflows
 describe("Encounter Generation Integration Tests", () => {
   let supabase: any;
 
   beforeAll(async () => {
-    supabase = createSupabaseServerClient();
+    supabase = await createClient();
   });
 
   describe("Random Encounter Generation", () => {
