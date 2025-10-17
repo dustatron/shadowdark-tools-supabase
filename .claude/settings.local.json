@@ -30,7 +30,14 @@
       "Bash(/tmp/apply_all_monsters.sh:*)",
       "Bash(git rev-parse:*)",
       "WebFetch(domain:mantine.dev)",
-      "Bash(mkdir:*)"
+      "Bash(mkdir:*)",
+      "Bash(npm run build)",
+      "Bash(npm run format)",
+      "Bash(mv:*)",
+      "Bash(npm install:*)",
+      "Bash(npx husky init:*)",
+      "Bash(git add:*)",
+      "Bash(git commit:*)"
     ],
     "deny": [],
     "ask": []

@@ -1,7 +1,10 @@
 /* Header container with background and border */
 .header {
   padding-top: var(--mantine-spacing-sm);
-  background-color: light-dark(var(--mantine-color-gray-0), rgb(46, 46, 46)) !important;
+  background-color: light-dark(
+    var(--mantine-color-gray-0),
+    rgb(46, 46, 46)
+  ) !important;
   border-bottom: 1px solid light-dark(var(--mantine-color-gray-2), transparent);
 }
 
@@ -40,12 +43,18 @@
 
   /* Hover state */
   &:hover {
-    background-color: light-dark(var(--mantine-color-gray-1), var(--mantine-color-dark-5));
+    background-color: light-dark(
+      var(--mantine-color-gray-1),
+      var(--mantine-color-dark-5)
+    );
   }
 
   /* Active tab - underline indicator */
   &[data-active] {
-    border-bottom-color: light-dark(var(--mantine-color-blue-6), var(--mantine-color-blue-4)) !important;
+    border-bottom-color: light-dark(
+      var(--mantine-color-blue-6),
+      var(--mantine-color-blue-4)
+    ) !important;
     color: light-dark(var(--mantine-color-blue-6), var(--mantine-color-blue-4));
   }
 

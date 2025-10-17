@@ -46,7 +46,12 @@ const tabs = [
   { value: "home", label: "Home", path: "/" },
   { value: "monsters", label: "Monsters", path: "/monsters" },
   { value: "spells", label: "Spells", path: "/spells" },
-  { value: "encounters", label: "Encounters", path: "/encounters", disabled: true },
+  {
+    value: "encounters",
+    label: "Encounters",
+    path: "/encounters",
+    disabled: true,
+  },
 ];
 
 // Active tab detection based on pathname
@@ -56,7 +61,11 @@ function getActiveTab(pathname: string): string {
   if (pathname.startsWith("/spells")) return "spells";
   if (pathname.startsWith("/encounters")) return "encounters";
   // Protected routes and other pages - no tab active
-  if (pathname.startsWith("/profile") || pathname.startsWith("/settings") || pathname.startsWith("/admin")) {
+  if (
+    pathname.startsWith("/profile") ||
+    pathname.startsWith("/settings") ||
+    pathname.startsWith("/admin")
+  ) {
     return "";
   }
   return "home"; // Default to home
