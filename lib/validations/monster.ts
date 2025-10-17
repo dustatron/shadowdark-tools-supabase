@@ -20,12 +20,16 @@ export const abilitySchema = z.object({
   description: z.string().min(1, "Ability description is required"),
 });
 
-// Treasure schema based on OpenAPI specification
-export const treasureSchema = z.object({
-  type: z.enum(["coins", "items", "mixed", "none"]).optional(),
-  amount: z.string().optional(),
-  items: z.array(z.string()).optional(),
-});
+// Treasure schema - flexible JSONB field for Shadowdark
+export const treasureSchema = z.union([
+  z.object({
+    type: z.enum(["coins", "items", "mixed", "none"]).optional(),
+    amount: z.string().optional(),
+    items: z.array(z.string()).optional(),
+  }),
+  z.string(), // Allow string format for simple treasure descriptions
+  z.null(),
+]).optional();
 
 // Tags schema based on OpenAPI specification
 export const tagsSchema = z.object({

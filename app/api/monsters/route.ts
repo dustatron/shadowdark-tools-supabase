@@ -107,7 +107,6 @@ export async function GET(request: NextRequest) {
       userQuery = supabase
         .from("user_monsters")
         .select("*", { count: "exact" })
-        .eq("is_official", false)
         .eq("user_id", user.id);
     } else if (params.type === "public") {
       userQuery = supabase
@@ -296,7 +295,6 @@ export async function POST(request: NextRequest) {
       .insert({
         ...monsterData,
         user_id: user.id,
-        is_official: false,
         is_public: monsterData.is_public ?? false,
       })
       .select()

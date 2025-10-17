@@ -171,11 +171,32 @@ export default function MonstersPage() {
 
   return (
     <div style={{ padding: "20px" }}>
-      <h1
-        style={{ fontSize: "2rem", fontWeight: "bold", marginBottom: "1.5rem" }}
-      >
-        Monsters
-      </h1>
+      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "1.5rem" }}>
+        <h1 style={{ fontSize: "2rem", fontWeight: "bold", margin: 0 }}>
+          Monsters
+        </h1>
+        <a
+          href="/monsters/create"
+          style={{
+            display: "inline-flex",
+            alignItems: "center",
+            gap: "8px",
+            padding: "8px 16px",
+            backgroundColor: "#228be6",
+            color: "white",
+            borderRadius: "4px",
+            textDecoration: "none",
+            fontSize: "14px",
+            fontWeight: 500,
+          }}
+        >
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+            <line x1="12" y1="5" x2="12" y2="19"></line>
+            <line x1="5" y1="12" x2="19" y2="12"></line>
+          </svg>
+          Create Monster
+        </a>
+      </div>
 
       <div style={{ marginBottom: "20px" }}>
         <MonsterFilters

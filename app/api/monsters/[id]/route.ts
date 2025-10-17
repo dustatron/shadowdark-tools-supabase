@@ -125,7 +125,7 @@ export async function PUT(
     // Check if monster exists and user owns it
     const { data: existingMonster, error: fetchError } = await supabase
       .from("user_monsters")
-      .select("creator_id")
+      .select("user_id")
       .eq("id", id)
       .single();
 
@@ -133,7 +133,7 @@ export async function PUT(
       return NextResponse.json({ error: "Monster not found" }, { status: 404 });
     }
 
-    if (existingMonster.creator_id !== user.id) {
+    if (existingMonster.user_id !== user.id) {
       return NextResponse.json(
         { error: "Forbidden: You can only edit your own monsters" },
         { status: 403 },
@@ -225,7 +225,7 @@ export async function DELETE(
     // Check if monster exists and user owns it
     const { data: existingMonster, error: fetchError } = await supabase
       .from("user_monsters")
-      .select("creator_id")
+      .select("user_id")
       .eq("id", id)
       .single();
 
@@ -233,7 +233,7 @@ export async function DELETE(
       return NextResponse.json({ error: "Monster not found" }, { status: 404 });
     }
 
-    if (existingMonster.creator_id !== user.id) {
+    if (existingMonster.user_id !== user.id) {
       return NextResponse.json(
         { error: "Forbidden: You can only delete your own monsters" },
         { status: 403 },
