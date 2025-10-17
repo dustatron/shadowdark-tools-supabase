@@ -1,0 +1,36 @@
+{
+  "permissions": {
+    "allow": [
+      "mcp__supabase__list_projects",
+      "mcp__supabase__list_tables",
+      "mcp__supabase__list_migrations",
+      "mcp__supabase__apply_migration",
+      "Bash(for:*)",
+      "Bash(done)",
+      "Bash(cat:*)",
+      "Bash(do [ -f \"$file\" ])",
+      "Bash(ls:*)",
+      "mcp__supabase__execute_sql",
+      "Bash(npx supabase db execute:*)",
+      "Bash(PGPASSWORD='gkNQ#w@WsU1QN3TJRE#SG^x9w' psql:*)",
+      "mcp__playwright__browser_navigate",
+      "mcp__playwright__browser_wait_for",
+      "mcp__playwright__browser_snapshot",
+      "Bash(split:*)",
+      "Read(//private/tmp/**)",
+      "Bash(do cat \"$file\")",
+      "Bash(node:*)",
+      "Bash(do)",
+      "Bash(wc:*)",
+      "Bash(supabase db execute:*)",
+      "Bash(supabase link:*)",
+      "Bash(supabase db push:*)",
+      "Bash(do echo \"=== Processing $file ===\" cat \"$file\" echo \"\" done)",
+      "Bash(chmod:*)",
+      "Bash(/tmp/apply_all_monsters.sh:*)",
+      "Bash(git rev-parse:*)"
+    ],
+    "deny": [],
+    "ask": []
+  }
+}
