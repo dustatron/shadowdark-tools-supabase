@@ -28,7 +28,9 @@
       "Bash(do echo \"=== Processing $file ===\" cat \"$file\" echo \"\" done)",
       "Bash(chmod:*)",
       "Bash(/tmp/apply_all_monsters.sh:*)",
-      "Bash(git rev-parse:*)"
+      "Bash(git rev-parse:*)",
+      "WebFetch(domain:mantine.dev)",
+      "Bash(mkdir:*)"
     ],
     "deny": [],
     "ask": []

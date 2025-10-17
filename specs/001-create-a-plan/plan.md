@@ -57,6 +57,7 @@ _GATE: Must pass before Phase 0 research. Re-check after Phase 1 design._
 **IV. Integration Testing**: ✅ PASS - Database operations, auth flows, search functionality, encounter generation all covered
 
 **Note (2025-01-17)**: API contract tests removed. While the Test-First principle remains via unit tests and E2E tests, the slow/brittle contract tests that required full server+database setup were replaced with:
+
 - Unit tests for route handlers (mocked dependencies)
 - E2E tests for critical user flows (Playwright)
 - Manual testing during development

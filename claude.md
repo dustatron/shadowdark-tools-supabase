@@ -38,6 +38,7 @@
 - **Coverage Target**: 40% for MVP
 
 **Note**: API contract tests were removed (2025-01-17) as they were slow, brittle, and required full database setup. The contract tests served their purpose by revealing missing endpoints (POST /api/monsters, /api/monsters/random, UUID validation) which are now implemented. Testing strategy focuses on:
+
 - Unit tests for route handlers (with mocked dependencies)
 - E2E tests for critical user flows (Playwright)
 - Manual testing during development
@@ -243,11 +244,12 @@ export default function ComponentName({ props }: Props) {
 ### Next.js 15 API Route Patterns
 
 **Dynamic Route Parameters** (BREAKING CHANGE in Next.js 15):
+
 ```typescript
 // ✅ CORRECT - params is a Promise in Next.js 15
 export async function GET(
   request: NextRequest,
-  { params }: { params: Promise<{ id: string }> }
+  { params }: { params: Promise<{ id: string }> },
 ) {
   const { id } = await params; // Must await params
   const supabase = await createClient(); // Must await createClient
@@ -257,7 +259,7 @@ export async function GET(
 // ❌ WRONG - Old Next.js 14 pattern
 export async function GET(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: { id: string } },
 ) {
   const { id } = params; // Will cause type errors
   // ...
@@ -265,22 +267,24 @@ export async function GET(
 ```
 
 **Supabase Client in API Routes**:
+
 ```typescript
 // ✅ CORRECT
-import { createClient } from '@/lib/supabase/server'
+import { createClient } from "@/lib/supabase/server";
 
 export async function GET(request: NextRequest) {
   const supabase = await createClient(); // Must await
-  const { data } = await supabase.from('monsters').select('*');
+  const { data } = await supabase.from("monsters").select("*");
   return NextResponse.json(data);
 }
 
 // ❌ WRONG
-import { createSupabaseServerClient } from '@/lib/supabase/server' // Old export name
+import { createSupabaseServerClient } from "@/lib/supabase/server"; // Old export name
 const supabase = createClient(); // Missing await
 ```
 
 **Zod Validation Error Handling**:
+
 ```typescript
 // ✅ CORRECT
 catch (error) {
@@ -489,16 +493,16 @@ const MonsterSchema = z.object({
 // GET /api/monsters/[id] - Dynamic route with params
 export async function GET(
   request: NextRequest,
-  { params }: { params: Promise<{ id: string }> } // params is Promise
+  { params }: { params: Promise<{ id: string }> }, // params is Promise
 ) {
   try {
     const supabase = await createClient(); // Must await
     const { id } = await params; // Must await params
 
     const { data, error } = await supabase
-      .from('monsters')
-      .select('*')
-      .eq('id', id)
+      .from("monsters")
+      .select("*")
+      .eq("id", id)
       .single();
 
     if (error || !data) {
@@ -510,7 +514,7 @@ export async function GET(
     console.error("API error:", error);
     return NextResponse.json(
       { error: "Internal server error" },
-      { status: 500 }
+      { status: 500 },
     );
   }
 }
@@ -519,13 +523,16 @@ export async function GET(
 export async function POST(request: NextRequest) {
   try {
     const supabase = await createClient();
-    
+
     // Check authentication
-    const { data: { user }, error: authError } = await supabase.auth.getUser();
+    const {
+      data: { user },
+      error: authError,
+    } = await supabase.auth.getUser();
     if (authError || !user) {
       return NextResponse.json(
         { error: "Authentication required" },
-        { status: 401 }
+        { status: 401 },
       );
     }
 
@@ -535,7 +542,7 @@ export async function POST(request: NextRequest) {
 
     // Insert data
     const { data, error } = await supabase
-      .from('user_monsters')
+      .from("user_monsters")
       .insert({ ...validated, user_id: user.id })
       .select()
       .single();
@@ -543,7 +550,7 @@ export async function POST(request: NextRequest) {
     if (error) {
       return NextResponse.json(
         { error: "Failed to create monster" },
-        { status: 500 }
+        { status: 500 },
       );
     }
 
@@ -553,16 +560,16 @@ export async function POST(request: NextRequest) {
       return NextResponse.json(
         {
           error: "Validation error",
-          details: error.issues // Use .issues not .errors
+          details: error.issues, // Use .issues not .errors
         },
-        { status: 400 }
+        { status: 400 },
       );
     }
 
     console.error("API error:", error);
     return NextResponse.json(
       { error: "Internal server error" },
-      { status: 500 }
+      { status: 500 },
     );
   }
 }

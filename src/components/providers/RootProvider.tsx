@@ -1,7 +1,9 @@
 "use client";
 
-import { AppShell, Container } from "@mantine/core";
+import { AppShell, Container, useMantineColorScheme } from "@mantine/core";
+import { useDisclosure } from "@mantine/hooks";
 import { Header } from "@/src/components/layout/Header";
+import { MobileNav } from "@/src/components/layout/MobileNav";
 import { ReactNode, useEffect, useState } from "react";
 import { createSupabaseClient } from "@/src/lib/supabase/client";
 import { notifications } from "@mantine/notifications";
@@ -20,6 +22,8 @@ interface RootProviderProps {
 export function RootProvider({ children }: RootProviderProps) {
   const [user, setUser] = useState<User | null>(null);
   const [loading, setLoading] = useState(true);
+  const [mobileOpened, { toggle: toggleMobile }] = useDisclosure(false);
+  const { colorScheme } = useMantineColorScheme();
   const supabase = createSupabaseClient();
 
   useEffect(() => {
@@ -67,9 +71,25 @@ export function RootProvider({ children }: RootProviderProps) {
 
   return (
     <AppShell header={{ height: 60 }} padding="md">
-      <AppShell.Header>
-        <Header user={user} onLogout={handleLogout} />
+      <AppShell.Header
+        style={{
+          backgroundColor: colorScheme === "dark" ? "rgb(46, 46, 46)" : "var(--mantine-color-gray-0)",
+        }}
+      >
+        <Header
+          user={user}
+          onLogout={handleLogout}
+          mobileOpened={mobileOpened}
+          onToggleMobile={toggleMobile}
+        />
       </AppShell.Header>
+
+      <MobileNav
+        opened={mobileOpened}
+        onClose={toggleMobile}
+        user={user}
+        onLogout={handleLogout}
+      />
 
       <AppShell.Main>
         <Container size="xl" py="md">
