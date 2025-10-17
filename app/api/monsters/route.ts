@@ -87,29 +87,30 @@ export async function GET(request: NextRequest) {
     const isAuthenticated = !!user;
 
     // Build queries for official and user monsters
-    let officialQuery = supabase
+    let officialQuery: any = supabase
       .from("official_monsters")
       .select("*", { count: "exact" });
 
-    let userQuery;
+    let userQuery: any;
     if (params.type === "official") {
       userQuery = null;
     } else if (params.type === "custom") {
-      if (!isAuthenticated) {
-        return NextResponse.json(
-          {
-            error: "Unauthorized",
-            message: "Custom monsters require authentication",
-          },
-          { status: 401 },
-        );
+      officialQuery = null;
+      if (isAuthenticated) {
+        // Authenticated: show user's own monsters (both public and private)
+        userQuery = supabase
+          .from("user_monsters")
+          .select("*", { count: "exact" })
+          .eq("user_id", user.id);
+      } else {
+        // Not authenticated: show only public custom monsters
+        userQuery = supabase
+          .from("user_monsters")
+          .select("*", { count: "exact" })
+          .eq("is_public", true);
       }
-      userQuery = supabase
-        .from("user_monsters")
-        .select("*", { count: "exact" })
-        .eq("is_official", false)
-        .eq("user_id", user.id);
     } else if (params.type === "public") {
+      officialQuery = null;
       userQuery = supabase
         .from("user_monsters")
         .select("*", { count: "exact" })
@@ -160,19 +161,23 @@ export async function GET(request: NextRequest) {
       return q;
     };
 
-    officialQuery = applyFilters(officialQuery);
+    if (officialQuery) {
+      officialQuery = applyFilters(officialQuery);
+    }
     if (userQuery) {
       userQuery = applyFilters(userQuery);
     }
 
     // Apply challenge level filters
     if (params.min_cl !== undefined) {
-      officialQuery = officialQuery.gte("challenge_level", params.min_cl);
+      if (officialQuery)
+        officialQuery = officialQuery.gte("challenge_level", params.min_cl);
       if (userQuery)
         userQuery = userQuery.gte("challenge_level", params.min_cl);
     }
     if (params.max_cl !== undefined) {
-      officialQuery = officialQuery.lte("challenge_level", params.max_cl);
+      if (officialQuery)
+        officialQuery = officialQuery.lte("challenge_level", params.max_cl);
       if (userQuery)
         userQuery = userQuery.lte("challenge_level", params.max_cl);
     }
@@ -180,17 +185,21 @@ export async function GET(request: NextRequest) {
     // Apply tags filter (single tag for now, as per test)
     if (params.tags && params.tags.length > 0) {
       const tag = params.tags[0]; // Test uses single tag
-      officialQuery = officialQuery.contains("tags.type", [tag]);
+      if (officialQuery)
+        officialQuery = officialQuery.contains("tags.type", [tag]);
       if (userQuery) userQuery = userQuery.contains("tags.type", [tag]);
     }
 
     // Apply sorting
-    officialQuery = officialQuery.order("name", { ascending: true });
+    if (officialQuery)
+      officialQuery = officialQuery.order("name", { ascending: true });
     if (userQuery) userQuery = userQuery.order("name", { ascending: true });
 
     // Execute queries with pagination and get counts
     const [officialResult, userResult] = await Promise.all([
-      officialQuery.range(params.offset, params.offset + params.limit - 1),
+      officialQuery
+        ? officialQuery.range(params.offset, params.offset + params.limit - 1)
+        : Promise.resolve({ data: [], count: 0, error: null }),
       userQuery
         ? userQuery.range(params.offset, params.offset + params.limit - 1)
         : Promise.resolve({ data: [], count: 0, error: null }),
@@ -207,18 +216,39 @@ export async function GET(request: NextRequest) {
       console.error("User query error:", userResult.error);
     }
 
-    // Combine and enhance data
-    const officialMonsters = (officialResult.data || []).map((m: any) => ({
-      ...m,
-      is_official: true,
-      is_public: true,
-    }));
+    // Helper function to parse JSON fields
+    const parseMonsterFields = (monster: any) => ({
+      ...monster,
+      attacks:
+        typeof monster.attacks === "string"
+          ? JSON.parse(monster.attacks)
+          : monster.attacks,
+      abilities:
+        typeof monster.abilities === "string"
+          ? JSON.parse(monster.abilities)
+          : monster.abilities,
+      tags:
+        typeof monster.tags === "string"
+          ? JSON.parse(monster.tags)
+          : monster.tags,
+    });
 
-    const userMonsters = (userResult.data || []).map((m: any) => ({
-      ...m,
-      is_official: false,
-      is_public: m.is_public || false,
-    }));
+    // Combine and enhance data
+    const officialMonsters = (officialResult.data || []).map((m: any) =>
+      parseMonsterFields({
+        ...m,
+        is_official: true,
+        is_public: true,
+      }),
+    );
+
+    const userMonsters = (userResult.data || []).map((m: any) =>
+      parseMonsterFields({
+        ...m,
+        is_official: false,
+        is_public: m.is_public || false,
+      }),
+    );
 
     const allMonsters = [...officialMonsters, ...userMonsters];
 
@@ -296,7 +326,6 @@ export async function POST(request: NextRequest) {
       .insert({
         ...monsterData,
         user_id: user.id,
-        is_official: false,
         is_public: monsterData.is_public ?? false,
       })
       .select()
@@ -314,7 +343,24 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    return NextResponse.json(newMonster, {
+    // Parse JSON fields before returning
+    const parsedMonster = {
+      ...newMonster,
+      attacks:
+        typeof newMonster.attacks === "string"
+          ? JSON.parse(newMonster.attacks)
+          : newMonster.attacks,
+      abilities:
+        typeof newMonster.abilities === "string"
+          ? JSON.parse(newMonster.abilities)
+          : newMonster.abilities,
+      tags:
+        typeof newMonster.tags === "string"
+          ? JSON.parse(newMonster.tags)
+          : newMonster.tags,
+    };
+
+    return NextResponse.json(parsedMonster, {
       status: 201,
       headers: {
         "Content-Type": "application/json",

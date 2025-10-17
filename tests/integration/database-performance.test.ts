@@ -1,12 +1,12 @@
 import { describe, it, expect, beforeAll } from "vitest";
-import { createSupabaseServerClient } from "@/lib/supabase/server";
+import { createClient } from "@/lib/supabase/server";
 
 // Integration tests for database performance and optimization
 describe("Database Performance Integration Tests", () => {
   let supabase: any;
 
   beforeAll(async () => {
-    supabase = createSupabaseServerClient();
+    supabase = await createClient();
   });
 
   describe("Search Performance", () => {

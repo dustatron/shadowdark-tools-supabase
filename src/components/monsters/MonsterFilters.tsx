@@ -13,6 +13,7 @@ import {
   ActionIcon,
   Grid,
   Select,
+  SegmentedControl,
 } from "@mantine/core";
 import {
   IconSearch,
@@ -30,6 +31,7 @@ interface FilterValues {
   types: string[];
   locations: string[];
   sources: string[];
+  monsterSource: "all" | "official" | "custom";
 }
 
 interface MonsterFiltersProps {
@@ -47,6 +49,7 @@ const DEFAULT_FILTERS: FilterValues = {
   types: [],
   locations: [],
   sources: [],
+  monsterSource: "all",
 };
 
 export function MonsterFilters({
@@ -90,7 +93,8 @@ export function MonsterFilters({
     filters.challengeLevelRange[1] !== 20 ||
     filters.types.length > 0 ||
     filters.locations.length > 0 ||
-    filters.sources.length > 0;
+    filters.sources.length > 0 ||
+    filters.monsterSource !== "all";
 
   const activeFilterCount = [
     filters.search !== "",
@@ -99,11 +103,30 @@ export function MonsterFilters({
     filters.types.length > 0,
     filters.locations.length > 0,
     filters.sources.length > 0,
+    filters.monsterSource !== "all",
   ].filter(Boolean).length;
 
   return (
     <Card withBorder>
       <Stack gap="md">
+        {/* Monster Source Filter */}
+        <SegmentedControl
+          value={filters.monsterSource}
+          onChange={(value) =>
+            handleFilterChange(
+              "monsterSource",
+              value as "all" | "official" | "custom",
+            )
+          }
+          data={[
+            { label: "All Monsters", value: "all" },
+            { label: "Core Monsters", value: "official" },
+            { label: "User Created", value: "custom" },
+          ]}
+          fullWidth
+          disabled={loading}
+        />
+
         {/* Search and Quick Filters */}
         <Group>
           <TextInput

@@ -1,12 +1,12 @@
 import { describe, it, expect, beforeAll, afterAll } from "vitest";
-import { createSupabaseServerClient } from "@/lib/supabase/server";
+import { createClient } from "@/lib/supabase/server";
 
 // Test suite for monster API endpoints
 describe("Monster API Contract Tests", () => {
   let supabase: any;
 
   beforeAll(async () => {
-    supabase = createSupabaseServerClient();
+    supabase = await createClient();
   });
 
   afterAll(async () => {

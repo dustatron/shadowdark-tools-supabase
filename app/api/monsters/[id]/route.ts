@@ -37,6 +37,7 @@ const MonsterUpdateSchema = z
       })
       .optional(),
     author_notes: z.string().nullable().optional(),
+    is_public: z.boolean().optional(),
   })
   .refine((data) => Object.keys(data).length > 0, {
     message: "At least one field must be provided for update",
@@ -61,12 +62,61 @@ export async function GET(
       );
     }
 
-    // First try to get from all_monsters view (includes both official and user monsters)
-    const { data: monster, error } = await supabase
-      .from("all_monsters")
+    // Get current user
+    const {
+      data: { user },
+    } = await supabase.auth.getUser();
+
+    // First try official_monsters
+    let { data: monster, error } = await supabase
+      .from("official_monsters")
       .select("*")
       .eq("id", id)
       .single();
+
+    // If not found in official, try user_monsters with author info
+    if (!monster) {
+      const { data: userMonster, error: userError } = await supabase
+        .from("user_monsters")
+        .select(
+          `
+          *,
+          author:user_profiles!user_monsters_user_id_fkey (
+            id,
+            display_name,
+            avatar_url
+          )
+        `,
+        )
+        .eq("id", id)
+        .single();
+
+      // Check if user monster exists and is accessible
+      if (userMonster) {
+        // Monster is accessible if it's public OR user owns it
+        if (
+          userMonster.is_public ||
+          (user && userMonster.user_id === user.id)
+        ) {
+          monster = {
+            ...userMonster,
+            monster_type: "custom",
+            is_official: false,
+          };
+          error = null;
+        }
+      }
+    } else {
+      // Add official monster metadata
+      monster = {
+        ...monster,
+        monster_type: "official",
+        is_official: true,
+        is_public: true,
+        user_id: null,
+        author: null,
+      };
+    }
 
     if (error || !monster) {
       console.error("Database error fetching monster:", error);
@@ -125,7 +175,7 @@ export async function PUT(
     // Check if monster exists and user owns it
     const { data: existingMonster, error: fetchError } = await supabase
       .from("user_monsters")
-      .select("creator_id")
+      .select("user_id")
       .eq("id", id)
       .single();
 
@@ -133,7 +183,7 @@ export async function PUT(
       return NextResponse.json({ error: "Monster not found" }, { status: 404 });
     }
 
-    if (existingMonster.creator_id !== user.id) {
+    if (existingMonster.user_id !== user.id) {
       return NextResponse.json(
         { error: "Forbidden: You can only edit your own monsters" },
         { status: 403 },
@@ -172,12 +222,21 @@ export async function PUT(
       );
     }
 
-    // Parse JSON fields back for response
+    // Parse JSON fields back for response (if they're strings)
     const responseMonster = {
       ...monster,
-      attacks: JSON.parse(monster.attacks),
-      abilities: JSON.parse(monster.abilities),
-      tags: JSON.parse(monster.tags),
+      attacks:
+        typeof monster.attacks === "string"
+          ? JSON.parse(monster.attacks)
+          : monster.attacks,
+      abilities:
+        typeof monster.abilities === "string"
+          ? JSON.parse(monster.abilities)
+          : monster.abilities,
+      tags:
+        typeof monster.tags === "string"
+          ? JSON.parse(monster.tags)
+          : monster.tags,
     };
 
     return NextResponse.json(responseMonster);
@@ -225,7 +284,7 @@ export async function DELETE(
     // Check if monster exists and user owns it
     const { data: existingMonster, error: fetchError } = await supabase
       .from("user_monsters")
-      .select("creator_id")
+      .select("user_id")
       .eq("id", id)
       .single();
 
@@ -233,7 +292,7 @@ export async function DELETE(
       return NextResponse.json({ error: "Monster not found" }, { status: 404 });
     }
 
-    if (existingMonster.creator_id !== user.id) {
+    if (existingMonster.user_id !== user.id) {
       return NextResponse.json(
         { error: "Forbidden: You can only delete your own monsters" },
         { status: 403 },
