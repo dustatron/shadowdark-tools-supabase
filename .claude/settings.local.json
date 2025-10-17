@@ -45,7 +45,9 @@
       "Bash(git rebase:*)",
       "Bash(lsof:*)",
       "mcp__playwright__browser_evaluate",
-      "mcp__playwright__browser_press_key"
+      "mcp__playwright__browser_press_key",
+      "Bash(psql postgresql://postgres:postgres@127.0.0.1:54322/postgres)",
+      "Bash(supabase db reset --local)"
     ],
     "deny": [],
     "ask": []
