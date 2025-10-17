@@ -37,6 +37,7 @@ const MonsterUpdateSchema = z
       })
       .optional(),
     author_notes: z.string().nullable().optional(),
+    is_public: z.boolean().optional(),
   })
   .refine((data) => Object.keys(data).length > 0, {
     message: "At least one field must be provided for update",
@@ -73,11 +74,20 @@ export async function GET(
       .eq("id", id)
       .single();
 
-    // If not found in official, try user_monsters
+    // If not found in official, try user_monsters with author info
     if (!monster) {
       const { data: userMonster, error: userError } = await supabase
         .from("user_monsters")
-        .select("*")
+        .select(
+          `
+          *,
+          author:user_profiles!user_monsters_user_id_fkey (
+            id,
+            display_name,
+            avatar_url
+          )
+        `,
+        )
         .eq("id", id)
         .single();
 
@@ -104,6 +114,7 @@ export async function GET(
         is_official: true,
         is_public: true,
         user_id: null,
+        author: null,
       };
     }
 
@@ -211,12 +222,21 @@ export async function PUT(
       );
     }
 
-    // Parse JSON fields back for response
+    // Parse JSON fields back for response (if they're strings)
     const responseMonster = {
       ...monster,
-      attacks: JSON.parse(monster.attacks),
-      abilities: JSON.parse(monster.abilities),
-      tags: JSON.parse(monster.tags),
+      attacks:
+        typeof monster.attacks === "string"
+          ? JSON.parse(monster.attacks)
+          : monster.attacks,
+      abilities:
+        typeof monster.abilities === "string"
+          ? JSON.parse(monster.abilities)
+          : monster.abilities,
+      tags:
+        typeof monster.tags === "string"
+          ? JSON.parse(monster.tags)
+          : monster.tags,
     };
 
     return NextResponse.json(responseMonster);

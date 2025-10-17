@@ -1,6 +1,6 @@
-'use client';
+"use client";
 
-import { useState, useMemo } from 'react';
+import { useState, useMemo } from "react";
 import {
   Modal,
   Button,
@@ -11,42 +11,42 @@ import {
   ScrollArea,
   Group,
   ActionIcon,
-} from '@mantine/core';
-import * as TablerIcons from '@tabler/icons-react';
-import { IconSearch, IconX } from '@tabler/icons-react';
+} from "@mantine/core";
+import * as TablerIcons from "@tabler/icons-react";
+import { IconSearch, IconX } from "@tabler/icons-react";
 
 // Popular monster-related icons for quick access
 const POPULAR_ICONS = [
-  'IconSword',
-  'IconShield',
-  'IconSkull',
-  'IconFlame',
-  'IconBolt',
-  'IconHeart',
-  'IconStar',
-  'IconCrown',
-  'IconGhost',
-  'IconAlien',
-  'IconBug',
-  'IconFish',
-  'IconPaw',
-  'IconFeather',
-  'IconMoon',
-  'IconSun',
-  'IconSnowflake',
-  'IconDroplet',
-  'IconWind',
-  'IconMountain',
-  'IconTree',
-  'IconHome',
-  'IconCastle',
-  'IconTower',
-  'IconDiamond',
-  'IconCoin',
-  'IconGem',
-  'IconKey',
-  'IconLock',
-  'IconMagicWand',
+  "IconSword",
+  "IconShield",
+  "IconSkull",
+  "IconFlame",
+  "IconBolt",
+  "IconHeart",
+  "IconStar",
+  "IconCrown",
+  "IconGhost",
+  "IconAlien",
+  "IconBug",
+  "IconFish",
+  "IconPaw",
+  "IconFeather",
+  "IconMoon",
+  "IconSun",
+  "IconSnowflake",
+  "IconDroplet",
+  "IconWind",
+  "IconMountain",
+  "IconTree",
+  "IconHome",
+  "IconCastle",
+  "IconTower",
+  "IconDiamond",
+  "IconCoin",
+  "IconGem",
+  "IconKey",
+  "IconLock",
+  "IconMagicWand",
 ];
 
 interface IconSelectorProps {
@@ -60,20 +60,23 @@ interface IconSelectorProps {
 export function IconSelector({
   value,
   onChange,
-  label = 'Icon',
-  placeholder = 'Select an icon',
+  label = "Icon",
+  placeholder = "Select an icon",
   error,
 }: IconSelectorProps) {
   const [opened, setOpened] = useState(false);
-  const [search, setSearch] = useState('');
+  const [search, setSearch] = useState("");
 
   // Get all icon names and components
   const allIcons = useMemo(() => {
     return Object.entries(TablerIcons)
-      .filter(([name]) => name.startsWith('Icon'))
+      .filter(([name]) => name.startsWith("Icon"))
       .map(([name, component]) => ({
         name,
-        component: component as React.ComponentType<{ size?: number; stroke?: number }>,
+        component: component as React.ComponentType<{
+          size?: number;
+          stroke?: number;
+        }>,
       }));
   }, []);
 
@@ -83,7 +86,7 @@ export function IconSelector({
 
     const searchLower = search.toLowerCase();
     return allIcons.filter(({ name }) =>
-      name.toLowerCase().includes(searchLower)
+      name.toLowerCase().includes(searchLower),
     );
   }, [allIcons, search]);
 
@@ -118,11 +121,11 @@ export function IconSelector({
             fullWidth
             styles={{
               root: {
-                justifyContent: 'flex-start',
+                justifyContent: "flex-start",
               },
             }}
           >
-            {value ? value.replace('Icon', '') : placeholder}
+            {value ? value.replace("Icon", "") : placeholder}
           </Button>
           {value && (
             <ActionIcon
@@ -146,7 +149,7 @@ export function IconSelector({
         opened={opened}
         onClose={() => {
           setOpened(false);
-          setSearch('');
+          setSearch("");
         }}
         title="Select Icon"
         size="lg"
@@ -176,20 +179,31 @@ export function IconSelector({
                     p="xs"
                     withBorder
                     style={{
-                      cursor: 'pointer',
-                      backgroundColor: isSelected ? 'var(--mantine-color-blue-light)' : undefined,
-                      borderColor: isSelected ? 'var(--mantine-color-blue-filled)' : undefined,
+                      cursor: "pointer",
+                      backgroundColor: isSelected
+                        ? "var(--mantine-color-blue-light)"
+                        : undefined,
+                      borderColor: isSelected
+                        ? "var(--mantine-color-blue-filled)"
+                        : undefined,
                     }}
                     onClick={() => {
                       onChange(name);
                       setOpened(false);
-                      setSearch('');
+                      setSearch("");
                     }}
                   >
-                    <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 4 }}>
+                    <div
+                      style={{
+                        display: "flex",
+                        flexDirection: "column",
+                        alignItems: "center",
+                        gap: 4,
+                      }}
+                    >
                       <Icon size={24} stroke={1.5} />
-                      <Text size="xs" truncate style={{ maxWidth: '100%' }}>
-                        {name.replace('Icon', '')}
+                      <Text size="xs" truncate style={{ maxWidth: "100%" }}>
+                        {name.replace("Icon", "")}
                       </Text>
                     </div>
                   </Paper>
@@ -214,20 +228,31 @@ export function IconSelector({
                   p="xs"
                   withBorder
                   style={{
-                    cursor: 'pointer',
-                    backgroundColor: isSelected ? 'var(--mantine-color-blue-light)' : undefined,
-                    borderColor: isSelected ? 'var(--mantine-color-blue-filled)' : undefined,
+                    cursor: "pointer",
+                    backgroundColor: isSelected
+                      ? "var(--mantine-color-blue-light)"
+                      : undefined,
+                    borderColor: isSelected
+                      ? "var(--mantine-color-blue-filled)"
+                      : undefined,
                   }}
                   onClick={() => {
                     onChange(name);
                     setOpened(false);
-                    setSearch('');
+                    setSearch("");
                   }}
                 >
-                  <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 4 }}>
+                  <div
+                    style={{
+                      display: "flex",
+                      flexDirection: "column",
+                      alignItems: "center",
+                      gap: 4,
+                    }}
+                  >
                     <Icon size={24} stroke={1.5} />
-                    <Text size="xs" truncate style={{ maxWidth: '100%' }}>
-                      {name.replace('Icon', '')}
+                    <Text size="xs" truncate style={{ maxWidth: "100%" }}>
+                      {name.replace("Icon", "")}
                     </Text>
                   </div>
                 </Paper>

@@ -5,6 +5,7 @@ import { MonsterList } from "@/src/components/monsters/MonsterList";
 import { MonsterFilters } from "@/src/components/monsters/MonsterFilters";
 import "@mantine/core/styles.css";
 import "@mantine/notifications/styles.css";
+import Link from "next/link";
 
 interface Monster {
   id: string;
@@ -40,6 +41,7 @@ interface FilterValues {
   types: string[];
   locations: string[];
   sources: string[];
+  monsterSource: "all" | "official" | "custom";
 }
 
 const DEFAULT_FILTERS: FilterValues = {
@@ -48,6 +50,7 @@ const DEFAULT_FILTERS: FilterValues = {
   types: [],
   locations: [],
   sources: [],
+  monsterSource: "all",
 };
 
 export default function MonstersPage() {
@@ -102,6 +105,11 @@ export default function MonstersPage() {
       // API expects 'tags' for both types and locations
       if (filters.types.length > 0) {
         params.append("tags", filters.types.join(","));
+      }
+
+      // API expects 'type' parameter for monster source filtering
+      if (filters.monsterSource !== "all") {
+        params.append("type", filters.monsterSource);
       }
 
       // Note: The current API doesn't support separate location filtering yet
@@ -171,11 +179,18 @@ export default function MonstersPage() {
 
   return (
     <div style={{ padding: "20px" }}>
-      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "1.5rem" }}>
+      <div
+        style={{
+          display: "flex",
+          justifyContent: "space-between",
+          alignItems: "center",
+          marginBottom: "1.5rem",
+        }}
+      >
         <h1 style={{ fontSize: "2rem", fontWeight: "bold", margin: 0 }}>
           Monsters
         </h1>
-        <a
+        <Link
           href="/monsters/create"
           style={{
             display: "inline-flex",
@@ -190,12 +205,21 @@ export default function MonstersPage() {
             fontWeight: 500,
           }}
         >
-          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+          <svg
+            width="16"
+            height="16"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            strokeWidth="2"
+            strokeLinecap="round"
+            strokeLinejoin="round"
+          >
             <line x1="12" y1="5" x2="12" y2="19"></line>
             <line x1="5" y1="12" x2="19" y2="12"></line>
           </svg>
           Create Monster
-        </a>
+        </Link>
       </div>
 
       <div style={{ marginBottom: "20px" }}>

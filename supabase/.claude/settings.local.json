@@ -2,7 +2,20 @@
   "permissions": {
     "allow": [
       "Read(//Users/dmccord/Projects/vibeCode/shadowdark-tools-supabase/app/monsters/[id]/**)",
-      "Read(//Users/dmccord/Projects/vibeCode/shadowdark-tools-supabase/app/api/monsters/[id]/**)"
+      "Read(//Users/dmccord/Projects/vibeCode/shadowdark-tools-supabase/app/api/monsters/[id]/**)",
+      "mcp__playwright__browser_navigate",
+      "Read(//Users/dmccord/Projects/vibeCode/shadowdark-tools-supabase/**)",
+      "mcp__playwright__browser_wait_for",
+      "mcp__playwright__browser_console_messages",
+      "mcp__playwright__browser_network_requests",
+      "mcp__playwright__browser_take_screenshot",
+      "mcp__playwright__browser_click",
+      "mcp__playwright__browser_snapshot",
+      "mcp__playwright__browser_close",
+      "Bash(psql:*)",
+      "mcp__supabase__execute_sql",
+      "Bash(npm run lint)",
+      "Bash(npm run format)"
     ],
     "deny": [],
     "ask": []

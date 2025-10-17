@@ -1,11 +1,11 @@
-'use client';
+"use client";
 
-import { useState, useEffect } from 'react';
-import { Container, Title, LoadingOverlay, Alert } from '@mantine/core';
-import { useParams, useRouter } from 'next/navigation';
-import { MonsterCreateEditForm } from '@/src/components/monsters/MonsterCreateEditForm';
-import { IconAlertCircle } from '@tabler/icons-react';
-import { createClient } from '@/lib/supabase/client';
+import { useState, useEffect } from "react";
+import { Container, Title, LoadingOverlay, Alert } from "@mantine/core";
+import { useParams, useRouter } from "next/navigation";
+import { MonsterCreateEditForm } from "@/src/components/monsters/MonsterCreateEditForm";
+import { IconAlertCircle } from "@tabler/icons-react";
+import { createClient } from "@/lib/supabase/client";
 
 export default function EditMonsterPage() {
   const params = useParams();
@@ -29,10 +29,12 @@ export default function EditMonsterPage() {
 
       // First check if user is authenticated
       const supabase = createClient();
-      const { data: { user } } = await supabase.auth.getUser();
+      const {
+        data: { user },
+      } = await supabase.auth.getUser();
 
       if (!user) {
-        router.push('/auth/login');
+        router.push("/auth/login");
         return;
       }
 
@@ -40,9 +42,9 @@ export default function EditMonsterPage() {
 
       if (!response.ok) {
         if (response.status === 404) {
-          setError('Monster not found');
+          setError("Monster not found");
         } else {
-          setError('Failed to load monster');
+          setError("Failed to load monster");
         }
         return;
       }
@@ -51,14 +53,14 @@ export default function EditMonsterPage() {
 
       // Check if user owns this monster
       if (data.user_id !== user.id) {
-        setError('You can only edit your own monsters');
+        setError("You can only edit your own monsters");
         return;
       }
 
       setMonster(data);
     } catch (err) {
-      console.error('Error fetching monster:', err);
-      setError('An error occurred while loading the monster');
+      console.error("Error fetching monster:", err);
+      setError("An error occurred while loading the monster");
     } finally {
       setLoading(false);
     }

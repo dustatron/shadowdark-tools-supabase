@@ -20,6 +20,7 @@ import {
 import { MonsterStatBlock } from "@/src/components/monsters/MonsterStatBlock";
 import { MonsterAttacksDisplay } from "@/src/components/monsters/MonsterAttacksDisplay";
 import { MonsterAbilitiesDisplay } from "@/src/components/monsters/MonsterAbilitiesDisplay";
+import { MonsterOwnershipCard } from "@/src/components/monsters/MonsterOwnershipCard";
 import {
   IconArrowLeft,
   IconAlertCircle,
@@ -33,6 +34,12 @@ import { notifications } from "@mantine/notifications";
 import { createClient } from "@/lib/supabase/client";
 import "@mantine/core/styles.css";
 import "@mantine/notifications/styles.css";
+
+interface Author {
+  id: string;
+  display_name: string | null;
+  avatar_url: string | null;
+}
 
 interface Monster {
   id: string;
@@ -58,10 +65,13 @@ interface Monster {
   };
   source: string;
   author_notes?: string;
-  monster_type?: "official" | "user";
+  monster_type?: "official" | "user" | "custom";
   creator_id?: string;
   user_id?: string;
   is_public?: boolean;
+  author?: Author | null;
+  created_at?: string;
+  updated_at?: string;
 }
 
 export default function MonsterDetailPage() {
@@ -85,7 +95,9 @@ export default function MonsterDetailPage() {
 
   const checkCurrentUser = async () => {
     const supabase = createClient();
-    const { data: { user } } = await supabase.auth.getUser();
+    const {
+      data: { user },
+    } = await supabase.auth.getUser();
     setCurrentUser(user);
   };
 
@@ -131,26 +143,26 @@ export default function MonsterDetailPage() {
     setIsDeleting(true);
     try {
       const response = await fetch(`/api/monsters/${monsterId}`, {
-        method: 'DELETE',
+        method: "DELETE",
       });
 
       if (!response.ok) {
-        throw new Error('Failed to delete monster');
+        throw new Error("Failed to delete monster");
       }
 
       notifications.show({
-        title: 'Success',
-        message: 'Monster deleted successfully',
-        color: 'green',
+        title: "Success",
+        message: "Monster deleted successfully",
+        color: "green",
       });
 
-      router.push('/monsters');
+      router.push("/monsters");
     } catch (err) {
-      console.error('Error deleting monster:', err);
+      console.error("Error deleting monster:", err);
       notifications.show({
-        title: 'Error',
-        message: 'Failed to delete monster',
-        color: 'red',
+        title: "Error",
+        message: "Failed to delete monster",
+        color: "red",
       });
     } finally {
       setIsDeleting(false);
@@ -161,6 +173,13 @@ export default function MonsterDetailPage() {
   const handleDuplicate = async () => {
     if (!monster) return;
 
+    // Check if user is logged in
+    if (!currentUser) {
+      // Redirect to login page
+      router.push("/auth/login");
+      return;
+    }
+
     try {
       // Create a copy of the monster without the ID
       const { id, user_id, ...monsterData } = monster;
@@ -170,33 +189,69 @@ export default function MonsterDetailPage() {
         is_public: false,
       };
 
-      const response = await fetch('/api/monsters', {
-        method: 'POST',
+      const response = await fetch("/api/monsters", {
+        method: "POST",
         headers: {
-          'Content-Type': 'application/json',
+          "Content-Type": "application/json",
         },
         body: JSON.stringify(duplicateData),
       });
 
       if (!response.ok) {
-        throw new Error('Failed to duplicate monster');
+        throw new Error("Failed to duplicate monster");
       }
 
       const newMonster = await response.json();
 
       notifications.show({
-        title: 'Success',
-        message: 'Monster duplicated successfully',
-        color: 'green',
+        title: "Success",
+        message: "Monster duplicated successfully",
+        color: "green",
       });
 
       router.push(`/monsters/${newMonster.id}`);
     } catch (err) {
-      console.error('Error duplicating monster:', err);
+      console.error("Error duplicating monster:", err);
       notifications.show({
-        title: 'Error',
-        message: 'Failed to duplicate monster',
-        color: 'red',
+        title: "Error",
+        message: "Failed to duplicate monster",
+        color: "red",
+      });
+    }
+  };
+
+  const handleToggleVisibility = async () => {
+    if (!monster || !isOwner) return;
+
+    try {
+      const response = await fetch(`/api/monsters/${monsterId}`, {
+        method: "PUT",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          is_public: !monster.is_public,
+        }),
+      });
+
+      if (!response.ok) {
+        throw new Error("Failed to update visibility");
+      }
+
+      const updatedMonster = await response.json();
+      setMonster(updatedMonster);
+
+      notifications.show({
+        title: "Success",
+        message: `Monster is now ${updatedMonster.is_public ? "public" : "private"}`,
+        color: "green",
+      });
+    } catch (err) {
+      console.error("Error toggling visibility:", err);
+      notifications.show({
+        title: "Error",
+        message: "Failed to update monster visibility",
+        color: "red",
       });
     }
   };
@@ -287,7 +342,6 @@ export default function MonsterDetailPage() {
                   <Menu.Item
                     leftSection={<IconCopy size={16} />}
                     onClick={handleDuplicate}
-                    disabled={!currentUser}
                   >
                     Duplicate Monster
                   </Menu.Item>
@@ -329,6 +383,27 @@ export default function MonsterDetailPage() {
 
           {/* Abilities */}
           <MonsterAbilitiesDisplay abilities={monster.abilities} />
+
+          {/* Ownership/Author Card */}
+          <MonsterOwnershipCard
+            monsterId={monster.id}
+            monsterName={monster.name}
+            monsterType={monster.monster_type || "official"}
+            isPublic={monster.is_public || false}
+            author={monster.author || null}
+            isOwner={isOwner}
+            createdAt={monster.created_at}
+            updatedAt={monster.updated_at}
+            onDelete={() => setDeleteModalOpen(true)}
+            onDuplicate={handleDuplicate}
+            onToggleVisibility={
+              isOwner &&
+              (monster.monster_type === "user" ||
+                monster.monster_type === "custom")
+                ? handleToggleVisibility
+                : undefined
+            }
+          />
         </Stack>
       )}
 
@@ -340,7 +415,8 @@ export default function MonsterDetailPage() {
         centered
       >
         <Text mb="lg">
-          Are you sure you want to delete "{monster?.name}"? This action cannot be undone.
+          Are you sure you want to delete &quot;{monster?.name}&quot;? This
+          action cannot be undone.
         </Text>
         <Group justify="flex-end">
           <Button variant="subtle" onClick={() => setDeleteModalOpen(false)}>

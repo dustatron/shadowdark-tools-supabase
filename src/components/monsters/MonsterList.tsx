@@ -115,7 +115,7 @@ export function MonsterList({
   return (
     <Stack gap="lg">
       <SimpleGrid cols={{ base: 1, sm: 2, lg: compact ? 4 : 3 }} spacing="md">
-        {monsters.map((monster) => (
+        {monsters?.map((monster) => (
           <MonsterCard
             key={monster.id}
             monster={monster}

@@ -213,12 +213,12 @@ export function MonsterCard({
 
         {/* Tags */}
         <Group gap="xs">
-          {monster.tags.type.map((type, index) => (
+          {monster.tags.type?.map((type, index) => (
             <Badge key={`type-${index}`} variant="light" size="xs">
               {type}
             </Badge>
           ))}
-          {monster.tags.location.map((location, index) => (
+          {monster.tags.location?.map((location, index) => (
             <Badge
               key={`location-${index}`}
               variant="outline"
@@ -261,7 +261,7 @@ export function MonsterCard({
                         </Text>
                       </Group>
                       <Stack gap="xs">
-                        {monster.attacks.map((attack, index) => (
+                        {monster.attacks?.map((attack, index) => (
                           <Box key={index} pl="md">
                             <Group gap="xs">
                               <Text size="sm" fw={500}>
@@ -292,7 +292,7 @@ export function MonsterCard({
                         Abilities
                       </Text>
                       <Stack gap="xs">
-                        {monster.abilities.map((ability, index) => (
+                        {monster.abilities?.map((ability, index) => (
                           <Box key={index} pl="md">
                             <Text size="sm" fw={500}>
                               {ability.name}
