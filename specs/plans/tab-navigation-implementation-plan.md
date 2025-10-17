@@ -17,17 +17,20 @@ Implement a polished tab-based navigation system for the Shadowdark GM Tools app
 ## Current State Analysis
 
 ### Existing Navigation (Desktop)
+
 - Simple button-based navigation in header
 - Buttons use `variant="light"` for active state
 - Responsive but lacks visual polish
 - Located in: `src/components/layout/Header.tsx`
 
 ### Existing Navigation (Mobile)
+
 - Burger menu with drawer (`MobileNav.tsx`)
 - NavLinks with active states
 - **Keep unchanged** - working well for mobile
 
 ### Header Structure
+
 - Single-section header (60px height)
 - Group layout: Logo | Nav Buttons | Actions
 - Located in AppShell from `RootProvider.tsx`
@@ -37,6 +40,7 @@ Implement a polished tab-based navigation system for the Shadowdark GM Tools app
 ### Key Features Identified
 
 **Structure**:
+
 - Two-tier layout:
   - **Top section**: Brand/logo (left) + User menu (right)
   - **Bottom section**: Full-width tabs navigation
@@ -44,6 +48,7 @@ Implement a polished tab-based navigation system for the Shadowdark GM Tools app
 - Tabs positioned to overlap header border for seamless appearance
 
 **Styling**:
+
 - Header background color with 1px bottom border
 - Tabs positioned with `bottom: -1px` to overlap border
 - Active tab has no bottom border (creates connected look)
@@ -52,6 +57,7 @@ Implement a polished tab-based navigation system for the Shadowdark GM Tools app
 - `light-dark()` function for theme support
 
 **Responsive**:
+
 - Tabs: `visibleFrom="sm"` (desktop only)
 - Burger: `hiddenFrom="sm"` (mobile only)
 - Container maintains consistent width
@@ -63,16 +69,22 @@ Implement a polished tab-based navigation system for the Shadowdark GM Tools app
 **File**: `src/components/layout/Header.module.css` (new file)
 
 Create scoped styles for:
+
 - `.header` - Header container with background and border
 - `.mainSection` - Top section padding
 - `.tabsList` - Remove default Mantine border
 - `.tab` - Tab styling with hover and active states
 
 **Key CSS Features**:
+
 ```css
 .header {
-  background-color: light-dark(var(--mantine-color-gray-0), var(--mantine-color-dark-6));
-  border-bottom: 1px solid light-dark(var(--mantine-color-gray-2), var(--mantine-color-dark-7));
+  background-color: light-dark(
+    var(--mantine-color-gray-0),
+    var(--mantine-color-dark-6)
+  );
+  border-bottom: 1px solid
+    light-dark(var(--mantine-color-gray-2), var(--mantine-color-dark-7));
 }
 
 .tab {
@@ -86,6 +98,7 @@ Create scoped styles for:
 ```
 
 **Testing with Playwright**:
+
 - Navigate to http://localhost:3000
 - Take screenshot to verify styles applied
 - Toggle dark mode and verify `light-dark()` values switch correctly
@@ -97,36 +110,45 @@ Create scoped styles for:
 **File**: `src/components/layout/Header.tsx`
 
 #### 2.1 Add Imports
+
 ```tsx
-import { Tabs } from '@mantine/core';
-import { useRouter } from 'next/navigation';
-import classes from './Header.module.css';
+import { Tabs } from "@mantine/core";
+import { useRouter } from "next/navigation";
+import classes from "./Header.module.css";
 ```
 
 #### 2.2 Define Tab Configuration
+
 ```tsx
 const tabs = [
-  { value: 'home', label: 'Home', path: '/' },
-  { value: 'monsters', label: 'Monsters', path: '/monsters' },
-  { value: 'spells', label: 'Spells', path: '/spells' },
-  { value: 'encounters', label: 'Encounters', path: '/encounters', disabled: true },
+  { value: "home", label: "Home", path: "/" },
+  { value: "monsters", label: "Monsters", path: "/monsters" },
+  { value: "spells", label: "Spells", path: "/spells" },
+  {
+    value: "encounters",
+    label: "Encounters",
+    path: "/encounters",
+    disabled: true,
+  },
 ];
 ```
 
 #### 2.3 Active Tab Detection
+
 ```tsx
 function getActiveTab(pathname: string): string {
-  if (pathname === '/') return 'home';
-  if (pathname.startsWith('/monsters')) return 'monsters';
-  if (pathname.startsWith('/spells')) return 'spells';
-  if (pathname.startsWith('/encounters')) return 'encounters';
-  return 'home';
+  if (pathname === "/") return "home";
+  if (pathname.startsWith("/monsters")) return "monsters";
+  if (pathname.startsWith("/spells")) return "spells";
+  if (pathname.startsWith("/encounters")) return "encounters";
+  return "home";
 }
 
 const activeTab = getActiveTab(pathname);
 ```
 
 #### 2.4 Update JSX Structure
+
 Replace current single-section Group with two-tier layout:
 
 ```tsx
@@ -143,7 +165,7 @@ Replace current single-section Group with two-tier layout:
       />
 
       {/* Logo/Brand */}
-      <Link href="/" style={{ textDecoration: 'none', color: 'inherit' }}>
+      <Link href="/" style={{ textDecoration: "none", color: "inherit" }}>
         <Text size="xl" fw={700} c="shadowdark.2">
           Shadowdark GM Tools
         </Text>
@@ -156,13 +178,19 @@ Replace current single-section Group with two-tier layout:
           size="lg"
           onClick={() => toggleColorScheme()}
         >
-          {colorScheme === 'dark' ? <IconSun size={18} /> : <IconMoon size={18} />}
+          {colorScheme === "dark" ? (
+            <IconSun size={18} />
+          ) : (
+            <IconMoon size={18} />
+          )}
         </ActionIcon>
 
         {user ? (
           <Menu>{/* existing user menu */}</Menu>
         ) : (
-          <Button component={Link} href="/auth/login">Login</Button>
+          <Button component={Link} href="/auth/login">
+            Login
+          </Button>
         )}
       </Group>
     </Group>
@@ -173,7 +201,7 @@ Replace current single-section Group with two-tier layout:
     <Tabs
       value={activeTab}
       onChange={(value) => {
-        const tab = tabs.find(t => t.value === value);
+        const tab = tabs.find((t) => t.value === value);
         if (tab && !tab.disabled) {
           router.push(tab.path);
         }
@@ -188,11 +216,7 @@ Replace current single-section Group with two-tier layout:
     >
       <Tabs.List>
         {tabs.map((tab) => (
-          <Tabs.Tab
-            key={tab.value}
-            value={tab.value}
-            disabled={tab.disabled}
-          >
+          <Tabs.Tab key={tab.value} value={tab.value} disabled={tab.disabled}>
             {tab.label}
           </Tabs.Tab>
         ))}
@@ -203,6 +227,7 @@ Replace current single-section Group with two-tier layout:
 ```
 
 **Testing with Playwright**:
+
 - Navigate to http://localhost:3000
 - Verify two-tier layout visible on desktop
 - Verify tabs render correctly
@@ -216,16 +241,19 @@ Replace current single-section Group with two-tier layout:
 **File**: `src/components/providers/RootProvider.tsx`
 
 #### 3.1 Update Header Configuration
+
 ```tsx
 <AppShell header={{ height: 94 }} padding="md">
 ```
 
 **Calculation**:
+
 - Top section: 60px (logo + actions)
 - Bottom section: 38px (tabs with -1px overlap)
 - Total: ~94px
 
 **Testing with Playwright**:
+
 - Navigate to http://localhost:3000
 - Verify no content overlap with header
 - Scroll page and verify header stays fixed at correct height
@@ -236,29 +264,32 @@ Replace current single-section Group with two-tier layout:
 ### Phase 4: Handle Edge Cases
 
 #### 4.1 Nested Route Handling
+
 Ensure `/monsters/[id]` and `/spells/[slug]` correctly highlight parent tab:
 
 ```tsx
 function getActiveTab(pathname: string): string {
-  if (pathname === '/') return 'home';
-  if (pathname.startsWith('/monsters')) return 'monsters';
-  if (pathname.startsWith('/spells')) return 'spells';
-  if (pathname.startsWith('/encounters')) return 'encounters';
+  if (pathname === "/") return "home";
+  if (pathname.startsWith("/monsters")) return "monsters";
+  if (pathname.startsWith("/spells")) return "spells";
+  if (pathname.startsWith("/encounters")) return "encounters";
   // Protected routes and other pages
-  if (pathname.startsWith('/profile') || pathname.startsWith('/settings')) {
-    return ''; // No tab active
+  if (pathname.startsWith("/profile") || pathname.startsWith("/settings")) {
+    return ""; // No tab active
   }
-  return 'home'; // Default to home
+  return "home"; // Default to home
 }
 ```
 
 **Testing with Playwright**:
+
 - Navigate to `/monsters`
 - Navigate to `/monsters/aboleth` (or any specific monster)
 - Verify "Monsters" tab remains active on detail page
 - Repeat for spells
 
 #### 4.2 Disabled Tab Styling
+
 Ensure "Encounters" tab shows as disabled:
 
 ```css
@@ -275,6 +306,7 @@ Ensure "Encounters" tab shows as disabled:
 ```
 
 **Testing with Playwright**:
+
 - Verify "Encounters" tab has disabled styling
 - Attempt to click it and verify no navigation occurs
 - Check accessibility snapshot for `aria-disabled="true"`
@@ -286,6 +318,7 @@ Ensure "Encounters" tab shows as disabled:
 **File**: `src/components/layout/MobileNav.tsx` (no changes needed)
 
 **Testing with Playwright**:
+
 1. Resize browser to 375px width (mobile)
 2. Verify tabs are hidden
 3. Verify burger menu is visible
@@ -298,6 +331,7 @@ Ensure "Encounters" tab shows as disabled:
 ### Phase 6: Theme Toggle Verification
 
 **Testing with Playwright**:
+
 1. Start in dark mode (default)
 2. Verify header background is dark-6
 3. Verify tab borders are dark-7
@@ -311,6 +345,7 @@ Ensure "Encounters" tab shows as disabled:
 ### Phase 7: Hover States and Interactions
 
 **Testing with Playwright**:
+
 1. Hover over inactive tab
 2. Verify background color changes (use `browser_evaluate` to check computed styles)
 3. Hover over active tab
@@ -324,6 +359,7 @@ Ensure "Encounters" tab shows as disabled:
 ### Test Scenarios
 
 #### Scenario 1: Desktop Tab Navigation
+
 ```
 1. Navigate to http://localhost:3000
 2. Verify tabs visible (visibleFrom="sm")
@@ -338,6 +374,7 @@ Ensure "Encounters" tab shows as disabled:
 ```
 
 #### Scenario 2: Mobile Responsive Layout
+
 ```
 1. Navigate to http://localhost:3000
 2. Resize to 375px width
@@ -353,6 +390,7 @@ Ensure "Encounters" tab shows as disabled:
 ```
 
 #### Scenario 3: Nested Route Active State
+
 ```
 1. Navigate to /monsters
 2. Verify "Monsters" tab active
@@ -365,6 +403,7 @@ Ensure "Encounters" tab shows as disabled:
 ```
 
 #### Scenario 4: Theme Toggle with Tabs
+
 ```
 1. Navigate to http://localhost:3000
 2. Verify dark mode active (default)
@@ -379,6 +418,7 @@ Ensure "Encounters" tab shows as disabled:
 ```
 
 #### Scenario 5: Disabled Tab Behavior
+
 ```
 1. Navigate to http://localhost:3000
 2. Verify "Encounters" tab visible but disabled
@@ -391,6 +431,7 @@ Ensure "Encounters" tab shows as disabled:
 ```
 
 #### Scenario 6: Keyboard Navigation
+
 ```
 1. Navigate to http://localhost:3000
 2. Press Tab key until tabs are focused
@@ -404,6 +445,7 @@ Ensure "Encounters" tab shows as disabled:
 ### Validation Checkpoints
 
 After implementation, verify:
+
 - ✅ Header height is correct (94px)
 - ✅ Tabs visible on desktop (≥640px)
 - ✅ Tabs hidden on mobile (<640px)
@@ -424,13 +466,16 @@ After implementation, verify:
 ## Files to Create/Modify
 
 ### New Files
+
 1. `src/components/layout/Header.module.css` - CSS module for header and tabs
 
 ### Modified Files
+
 1. `src/components/layout/Header.tsx` - Update to two-tier tab layout
 2. `src/components/providers/RootProvider.tsx` - Update AppShell header height (60 → 94)
 
 ### Unchanged Files
+
 1. `src/components/layout/MobileNav.tsx` - Keep as-is
 2. `src/components/providers/MantineProvider.tsx` - No changes needed
 
@@ -439,6 +484,7 @@ After implementation, verify:
 ## Success Criteria
 
 ### Functional
+
 - [x] Tabs render on desktop screens (≥640px)
 - [x] Tabs hidden on mobile screens (<640px)
 - [x] Clicking tab navigates to correct route
@@ -448,6 +494,7 @@ After implementation, verify:
 - [x] Burger menu and mobile drawer still work
 
 ### Visual
+
 - [x] Header has proper background color (light-dark support)
 - [x] Tabs have hover states
 - [x] Active tab styling clear and distinct
@@ -456,6 +503,7 @@ After implementation, verify:
 - [x] Theme toggle updates all colors correctly
 
 ### Accessibility
+
 - [x] Tabs use proper ARIA attributes (role="tablist", etc.)
 - [x] Keyboard navigation works (Tab, Arrow keys, Enter)
 - [x] Focus indicators visible
@@ -463,6 +511,7 @@ After implementation, verify:
 - [x] Screen reader announces tab changes
 
 ### Performance
+
 - [x] No hydration errors
 - [x] No console warnings
 - [x] Smooth tab transitions
@@ -473,8 +522,10 @@ After implementation, verify:
 ## Potential Issues and Mitigations
 
 ### Issue 1: Header Height Shift
+
 **Problem**: Changing from 60px to 94px could cause layout shifts
 **Mitigation**:
+
 - Update AppShell header height immediately
 - Test all pages to ensure content not hidden
 - Check mobile layouts for overflow
@@ -482,16 +533,20 @@ After implementation, verify:
 **Test**: Use Playwright to navigate to all routes and verify no content overlap
 
 ### Issue 2: Pathname Matching for Nested Routes
+
 **Problem**: `/monsters/123` might not match "monsters" tab
 **Mitigation**:
+
 - Use `pathname.startsWith('/monsters')` instead of exact match
 - Test with actual monster/spell detail pages
 
 **Test**: Navigate to detail pages via Playwright and verify active tab
 
 ### Issue 3: CSS Module Not Loading
+
 **Problem**: Styles might not apply if module not imported correctly
 **Mitigation**:
+
 - Ensure `.module.css` extension used
 - Verify import path is correct
 - Check build output for CSS bundling
@@ -499,8 +554,10 @@ After implementation, verify:
 **Test**: Inspect element in Playwright to verify classes applied
 
 ### Issue 4: Theme Toggle Breaking Tab Colors
+
 **Problem**: `light-dark()` might not work in all contexts
 **Mitigation**:
+
 - Use Mantine CSS variables instead of raw colors
 - Test theme toggle extensively
 - Verify CSS color inheritance
@@ -508,8 +565,10 @@ After implementation, verify:
 **Test**: Toggle theme multiple times and verify colors update
 
 ### Issue 5: Mobile Breakpoint Conflicts
+
 **Problem**: `visibleFrom="sm"` and `hiddenFrom="sm"` might conflict
 **Mitigation**:
+
 - Verify Mantine breakpoints match expected values
 - Use same breakpoint for both visibility toggles
 - Test at exact breakpoint width (640px)

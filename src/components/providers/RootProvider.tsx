@@ -73,7 +73,10 @@ export function RootProvider({ children }: RootProviderProps) {
     <AppShell header={{ height: 60 }} padding="md">
       <AppShell.Header
         style={{
-          backgroundColor: colorScheme === "dark" ? "rgb(46, 46, 46)" : "var(--mantine-color-gray-0)",
+          backgroundColor:
+            colorScheme === "dark"
+              ? "rgb(46, 46, 46)"
+              : "var(--mantine-color-gray-0)",
         }}
       >
         <Header
