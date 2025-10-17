@@ -9,6 +9,18 @@ import {
 } from "@mantine/core";
 import { IconSword, IconWand, IconDice } from "@tabler/icons-react";
 import Link from "next/link";
+import type { Metadata } from "next";
+
+export const metadata: Metadata = {
+  title: "Home | Shadowdark GM Tools",
+  description:
+    "Shadowdark GM Tools - Your complete toolkit for running Shadowdark RPG sessions. Browse monsters, search spells, and create balanced encounters for your campaigns.",
+  openGraph: {
+    title: "Shadowdark GM Tools - Complete GM Toolkit for Shadowdark RPG",
+    description:
+      "Browse official monsters and spells, create custom content, and build balanced encounters for your Shadowdark RPG campaigns.",
+  },
+};
 
 export default function Home() {
   return (

@@ -1,8 +1,18 @@
 import { redirect } from "next/navigation";
+import type { Metadata } from "next";
 
 import { createClient } from "@/lib/supabase/server";
 import { InfoIcon } from "lucide-react";
 import { FetchDataSteps } from "@/components/tutorial/fetch-data-steps";
+
+export const metadata: Metadata = {
+  title: "Protected Page",
+  description: "Access your protected Shadowdark GM Tools account area.",
+  robots: {
+    index: false,
+    follow: false,
+  },
+};
 
 export default async function ProtectedPage() {
   const supabase = await createClient();

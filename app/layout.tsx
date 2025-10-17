@@ -13,8 +13,61 @@ const defaultUrl = process.env.VERCEL_URL
 
 export const metadata: Metadata = {
   metadataBase: new URL(defaultUrl),
-  title: "Next.js and Supabase Starter Kit",
-  description: "The fastest way to build apps with Next.js and Supabase",
+  title: {
+    default: "Shadowdark GM Tools",
+    template: "%s | Shadowdark GM Tools",
+  },
+  description:
+    "Comprehensive tools for Shadowdark RPG Game Masters. Browse official monsters and spells, create custom content, build balanced encounters, and manage your campaigns.",
+  keywords: [
+    "Shadowdark",
+    "RPG",
+    "TTRPG",
+    "Game Master",
+    "GM Tools",
+    "Monster Database",
+    "Spell Database",
+    "Encounter Builder",
+    "D&D",
+    "OSR",
+  ],
+  authors: [{ name: "Shadowdark GM Tools" }],
+  creator: "Shadowdark GM Tools",
+  openGraph: {
+    type: "website",
+    locale: "en_US",
+    url: defaultUrl,
+    siteName: "Shadowdark GM Tools",
+    title: "Shadowdark GM Tools",
+    description:
+      "Comprehensive tools for Shadowdark RPG Game Masters. Browse official monsters and spells, create custom content, and build encounters.",
+    images: [
+      {
+        url: "/og-image.png",
+        width: 1200,
+        height: 630,
+        alt: "Shadowdark GM Tools",
+      },
+    ],
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "Shadowdark GM Tools",
+    description:
+      "Comprehensive tools for Shadowdark RPG Game Masters. Browse monsters, spells, and build encounters.",
+    images: ["/og-image.png"],
+  },
+  robots: {
+    index: true,
+    follow: true,
+    googleBot: {
+      index: true,
+      follow: true,
+      "max-video-preview": -1,
+      "max-image-preview": "large",
+      "max-snippet": -1,
+    },
+  },
 };
 
 export default function RootLayout({
