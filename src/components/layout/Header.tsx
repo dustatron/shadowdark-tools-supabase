@@ -9,6 +9,7 @@ import {
   UnstyledButton,
   ActionIcon,
   useMantineColorScheme,
+  Burger,
 } from "@mantine/core";
 import {
   IconSun,
@@ -17,10 +18,9 @@ import {
   IconSettings,
   IconLogout,
   IconLogin,
-  IconUserPlus,
   IconDashboard,
 } from "@tabler/icons-react";
-import { useRouter } from "next/navigation";
+import { usePathname } from "next/navigation";
 import Link from "next/link";
 import { useState } from "react";
 
@@ -34,10 +34,17 @@ interface User {
 interface HeaderProps {
   user?: User | null;
   onLogout?: () => void;
+  mobileOpened?: boolean;
+  onToggleMobile?: () => void;
 }
 
-export function Header({ user, onLogout }: HeaderProps) {
-  const router = useRouter();
+export function Header({
+  user,
+  onLogout,
+  mobileOpened,
+  onToggleMobile,
+}: HeaderProps) {
+  const pathname = usePathname();
   const { colorScheme, toggleColorScheme } = useMantineColorScheme();
   const [userMenuOpened, setUserMenuOpened] = useState(false);
 
@@ -45,39 +52,53 @@ export function Header({ user, onLogout }: HeaderProps) {
 
   return (
     <Group justify="space-between" h="100%" px="md">
-      {/* Logo/Brand */}
+      {/* Mobile burger menu */}
+      <Burger
+        opened={mobileOpened}
+        onClick={onToggleMobile}
+        hiddenFrom="sm"
+        size="sm"
+        aria-label="Toggle navigation"
+      />
+
+      {/* Logo/Brand - responsive sizing */}
       <Group>
         <Link href="/" style={{ textDecoration: "none", color: "inherit" }}>
-          <Text size="xl" fw={700} c="shadowdark.8">
-            Shadowdark Monster Manager
+          <Text size="xl" fw={700} c="shadowdark.2" hiddenFrom="sm">
+            Shadowdark
+          </Text>
+          <Text size="xl" fw={700} c="shadowdark.2" visibleFrom="sm">
+            Shadowdark GM Tools
           </Text>
         </Link>
       </Group>
 
-      {/* Navigation */}
-      <Group>
-        <Button variant="subtle" component={Link} href="/monsters">
+      {/* Desktop Navigation - hidden on mobile */}
+      <Group gap="xs" visibleFrom="sm">
+        <Button
+          variant={pathname === "/monsters" ? "light" : "subtle"}
+          component={Link}
+          href="/monsters"
+        >
           Monsters
         </Button>
-        <Button variant="subtle" component={Link} href="/spells">
+        <Button
+          variant={pathname === "/spells" ? "light" : "subtle"}
+          component={Link}
+          href="/spells"
+        >
           Spells
         </Button>
-        {/* <Button variant="subtle" component={Link} href="/encounters">
-          Encounters
-        </Button>
-        <Button variant="subtle" component={Link} href="/lists">
-          Lists
-        </Button> */}
       </Group>
 
       {/* User actions */}
-      <Group>
+      <Group gap="xs">
         {/* Theme toggle */}
         <ActionIcon
           variant="subtle"
           size="lg"
           onClick={() => toggleColorScheme()}
-          title="Toggle color scheme"
+          title={`Switch to ${colorScheme === "dark" ? "light" : "dark"} mode`}
         >
           {colorScheme === "dark" ? (
             <IconSun size={18} />
@@ -97,10 +118,11 @@ export function Header({ user, onLogout }: HeaderProps) {
             <Menu.Target>
               <UnstyledButton>
                 <Group gap="xs">
-                  <Avatar size="sm" radius="xl">
+                  <Avatar size="sm" radius="xl" color="shadowdark">
                     <IconUser size={16} />
                   </Avatar>
-                  <Text size="sm" fw={500}>
+                  {/* Hide username on very small screens */}
+                  <Text size="sm" fw={500} visibleFrom="xs">
                     {user.display_name || user.email}
                   </Text>
                 </Group>
@@ -149,17 +171,16 @@ export function Header({ user, onLogout }: HeaderProps) {
             </Menu.Dropdown>
           </Menu>
         ) : (
-          /* Guest user actions */
-          <Group>
-            <Button
-              variant="subtle"
-              leftSection={<IconLogin size={16} />}
-              component={Link}
-              href="/auth/login"
-            >
-              Login
-            </Button>
-          </Group>
+          /* Guest user actions - compact on mobile */
+          <Button
+            variant="subtle"
+            leftSection={<IconLogin size={16} />}
+            component={Link}
+            href="/auth/login"
+            size="sm"
+          >
+            <Text visibleFrom="xs">Login</Text>
+          </Button>
         )}
       </Group>
     </Group>

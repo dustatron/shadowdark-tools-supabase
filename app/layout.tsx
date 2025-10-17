@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { ThemeProvider } from "next-themes";
+import { ColorSchemeScript } from "@mantine/core";
 import { MantineProvider } from "@/src/components/providers/MantineProvider";
 import { RootProvider } from "@/src/components/providers/RootProvider";
 import "@mantine/core/styles.css";
@@ -24,18 +24,14 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en" suppressHydrationWarning>
+      <head>
+        <ColorSchemeScript defaultColorScheme="dark" />
+      </head>
       <body className="antialiased">
-        <ThemeProvider
-          attribute="class"
-          defaultTheme="system"
-          enableSystem
-          disableTransitionOnChange
-        >
-          <MantineProvider>
-            <Notifications />
-            <RootProvider>{children}</RootProvider>
-          </MantineProvider>
-        </ThemeProvider>
+        <MantineProvider>
+          <Notifications />
+          <RootProvider>{children}</RootProvider>
+        </MantineProvider>
       </body>
     </html>
   );

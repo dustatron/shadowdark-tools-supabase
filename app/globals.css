@@ -62,7 +62,8 @@
   * {
     @apply border-border;
   }
-  body {
+  /* Remove bg/text application - let Mantine handle dark mode backgrounds */
+  /* body {
     @apply bg-background text-foreground;
-  }
+  } */
 }
