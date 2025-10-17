@@ -1,4 +1,15 @@
 import { LoginForm } from "@/components/login-form";
+import type { Metadata } from "next";
+
+export const metadata: Metadata = {
+  title: "Login",
+  description:
+    "Sign in to your Shadowdark GM Tools account to manage your monsters, spells, and encounters.",
+  robots: {
+    index: false,
+    follow: false,
+  },
+};
 
 export default function Page() {
   return (

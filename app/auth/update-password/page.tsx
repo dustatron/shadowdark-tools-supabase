@@ -1,4 +1,14 @@
 import { UpdatePasswordForm } from "@/components/update-password-form";
+import type { Metadata } from "next";
+
+export const metadata: Metadata = {
+  title: "Update Password",
+  description: "Update your Shadowdark GM Tools account password.",
+  robots: {
+    index: false,
+    follow: false,
+  },
+};
 
 export default function Page() {
   return (

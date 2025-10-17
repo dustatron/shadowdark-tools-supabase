@@ -5,6 +5,17 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
+import type { Metadata } from "next";
+
+export const metadata: Metadata = {
+  title: "Sign Up Success",
+  description:
+    "Thank you for signing up for Shadowdark GM Tools. Check your email to confirm your account.",
+  robots: {
+    index: false,
+    follow: false,
+  },
+};
 
 export default function Page() {
   return (
