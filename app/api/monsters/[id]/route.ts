@@ -51,6 +51,16 @@ export async function GET(
     const supabase = await createClient();
     const { id } = await params;
 
+    // Validate UUID format
+    const uuidRegex =
+      /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+    if (!uuidRegex.test(id)) {
+      return NextResponse.json(
+        { error: "Invalid ID format", message: "ID must be a valid UUID" },
+        { status: 400 },
+      );
+    }
+
     // First try to get from all_monsters view (includes both official and user monsters)
     const { data: monster, error } = await supabase
       .from("all_monsters")

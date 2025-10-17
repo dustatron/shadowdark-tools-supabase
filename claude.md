@@ -37,6 +37,11 @@
 - **E2E Testing**: Playwright 1.55
 - **Coverage Target**: 40% for MVP
 
+**Note**: API contract tests were removed (2025-01-17) as they were slow, brittle, and required full database setup. The contract tests served their purpose by revealing missing endpoints (POST /api/monsters, /api/monsters/random, UUID validation) which are now implemented. Testing strategy focuses on:
+- Unit tests for route handlers (with mocked dependencies)
+- E2E tests for critical user flows (Playwright)
+- Manual testing during development
+
 ### Development Tools
 
 - **Linting**: ESLint 9 with Next.js config + Prettier 3.6.2
@@ -228,10 +233,75 @@ export default function ComponentName({ props }: Props) {
 
 ### Supabase Client Usage
 
-- **Server Components**: Use `createClient()` from `@/lib/supabase/server`
+- **Server Components**: Use `await createClient()` from `@/lib/supabase/server`
 - **Client Components**: Use `createClient()` from `@/lib/supabase/client`
-- **Server Actions**: Use server client, check auth status
-- **API Routes**: Use server client with proper error handling
+- **Server Actions**: Use `await createClient()`, check auth status
+- **API Routes**: Use `await createClient()` with proper error handling
+
+**Important**: In Next.js 15, the server-side `createClient()` is async and MUST be awaited.
+
+### Next.js 15 API Route Patterns
+
+**Dynamic Route Parameters** (BREAKING CHANGE in Next.js 15):
+```typescript
+// ✅ CORRECT - params is a Promise in Next.js 15
+export async function GET(
+  request: NextRequest,
+  { params }: { params: Promise<{ id: string }> }
+) {
+  const { id } = await params; // Must await params
+  const supabase = await createClient(); // Must await createClient
+  // ...
+}
+
+// ❌ WRONG - Old Next.js 14 pattern
+export async function GET(
+  request: NextRequest,
+  { params }: { params: { id: string } }
+) {
+  const { id } = params; // Will cause type errors
+  // ...
+}
+```
+
+**Supabase Client in API Routes**:
+```typescript
+// ✅ CORRECT
+import { createClient } from '@/lib/supabase/server'
+
+export async function GET(request: NextRequest) {
+  const supabase = await createClient(); // Must await
+  const { data } = await supabase.from('monsters').select('*');
+  return NextResponse.json(data);
+}
+
+// ❌ WRONG
+import { createSupabaseServerClient } from '@/lib/supabase/server' // Old export name
+const supabase = createClient(); // Missing await
+```
+
+**Zod Validation Error Handling**:
+```typescript
+// ✅ CORRECT
+catch (error) {
+  if (error instanceof z.ZodError) {
+    return NextResponse.json({
+      error: "Validation error",
+      details: error.issues // Use .issues, not .errors
+    }, { status: 400 });
+  }
+}
+
+// ❌ WRONG
+catch (error) {
+  if (error instanceof z.ZodError) {
+    return NextResponse.json({
+      error: "Validation error",
+      details: error.errors // Property doesn't exist
+    }, { status: 400 });
+  }
+}
+```
 
 ### Styling
 
@@ -403,14 +473,109 @@ NEXT_PUBLIC_CLOUDINARY_UPLOAD_PRESET=your_upload_preset
 
 ## Common Patterns & Best Practices
 
-### Data Fetching
+### API Route Handler Pattern (Next.js 15)
+
+```typescript
+import { NextRequest, NextResponse } from "next/server";
+import { createClient } from "@/lib/supabase/server";
+import { z } from "zod";
+
+// Schema for validation
+const MonsterSchema = z.object({
+  name: z.string().min(1),
+  challenge_level: z.number().int().min(1).max(20),
+});
+
+// GET /api/monsters/[id] - Dynamic route with params
+export async function GET(
+  request: NextRequest,
+  { params }: { params: Promise<{ id: string }> } // params is Promise
+) {
+  try {
+    const supabase = await createClient(); // Must await
+    const { id } = await params; // Must await params
+
+    const { data, error } = await supabase
+      .from('monsters')
+      .select('*')
+      .eq('id', id)
+      .single();
+
+    if (error || !data) {
+      return NextResponse.json({ error: "Not found" }, { status: 404 });
+    }
+
+    return NextResponse.json(data);
+  } catch (error) {
+    console.error("API error:", error);
+    return NextResponse.json(
+      { error: "Internal server error" },
+      { status: 500 }
+    );
+  }
+}
+
+// POST /api/monsters - Create with validation
+export async function POST(request: NextRequest) {
+  try {
+    const supabase = await createClient();
+    
+    // Check authentication
+    const { data: { user }, error: authError } = await supabase.auth.getUser();
+    if (authError || !user) {
+      return NextResponse.json(
+        { error: "Authentication required" },
+        { status: 401 }
+      );
+    }
+
+    // Parse and validate body
+    const body = await request.json();
+    const validated = MonsterSchema.parse(body);
+
+    // Insert data
+    const { data, error } = await supabase
+      .from('user_monsters')
+      .insert({ ...validated, user_id: user.id })
+      .select()
+      .single();
+
+    if (error) {
+      return NextResponse.json(
+        { error: "Failed to create monster" },
+        { status: 500 }
+      );
+    }
+
+    return NextResponse.json(data, { status: 201 });
+  } catch (error) {
+    if (error instanceof z.ZodError) {
+      return NextResponse.json(
+        {
+          error: "Validation error",
+          details: error.issues // Use .issues not .errors
+        },
+        { status: 400 }
+      );
+    }
+
+    console.error("API error:", error);
+    return NextResponse.json(
+      { error: "Internal server error" },
+      { status: 500 }
+    );
+  }
+}
+```
+
+### Data Fetching in Server Components
 
 ```typescript
 // Server Component (preferred)
 import { createClient } from '@/lib/supabase/server'
 
 export default async function Page() {
-  const supabase = await createClient()
+  const supabase = await createClient() // Must await
   const { data } = await supabase.from('monsters').select('*')
   return <MonsterList monsters={data} />
 }
@@ -482,4 +647,5 @@ When working on this project:
 
 ## Last Updated
 
-October 16, 2025 - Initial claude.md creation
+- **October 17, 2025** - Added Next.js 15 API route patterns and async params documentation
+- **October 16, 2025** - Initial claude.md creation

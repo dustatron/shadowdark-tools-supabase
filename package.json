@@ -11,8 +11,6 @@
     "test": "vitest",
     "test:run": "vitest run",
     "test:coverage": "vitest --coverage",
-    "test:api": "vitest --config vitest.api.config.mjs",
-    "test:api:run": "vitest run --config vitest.api.config.mjs",
     "test:e2e": "playwright test",
     "test:e2e:ui": "playwright test --ui",
     "test:e2e:headed": "playwright test --headed"

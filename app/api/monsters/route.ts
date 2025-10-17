@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { createClient } from "@/lib/supabase/server";
 import {
   monsterSearchSchema,
+  createMonsterSchema,
   shadowdarkValidations,
   type MonsterSearchResponse,
 } from "@/lib/validations/monster";
@@ -250,15 +251,85 @@ export async function GET(request: NextRequest) {
   }
 }
 
-// Export other HTTP methods as not allowed
-export async function POST() {
-  return NextResponse.json(
-    {
-      error: "Method not allowed",
-      message: "POST method not supported on this endpoint",
-    },
-    { status: 405 },
-  );
+// POST handler for creating custom monsters
+export async function POST(request: NextRequest) {
+  try {
+    // Initialize Supabase client
+    const supabase = await createClient();
+
+    // Check authentication
+    const {
+      data: { user },
+    } = await supabase.auth.getUser();
+
+    if (!user) {
+      return NextResponse.json(
+        {
+          error: "Unauthorized",
+          message: "Authentication required to create monsters",
+        },
+        { status: 401 },
+      );
+    }
+
+    // Parse request body
+    const body = await request.json();
+
+    // Validate request data
+    const validationResult = createMonsterSchema.safeParse(body);
+    if (!validationResult.success) {
+      return NextResponse.json(
+        {
+          error: "Validation failed",
+          message: "Invalid monster data provided",
+          details: validationResult.error.format(),
+        },
+        { status: 400 },
+      );
+    }
+
+    const monsterData = validationResult.data;
+
+    // Insert monster into user_monsters table
+    const { data: newMonster, error: insertError } = await supabase
+      .from("user_monsters")
+      .insert({
+        ...monsterData,
+        user_id: user.id,
+        is_official: false,
+        is_public: monsterData.is_public ?? false,
+      })
+      .select()
+      .single();
+
+    if (insertError) {
+      console.error("Error creating monster:", insertError);
+      return NextResponse.json(
+        {
+          error: "Database error",
+          message: "Failed to create monster",
+          details: insertError.message,
+        },
+        { status: 500 },
+      );
+    }
+
+    return NextResponse.json(newMonster, {
+      status: 201,
+      headers: {
+        "Content-Type": "application/json",
+      },
+    });
+  } catch (error) {
+    console.error("Unexpected error in POST /api/monsters:", error);
+    return NextResponse.json(
+      {
+        error: "Internal server error",
+        message: "An unexpected error occurred while creating the monster",
+      },
+      { status: 500 },
+    );
+  }
 }
 
 export async function PUT() {

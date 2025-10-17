@@ -10,26 +10,32 @@ const ListSchema = z.object({
   category: z.string().max(50).optional(),
 });
 
-// GET /api/lists - Get monster lists
+// GET /api/lists - Get monster lists (requires authentication)
 export async function GET(request: NextRequest) {
   try {
     const supabase = await createClient();
     const { searchParams } = new URL(request.url);
 
-    const page = Math.max(1, parseInt(searchParams.get("page") || "1"));
+    // Get current user - REQUIRED for this endpoint
+    const {
+      data: { user },
+    } = await supabase.auth.getUser();
+
+    if (!user) {
+      return NextResponse.json(
+        { error: "Unauthorized", message: "Authentication required" },
+        { status: 401 },
+      );
+    }
+
     const limit = Math.min(
       50,
       Math.max(1, parseInt(searchParams.get("limit") || "20")),
     );
-    const offset = (page - 1) * limit;
+    const offset = Math.max(0, parseInt(searchParams.get("offset") || "0"));
 
     const visibility = searchParams.get("visibility"); // 'public', 'private', or null for all
     const category = searchParams.get("category");
-
-    // Get current user (optional for public lists)
-    const {
-      data: { user },
-    } = await supabase.auth.getUser();
 
     // Build query
     let query = supabase
@@ -41,14 +47,11 @@ export async function GET(request: NextRequest) {
     // Apply visibility filter
     if (visibility === "public") {
       query = query.eq("is_public", true);
-    } else if (visibility === "private" && user) {
+    } else if (visibility === "private") {
       query = query.eq("is_public", false).eq("creator_id", user.id);
-    } else if (user) {
+    } else {
       // Show public lists and user's own private lists
       query = query.or(`is_public.eq.true,creator_id.eq.${user.id}`);
-    } else {
-      // Not authenticated, only show public lists
-      query = query.eq("is_public", true);
     }
 
     // Apply category filter
@@ -67,13 +70,8 @@ export async function GET(request: NextRequest) {
     }
 
     return NextResponse.json({
-      lists,
-      pagination: {
-        page,
-        limit,
-        total: count || 0,
-        totalPages: Math.ceil((count || 0) / limit),
-      },
+      lists: lists || [],
+      total: count || 0,
     });
   } catch (error) {
     console.error("API error:", error);
