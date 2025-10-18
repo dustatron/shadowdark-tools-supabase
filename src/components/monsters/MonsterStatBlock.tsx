@@ -1,6 +1,6 @@
 "use client";
 
-import { IconHeart, IconShield, IconRun } from "@tabler/icons-react";
+import { Heart, Shield, Footprints } from "lucide-react";
 import { Card, CardContent } from "@/components/ui/card";
 
 interface MonsterStatBlockProps {
@@ -20,15 +20,15 @@ export function MonsterStatBlock({
     return (
       <div className="flex items-center gap-6">
         <div className="flex items-center gap-2">
-          <IconHeart size={16} className="text-red-500" />
+          <Heart size={16} className="text-red-500" />
           <span className="text-sm font-medium">{hitPoints}</span>
         </div>
         <div className="flex items-center gap-2">
-          <IconShield size={16} className="text-blue-500" />
+          <Shield size={16} className="text-blue-500" />
           <span className="text-sm font-medium">{armorClass}</span>
         </div>
         <div className="flex items-center gap-2">
-          <IconRun size={16} className="text-green-500" />
+          <Footprints size={16} className="text-green-500" />
           <span className="text-sm font-medium">{speed}</span>
         </div>
       </div>
@@ -40,7 +40,7 @@ export function MonsterStatBlock({
       <CardContent className="p-6">
         <div className="grid grid-cols-1 sm:grid-cols-3 gap-6">
           <div className="flex items-center gap-4">
-            <IconHeart size={24} className="text-red-500" />
+            <Heart size={24} className="text-red-500" />
             <div>
               <p className="text-xs text-muted-foreground uppercase">
                 Hit Points
@@ -49,7 +49,7 @@ export function MonsterStatBlock({
             </div>
           </div>
           <div className="flex items-center gap-4">
-            <IconShield size={24} className="text-blue-500" />
+            <Shield size={24} className="text-blue-500" />
             <div>
               <p className="text-xs text-muted-foreground uppercase">
                 Armor Class
@@ -58,7 +58,7 @@ export function MonsterStatBlock({
             </div>
           </div>
           <div className="flex items-center gap-4">
-            <IconRun size={24} className="text-green-500" />
+            <Footprints size={24} className="text-green-500" />
             <div>
               <p className="text-xs text-muted-foreground uppercase">Speed</p>
               <p className="text-xl font-bold">{speed}</p>

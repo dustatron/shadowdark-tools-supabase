@@ -8,13 +8,13 @@ import {
 } from "@/components/ui/sheet";
 import { Separator } from "@/components/ui/separator";
 import {
-  IconSword,
-  IconWand,
-  IconUser,
-  IconSettings,
-  IconDashboard,
-  IconLogout,
-} from "@tabler/icons-react";
+  Sword,
+  Wand,
+  User,
+  Settings,
+  LayoutDashboard,
+  LogOut,
+} from "lucide-react";
 import { usePathname } from "next/navigation";
 import Link from "next/link";
 import { cn } from "@/lib/utils";
@@ -119,14 +119,14 @@ export function MobileNav({ opened, onClose, user, onLogout }: MobileNavProps) {
           {/* Main Navigation */}
           <NavLink
             label="Monsters"
-            icon={<IconSword size={20} />}
+            icon={<Sword size={20} />}
             href="/monsters"
             active={pathname === "/monsters"}
             onClick={onClose}
           />
           <NavLink
             label="Spells"
-            icon={<IconWand size={20} />}
+            icon={<Wand size={20} />}
             href="/spells"
             active={pathname === "/spells"}
             onClick={onClose}
@@ -138,14 +138,14 @@ export function MobileNav({ opened, onClose, user, onLogout }: MobileNavProps) {
 
               <NavLink
                 label="Profile"
-                icon={<IconUser size={20} />}
+                icon={<User size={20} />}
                 href="/profile"
                 active={pathname === "/profile"}
                 onClick={onClose}
               />
               <NavLink
                 label="Settings"
-                icon={<IconSettings size={20} />}
+                icon={<Settings size={20} />}
                 href="/settings"
                 active={pathname === "/settings"}
                 onClick={onClose}
@@ -156,7 +156,7 @@ export function MobileNav({ opened, onClose, user, onLogout }: MobileNavProps) {
                   <SectionHeader label="Admin" />
                   <NavLink
                     label="Dashboard"
-                    icon={<IconDashboard size={20} />}
+                    icon={<LayoutDashboard size={20} />}
                     href="/admin"
                     active={pathname === "/admin"}
                     onClick={onClose}
@@ -168,7 +168,7 @@ export function MobileNav({ opened, onClose, user, onLogout }: MobileNavProps) {
 
               <NavLink
                 label="Logout"
-                icon={<IconLogout size={20} />}
+                icon={<LogOut size={20} />}
                 onClick={() => {
                   onLogout?.();
                   onClose();

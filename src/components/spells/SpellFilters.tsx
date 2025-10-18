@@ -1,12 +1,6 @@
 "use client";
 
-import {
-  IconSearch,
-  IconFilter,
-  IconFilterOff,
-  IconChevronDown,
-  IconChevronUp,
-} from "@tabler/icons-react";
+import { Search, Filter, FilterX, ChevronDown, ChevronUp } from "lucide-react";
 import { useState, useEffect } from "react";
 import { useDebounce } from "use-debounce";
 import { Card, CardContent } from "../../../components/ui/card";
@@ -106,7 +100,7 @@ export function SpellFilters({
       <CardContent className="p-4 space-y-4">
         <div className="flex flex-col sm:flex-row gap-4">
           <div className="relative flex-1">
-            <IconSearch
+            <Search
               size={16}
               className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground pointer-events-none"
             />
@@ -126,15 +120,15 @@ export function SpellFilters({
                   variant={expanded ? "default" : "outline"}
                   className="gap-2"
                 >
-                  <IconFilter size={16} />
+                  <Filter size={16} />
                   Filters
                   {activeFilterCount > 0 && (
                     <span className="text-xs">({activeFilterCount})</span>
                   )}
                   {expanded ? (
-                    <IconChevronUp size={14} />
+                    <ChevronUp size={14} />
                   ) : (
-                    <IconChevronDown size={14} />
+                    <ChevronDown size={14} />
                   )}
                 </Button>
               </CollapsibleTrigger>
@@ -148,7 +142,7 @@ export function SpellFilters({
                 title="Clear all filters"
                 className="text-destructive hover:text-destructive"
               >
-                <IconFilterOff size={16} />
+                <FilterX size={16} />
               </Button>
             )}
           </div>

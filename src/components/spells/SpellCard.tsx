@@ -14,13 +14,13 @@ import {
   CollapsibleTrigger,
 } from "@/../../components/ui/collapsible";
 import {
-  IconChevronDown,
-  IconChevronUp,
-  IconBook,
-  IconClock,
-  IconUsers,
-  IconRuler,
-} from "@tabler/icons-react";
+  ChevronDown,
+  ChevronUp,
+  Book,
+  Clock,
+  Users,
+  Ruler,
+} from "lucide-react";
 import { useState } from "react";
 import Link from "next/link";
 
@@ -80,17 +80,17 @@ export function SpellCard({ spell }: SpellCardProps) {
         {/* Stats */}
         <div className="flex flex-wrap gap-4">
           <div className="flex items-center gap-2">
-            <IconUsers size={16} className="text-muted-foreground" />
+            <Users size={16} className="text-muted-foreground" />
             <span className="text-sm font-medium">
               {spell.classes.join(", ")}
             </span>
           </div>
           <div className="flex items-center gap-2">
-            <IconClock size={16} className="text-muted-foreground" />
+            <Clock size={16} className="text-muted-foreground" />
             <span className="text-sm font-medium">{spell.duration}</span>
           </div>
           <div className="flex items-center gap-2">
-            <IconRuler size={16} className="text-muted-foreground" />
+            <Ruler size={16} className="text-muted-foreground" />
             <span className="text-sm font-medium">{spell.range}</span>
           </div>
         </div>
@@ -104,18 +104,14 @@ export function SpellCard({ spell }: SpellCardProps) {
               className="w-full justify-between"
             >
               <span>{expanded ? "Hide Description" : "Show Description"}</span>
-              {expanded ? (
-                <IconChevronUp size={14} />
-              ) : (
-                <IconChevronDown size={14} />
-              )}
+              {expanded ? <ChevronUp size={14} /> : <ChevronDown size={14} />}
             </Button>
           </CollapsibleTrigger>
 
           <CollapsibleContent className="space-y-4 pt-4">
             <div>
               <div className="flex items-center gap-2 mb-2">
-                <IconBook size={16} className="text-muted-foreground" />
+                <Book size={16} className="text-muted-foreground" />
                 <span className="text-sm font-medium">Description</span>
               </div>
               <p className="text-sm text-muted-foreground">

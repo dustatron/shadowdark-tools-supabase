@@ -1,12 +1,6 @@
 "use client";
 
-import {
-  IconSearch,
-  IconFilter,
-  IconFilterOff,
-  IconChevronDown,
-  IconChevronUp,
-} from "@tabler/icons-react";
+import { Search, Filter, FilterX, ChevronDown, ChevronUp } from "lucide-react";
 import { useState, useEffect } from "react";
 import { useDebounce } from "use-debounce";
 import { Card, CardContent } from "@/components/ui/card";
@@ -142,7 +136,7 @@ export function MonsterFilters({
           {/* Search and Quick Filters */}
           <div className="flex gap-2">
             <div className="relative flex-1">
-              <IconSearch className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+              <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
               <Input
                 placeholder="Search monsters by name or description..."
                 value={localSearch}
@@ -157,7 +151,7 @@ export function MonsterFilters({
                 variant={expanded ? "default" : "outline"}
                 onClick={() => setExpanded(!expanded)}
               >
-                <IconFilter className="h-4 w-4 mr-2" />
+                <Filter className="h-4 w-4 mr-2" />
                 Filters
                 {activeFilterCount > 0 && (
                   <Badge variant="secondary" className="ml-2">
@@ -165,9 +159,9 @@ export function MonsterFilters({
                   </Badge>
                 )}
                 {expanded ? (
-                  <IconChevronUp className="h-3.5 w-3.5 ml-2" />
+                  <ChevronUp className="h-3.5 w-3.5 ml-2" />
                 ) : (
-                  <IconChevronDown className="h-3.5 w-3.5 ml-2" />
+                  <ChevronDown className="h-3.5 w-3.5 ml-2" />
                 )}
               </Button>
 
@@ -178,7 +172,7 @@ export function MonsterFilters({
                   onClick={clearFilters}
                   title="Clear all filters"
                 >
-                  <IconFilterOff className="h-4 w-4 text-destructive" />
+                  <FilterX className="h-4 w-4 text-destructive" />
                 </Button>
               )}
             </div>

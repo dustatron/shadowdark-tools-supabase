@@ -5,7 +5,7 @@ import { EmptyState } from "../ui/EmptyState";
 import { LoadingSpinner } from "../ui/LoadingSpinner";
 import { ErrorAlert } from "../ui/ErrorAlert";
 import { Pagination } from "../ui/Pagination";
-import { IconSearch } from "@tabler/icons-react";
+import { Search } from "lucide-react";
 
 interface Monster {
   id: string;
@@ -96,7 +96,7 @@ export function MonsterList({
   if (monsters.length === 0) {
     return (
       <EmptyState
-        icon={<IconSearch size={48} />}
+        icon={<Search size={48} />}
         title={emptyStateTitle}
         description={emptyStateDescription}
         action={

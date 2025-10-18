@@ -5,7 +5,7 @@ import { EmptyState } from "../ui/EmptyState";
 import { LoadingSpinner } from "../ui/LoadingSpinner";
 import { ErrorAlert } from "../ui/ErrorAlert";
 import { Pagination } from "../ui/Pagination";
-import { IconBook } from "@tabler/icons-react";
+import { Book } from "lucide-react";
 
 interface Spell {
   id: string;
@@ -65,7 +65,7 @@ export function SpellList({
   if (spells.length === 0) {
     return (
       <EmptyState
-        icon={<IconBook size={48} />}
+        icon={<Book size={48} />}
         title="No spells found"
         description="Try adjusting your search filters."
       />

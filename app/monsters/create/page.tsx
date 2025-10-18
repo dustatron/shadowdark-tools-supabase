@@ -2,9 +2,9 @@
 
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
-import { Container, Title, LoadingOverlay } from "@mantine/core";
 import { MonsterCreateEditForm } from "@/src/components/monsters/MonsterCreateEditForm";
 import { createClient } from "@/lib/supabase/client";
+import { LoadingSpinner } from "@/src/components/ui/LoadingSpinner";
 
 export default function CreateMonsterPage() {
   const router = useRouter();
@@ -33,9 +33,11 @@ export default function CreateMonsterPage() {
 
   if (isChecking) {
     return (
-      <Container size="lg" py="xl" pos="relative" mih={400}>
-        <LoadingOverlay visible={true} />
-      </Container>
+      <div className="container mx-auto px-4 py-8">
+        <div className="flex items-center justify-center min-h-[400px]">
+          <LoadingSpinner size="lg" />
+        </div>
+      </div>
     );
   }
 
@@ -44,11 +46,9 @@ export default function CreateMonsterPage() {
   }
 
   return (
-    <Container size="lg" py="xl">
-      <Title order={1} mb="xl">
-        Create Custom Monster
-      </Title>
+    <div className="container mx-auto px-4 py-8">
+      <h1 className="text-3xl font-bold mb-6">Create Custom Monster</h1>
       <MonsterCreateEditForm mode="create" />
-    </Container>
+    </div>
   );
 }

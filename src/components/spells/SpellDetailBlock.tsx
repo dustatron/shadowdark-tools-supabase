@@ -1,7 +1,7 @@
 "use client";
 
 import { Card, CardContent } from "@/../../components/ui/card";
-import { IconUsers, IconClock, IconRuler, IconStar } from "@tabler/icons-react";
+import { Users, Clock, Ruler, Star } from "lucide-react";
 
 interface SpellDetailBlockProps {
   tier: number;
@@ -33,7 +33,7 @@ export function SpellDetailBlock({
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
           {/* Tier */}
           <div className="flex items-center gap-4">
-            <IconStar size={24} className={tierColorClass} />
+            <Star size={24} className={tierColorClass} />
             <div>
               <p className="text-xs text-muted-foreground uppercase tracking-wider">
                 Tier
@@ -44,7 +44,7 @@ export function SpellDetailBlock({
 
           {/* Classes */}
           <div className="flex items-center gap-4">
-            <IconUsers size={24} className="text-muted-foreground" />
+            <Users size={24} className="text-muted-foreground" />
             <div>
               <p className="text-xs text-muted-foreground uppercase tracking-wider">
                 Classes
@@ -55,7 +55,7 @@ export function SpellDetailBlock({
 
           {/* Duration */}
           <div className="flex items-center gap-4">
-            <IconClock size={24} className="text-muted-foreground" />
+            <Clock size={24} className="text-muted-foreground" />
             <div>
               <p className="text-xs text-muted-foreground uppercase tracking-wider">
                 Duration
@@ -66,7 +66,7 @@ export function SpellDetailBlock({
 
           {/* Range */}
           <div className="flex items-center gap-4">
-            <IconRuler size={24} className="text-muted-foreground" />
+            <Ruler size={24} className="text-muted-foreground" />
             <div>
               <p className="text-xs text-muted-foreground uppercase tracking-wider">
                 Range

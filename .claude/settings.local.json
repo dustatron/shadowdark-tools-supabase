@@ -75,7 +75,11 @@
       "Bash(do echo \"=== $file ===\")",
       "Bash(head:*)",
       "Bash(npm run format:fix:*)",
-      "Bash(npm run format:*)"
+      "Bash(npm run format:*)",
+      "Bash(./replace-icons.sh)",
+      "Bash(tee:*)",
+      "Bash(./fix-icon-names.sh:*)",
+      "Bash(./fix-all-icons.sh:*)"
     ],
     "deny": [],
     "ask": []

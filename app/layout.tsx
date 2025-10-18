@@ -2,10 +2,6 @@ import type { Metadata } from "next";
 import { RootProvider } from "@/src/components/providers/RootProvider";
 import { ThemeProvider } from "next-themes";
 import { Toaster } from "sonner";
-import { MantineProvider } from "@mantine/core";
-import { Notifications } from "@mantine/notifications";
-import "@mantine/core/styles.css";
-import "@mantine/notifications/styles.css";
 import "./globals.css";
 
 const defaultUrl = process.env.VERCEL_URL
@@ -79,13 +75,10 @@ export default function RootLayout({
   return (
     <html lang="en" suppressHydrationWarning>
       <body className="antialiased">
-        <MantineProvider>
-          <Notifications />
-          <ThemeProvider attribute="class" defaultTheme="dark">
-            <RootProvider>{children}</RootProvider>
-            <Toaster richColors position="top-right" />
-          </ThemeProvider>
-        </MantineProvider>
+        <ThemeProvider attribute="class" defaultTheme="dark">
+          <RootProvider>{children}</RootProvider>
+          <Toaster richColors position="top-right" />
+        </ThemeProvider>
       </body>
     </html>
   );

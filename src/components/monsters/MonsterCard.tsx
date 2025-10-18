@@ -1,18 +1,17 @@
 "use client";
 
 import {
-  IconDots,
-  IconEdit,
-  IconTrash,
-  IconEye,
-  IconChevronDown,
-  IconChevronUp,
-  IconHeart,
-  IconHeartFilled,
-  IconSword,
-  IconShield,
-  IconRun,
-} from "@tabler/icons-react";
+  MoreVertical,
+  Pencil,
+  Trash2,
+  Eye,
+  ChevronDown,
+  ChevronUp,
+  Heart,
+  Sword,
+  Shield,
+  Footprints,
+} from "lucide-react";
 import { useState } from "react";
 import Link from "next/link";
 import { Card, CardHeader, CardContent } from "@/components/ui/card";
@@ -126,9 +125,9 @@ export function MonsterCard({
                         }
                       >
                         {isFavorited ? (
-                          <IconHeartFilled size={16} />
+                          <Heart size={16} />
                         ) : (
-                          <IconHeart size={16} />
+                          <Heart size={16} />
                         )}
                       </Button>
                     )}
@@ -136,7 +135,7 @@ export function MonsterCard({
                     <DropdownMenu>
                       <DropdownMenuTrigger asChild>
                         <Button variant="ghost" size="icon">
-                          <IconDots size={16} />
+                          <MoreVertical size={16} />
                         </Button>
                       </DropdownMenuTrigger>
 
@@ -146,14 +145,14 @@ export function MonsterCard({
                             href={`/monsters/${monster.id}`}
                             className="flex items-center gap-2"
                           >
-                            <IconEye size={14} />
+                            <Eye size={14} />
                             View Details
                           </Link>
                         </DropdownMenuItem>
 
                         {canEdit && onEdit && (
                           <DropdownMenuItem onClick={() => onEdit(monster)}>
-                            <IconEdit size={14} className="mr-2" />
+                            <Pencil size={14} className="mr-2" />
                             Edit Monster
                           </DropdownMenuItem>
                         )}
@@ -165,7 +164,7 @@ export function MonsterCard({
                               onClick={() => onDelete(monster)}
                               className="text-red-600 focus:text-red-600"
                             >
-                              <IconTrash size={14} className="mr-2" />
+                              <Trash2 size={14} className="mr-2" />
                               Delete Monster
                             </DropdownMenuItem>
                           </>
@@ -181,17 +180,17 @@ export function MonsterCard({
           {/* Stats */}
           <div className="flex items-center gap-6">
             <div className="flex items-center gap-2" title="Hit Points">
-              <IconHeart size={16} className="text-red-500" />
+              <Heart size={16} className="text-red-500" />
               <span className="text-sm font-medium">{monster.hit_points}</span>
             </div>
 
             <div className="flex items-center gap-2" title="Armor Class">
-              <IconShield size={16} className="text-blue-500" />
+              <Shield size={16} className="text-blue-500" />
               <span className="text-sm font-medium">{monster.armor_class}</span>
             </div>
 
             <div className="flex items-center gap-2" title="Speed">
-              <IconRun size={16} className="text-green-500" />
+              <Footprints size={16} className="text-green-500" />
               <span className="text-sm font-medium">{monster.speed}</span>
             </div>
           </div>
@@ -226,9 +225,9 @@ export function MonsterCard({
                 >
                   {expanded ? "Hide Details" : "Show Details"}
                   {expanded ? (
-                    <IconChevronUp size={14} className="ml-2" />
+                    <ChevronUp size={14} className="ml-2" />
                   ) : (
-                    <IconChevronDown size={14} className="ml-2" />
+                    <ChevronDown size={14} className="ml-2" />
                   )}
                 </Button>
 
@@ -238,7 +237,7 @@ export function MonsterCard({
                     {monster.attacks.length > 0 && (
                       <div>
                         <div className="flex items-center gap-2 mb-2">
-                          <IconSword size={16} />
+                          <Sword size={16} />
                           <h4 className="text-sm font-medium">Attacks</h4>
                         </div>
                         <div className="flex flex-col gap-2">

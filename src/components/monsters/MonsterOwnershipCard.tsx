@@ -1,13 +1,6 @@
 "use client";
 
-import {
-  IconEdit,
-  IconTrash,
-  IconEye,
-  IconEyeOff,
-  IconCopy,
-  IconUser,
-} from "@tabler/icons-react";
+import { Pencil, Trash2, Eye, EyeOff, Copy, User } from "lucide-react";
 import Link from "next/link";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -103,7 +96,7 @@ export function MonsterOwnershipCard({
                     alt={author.display_name || "User"}
                   />
                   <AvatarFallback>
-                    <IconUser size={20} />
+                    <User size={20} />
                   </AvatarFallback>
                 </Avatar>
                 <div>
@@ -144,22 +137,22 @@ export function MonsterOwnershipCard({
                     href={`/monsters/${monsterId}/edit`}
                     className="flex items-center gap-2"
                   >
-                    <IconEdit size={16} />
+                    <Pencil size={16} />
                     Edit Monster
                   </Link>
                 </Button>
                 {onToggleVisibility && (
                   <Button onClick={onToggleVisibility} variant="secondary">
                     {isPublic ? (
-                      <IconEyeOff size={16} className="mr-2" />
+                      <EyeOff size={16} className="mr-2" />
                     ) : (
-                      <IconEye size={16} className="mr-2" />
+                      <Eye size={16} className="mr-2" />
                     )}
                     {isPublic ? "Make Private" : "Make Public"}
                   </Button>
                 )}
                 <Button onClick={onDelete} variant="destructive">
-                  <IconTrash size={16} className="mr-2" />
+                  <Trash2 size={16} className="mr-2" />
                   Delete
                 </Button>
               </div>
@@ -175,7 +168,7 @@ export function MonsterOwnershipCard({
                 variant="secondary"
                 className="w-full"
               >
-                <IconCopy size={16} className="mr-2" />
+                <Copy size={16} className="mr-2" />
                 Duplicate to My Collection
               </Button>
             </>
