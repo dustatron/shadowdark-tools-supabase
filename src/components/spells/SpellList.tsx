@@ -1,6 +1,5 @@
 "use client";
 
-import { SimpleGrid, Stack } from "@mantine/core";
 import { SpellCard } from "./SpellCard";
 import { EmptyState } from "../ui/EmptyState";
 import { LoadingSpinner } from "../ui/LoadingSpinner";
@@ -74,12 +73,12 @@ export function SpellList({
   }
 
   return (
-    <Stack gap="lg">
-      <SimpleGrid cols={{ base: 1, sm: 2, lg: 3 }} spacing="md">
+    <div className="flex flex-col gap-6">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
         {spells.map((spell) => (
           <SpellCard key={spell.id} spell={spell} />
         ))}
-      </SimpleGrid>
+      </div>
 
       {pagination && pagination.totalPages > 1 && (
         <Pagination
@@ -91,6 +90,6 @@ export function SpellList({
           onPageSizeChange={onPageSizeChange}
         />
       )}
-    </Stack>
+    </div>
   );
 }

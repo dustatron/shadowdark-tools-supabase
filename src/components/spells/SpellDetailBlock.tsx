@@ -1,6 +1,6 @@
 "use client";
 
-import { Paper, Group, Text, Grid, Badge } from "@mantine/core";
+import { Card, CardContent } from "@/../../components/ui/card";
 import { IconUsers, IconClock, IconRuler, IconStar } from "@tabler/icons-react";
 
 interface SpellDetailBlockProps {
@@ -16,73 +16,66 @@ export function SpellDetailBlock({
   duration,
   range,
 }: SpellDetailBlockProps) {
-  const tierColor =
+  const tierColorClass =
     tier <= 1
-      ? "gray"
+      ? "text-gray-500"
       : tier <= 2
-        ? "blue"
+        ? "text-blue-500"
         : tier <= 3
-          ? "grape"
+          ? "text-purple-500"
           : tier <= 4
-            ? "red"
-            : "dark";
+            ? "text-red-500"
+            : "text-slate-700";
 
   return (
-    <Paper shadow="sm" p="xl" withBorder>
-      <Grid>
-        <Grid.Col span={{ base: 12, sm: 3 }}>
-          <Group gap="md">
-            <IconStar size={24} color={tierColor} />
+    <Card>
+      <CardContent className="p-6">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+          {/* Tier */}
+          <div className="flex items-center gap-4">
+            <IconStar size={24} className={tierColorClass} />
             <div>
-              <Text size="xs" c="dimmed" tt="uppercase">
+              <p className="text-xs text-muted-foreground uppercase tracking-wider">
                 Tier
-              </Text>
-              <Text size="xl" fw={700}>
-                {tier}
-              </Text>
+              </p>
+              <p className="text-2xl font-bold">{tier}</p>
             </div>
-          </Group>
-        </Grid.Col>
-        <Grid.Col span={{ base: 12, sm: 3 }}>
-          <Group gap="md">
-            <IconUsers size={24} />
+          </div>
+
+          {/* Classes */}
+          <div className="flex items-center gap-4">
+            <IconUsers size={24} className="text-muted-foreground" />
             <div>
-              <Text size="xs" c="dimmed" tt="uppercase">
+              <p className="text-xs text-muted-foreground uppercase tracking-wider">
                 Classes
-              </Text>
-              <Text size="lg" fw={500}>
-                {classes.join(", ")}
-              </Text>
+              </p>
+              <p className="text-lg font-medium">{classes.join(", ")}</p>
             </div>
-          </Group>
-        </Grid.Col>
-        <Grid.Col span={{ base: 12, sm: 3 }}>
-          <Group gap="md">
-            <IconClock size={24} />
+          </div>
+
+          {/* Duration */}
+          <div className="flex items-center gap-4">
+            <IconClock size={24} className="text-muted-foreground" />
             <div>
-              <Text size="xs" c="dimmed" tt="uppercase">
+              <p className="text-xs text-muted-foreground uppercase tracking-wider">
                 Duration
-              </Text>
-              <Text size="lg" fw={500}>
-                {duration}
-              </Text>
+              </p>
+              <p className="text-lg font-medium">{duration}</p>
             </div>
-          </Group>
-        </Grid.Col>
-        <Grid.Col span={{ base: 12, sm: 3 }}>
-          <Group gap="md">
-            <IconRuler size={24} />
+          </div>
+
+          {/* Range */}
+          <div className="flex items-center gap-4">
+            <IconRuler size={24} className="text-muted-foreground" />
             <div>
-              <Text size="xs" c="dimmed" tt="uppercase">
+              <p className="text-xs text-muted-foreground uppercase tracking-wider">
                 Range
-              </Text>
-              <Text size="lg" fw={500}>
-                {range}
-              </Text>
+              </p>
+              <p className="text-lg font-medium">{range}</p>
             </div>
-          </Group>
-        </Grid.Col>
-      </Grid>
-    </Paper>
+          </div>
+        </div>
+      </CardContent>
+    </Card>
   );
 }

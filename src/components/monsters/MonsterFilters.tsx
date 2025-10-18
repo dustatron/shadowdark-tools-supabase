@@ -1,21 +1,6 @@
 "use client";
 
 import {
-  Card,
-  Stack,
-  TextInput,
-  MultiSelect,
-  RangeSlider,
-  Button,
-  Group,
-  Text,
-  Collapse,
-  ActionIcon,
-  Grid,
-  Select,
-  SegmentedControl,
-} from "@mantine/core";
-import {
   IconSearch,
   IconFilter,
   IconFilterOff,
@@ -23,7 +8,19 @@ import {
   IconChevronUp,
 } from "@tabler/icons-react";
 import { useState, useEffect } from "react";
-import { useDebouncedValue } from "@mantine/hooks";
+import { useDebounce } from "use-debounce";
+import { Card, CardContent } from "@/components/ui/card";
+import { Input } from "@/components/ui/input";
+import { Button } from "@/components/ui/button";
+import { Badge } from "@/components/ui/badge";
+import { Slider } from "@/components/ui/slider";
+import { MultiSelect } from "@/components/ui/multi-select";
+import {
+  Collapsible,
+  CollapsibleContent,
+  CollapsibleTrigger,
+} from "@/components/ui/collapsible";
+import { cn } from "@/lib/utils";
 
 interface FilterValues {
   search: string;
@@ -64,7 +61,7 @@ export function MonsterFilters({
   const [localSearch, setLocalSearch] = useState(filters.search);
 
   // Debounce search input
-  const [debouncedSearch] = useDebouncedValue(localSearch, 300);
+  const [debouncedSearch] = useDebounce(localSearch, 300);
 
   useEffect(() => {
     if (debouncedSearch !== filters.search) {
@@ -107,166 +104,184 @@ export function MonsterFilters({
   ].filter(Boolean).length;
 
   return (
-    <Card withBorder>
-      <Stack gap="md">
-        {/* Monster Source Filter */}
-        <SegmentedControl
-          value={filters.monsterSource}
-          onChange={(value) =>
-            handleFilterChange(
-              "monsterSource",
-              value as "all" | "official" | "custom",
-            )
-          }
-          data={[
-            { label: "All Monsters", value: "all" },
-            { label: "Core Monsters", value: "official" },
-            { label: "User Created", value: "custom" },
-          ]}
-          fullWidth
-          disabled={loading}
-        />
-
-        {/* Search and Quick Filters */}
-        <Group>
-          <TextInput
-            placeholder="Search monsters by name or description..."
-            leftSection={<IconSearch size={16} />}
-            value={localSearch}
-            onChange={(e) => setLocalSearch(e.target.value)}
-            style={{ flex: 1 }}
-            disabled={loading}
-          />
-
-          <Group gap="xs">
+    <Card>
+      <CardContent className="pt-6">
+        <div className="flex flex-col gap-4">
+          {/* Monster Source Filter */}
+          <div className="flex gap-2">
             <Button
-              variant={expanded ? "filled" : "light"}
-              leftSection={<IconFilter size={16} />}
-              rightSection={
-                expanded ? (
-                  <IconChevronUp size={14} />
-                ) : (
-                  <IconChevronDown size={14} />
-                )
-              }
-              onClick={() => setExpanded(!expanded)}
+              variant={filters.monsterSource === "all" ? "default" : "outline"}
+              onClick={() => handleFilterChange("monsterSource", "all")}
+              disabled={loading}
+              className="flex-1"
             >
-              Filters
-              {activeFilterCount > 0 && (
-                <Text size="xs" ml={4}>
-                  ({activeFilterCount})
-                </Text>
-              )}
+              All Monsters
             </Button>
+            <Button
+              variant={
+                filters.monsterSource === "official" ? "default" : "outline"
+              }
+              onClick={() => handleFilterChange("monsterSource", "official")}
+              disabled={loading}
+              className="flex-1"
+            >
+              Core Monsters
+            </Button>
+            <Button
+              variant={
+                filters.monsterSource === "custom" ? "default" : "outline"
+              }
+              onClick={() => handleFilterChange("monsterSource", "custom")}
+              disabled={loading}
+              className="flex-1"
+            >
+              User Created
+            </Button>
+          </div>
 
-            {hasActiveFilters && (
-              <ActionIcon
-                variant="subtle"
-                color="red"
-                onClick={clearFilters}
-                title="Clear all filters"
+          {/* Search and Quick Filters */}
+          <div className="flex gap-2">
+            <div className="relative flex-1">
+              <IconSearch className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+              <Input
+                placeholder="Search monsters by name or description..."
+                value={localSearch}
+                onChange={(e) => setLocalSearch(e.target.value)}
+                disabled={loading}
+                className="pl-9"
+              />
+            </div>
+
+            <div className="flex gap-2">
+              <Button
+                variant={expanded ? "default" : "outline"}
+                onClick={() => setExpanded(!expanded)}
               >
-                <IconFilterOff size={16} />
-              </ActionIcon>
-            )}
-          </Group>
-        </Group>
+                <IconFilter className="h-4 w-4 mr-2" />
+                Filters
+                {activeFilterCount > 0 && (
+                  <Badge variant="secondary" className="ml-2">
+                    {activeFilterCount}
+                  </Badge>
+                )}
+                {expanded ? (
+                  <IconChevronUp className="h-3.5 w-3.5 ml-2" />
+                ) : (
+                  <IconChevronDown className="h-3.5 w-3.5 ml-2" />
+                )}
+              </Button>
 
-        {/* Advanced Filters */}
-        <Collapse in={expanded}>
-          <Stack gap="md">
-            <Grid>
-              {/* Challenge Level Range */}
-              <Grid.Col span={12}>
-                <Text size="sm" fw={500} mb="xs">
-                  Challenge Level: {filters.challengeLevelRange[0]} -{" "}
-                  {filters.challengeLevelRange[1]}
-                </Text>
-                <RangeSlider
-                  min={1}
-                  max={20}
-                  step={1}
-                  value={filters.challengeLevelRange}
-                  onChange={(value) =>
-                    handleFilterChange("challengeLevelRange", value)
-                  }
-                  marks={[
-                    { value: 1, label: "1" },
-                    { value: 5, label: "5" },
-                    { value: 10, label: "10" },
-                    { value: 15, label: "15" },
-                    { value: 20, label: "20" },
-                  ]}
-                  disabled={loading}
-                />
-              </Grid.Col>
+              {hasActiveFilters && (
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  onClick={clearFilters}
+                  title="Clear all filters"
+                >
+                  <IconFilterOff className="h-4 w-4 text-destructive" />
+                </Button>
+              )}
+            </div>
+          </div>
 
-              {/* Monster Types */}
-              <Grid.Col span={6}>
-                <MultiSelect
-                  label="Monster Types"
-                  placeholder="Select types"
-                  data={availableTypes.map((type) => ({
-                    value: type,
-                    label: type,
-                  }))}
-                  value={filters.types}
-                  onChange={(value) => handleFilterChange("types", value)}
-                  searchable
-                  clearable
-                  disabled={loading}
-                />
-              </Grid.Col>
+          {/* Advanced Filters */}
+          <Collapsible open={expanded} onOpenChange={setExpanded}>
+            <CollapsibleContent>
+              <div className="flex flex-col gap-4 pt-4 border-t">
+                {/* Challenge Level Range */}
+                <div className="space-y-2">
+                  <label className="text-sm font-medium">
+                    Challenge Level: {filters.challengeLevelRange[0]} -{" "}
+                    {filters.challengeLevelRange[1]}
+                  </label>
+                  <div className="px-2">
+                    <Slider
+                      min={1}
+                      max={20}
+                      step={1}
+                      value={filters.challengeLevelRange}
+                      onValueChange={(value) =>
+                        handleFilterChange(
+                          "challengeLevelRange",
+                          value as [number, number],
+                        )
+                      }
+                      disabled={loading}
+                      className="w-full"
+                    />
+                    <div className="flex justify-between text-xs text-muted-foreground mt-2">
+                      <span>1</span>
+                      <span>5</span>
+                      <span>10</span>
+                      <span>15</span>
+                      <span>20</span>
+                    </div>
+                  </div>
+                </div>
 
-              {/* Locations */}
-              <Grid.Col span={6}>
-                <MultiSelect
-                  label="Locations"
-                  placeholder="Select locations"
-                  data={availableLocations.map((loc) => ({
-                    value: loc,
-                    label: loc,
-                  }))}
-                  value={filters.locations}
-                  onChange={(value) => handleFilterChange("locations", value)}
-                  searchable
-                  clearable
-                  disabled={loading}
-                />
-              </Grid.Col>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  {/* Monster Types */}
+                  <MultiSelect
+                    label="Monster Types"
+                    placeholder="Select types"
+                    options={availableTypes.map((type) => ({
+                      value: type,
+                      label: type,
+                    }))}
+                    selected={filters.types}
+                    onChange={(value) => handleFilterChange("types", value)}
+                    searchable
+                    clearable
+                    disabled={loading}
+                  />
 
-              {/* Sources */}
-              <Grid.Col span={12}>
+                  {/* Locations */}
+                  <MultiSelect
+                    label="Locations"
+                    placeholder="Select locations"
+                    options={availableLocations.map((loc) => ({
+                      value: loc,
+                      label: loc,
+                    }))}
+                    selected={filters.locations}
+                    onChange={(value) => handleFilterChange("locations", value)}
+                    searchable
+                    clearable
+                    disabled={loading}
+                  />
+                </div>
+
+                {/* Sources */}
                 <MultiSelect
                   label="Sources"
                   placeholder="Select sources"
-                  data={availableSources.map((source) => ({
+                  options={availableSources.map((source) => ({
                     value: source,
                     label: source,
                   }))}
-                  value={filters.sources}
+                  selected={filters.sources}
                   onChange={(value) => handleFilterChange("sources", value)}
                   searchable
                   clearable
                   disabled={loading}
                 />
-              </Grid.Col>
-            </Grid>
 
-            {/* Filter Actions */}
-            <Group justify="flex-end">
-              <Button
-                variant="subtle"
-                size="sm"
-                onClick={clearFilters}
-                disabled={!hasActiveFilters || loading}
-              >
-                Clear All
-              </Button>
-            </Group>
-          </Stack>
-        </Collapse>
-      </Stack>
+                {/* Filter Actions */}
+                <div className="flex justify-end">
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    onClick={clearFilters}
+                    disabled={!hasActiveFilters || loading}
+                  >
+                    Clear All
+                  </Button>
+                </div>
+              </div>
+            </CollapsibleContent>
+          </Collapsible>
+        </div>
+      </CardContent>
     </Card>
   );
 }

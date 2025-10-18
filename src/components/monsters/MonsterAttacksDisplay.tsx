@@ -1,15 +1,9 @@
 "use client";
 
-import {
-  Paper,
-  Title,
-  Stack,
-  Text,
-  Group,
-  Badge,
-  Divider,
-} from "@mantine/core";
 import { IconSword } from "@tabler/icons-react";
+import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
+import { Badge } from "@/components/ui/badge";
+import { Separator } from "@/components/ui/separator";
 
 interface Attack {
   name: string;
@@ -29,39 +23,35 @@ export function MonsterAttacksDisplay({ attacks }: MonsterAttacksDisplayProps) {
   }
 
   return (
-    <Paper shadow="sm" p="xl" withBorder>
-      <Group gap="xs" mb="md">
-        <IconSword size={20} />
-        <Title order={3}>Attacks</Title>
-      </Group>
-      <Stack gap="md">
-        {attacks.map((attack, index) => (
-          <div key={index}>
-            <Group gap="xs" mb="xs">
-              <Text fw={600} size="lg">
-                {attack.name}
-              </Text>
-              <Badge size="sm" variant="outline">
-                {attack.type}
-              </Badge>
-            </Group>
-            <Group gap="md">
-              <Text size="sm" c="dimmed">
-                <strong>Damage:</strong> {attack.damage}
-              </Text>
-              <Text size="sm" c="dimmed">
-                <strong>Range:</strong> {attack.range}
-              </Text>
-            </Group>
-            {attack.description && (
-              <Text size="sm" mt="xs">
-                {attack.description}
-              </Text>
-            )}
-            {index < attacks.length - 1 && <Divider mt="md" />}
-          </div>
-        ))}
-      </Stack>
-    </Paper>
+    <Card className="shadow-sm">
+      <CardContent className="p-6">
+        <div className="flex items-center gap-2 mb-4">
+          <IconSword size={20} />
+          <h3 className="text-lg font-semibold">Attacks</h3>
+        </div>
+        <div className="flex flex-col gap-4">
+          {attacks.map((attack, index) => (
+            <div key={index}>
+              <div className="flex items-center gap-2 mb-2">
+                <span className="text-lg font-semibold">{attack.name}</span>
+                <Badge variant="outline">{attack.type}</Badge>
+              </div>
+              <div className="flex items-center gap-4">
+                <p className="text-sm text-muted-foreground">
+                  <strong>Damage:</strong> {attack.damage}
+                </p>
+                <p className="text-sm text-muted-foreground">
+                  <strong>Range:</strong> {attack.range}
+                </p>
+              </div>
+              {attack.description && (
+                <p className="text-sm mt-2">{attack.description}</p>
+              )}
+              {index < attacks.length - 1 && <Separator className="mt-4" />}
+            </div>
+          ))}
+        </div>
+      </CardContent>
+    </Card>
   );
 }

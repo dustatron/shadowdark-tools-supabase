@@ -69,7 +69,9 @@
       "Bash(xargs:*)",
       "Bash(find:*)",
       "Bash(npx next lint:*)",
-      "Bash(curl:*)"
+      "Bash(curl:*)",
+      "Bash(npx eslint:*)",
+      "Bash(npx prettier:*)"
     ],
     "deny": [],
     "ask": []

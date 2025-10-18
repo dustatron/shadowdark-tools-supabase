@@ -2,14 +2,17 @@
 
 import {
   Card,
-  Group,
-  Text,
-  Badge,
-  Stack,
-  Collapse,
-  Button,
-  Box,
-} from "@mantine/core";
+  CardHeader,
+  CardTitle,
+  CardContent,
+} from "@/../../components/ui/card";
+import { Badge } from "@/../../components/ui/badge";
+import { Button } from "@/../../components/ui/button";
+import {
+  Collapsible,
+  CollapsibleContent,
+  CollapsibleTrigger,
+} from "@/../../components/ui/collapsible";
 import {
   IconChevronDown,
   IconChevronUp,
@@ -43,106 +46,93 @@ interface SpellCardProps {
 export function SpellCard({ spell }: SpellCardProps) {
   const [expanded, setExpanded] = useState(false);
 
-  const tierColor =
+  const tierVariant =
     spell.tier <= 1
-      ? "gray"
+      ? "secondary"
       : spell.tier <= 2
-        ? "blue"
+        ? "default"
         : spell.tier <= 3
-          ? "grape"
+          ? "default"
           : spell.tier <= 4
-            ? "red"
-            : "dark";
+            ? "destructive"
+            : "outline";
 
   return (
-    <Card shadow="sm" padding="md" radius="md" withBorder>
-      <Stack gap="sm">
+    <Card className="hover:shadow-lg transition-shadow">
+      <CardHeader className="pb-3">
         {/* Header */}
-        <Group justify="space-between" align="flex-start">
-          <Stack gap="xs" style={{ flex: 1 }}>
-            <Link
-              href={`/spells/${spell.slug}`}
-              style={{ textDecoration: "none", color: "inherit" }}
-            >
-              <Text fw={600} size="lg" lineClamp={1}>
+        <div className="flex items-start justify-between">
+          <div className="flex-1 space-y-2">
+            <Link href={`/spells/${spell.slug}`} className="hover:underline">
+              <CardTitle className="text-lg line-clamp-1">
                 {spell.name}
-              </Text>
+              </CardTitle>
             </Link>
-            <Group gap="xs" mt={2}>
-              <Badge color={tierColor} size="sm">
-                Tier {spell.tier}
-              </Badge>
-              <Badge variant="outline" size="sm">
-                {spell.source}
-              </Badge>
-            </Group>
-          </Stack>
-        </Group>
+            <div className="flex gap-2 flex-wrap">
+              <Badge variant={tierVariant}>Tier {spell.tier}</Badge>
+              <Badge variant="outline">{spell.source}</Badge>
+            </div>
+          </div>
+        </div>
+      </CardHeader>
 
+      <CardContent className="space-y-4">
         {/* Stats */}
-        <Group gap="lg">
-          <Group gap="xs">
-            <IconUsers size={16} />
-            <Text size="sm" fw={500}>
+        <div className="flex flex-wrap gap-4">
+          <div className="flex items-center gap-2">
+            <IconUsers size={16} className="text-muted-foreground" />
+            <span className="text-sm font-medium">
               {spell.classes.join(", ")}
-            </Text>
-          </Group>
-          <Group gap="xs">
-            <IconClock size={16} />
-            <Text size="sm" fw={500}>
-              {spell.duration}
-            </Text>
-          </Group>
-          <Group gap="xs">
-            <IconRuler size={16} />
-            <Text size="sm" fw={500}>
-              {spell.range}
-            </Text>
-          </Group>
-        </Group>
+            </span>
+          </div>
+          <div className="flex items-center gap-2">
+            <IconClock size={16} className="text-muted-foreground" />
+            <span className="text-sm font-medium">{spell.duration}</span>
+          </div>
+          <div className="flex items-center gap-2">
+            <IconRuler size={16} className="text-muted-foreground" />
+            <span className="text-sm font-medium">{spell.range}</span>
+          </div>
+        </div>
 
         {/* Expandable Details */}
-        <Button
-          variant="subtle"
-          size="xs"
-          rightSection={
-            expanded ? (
-              <IconChevronUp size={14} />
-            ) : (
-              <IconChevronDown size={14} />
-            )
-          }
-          onClick={() => setExpanded(!expanded)}
-        >
-          {expanded ? "Hide Description" : "Show Description"}
-        </Button>
+        <Collapsible open={expanded} onOpenChange={setExpanded}>
+          <CollapsibleTrigger asChild>
+            <Button
+              variant="ghost"
+              size="sm"
+              className="w-full justify-between"
+            >
+              <span>{expanded ? "Hide Description" : "Show Description"}</span>
+              {expanded ? (
+                <IconChevronUp size={14} />
+              ) : (
+                <IconChevronDown size={14} />
+              )}
+            </Button>
+          </CollapsibleTrigger>
 
-        <Collapse in={expanded}>
-          <Stack gap="md">
-            <Box>
-              <Group gap="xs" mb="xs">
-                <IconBook size={16} />
-                <Text fw={500} size="sm">
-                  Description
-                </Text>
-              </Group>
-              <Text size="sm" c="dimmed">
+          <CollapsibleContent className="space-y-4 pt-4">
+            <div>
+              <div className="flex items-center gap-2 mb-2">
+                <IconBook size={16} className="text-muted-foreground" />
+                <span className="text-sm font-medium">Description</span>
+              </div>
+              <p className="text-sm text-muted-foreground">
                 {spell.description}
-              </Text>
-            </Box>
+              </p>
+            </div>
             {spell.author_notes && (
-              <Box>
-                <Text fw={500} size="sm" mb="xs">
-                  Notes
-                </Text>
-                <Text size="sm" c="dimmed">
+              <div>
+                <p className="text-sm font-medium mb-2">Notes</p>
+                <p className="text-sm text-muted-foreground">
                   {spell.author_notes}
-                </Text>
-              </Box>
+                </p>
+              </div>
             )}
-          </Stack>
-        </Collapse>
-      </Stack>
+          </CollapsibleContent>
+        </Collapsible>
+      </CardContent>
     </Card>
   );
 }
