@@ -1,34 +1,37 @@
 "use client";
 
 import { useState } from "react";
-import {
-  TextInput,
-  NumberInput,
-  Textarea,
-  Button,
-  Group,
-  Stack,
-  Paper,
-  Title,
-  Text,
-  SimpleGrid,
-  Switch,
-  ActionIcon,
-  Divider,
-  Select,
-  MultiSelect,
-  Alert,
-} from "@mantine/core";
-import { useForm } from "@mantine/form";
-import { notifications } from "@mantine/notifications";
-import {
-  IconPlus,
-  IconTrash,
-  IconAlertCircle,
-  IconCheck,
-} from "@tabler/icons-react";
+import { useForm, useFieldArray } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { toast } from "sonner";
+import { Plus, Trash2, AlertCircle, Check } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { z } from "zod";
+
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Textarea } from "@/components/ui/textarea";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import { MultiSelect } from "@/components/ui/multi-select";
+import { Switch } from "@/components/ui/switch";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Separator } from "@/components/ui/separator";
+import {
+  Form,
+  FormControl,
+  FormDescription,
+  FormField,
+  FormItem,
+  FormLabel,
+  FormMessage,
+} from "@/components/ui/form";
+import { Alert, AlertDescription } from "@/components/ui/alert";
 import { IconSelector } from "../ui/IconSelector";
 import { createMonsterSchema } from "@/lib/validations/monster";
 
@@ -77,6 +80,34 @@ const COMMON_TAGS = {
   ],
 };
 
+// Extended schema with customSpeed field for form state
+// We need to override attacks and abilities to make them required arrays
+const formSchema = createMonsterSchema
+  .extend({
+    customSpeed: z.string().optional(),
+  })
+  .merge(
+    z.object({
+      attacks: z.array(
+        z.object({
+          name: z.string(),
+          type: z.enum(["melee", "ranged", "spell"]),
+          damage: z.string(),
+          range: z.string().optional(),
+          description: z.string().optional(),
+        }),
+      ),
+      abilities: z.array(
+        z.object({
+          name: z.string(),
+          description: z.string(),
+        }),
+      ),
+    }),
+  );
+
+type FormData = z.infer<typeof formSchema>;
+
 interface MonsterCreateEditFormProps {
   initialData?: z.infer<typeof createMonsterSchema> & { id?: string };
   onSubmit?: (data: z.infer<typeof createMonsterSchema>) => Promise<void>;
@@ -94,8 +125,9 @@ export function MonsterCreateEditForm({
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [customSpeed, setCustomSpeed] = useState(false);
 
-  const form = useForm({
-    initialValues: {
+  const form = useForm<FormData>({
+    resolver: zodResolver(formSchema) as any,
+    defaultValues: {
       name: initialData?.name || "",
       challenge_level: initialData?.challenge_level || 1,
       hit_points: initialData?.hit_points || 10,
@@ -111,47 +143,39 @@ export function MonsterCreateEditForm({
       icon_url: initialData?.icon_url || "",
       is_public: initialData?.is_public ?? false,
     },
-    validate: (values) => {
-      try {
-        // Transform empty icon_url to undefined for validation
-        const validationData = {
-          ...values,
-          icon_url: values.icon_url || undefined,
-        };
-
-        const validationSchema = createMonsterSchema.extend({
-          customSpeed: z.string().optional(),
-        });
-        validationSchema.parse(validationData);
-        return {};
-      } catch (error) {
-        if (error instanceof z.ZodError) {
-          const errors: Record<string, string> = {};
-          error.issues.forEach((err) => {
-            if (err.path.length > 0) {
-              const path = err.path.join(".");
-              errors[path] = err.message;
-            }
-          });
-          return errors;
-        }
-        return {};
-      }
-    },
   });
 
-  const handleSubmit = async (values: typeof form.values) => {
+  const {
+    fields: attackFields,
+    append: appendAttack,
+    remove: removeAttack,
+  } = useFieldArray({
+    control: form.control,
+    name: "attacks",
+  });
+
+  const {
+    fields: abilityFields,
+    append: appendAbility,
+    remove: removeAbility,
+  } = useFieldArray({
+    control: form.control,
+    name: "abilities",
+  });
+
+  const handleSubmit = async (values: FormData) => {
     setIsSubmitting(true);
     try {
       // Prepare the data
       const submitData = {
         ...values,
-        speed: values.speed === "custom" ? values.customSpeed : values.speed,
+        speed:
+          values.speed === "custom" ? values.customSpeed || "" : values.speed,
         icon_url: values.icon_url || undefined, // Transform empty string to undefined
       };
 
       // Remove customSpeed field
-      const { customSpeed, ...finalData } = submitData;
+      const { customSpeed: _, ...finalData } = submitData;
 
       if (onSubmit) {
         // Use provided submit handler
@@ -180,32 +204,31 @@ export function MonsterCreateEditForm({
 
         const monster = await response.json();
 
-        notifications.show({
-          title: "Success",
-          message: `Monster ${mode === "create" ? "created" : "updated"} successfully!`,
-          color: "green",
-          icon: <IconCheck />,
-        });
+        toast.success(
+          `Monster ${mode === "create" ? "created" : "updated"} successfully!`,
+          {
+            icon: <Check className="h-4 w-4" />,
+          },
+        );
 
         // Redirect to monster detail page
         router.push(`/monsters/${monster.id}`);
       }
     } catch (error) {
       console.error(`Error ${mode}ing monster:`, error);
-      notifications.show({
-        title: "Error",
-        message:
-          error instanceof Error ? error.message : `Failed to ${mode} monster`,
-        color: "red",
-        icon: <IconAlertCircle />,
-      });
+      toast.error(
+        error instanceof Error ? error.message : `Failed to ${mode} monster`,
+        {
+          icon: <AlertCircle className="h-4 w-4" />,
+        },
+      );
     } finally {
       setIsSubmitting(false);
     }
   };
 
   const addAttack = () => {
-    form.insertListItem("attacks", {
+    appendAttack({
       name: "",
       type: "melee",
       damage: "",
@@ -215,269 +238,542 @@ export function MonsterCreateEditForm({
   };
 
   const addAbility = () => {
-    form.insertListItem("abilities", {
+    appendAbility({
       name: "",
       description: "",
     });
   };
 
   return (
-    <form onSubmit={form.onSubmit(handleSubmit)}>
-      <Stack gap="lg">
-        <Paper p="md" withBorder>
-          <Title order={3} mb="md">
-            Basic Information
-          </Title>
-
-          <Stack gap="md">
-            <TextInput
-              label="Monster Name"
-              placeholder="Enter monster name"
-              required
-              {...form.getInputProps("name")}
+    <Form {...form}>
+      <form
+        onSubmit={form.handleSubmit(handleSubmit as any)}
+        className="space-y-6"
+      >
+        <Card>
+          <CardHeader>
+            <CardTitle>Basic Information</CardTitle>
+          </CardHeader>
+          <CardContent className="space-y-4">
+            <FormField
+              control={form.control as any}
+              name="name"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Monster Name</FormLabel>
+                  <FormControl>
+                    <Input placeholder="Enter monster name" {...field} />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
             />
 
-            <SimpleGrid cols={{ base: 1, sm: 3 }}>
-              <NumberInput
-                label="Challenge Level"
-                placeholder="1-20"
-                min={1}
-                max={20}
-                required
-                {...form.getInputProps("challenge_level")}
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+              <FormField
+                control={form.control as any}
+                name="challenge_level"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Challenge Level</FormLabel>
+                    <FormControl>
+                      <Input
+                        type="number"
+                        placeholder="1-20"
+                        min={1}
+                        max={20}
+                        {...field}
+                        onChange={(e) =>
+                          field.onChange(parseInt(e.target.value, 10))
+                        }
+                      />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
               />
 
-              <NumberInput
-                label="Hit Points"
-                placeholder="Minimum 1"
-                min={1}
-                required
-                {...form.getInputProps("hit_points")}
+              <FormField
+                control={form.control as any}
+                name="hit_points"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Hit Points</FormLabel>
+                    <FormControl>
+                      <Input
+                        type="number"
+                        placeholder="Minimum 1"
+                        min={1}
+                        {...field}
+                        onChange={(e) =>
+                          field.onChange(parseInt(e.target.value, 10))
+                        }
+                      />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
               />
 
-              <NumberInput
-                label="Armor Class"
-                placeholder="1-21"
-                min={1}
-                max={21}
-                required
-                {...form.getInputProps("armor_class")}
+              <FormField
+                control={form.control as any}
+                name="armor_class"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Armor Class</FormLabel>
+                    <FormControl>
+                      <Input
+                        type="number"
+                        placeholder="1-21"
+                        min={1}
+                        max={21}
+                        {...field}
+                        onChange={(e) =>
+                          field.onChange(parseInt(e.target.value, 10))
+                        }
+                      />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
               />
-            </SimpleGrid>
+            </div>
 
-            <div>
-              <Select
-                label="Movement Speed"
-                placeholder="Select speed"
-                data={MOVEMENT_SPEEDS}
-                required
-                value={customSpeed ? "custom" : form.values.speed}
-                onChange={(value) => {
-                  if (value === "custom") {
-                    setCustomSpeed(true);
-                  } else {
-                    setCustomSpeed(false);
-                    form.setFieldValue("speed", value || "near");
-                  }
-                }}
+            <div className="space-y-2">
+              <FormField
+                control={form.control as any}
+                name="speed"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Movement Speed</FormLabel>
+                    <Select
+                      value={customSpeed ? "custom" : field.value}
+                      onValueChange={(value) => {
+                        if (value === "custom") {
+                          setCustomSpeed(true);
+                        } else {
+                          setCustomSpeed(false);
+                          field.onChange(value);
+                        }
+                      }}
+                    >
+                      <FormControl>
+                        <SelectTrigger>
+                          <SelectValue placeholder="Select speed" />
+                        </SelectTrigger>
+                      </FormControl>
+                      <SelectContent>
+                        {MOVEMENT_SPEEDS.map((speed) => (
+                          <SelectItem key={speed.value} value={speed.value}>
+                            {speed.label}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                    <FormMessage />
+                  </FormItem>
+                )}
               />
               {customSpeed && (
-                <TextInput
-                  mt="xs"
-                  placeholder="e.g., fly 60ft, swim 30ft"
-                  {...form.getInputProps("customSpeed")}
+                <FormField
+                  control={form.control as any}
+                  name="customSpeed"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormControl>
+                        <Input
+                          placeholder="e.g., fly 60ft, swim 30ft"
+                          {...field}
+                        />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
                 />
               )}
             </div>
 
-            <IconSelector
-              label="Monster Icon"
-              value={form.values.icon_url}
-              onChange={(icon) => form.setFieldValue("icon_url", icon || "")}
+            <FormField
+              control={form.control as any}
+              name="icon_url"
+              render={({ field }) => (
+                <FormItem>
+                  <FormControl>
+                    <IconSelector
+                      label="Monster Icon"
+                      value={field.value}
+                      onChange={(icon: string | null) =>
+                        field.onChange(icon || "")
+                      }
+                    />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
             />
-          </Stack>
-        </Paper>
+          </CardContent>
+        </Card>
 
-        <Paper p="md" withBorder>
-          <Group justify="space-between" mb="md">
-            <Title order={3}>Attacks</Title>
-            <Button
-              size="sm"
-              variant="light"
-              leftSection={<IconPlus size={16} />}
-              onClick={addAttack}
-            >
-              Add Attack
-            </Button>
-          </Group>
+        <Card>
+          <CardHeader>
+            <div className="flex items-center justify-between">
+              <CardTitle>Attacks</CardTitle>
+              <Button
+                type="button"
+                size="sm"
+                variant="outline"
+                onClick={addAttack}
+              >
+                <Plus className="mr-2 h-4 w-4" />
+                Add Attack
+              </Button>
+            </div>
+          </CardHeader>
+          <CardContent className="space-y-4">
+            {attackFields.length === 0 && (
+              <Alert>
+                <AlertDescription>
+                  No attacks added yet. Click &quot;Add Attack&quot; to create
+                  one.
+                </AlertDescription>
+              </Alert>
+            )}
 
-          {form.values.attacks.length === 0 && (
-            <Alert variant="light" color="gray">
-              No attacks added yet. Click &quot;Add Attack&quot; to create one.
-            </Alert>
-          )}
+            {attackFields.map((field, index) => (
+              <Card key={field.id}>
+                <CardContent className="pt-6 space-y-4">
+                  <div className="flex items-center justify-between mb-2">
+                    <p className="text-sm font-medium">Attack #{index + 1}</p>
+                    <Button
+                      type="button"
+                      size="icon"
+                      variant="ghost"
+                      onClick={() => removeAttack(index)}
+                    >
+                      <Trash2 className="h-4 w-4 text-destructive" />
+                    </Button>
+                  </div>
 
-          <Stack gap="md">
-            {form.values.attacks.map((_, index) => (
-              <Paper key={index} p="sm" withBorder>
-                <Group justify="space-between" mb="xs">
-                  <Text size="sm" fw={500}>
-                    Attack #{index + 1}
-                  </Text>
-                  <ActionIcon
-                    color="red"
-                    variant="subtle"
-                    onClick={() => form.removeListItem("attacks", index)}
-                  >
-                    <IconTrash size={16} />
-                  </ActionIcon>
-                </Group>
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    <FormField
+                      control={form.control as any}
+                      name={`attacks.${index}.name`}
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormControl>
+                            <Input placeholder="Attack name" {...field} />
+                          </FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
 
-                <SimpleGrid cols={{ base: 1, sm: 2 }}>
-                  <TextInput
-                    placeholder="Attack name"
-                    {...form.getInputProps(`attacks.${index}.name`)}
+                    <FormField
+                      control={form.control as any}
+                      name={`attacks.${index}.type`}
+                      render={({ field }) => (
+                        <FormItem>
+                          <Select
+                            value={field.value}
+                            onValueChange={field.onChange}
+                          >
+                            <FormControl>
+                              <SelectTrigger>
+                                <SelectValue placeholder="Attack type" />
+                              </SelectTrigger>
+                            </FormControl>
+                            <SelectContent>
+                              {ATTACK_TYPES.map((type) => (
+                                <SelectItem key={type.value} value={type.value}>
+                                  {type.label}
+                                </SelectItem>
+                              ))}
+                            </SelectContent>
+                          </Select>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+
+                    <FormField
+                      control={form.control as any}
+                      name={`attacks.${index}.damage`}
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormControl>
+                            <Input
+                              placeholder="Damage (e.g., 1d6+2)"
+                              {...field}
+                            />
+                          </FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+
+                    <FormField
+                      control={form.control as any}
+                      name={`attacks.${index}.range`}
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormControl>
+                            <Input
+                              placeholder="Range (e.g., reach 5ft)"
+                              {...field}
+                            />
+                          </FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+                  </div>
+
+                  <FormField
+                    control={form.control as any}
+                    name={`attacks.${index}.description`}
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormControl>
+                          <Textarea
+                            placeholder="Additional description (optional)"
+                            {...field}
+                          />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
                   />
-                  <Select
-                    placeholder="Attack type"
-                    data={ATTACK_TYPES}
-                    {...form.getInputProps(`attacks.${index}.type`)}
-                  />
-                  <TextInput
-                    placeholder="Damage (e.g., 1d6+2)"
-                    {...form.getInputProps(`attacks.${index}.damage`)}
-                  />
-                  <TextInput
-                    placeholder="Range (e.g., reach 5ft)"
-                    {...form.getInputProps(`attacks.${index}.range`)}
-                  />
-                </SimpleGrid>
-                <Textarea
-                  mt="xs"
-                  placeholder="Additional description (optional)"
-                  {...form.getInputProps(`attacks.${index}.description`)}
-                />
-              </Paper>
+                </CardContent>
+              </Card>
             ))}
-          </Stack>
-        </Paper>
+          </CardContent>
+        </Card>
 
-        <Paper p="md" withBorder>
-          <Group justify="space-between" mb="md">
-            <Title order={3}>Abilities</Title>
-            <Button
-              size="sm"
-              variant="light"
-              leftSection={<IconPlus size={16} />}
-              onClick={addAbility}
-            >
-              Add Ability
-            </Button>
-          </Group>
+        <Card>
+          <CardHeader>
+            <div className="flex items-center justify-between">
+              <CardTitle>Abilities</CardTitle>
+              <Button
+                type="button"
+                size="sm"
+                variant="outline"
+                onClick={addAbility}
+              >
+                <Plus className="mr-2 h-4 w-4" />
+                Add Ability
+              </Button>
+            </div>
+          </CardHeader>
+          <CardContent className="space-y-4">
+            {abilityFields.length === 0 && (
+              <Alert>
+                <AlertDescription>
+                  No abilities added yet. Click &quot;Add Ability&quot; to
+                  create one.
+                </AlertDescription>
+              </Alert>
+            )}
 
-          {form.values.abilities.length === 0 && (
-            <Alert variant="light" color="gray">
-              No abilities added yet. Click &quot;Add Ability&quot; to create
-              one.
-            </Alert>
-          )}
+            {abilityFields.map((field, index) => (
+              <Card key={field.id}>
+                <CardContent className="pt-6 space-y-4">
+                  <div className="flex items-center justify-between mb-2">
+                    <p className="text-sm font-medium">Ability #{index + 1}</p>
+                    <Button
+                      type="button"
+                      size="icon"
+                      variant="ghost"
+                      onClick={() => removeAbility(index)}
+                    >
+                      <Trash2 className="h-4 w-4 text-destructive" />
+                    </Button>
+                  </div>
 
-          <Stack gap="md">
-            {form.values.abilities.map((_, index) => (
-              <Paper key={index} p="sm" withBorder>
-                <Group justify="space-between" mb="xs">
-                  <Text size="sm" fw={500}>
-                    Ability #{index + 1}
-                  </Text>
-                  <ActionIcon
-                    color="red"
-                    variant="subtle"
-                    onClick={() => form.removeListItem("abilities", index)}
-                  >
-                    <IconTrash size={16} />
-                  </ActionIcon>
-                </Group>
+                  <FormField
+                    control={form.control as any}
+                    name={`abilities.${index}.name`}
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormControl>
+                          <Input placeholder="Ability name" {...field} />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
 
-                <TextInput
-                  placeholder="Ability name"
-                  mb="xs"
-                  {...form.getInputProps(`abilities.${index}.name`)}
-                />
-                <Textarea
-                  placeholder="Ability description"
-                  {...form.getInputProps(`abilities.${index}.description`)}
-                />
-              </Paper>
+                  <FormField
+                    control={form.control as any}
+                    name={`abilities.${index}.description`}
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormControl>
+                          <Textarea
+                            placeholder="Ability description"
+                            {...field}
+                          />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                </CardContent>
+              </Card>
             ))}
-          </Stack>
-        </Paper>
+          </CardContent>
+        </Card>
 
-        <Paper p="md" withBorder>
-          <Title order={3} mb="md">
-            Additional Details
-          </Title>
-
-          <Stack gap="md">
-            <Textarea
-              label="Treasure"
-              placeholder="Treasure description (optional)"
-              {...form.getInputProps("treasure")}
-              onChange={(e) =>
-                form.setFieldValue("treasure", e.target.value || null)
-              }
+        <Card>
+          <CardHeader>
+            <CardTitle>Additional Details</CardTitle>
+          </CardHeader>
+          <CardContent className="space-y-4">
+            <FormField
+              control={form.control as any}
+              name="treasure"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Treasure</FormLabel>
+                  <FormControl>
+                    <Textarea
+                      placeholder="Treasure description (optional)"
+                      {...field}
+                      value={
+                        typeof field.value === "string"
+                          ? field.value
+                          : field.value
+                            ? JSON.stringify(field.value)
+                            : ""
+                      }
+                      onChange={(e) => field.onChange(e.target.value || null)}
+                    />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
             />
 
-            <MultiSelect
-              label="Type Tags"
-              placeholder="Select or type monster types"
-              data={COMMON_TAGS.type}
-              searchable
-              clearable
-              {...form.getInputProps("tags.type")}
+            <FormField
+              control={form.control as any}
+              name="tags.type"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Type Tags</FormLabel>
+                  <FormControl>
+                    <MultiSelect
+                      options={COMMON_TAGS.type.map((tag) => ({
+                        value: tag,
+                        label: tag,
+                      }))}
+                      selected={field.value || []}
+                      onChange={field.onChange}
+                      placeholder="Select or type monster types"
+                    />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
             />
 
-            <MultiSelect
-              label="Location Tags"
-              placeholder="Select or type locations"
-              data={COMMON_TAGS.location}
-              searchable
-              clearable
-              {...form.getInputProps("tags.location")}
+            <FormField
+              control={form.control as any}
+              name="tags.location"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Location Tags</FormLabel>
+                  <FormControl>
+                    <MultiSelect
+                      options={COMMON_TAGS.location.map((tag) => ({
+                        value: tag,
+                        label: tag,
+                      }))}
+                      selected={field.value || []}
+                      onChange={field.onChange}
+                      placeholder="Select or type locations"
+                    />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
             />
 
-            <TextInput
-              label="Source"
-              placeholder="e.g., Homebrew, Campaign Name"
-              {...form.getInputProps("source")}
+            <FormField
+              control={form.control as any}
+              name="source"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Source</FormLabel>
+                  <FormControl>
+                    <Input
+                      placeholder="e.g., Homebrew, Campaign Name"
+                      {...field}
+                    />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
             />
 
-            <Textarea
-              label="Author Notes"
-              placeholder="Additional notes or context (optional)"
-              {...form.getInputProps("author_notes")}
+            <FormField
+              control={form.control as any}
+              name="author_notes"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Author Notes</FormLabel>
+                  <FormControl>
+                    <Textarea
+                      placeholder="Additional notes or context (optional)"
+                      {...field}
+                    />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
             />
 
-            <Switch
-              label="Make this monster public"
-              description="Allow other users to view and use this monster"
-              {...form.getInputProps("is_public", { type: "checkbox" })}
+            <FormField
+              control={form.control as any}
+              name="is_public"
+              render={({ field }) => (
+                <FormItem className="flex flex-row items-center justify-between rounded-lg border p-4">
+                  <div className="space-y-0.5">
+                    <FormLabel className="text-base">
+                      Make this monster public
+                    </FormLabel>
+                    <FormDescription>
+                      Allow other users to view and use this monster
+                    </FormDescription>
+                  </div>
+                  <FormControl>
+                    <Switch
+                      checked={field.value}
+                      onCheckedChange={field.onChange}
+                    />
+                  </FormControl>
+                </FormItem>
+              )}
             />
-          </Stack>
-        </Paper>
+          </CardContent>
+        </Card>
 
-        <Group justify="flex-end">
+        <div className="flex justify-end gap-2">
           <Button
-            variant="subtle"
+            type="button"
+            variant="ghost"
             onClick={onCancel || (() => router.back())}
             disabled={isSubmitting}
           >
             Cancel
           </Button>
-          <Button type="submit" loading={isSubmitting}>
-            {mode === "create" ? "Create Monster" : "Save Changes"}
+          <Button type="submit" disabled={isSubmitting}>
+            {isSubmitting
+              ? "Saving..."
+              : mode === "create"
+                ? "Create Monster"
+                : "Save Changes"}
           </Button>
-        </Group>
-      </Stack>
-    </form>
+        </div>
+      </form>
+    </Form>
   );
 }

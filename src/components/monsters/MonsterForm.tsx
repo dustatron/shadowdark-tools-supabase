@@ -1,26 +1,73 @@
 "use client";
 
+import { useState, useEffect } from "react";
+import { useForm, useFieldArray } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { z } from "zod";
+import { toast } from "sonner";
+import { Plus, Trash2 } from "lucide-react";
 import {
-  Modal,
-  Stack,
-  TextInput,
-  NumberInput,
-  Textarea,
-  Button,
-  Group,
-  MultiSelect,
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogFooter,
+} from "@/components/ui/dialog";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Textarea } from "@/components/ui/textarea";
+import {
   Select,
-  Card,
-  Text,
-  ActionIcon,
-  Divider,
-  Grid,
-  Box,
-} from "@mantine/core";
-import { useForm } from "@mantine/form";
-import { IconPlus, IconTrash } from "@tabler/icons-react";
-import { notifications } from "@mantine/notifications";
-import { useState } from "react";
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import { MultiSelect } from "@/components/ui/multi-select";
+import { Card, CardContent } from "@/components/ui/card";
+import {
+  Form,
+  FormControl,
+  FormField,
+  FormItem,
+  FormLabel,
+  FormMessage,
+} from "@/components/ui/form";
+
+// Zod schema for form validation
+const monsterFormSchema = z.object({
+  name: z.string().min(1, "Name is required"),
+  challenge_level: z
+    .number()
+    .int()
+    .min(1)
+    .max(20, "Challenge level must be 1-20"),
+  hit_points: z.number().int().min(1, "Hit points must be at least 1"),
+  armor_class: z.number().int().min(1).max(25, "Armor class must be 1-25"),
+  speed: z.string().min(1, "Speed is required"),
+  attacks: z.array(
+    z.object({
+      name: z.string(),
+      type: z.enum(["melee", "ranged"]),
+      damage: z.string(),
+      range: z.string(),
+      description: z.string().optional(),
+    }),
+  ),
+  abilities: z.array(
+    z.object({
+      name: z.string(),
+      description: z.string(),
+    }),
+  ),
+  tags: z.object({
+    type: z.array(z.string()).min(1, "At least one monster type is required"),
+    location: z.array(z.string()).min(1, "At least one location is required"),
+  }),
+  author_notes: z.string().optional(),
+});
+
+type MonsterFormData = z.infer<typeof monsterFormSchema>;
 
 interface Attack {
   name: string;
@@ -33,21 +80,6 @@ interface Attack {
 interface Ability {
   name: string;
   description: string;
-}
-
-interface MonsterFormData {
-  name: string;
-  challenge_level: number;
-  hit_points: number;
-  armor_class: number;
-  speed: string;
-  attacks: Attack[];
-  abilities: Ability[];
-  tags: {
-    type: string[];
-    location: string[];
-  };
-  author_notes: string;
 }
 
 interface Monster extends MonsterFormData {
@@ -109,7 +141,8 @@ export function MonsterForm({
   const [submitting, setSubmitting] = useState(false);
 
   const form = useForm<MonsterFormData>({
-    initialValues: {
+    resolver: zodResolver(monsterFormSchema),
+    defaultValues: {
       name: monster?.name || "",
       challenge_level: monster?.challenge_level || 1,
       hit_points: monster?.hit_points || 10,
@@ -123,26 +156,45 @@ export function MonsterForm({
       },
       author_notes: monster?.author_notes || "",
     },
-    validate: {
-      name: (value) => (value.length < 1 ? "Name is required" : null),
-      challenge_level: (value) =>
-        value < 1 || value > 20 ? "Challenge level must be 1-20" : null,
-      hit_points: (value) =>
-        value < 1 ? "Hit points must be at least 1" : null,
-      armor_class: (value) =>
-        value < 1 || value > 25 ? "Armor class must be 1-25" : null,
-      speed: (value) => (value.length < 1 ? "Speed is required" : null),
-      tags: (value) => {
-        if (value.type.length === 0) {
-          return "At least one monster type is required";
-        }
-        if (value.location.length === 0) {
-          return "At least one location is required";
-        }
-        return null;
-      },
-    },
   });
+
+  const {
+    fields: attackFields,
+    append: appendAttack,
+    remove: removeAttack,
+  } = useFieldArray({
+    control: form.control,
+    name: "attacks",
+  });
+
+  const {
+    fields: abilityFields,
+    append: appendAbility,
+    remove: removeAbility,
+  } = useFieldArray({
+    control: form.control,
+    name: "abilities",
+  });
+
+  // Reset form when monster changes or modal opens
+  useEffect(() => {
+    if (opened) {
+      form.reset({
+        name: monster?.name || "",
+        challenge_level: monster?.challenge_level || 1,
+        hit_points: monster?.hit_points || 10,
+        armor_class: monster?.armor_class || 10,
+        speed: monster?.speed || "near",
+        attacks: monster?.attacks || [],
+        abilities: monster?.abilities || [],
+        tags: {
+          type: monster?.tags?.type || [],
+          location: monster?.tags?.location || [],
+        },
+        author_notes: monster?.author_notes || "",
+      });
+    }
+  }, [opened, monster, form]);
 
   const handleSubmit = async (values: MonsterFormData) => {
     try {
@@ -150,25 +202,18 @@ export function MonsterForm({
       await onSubmit(values);
       form.reset();
       onClose();
-      notifications.show({
-        title: "Success",
-        message: `Monster ${monster ? "updated" : "created"} successfully`,
-        color: "green",
-      });
+      toast.success(`Monster ${monster ? "updated" : "created"} successfully`);
     } catch (error: any) {
-      notifications.show({
-        title: "Error",
-        message:
-          error.message || `Failed to ${monster ? "update" : "create"} monster`,
-        color: "red",
-      });
+      toast.error(
+        error.message || `Failed to ${monster ? "update" : "create"} monster`,
+      );
     } finally {
       setSubmitting(false);
     }
   };
 
   const addAttack = () => {
-    form.insertListItem("attacks", {
+    appendAttack({
       name: "",
       type: "melee" as const,
       damage: "1d6",
@@ -177,19 +222,11 @@ export function MonsterForm({
     });
   };
 
-  const removeAttack = (index: number) => {
-    form.removeListItem("attacks", index);
-  };
-
   const addAbility = () => {
-    form.insertListItem("abilities", {
+    appendAbility({
       name: "",
       description: "",
     });
-  };
-
-  const removeAbility = (index: number) => {
-    form.removeListItem("abilities", index);
   };
 
   const handleClose = () => {
@@ -197,221 +234,420 @@ export function MonsterForm({
     onClose();
   };
 
+  const handleOpenChange = (open: boolean) => {
+    if (!open) {
+      handleClose();
+    }
+  };
+
   return (
-    <Modal
-      opened={opened}
-      onClose={handleClose}
-      title={monster ? "Edit Monster" : "Create Monster"}
-      size="lg"
-      closeOnClickOutside={false}
-    >
-      <form onSubmit={form.onSubmit(handleSubmit)}>
-        <Stack gap="md">
-          {/* Basic Info */}
-          <Grid>
-            <Grid.Col span={12}>
-              <TextInput
-                label="Name"
-                placeholder="Monster name"
-                required
-                {...form.getInputProps("name")}
-              />
-            </Grid.Col>
-            <Grid.Col span={6}>
-              <NumberInput
-                label="Challenge Level"
-                placeholder="1-20"
-                min={1}
-                max={20}
-                required
-                {...form.getInputProps("challenge_level")}
-              />
-            </Grid.Col>
-            <Grid.Col span={6}>
-              <NumberInput
-                label="Hit Points"
-                placeholder="HP"
-                min={1}
-                required
-                {...form.getInputProps("hit_points")}
-              />
-            </Grid.Col>
-            <Grid.Col span={6}>
-              <NumberInput
-                label="Armor Class"
-                placeholder="AC"
-                min={1}
-                max={25}
-                required
-                {...form.getInputProps("armor_class")}
-              />
-            </Grid.Col>
-            <Grid.Col span={6}>
-              <TextInput
-                label="Speed"
-                placeholder="e.g., near, far, close"
-                required
-                {...form.getInputProps("speed")}
-              />
-            </Grid.Col>
-          </Grid>
+    <Dialog open={opened} onOpenChange={handleOpenChange}>
+      <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
+        <DialogHeader>
+          <DialogTitle>
+            {monster ? "Edit Monster" : "Create Monster"}
+          </DialogTitle>
+        </DialogHeader>
 
-          {/* Tags */}
-          <Grid>
-            <Grid.Col span={6}>
-              <MultiSelect
-                label="Monster Types"
-                placeholder="Select types"
-                data={MONSTER_TYPES}
-                required
-                {...form.getInputProps("tags.type")}
-              />
-            </Grid.Col>
-            <Grid.Col span={6}>
-              <MultiSelect
-                label="Locations"
-                placeholder="Select locations"
-                data={LOCATIONS}
-                required
-                {...form.getInputProps("tags.location")}
-              />
-            </Grid.Col>
-          </Grid>
+        <Form {...form}>
+          <form
+            onSubmit={form.handleSubmit(handleSubmit)}
+            className="space-y-6"
+          >
+            <div className="space-y-4">
+              {/* Basic Info */}
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <FormField
+                  control={form.control}
+                  name="name"
+                  render={({ field }) => (
+                    <FormItem className="md:col-span-2">
+                      <FormLabel>Name</FormLabel>
+                      <FormControl>
+                        <Input placeholder="Monster name" {...field} />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
 
-          {/* Attacks */}
-          <Box>
-            <Group justify="space-between" mb="xs">
-              <Text fw={500}>Attacks</Text>
-              <Button
-                size="xs"
-                variant="light"
-                leftSection={<IconPlus size={14} />}
-                onClick={addAttack}
-              >
-                Add Attack
-              </Button>
-            </Group>
+                <FormField
+                  control={form.control}
+                  name="challenge_level"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Challenge Level</FormLabel>
+                      <FormControl>
+                        <Input
+                          type="number"
+                          placeholder="1-20"
+                          min={1}
+                          max={20}
+                          {...field}
+                          onChange={(e) =>
+                            field.onChange(parseInt(e.target.value, 10) || 1)
+                          }
+                        />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
 
-            <Stack gap="xs">
-              {form.values.attacks.map((attack, index) => (
-                <Card key={index} withBorder p="sm">
-                  <Grid>
-                    <Grid.Col span={4}>
-                      <TextInput
-                        placeholder="Attack name"
-                        {...form.getInputProps(`attacks.${index}.name`)}
-                      />
-                    </Grid.Col>
-                    <Grid.Col span={2}>
-                      <Select
-                        data={ATTACK_TYPES}
-                        {...form.getInputProps(`attacks.${index}.type`)}
-                      />
-                    </Grid.Col>
-                    <Grid.Col span={2}>
-                      <TextInput
-                        placeholder="1d6+2"
-                        {...form.getInputProps(`attacks.${index}.damage`)}
-                      />
-                    </Grid.Col>
-                    <Grid.Col span={3}>
-                      <TextInput
-                        placeholder="Range"
-                        {...form.getInputProps(`attacks.${index}.range`)}
-                      />
-                    </Grid.Col>
-                    <Grid.Col span={1}>
-                      <ActionIcon
-                        color="red"
-                        variant="subtle"
-                        onClick={() => removeAttack(index)}
-                      >
-                        <IconTrash size={16} />
-                      </ActionIcon>
-                    </Grid.Col>
-                    <Grid.Col span={12}>
-                      <TextInput
-                        placeholder="Attack description (optional)"
-                        {...form.getInputProps(`attacks.${index}.description`)}
-                      />
-                    </Grid.Col>
-                  </Grid>
-                </Card>
-              ))}
-            </Stack>
-          </Box>
+                <FormField
+                  control={form.control}
+                  name="hit_points"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Hit Points</FormLabel>
+                      <FormControl>
+                        <Input
+                          type="number"
+                          placeholder="HP"
+                          min={1}
+                          {...field}
+                          onChange={(e) =>
+                            field.onChange(parseInt(e.target.value, 10) || 1)
+                          }
+                        />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
 
-          {/* Abilities */}
-          <Box>
-            <Group justify="space-between" mb="xs">
-              <Text fw={500}>Abilities</Text>
-              <Button
-                size="xs"
-                variant="light"
-                leftSection={<IconPlus size={14} />}
-                onClick={addAbility}
-              >
-                Add Ability
-              </Button>
-            </Group>
+                <FormField
+                  control={form.control}
+                  name="armor_class"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Armor Class</FormLabel>
+                      <FormControl>
+                        <Input
+                          type="number"
+                          placeholder="AC"
+                          min={1}
+                          max={25}
+                          {...field}
+                          onChange={(e) =>
+                            field.onChange(parseInt(e.target.value, 10) || 1)
+                          }
+                        />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
 
-            <Stack gap="xs">
-              {form.values.abilities.map((ability, index) => (
-                <Card key={index} withBorder p="sm">
-                  <Grid>
-                    <Grid.Col span={11}>
-                      <TextInput
-                        placeholder="Ability name"
-                        mb="xs"
-                        {...form.getInputProps(`abilities.${index}.name`)}
-                      />
+                <FormField
+                  control={form.control}
+                  name="speed"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Speed</FormLabel>
+                      <FormControl>
+                        <Input
+                          placeholder="e.g., near, far, close"
+                          {...field}
+                        />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+              </div>
+
+              {/* Tags */}
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <FormField
+                  control={form.control}
+                  name="tags.type"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Monster Types</FormLabel>
+                      <FormControl>
+                        <MultiSelect
+                          options={MONSTER_TYPES.map((t) => ({
+                            value: t,
+                            label: t.charAt(0).toUpperCase() + t.slice(1),
+                          }))}
+                          selected={field.value}
+                          onChange={field.onChange}
+                          placeholder="Select types"
+                        />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+
+                <FormField
+                  control={form.control}
+                  name="tags.location"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Locations</FormLabel>
+                      <FormControl>
+                        <MultiSelect
+                          options={LOCATIONS.map((l) => ({
+                            value: l,
+                            label: l.charAt(0).toUpperCase() + l.slice(1),
+                          }))}
+                          selected={field.value}
+                          onChange={field.onChange}
+                          placeholder="Select locations"
+                        />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+              </div>
+
+              {/* Attacks */}
+              <div>
+                <div className="flex justify-between items-center mb-3">
+                  <p className="text-sm font-medium">Attacks</p>
+                  <Button
+                    type="button"
+                    size="sm"
+                    variant="outline"
+                    onClick={addAttack}
+                  >
+                    <Plus className="h-4 w-4 mr-1" />
+                    Add Attack
+                  </Button>
+                </div>
+
+                <div className="space-y-2">
+                  {attackFields.map((field, index) => (
+                    <Card key={field.id}>
+                      <CardContent className="pt-4">
+                        <div className="grid grid-cols-1 md:grid-cols-12 gap-3">
+                          <div className="md:col-span-4">
+                            <FormField
+                              control={form.control}
+                              name={`attacks.${index}.name`}
+                              render={({ field }) => (
+                                <FormItem>
+                                  <FormControl>
+                                    <Input
+                                      placeholder="Attack name"
+                                      {...field}
+                                    />
+                                  </FormControl>
+                                  <FormMessage />
+                                </FormItem>
+                              )}
+                            />
+                          </div>
+
+                          <div className="md:col-span-2">
+                            <FormField
+                              control={form.control}
+                              name={`attacks.${index}.type`}
+                              render={({ field }) => (
+                                <FormItem>
+                                  <Select
+                                    onValueChange={field.onChange}
+                                    value={field.value}
+                                  >
+                                    <FormControl>
+                                      <SelectTrigger>
+                                        <SelectValue placeholder="Type" />
+                                      </SelectTrigger>
+                                    </FormControl>
+                                    <SelectContent>
+                                      {ATTACK_TYPES.map((type) => (
+                                        <SelectItem
+                                          key={type.value}
+                                          value={type.value}
+                                        >
+                                          {type.label}
+                                        </SelectItem>
+                                      ))}
+                                    </SelectContent>
+                                  </Select>
+                                  <FormMessage />
+                                </FormItem>
+                              )}
+                            />
+                          </div>
+
+                          <div className="md:col-span-2">
+                            <FormField
+                              control={form.control}
+                              name={`attacks.${index}.damage`}
+                              render={({ field }) => (
+                                <FormItem>
+                                  <FormControl>
+                                    <Input placeholder="1d6+2" {...field} />
+                                  </FormControl>
+                                  <FormMessage />
+                                </FormItem>
+                              )}
+                            />
+                          </div>
+
+                          <div className="md:col-span-3">
+                            <FormField
+                              control={form.control}
+                              name={`attacks.${index}.range`}
+                              render={({ field }) => (
+                                <FormItem>
+                                  <FormControl>
+                                    <Input placeholder="Range" {...field} />
+                                  </FormControl>
+                                  <FormMessage />
+                                </FormItem>
+                              )}
+                            />
+                          </div>
+
+                          <div className="md:col-span-1 flex items-start">
+                            <Button
+                              type="button"
+                              size="icon"
+                              variant="ghost"
+                              onClick={() => removeAttack(index)}
+                              className="text-destructive hover:text-destructive"
+                            >
+                              <Trash2 className="h-4 w-4" />
+                            </Button>
+                          </div>
+
+                          <div className="md:col-span-12">
+                            <FormField
+                              control={form.control}
+                              name={`attacks.${index}.description`}
+                              render={({ field }) => (
+                                <FormItem>
+                                  <FormControl>
+                                    <Input
+                                      placeholder="Attack description (optional)"
+                                      {...field}
+                                    />
+                                  </FormControl>
+                                  <FormMessage />
+                                </FormItem>
+                              )}
+                            />
+                          </div>
+                        </div>
+                      </CardContent>
+                    </Card>
+                  ))}
+                </div>
+              </div>
+
+              {/* Abilities */}
+              <div>
+                <div className="flex justify-between items-center mb-3">
+                  <p className="text-sm font-medium">Abilities</p>
+                  <Button
+                    type="button"
+                    size="sm"
+                    variant="outline"
+                    onClick={addAbility}
+                  >
+                    <Plus className="h-4 w-4 mr-1" />
+                    Add Ability
+                  </Button>
+                </div>
+
+                <div className="space-y-2">
+                  {abilityFields.map((field, index) => (
+                    <Card key={field.id}>
+                      <CardContent className="pt-4">
+                        <div className="grid grid-cols-1 md:grid-cols-12 gap-3">
+                          <div className="md:col-span-11 space-y-3">
+                            <FormField
+                              control={form.control}
+                              name={`abilities.${index}.name`}
+                              render={({ field }) => (
+                                <FormItem>
+                                  <FormControl>
+                                    <Input
+                                      placeholder="Ability name"
+                                      {...field}
+                                    />
+                                  </FormControl>
+                                  <FormMessage />
+                                </FormItem>
+                              )}
+                            />
+
+                            <FormField
+                              control={form.control}
+                              name={`abilities.${index}.description`}
+                              render={({ field }) => (
+                                <FormItem>
+                                  <FormControl>
+                                    <Textarea
+                                      placeholder="Ability description"
+                                      rows={2}
+                                      {...field}
+                                    />
+                                  </FormControl>
+                                  <FormMessage />
+                                </FormItem>
+                              )}
+                            />
+                          </div>
+
+                          <div className="md:col-span-1 flex items-start">
+                            <Button
+                              type="button"
+                              size="icon"
+                              variant="ghost"
+                              onClick={() => removeAbility(index)}
+                              className="text-destructive hover:text-destructive mt-8"
+                            >
+                              <Trash2 className="h-4 w-4" />
+                            </Button>
+                          </div>
+                        </div>
+                      </CardContent>
+                    </Card>
+                  ))}
+                </div>
+              </div>
+
+              {/* Notes */}
+              <FormField
+                control={form.control}
+                name="author_notes"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Author Notes</FormLabel>
+                    <FormControl>
                       <Textarea
-                        placeholder="Ability description"
-                        autosize
-                        minRows={2}
-                        {...form.getInputProps(
-                          `abilities.${index}.description`,
-                        )}
+                        placeholder="Additional notes about this monster..."
+                        rows={3}
+                        {...field}
                       />
-                    </Grid.Col>
-                    <Grid.Col span={1}>
-                      <ActionIcon
-                        color="red"
-                        variant="subtle"
-                        onClick={() => removeAbility(index)}
-                        mt="xl"
-                      >
-                        <IconTrash size={16} />
-                      </ActionIcon>
-                    </Grid.Col>
-                  </Grid>
-                </Card>
-              ))}
-            </Stack>
-          </Box>
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+            </div>
 
-          {/* Notes */}
-          <Textarea
-            label="Author Notes"
-            placeholder="Additional notes about this monster..."
-            autosize
-            minRows={3}
-            {...form.getInputProps("author_notes")}
-          />
-
-          <Divider />
-
-          {/* Actions */}
-          <Group justify="flex-end">
-            <Button variant="subtle" onClick={handleClose}>
-              Cancel
-            </Button>
-            <Button type="submit" loading={submitting || loading}>
-              {monster ? "Update Monster" : "Create Monster"}
-            </Button>
-          </Group>
-        </Stack>
-      </form>
-    </Modal>
+            <DialogFooter>
+              <Button type="button" variant="outline" onClick={handleClose}>
+                Cancel
+              </Button>
+              <Button type="submit" disabled={submitting || loading}>
+                {submitting || loading
+                  ? "Saving..."
+                  : monster
+                    ? "Update Monster"
+                    : "Create Monster"}
+              </Button>
+            </DialogFooter>
+          </form>
+        </Form>
+      </DialogContent>
+    </Dialog>
   );
 }

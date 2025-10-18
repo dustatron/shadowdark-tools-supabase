@@ -73,7 +73,9 @@
       "Bash(npx eslint:*)",
       "Bash(npx prettier:*)",
       "Bash(do echo \"=== $file ===\")",
-      "Bash(head:*)"
+      "Bash(head:*)",
+      "Bash(npm run format:fix:*)",
+      "Bash(npm run format:*)"
     ],
     "deny": [],
     "ask": []
