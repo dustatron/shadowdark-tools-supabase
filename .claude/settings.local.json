@@ -58,7 +58,18 @@
       "Bash(xargs kill -9)",
       "mcp__chrome-devtools__new_page",
       "mcp__chrome-devtools__select_page",
-      "mcp__chrome-devtools__evaluate_script"
+      "mcp__chrome-devtools__evaluate_script",
+      "Bash(npx shadcn@latest add:*)",
+      "Bash(npx tsc:*)",
+      "Bash(test:*)",
+      "Bash(npm run lint)",
+      "Bash(npm test:*)",
+      "Bash(tree:*)",
+      "Bash(npm run lint:*)",
+      "Bash(xargs:*)",
+      "Bash(find:*)",
+      "Bash(npx next lint:*)",
+      "Bash(curl:*)"
     ],
     "deny": [],
     "ask": []

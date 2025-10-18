@@ -1,11 +1,19 @@
 "use client";
 
+import { Button } from "@/components/ui/button";
 import {
-  Pagination as MantinePagination,
-  Group,
-  Text,
   Select,
-} from "@mantine/core";
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import {
+  ChevronLeft,
+  ChevronRight,
+  ChevronsLeft,
+  ChevronsRight,
+} from "lucide-react";
 
 interface PaginationProps {
   currentPage: number;
@@ -30,39 +38,78 @@ export function Pagination({
   const endItem = Math.min(currentPage * pageSize, totalItems);
 
   return (
-    <Group justify="space-between" align="center">
-      <Group>
-        <Text size="sm" c="dimmed">
+    <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+      <div className="flex flex-wrap items-center gap-4">
+        <p className="text-sm text-muted-foreground">
           Showing {startItem}-{endItem} of {totalItems} items
-        </Text>
+        </p>
         {onPageSizeChange && (
-          <Group gap="xs">
-            <Text size="sm" c="dimmed">
+          <div className="flex items-center gap-2">
+            <span className="text-sm text-muted-foreground">
               Items per page:
-            </Text>
+            </span>
             <Select
-              size="xs"
               value={pageSize.toString()}
-              onChange={(value) => onPageSizeChange(parseInt(value || "20"))}
-              data={pageSizeOptions.map((option) => ({
-                value: option.toString(),
-                label: option.toString(),
-              }))}
-              w={80}
-            />
-          </Group>
+              onValueChange={(value) => onPageSizeChange(parseInt(value))}
+            >
+              <SelectTrigger className="h-8 w-20">
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent>
+                {pageSizeOptions.map((option) => (
+                  <SelectItem key={option} value={option.toString()}>
+                    {option}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </div>
         )}
-      </Group>
+      </div>
 
       {totalPages > 1 && (
-        <MantinePagination
-          value={currentPage}
-          onChange={onPageChange}
-          total={totalPages}
-          size="sm"
-          withEdges
-        />
+        <div className="flex items-center gap-2">
+          <Button
+            variant="outline"
+            size="icon"
+            onClick={() => onPageChange(1)}
+            disabled={currentPage === 1}
+            aria-label="First page"
+          >
+            <ChevronsLeft className="h-4 w-4" />
+          </Button>
+          <Button
+            variant="outline"
+            size="icon"
+            onClick={() => onPageChange(currentPage - 1)}
+            disabled={currentPage === 1}
+            aria-label="Previous page"
+          >
+            <ChevronLeft className="h-4 w-4" />
+          </Button>
+          <span className="text-sm">
+            Page {currentPage} of {totalPages}
+          </span>
+          <Button
+            variant="outline"
+            size="icon"
+            onClick={() => onPageChange(currentPage + 1)}
+            disabled={currentPage === totalPages}
+            aria-label="Next page"
+          >
+            <ChevronRight className="h-4 w-4" />
+          </Button>
+          <Button
+            variant="outline"
+            size="icon"
+            onClick={() => onPageChange(totalPages)}
+            disabled={currentPage === totalPages}
+            aria-label="Last page"
+          >
+            <ChevronsRight className="h-4 w-4" />
+          </Button>
+        </div>
       )}
-    </Group>
+    </div>
   );
 }

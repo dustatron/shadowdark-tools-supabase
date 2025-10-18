@@ -1,12 +1,10 @@
 "use client";
 
-import { AppShell, Container, useMantineColorScheme } from "@mantine/core";
-import { useDisclosure } from "@mantine/hooks";
 import { Header } from "@/src/components/layout/Header";
 import { MobileNav } from "@/src/components/layout/MobileNav";
 import { ReactNode, useEffect, useState } from "react";
 import { createSupabaseClient } from "@/src/lib/supabase/client";
-import { notifications } from "@mantine/notifications";
+import { toast } from "sonner";
 
 interface User {
   id: string;
@@ -22,9 +20,10 @@ interface RootProviderProps {
 export function RootProvider({ children }: RootProviderProps) {
   const [user, setUser] = useState<User | null>(null);
   const [loading, setLoading] = useState(true);
-  const [mobileOpened, { toggle: toggleMobile }] = useDisclosure(false);
-  const { colorScheme } = useMantineColorScheme();
+  const [mobileOpened, setMobileOpened] = useState(false);
   const supabase = createSupabaseClient();
+
+  const toggleMobile = () => setMobileOpened((prev) => !prev);
 
   useEffect(() => {
     const {
@@ -54,38 +53,21 @@ export function RootProvider({ children }: RootProviderProps) {
       if (error) throw error;
 
       setUser(null);
-      notifications.show({
-        title: "Success",
-        message: "Logged out successfully",
-        color: "green",
-      });
+      toast.success("Logged out successfully");
     } catch (error) {
       console.error("Error signing out:", error);
-      notifications.show({
-        title: "Error",
-        message: "Failed to sign out",
-        color: "red",
-      });
+      toast.error("Failed to sign out");
     }
   };
 
   return (
-    <AppShell header={{ height: 60 }} padding="md">
-      <AppShell.Header
-        style={{
-          backgroundColor:
-            colorScheme === "dark"
-              ? "rgb(46, 46, 46)"
-              : "var(--mantine-color-gray-0)",
-        }}
-      >
-        <Header
-          user={user}
-          onLogout={handleLogout}
-          mobileOpened={mobileOpened}
-          onToggleMobile={toggleMobile}
-        />
-      </AppShell.Header>
+    <div className="min-h-screen bg-background">
+      <Header
+        user={user}
+        onLogout={handleLogout}
+        mobileOpened={mobileOpened}
+        onToggleMobile={toggleMobile}
+      />
 
       <MobileNav
         opened={mobileOpened}
@@ -94,11 +76,7 @@ export function RootProvider({ children }: RootProviderProps) {
         onLogout={handleLogout}
       />
 
-      <AppShell.Main>
-        <Container size="xl" py="md">
-          {children}
-        </Container>
-      </AppShell.Main>
-    </AppShell>
+      <main className="container mx-auto px-4 py-8">{children}</main>
+    </div>
   );
 }

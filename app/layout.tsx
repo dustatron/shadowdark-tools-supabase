@@ -1,9 +1,10 @@
 import type { Metadata } from "next";
-import { ColorSchemeScript } from "@mantine/core";
-import { MantineProvider } from "@/src/components/providers/MantineProvider";
 import { RootProvider } from "@/src/components/providers/RootProvider";
-import "@mantine/core/styles.css";
+import { ThemeProvider } from "next-themes";
+import { Toaster } from "sonner";
+import { MantineProvider } from "@mantine/core";
 import { Notifications } from "@mantine/notifications";
+import "@mantine/core/styles.css";
 import "@mantine/notifications/styles.css";
 import "./globals.css";
 
@@ -77,13 +78,13 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en" suppressHydrationWarning>
-      <head>
-        <ColorSchemeScript defaultColorScheme="dark" />
-      </head>
       <body className="antialiased">
         <MantineProvider>
           <Notifications />
-          <RootProvider>{children}</RootProvider>
+          <ThemeProvider attribute="class" defaultTheme="dark">
+            <RootProvider>{children}</RootProvider>
+            <Toaster richColors position="top-right" />
+          </ThemeProvider>
         </MantineProvider>
       </body>
     </html>

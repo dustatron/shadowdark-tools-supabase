@@ -1,6 +1,12 @@
 "use client";
 
-import { Drawer, Stack, NavLink, Divider, Text } from "@mantine/core";
+import {
+  Sheet,
+  SheetContent,
+  SheetHeader,
+  SheetTitle,
+} from "@/components/ui/sheet";
+import { Separator } from "@/components/ui/separator";
 import {
   IconSword,
   IconWand,
@@ -11,6 +17,7 @@ import {
 } from "@tabler/icons-react";
 import { usePathname } from "next/navigation";
 import Link from "next/link";
+import { cn } from "@/lib/utils";
 
 interface User {
   id: string;
@@ -26,91 +33,152 @@ interface MobileNavProps {
   onLogout?: () => void;
 }
 
+interface NavLinkProps {
+  href?: string;
+  label: string;
+  icon: React.ReactNode;
+  active?: boolean;
+  onClick?: () => void;
+  variant?: "default" | "danger";
+}
+
+function NavLink({
+  href,
+  label,
+  icon,
+  active,
+  onClick,
+  variant = "default",
+}: NavLinkProps) {
+  const baseStyles =
+    "flex items-center gap-3 px-3 py-2.5 rounded-md text-base font-medium transition-colors min-h-[44px]";
+  const activeStyles = active
+    ? "bg-primary/10 text-primary"
+    : "text-foreground hover:bg-accent hover:text-accent-foreground";
+  const dangerStyles =
+    variant === "danger"
+      ? "text-destructive hover:bg-destructive/10"
+      : activeStyles;
+
+  const content = (
+    <>
+      <span className="flex-shrink-0">{icon}</span>
+      <span>{label}</span>
+    </>
+  );
+
+  if (href) {
+    return (
+      <Link
+        href={href}
+        onClick={onClick}
+        className={cn(baseStyles, dangerStyles)}
+      >
+        {content}
+      </Link>
+    );
+  }
+
+  return (
+    <button onClick={onClick} className={cn(baseStyles, dangerStyles)}>
+      {content}
+    </button>
+  );
+}
+
+interface SectionHeaderProps {
+  label: string;
+}
+
+function SectionHeader({ label }: SectionHeaderProps) {
+  return (
+    <div className="relative flex items-center py-2">
+      <Separator className="flex-1" />
+      <span className="px-3 text-xs font-medium text-muted-foreground">
+        {label}
+      </span>
+      <Separator className="flex-1" />
+    </div>
+  );
+}
+
 export function MobileNav({ opened, onClose, user, onLogout }: MobileNavProps) {
   const pathname = usePathname();
   const isAdmin = user?.role === "admin" || user?.role === "moderator";
 
   return (
-    <Drawer
-      opened={opened}
-      onClose={onClose}
-      size="xs"
-      padding="md"
-      title={
-        <Text size="lg" fw={700} c="shadowdark.2">
-          Shadowdark GM Tools
-        </Text>
-      }
-      hiddenFrom="sm"
-    >
-      <Stack gap="xs">
-        {/* Main Navigation */}
-        <NavLink
-          label="Monsters"
-          leftSection={<IconSword size={20} />}
-          href="/monsters"
-          component={Link}
-          active={pathname === "/monsters"}
-          onClick={onClose}
-        />
-        <NavLink
-          label="Spells"
-          leftSection={<IconWand size={20} />}
-          href="/spells"
-          component={Link}
-          active={pathname === "/spells"}
-          onClick={onClose}
-        />
+    <Sheet open={opened} onOpenChange={onClose}>
+      <SheetContent side="left" className="w-[300px] sm:hidden">
+        <SheetHeader>
+          <SheetTitle className="text-left text-lg font-bold">
+            Shadowdark GM Tools
+          </SheetTitle>
+        </SheetHeader>
 
-        {user && (
-          <>
-            <Divider my="sm" label="Account" labelPosition="center" />
+        <nav className="flex flex-col gap-1 mt-6">
+          {/* Main Navigation */}
+          <NavLink
+            label="Monsters"
+            icon={<IconSword size={20} />}
+            href="/monsters"
+            active={pathname === "/monsters"}
+            onClick={onClose}
+          />
+          <NavLink
+            label="Spells"
+            icon={<IconWand size={20} />}
+            href="/spells"
+            active={pathname === "/spells"}
+            onClick={onClose}
+          />
 
-            <NavLink
-              label="Profile"
-              leftSection={<IconUser size={20} />}
-              href="/profile"
-              component={Link}
-              active={pathname === "/profile"}
-              onClick={onClose}
-            />
-            <NavLink
-              label="Settings"
-              leftSection={<IconSettings size={20} />}
-              href="/settings"
-              component={Link}
-              active={pathname === "/settings"}
-              onClick={onClose}
-            />
+          {user && (
+            <>
+              <SectionHeader label="Account" />
 
-            {isAdmin && (
-              <>
-                <Divider my="sm" label="Admin" labelPosition="center" />
-                <NavLink
-                  label="Dashboard"
-                  leftSection={<IconDashboard size={20} />}
-                  href="/admin"
-                  component={Link}
-                  active={pathname === "/admin"}
-                  onClick={onClose}
-                />
-              </>
-            )}
+              <NavLink
+                label="Profile"
+                icon={<IconUser size={20} />}
+                href="/profile"
+                active={pathname === "/profile"}
+                onClick={onClose}
+              />
+              <NavLink
+                label="Settings"
+                icon={<IconSettings size={20} />}
+                href="/settings"
+                active={pathname === "/settings"}
+                onClick={onClose}
+              />
 
-            <Divider my="sm" />
+              {isAdmin && (
+                <>
+                  <SectionHeader label="Admin" />
+                  <NavLink
+                    label="Dashboard"
+                    icon={<IconDashboard size={20} />}
+                    href="/admin"
+                    active={pathname === "/admin"}
+                    onClick={onClose}
+                  />
+                </>
+              )}
 
-            <NavLink
-              label="Logout"
-              leftSection={<IconLogout size={20} />}
-              onClick={() => {
-                onLogout?.();
-                onClose();
-              }}
-              color="red"
-            />
-          </>
-        )}
-      </Stack>
-    </Drawer>
+              <Separator className="my-4" />
+
+              <NavLink
+                label="Logout"
+                icon={<IconLogout size={20} />}
+                onClick={() => {
+                  onLogout?.();
+                  onClose();
+                }}
+                variant="danger"
+              />
+            </>
+          )}
+        </nav>
+      </SheetContent>
+    </Sheet>
   );
 }

@@ -1,31 +1,30 @@
 "use client";
 
-import {
-  Group,
-  Button,
-  Text,
-  Menu,
-  Avatar,
-  UnstyledButton,
-  ActionIcon,
-  useMantineColorScheme,
-  Burger,
-  Tabs,
-  Container,
-} from "@mantine/core";
-import {
-  IconSun,
-  IconMoon,
-  IconUser,
-  IconSettings,
-  IconLogout,
-  IconLogin,
-  IconDashboard,
-} from "@tabler/icons-react";
 import { usePathname, useRouter } from "next/navigation";
 import Link from "next/link";
-import { useState } from "react";
-import classes from "./Header.module.css";
+import { useState, useEffect } from "react";
+import { useTheme } from "next-themes";
+import {
+  Sun,
+  Moon,
+  User,
+  Settings,
+  LogOut,
+  LogIn,
+  LayoutDashboard,
+  Menu,
+} from "lucide-react";
+import { Button } from "@/components/ui/button";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuLabel,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
+import { Avatar, AvatarFallback } from "@/components/ui/avatar";
+import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 
 interface User {
   id: string;
@@ -79,159 +78,164 @@ export function Header({
 }: HeaderProps) {
   const pathname = usePathname();
   const router = useRouter();
-  const { colorScheme, toggleColorScheme } = useMantineColorScheme();
-  const [userMenuOpened, setUserMenuOpened] = useState(false);
+  const { theme, setTheme } = useTheme();
+  const [mounted, setMounted] = useState(false);
+
+  // Prevent hydration mismatch for theme toggle
+  useEffect(() => {
+    setMounted(true);
+  }, []);
 
   const isAdmin = user?.role === "admin" || user?.role === "moderator";
   const activeTab = getActiveTab(pathname);
 
+  const getUserInitials = (user: User) => {
+    if (user.display_name) {
+      return user.display_name
+        .split(" ")
+        .map((n) => n[0])
+        .join("")
+        .toUpperCase()
+        .slice(0, 2);
+    }
+    return user.email.charAt(0).toUpperCase();
+  };
+
   return (
-    <div className={classes.header}>
-      <Container className={classes.mainSection} size="xl">
-        <Group justify="space-between" align="center" h={60}>
-          {/* Mobile burger menu */}
-          <Burger
-            opened={mobileOpened}
-            onClick={onToggleMobile}
-            hiddenFrom="sm"
-            size="sm"
-            aria-label="Toggle navigation"
-          />
+    <header className="sticky top-0 z-50 w-full border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
+      <div className="container flex h-16 items-center justify-between">
+        {/* Mobile burger menu */}
+        <Button
+          variant="ghost"
+          size="icon"
+          onClick={onToggleMobile}
+          className="sm:hidden"
+          aria-label="Toggle navigation"
+        >
+          <Menu className="h-5 w-5" />
+        </Button>
 
-          {/* Logo/Brand */}
-          <Link href="/" style={{ textDecoration: "none", color: "inherit" }}>
-            <Text size="xl" fw={700} c="shadowdark.2" hiddenFrom="sm">
-              Shadowdark
-            </Text>
-            <Text size="xl" fw={700} c="shadowdark.2" visibleFrom="sm">
-              Shadowdark GM Tools
-            </Text>
-          </Link>
+        {/* Logo/Brand */}
+        <Link
+          href="/"
+          className="text-xl font-bold text-primary hover:text-primary/80 transition-colors"
+        >
+          <span className="sm:hidden">Shadowdark</span>
+          <span className="hidden sm:inline">Shadowdark GM Tools</span>
+        </Link>
 
-          {/* Center: Tabs Navigation - Hidden on mobile */}
-          <Tabs
-            value={activeTab}
-            onChange={(value) => {
-              const tab = tabs.find((t) => t.value === value);
-              if (tab && !tab.disabled) {
-                router.push(tab.path);
-              }
-            }}
-            variant="outline"
-            visibleFrom="sm"
-            classNames={{
-              root: classes.tabs,
-              list: classes.tabsList,
-              tab: classes.tab,
-            }}
-          >
-            <Tabs.List>
-              {tabs.map((tab) => (
-                <Tabs.Tab
-                  key={tab.value}
-                  value={tab.value}
-                  disabled={tab.disabled}
-                >
-                  {tab.label}
-                </Tabs.Tab>
-              ))}
-            </Tabs.List>
-          </Tabs>
+        {/* Center: Tabs Navigation - Hidden on mobile */}
+        <Tabs
+          value={activeTab}
+          onValueChange={(value) => {
+            const tab = tabs.find((t) => t.value === value);
+            if (tab && !tab.disabled) {
+              router.push(tab.path);
+            }
+          }}
+          className="hidden sm:block"
+        >
+          <TabsList className="bg-transparent border-b-0">
+            {tabs.map((tab) => (
+              <TabsTrigger
+                key={tab.value}
+                value={tab.value}
+                disabled={tab.disabled}
+                className="relative data-[state=active]:bg-transparent data-[state=active]:shadow-none data-[state=active]:after:absolute data-[state=active]:after:bottom-0 data-[state=active]:after:left-0 data-[state=active]:after:right-0 data-[state=active]:after:h-0.5 data-[state=active]:after:bg-primary disabled:opacity-50 disabled:cursor-not-allowed"
+              >
+                {tab.label}
+              </TabsTrigger>
+            ))}
+          </TabsList>
+        </Tabs>
 
-          {/* Right side: Theme toggle + User menu */}
-          <Group gap="xs">
-            {/* Theme toggle */}
-            <ActionIcon
-              variant="subtle"
-              size="lg"
-              onClick={() => toggleColorScheme()}
-              title={`Switch to ${colorScheme === "dark" ? "light" : "dark"} mode`}
+        {/* Right side: Theme toggle + User menu */}
+        <div className="flex items-center gap-2">
+          {/* Theme toggle */}
+          {mounted && (
+            <Button
+              variant="ghost"
+              size="icon"
+              onClick={() => setTheme(theme === "dark" ? "light" : "dark")}
+              title={`Switch to ${theme === "dark" ? "light" : "dark"} mode`}
             >
-              {colorScheme === "dark" ? (
-                <IconSun size={18} />
+              {theme === "dark" ? (
+                <Sun className="h-5 w-5" />
               ) : (
-                <IconMoon size={18} />
+                <Moon className="h-5 w-5" />
               )}
-            </ActionIcon>
+            </Button>
+          )}
 
-            {user ? (
-              /* Authenticated user menu */
-              <Menu
-                width={200}
-                position="bottom-end"
-                opened={userMenuOpened}
-                onChange={setUserMenuOpened}
-              >
-                <Menu.Target>
-                  <UnstyledButton>
-                    <Group gap="xs">
-                      <Avatar size="sm" radius="xl" color="shadowdark">
-                        <IconUser size={16} />
-                      </Avatar>
-                      {/* Hide username on very small screens */}
-                      <Text size="sm" fw={500} visibleFrom="xs">
-                        {user.display_name || user.email}
-                      </Text>
-                    </Group>
-                  </UnstyledButton>
-                </Menu.Target>
+          {user ? (
+            /* Authenticated user menu */
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <Button
+                  variant="ghost"
+                  className="flex items-center gap-2 px-2"
+                >
+                  <Avatar className="h-8 w-8">
+                    <AvatarFallback className="bg-primary text-primary-foreground">
+                      {getUserInitials(user)}
+                    </AvatarFallback>
+                  </Avatar>
+                  {/* Hide username on very small screens */}
+                  <span className="hidden xs:inline text-sm font-medium">
+                    {user.display_name || user.email}
+                  </span>
+                </Button>
+              </DropdownMenuTrigger>
 
-                <Menu.Dropdown>
-                  <Menu.Label>Account</Menu.Label>
-                  <Menu.Item
-                    leftSection={<IconUser size={14} />}
-                    component={Link}
-                    href="/profile"
-                  >
+              <DropdownMenuContent align="end" className="w-48">
+                <DropdownMenuLabel>Account</DropdownMenuLabel>
+                <DropdownMenuItem asChild>
+                  <Link href="/profile" className="flex items-center gap-2">
+                    <User className="h-4 w-4" />
                     Profile
-                  </Menu.Item>
-                  <Menu.Item
-                    leftSection={<IconSettings size={14} />}
-                    component={Link}
-                    href="/settings"
-                  >
+                  </Link>
+                </DropdownMenuItem>
+                <DropdownMenuItem asChild>
+                  <Link href="/settings" className="flex items-center gap-2">
+                    <Settings className="h-4 w-4" />
                     Settings
-                  </Menu.Item>
+                  </Link>
+                </DropdownMenuItem>
 
-                  {isAdmin && (
-                    <>
-                      <Menu.Divider />
-                      <Menu.Label>Administration</Menu.Label>
-                      <Menu.Item
-                        leftSection={<IconDashboard size={14} />}
-                        component={Link}
-                        href="/admin"
-                      >
+                {isAdmin && (
+                  <>
+                    <DropdownMenuSeparator />
+                    <DropdownMenuLabel>Administration</DropdownMenuLabel>
+                    <DropdownMenuItem asChild>
+                      <Link href="/admin" className="flex items-center gap-2">
+                        <LayoutDashboard className="h-4 w-4" />
                         Admin Dashboard
-                      </Menu.Item>
-                    </>
-                  )}
+                      </Link>
+                    </DropdownMenuItem>
+                  </>
+                )}
 
-                  <Menu.Divider />
-                  <Menu.Item
-                    leftSection={<IconLogout size={14} />}
-                    onClick={onLogout}
-                    color="red"
-                  >
-                    Logout
-                  </Menu.Item>
-                </Menu.Dropdown>
-              </Menu>
-            ) : (
-              /* Guest user actions - compact on mobile */
-              <Button
-                variant="subtle"
-                leftSection={<IconLogin size={16} />}
-                component={Link}
-                href="/auth/login"
-                size="sm"
-              >
-                <Text visibleFrom="xs">Login</Text>
-              </Button>
-            )}
-          </Group>
-        </Group>
-      </Container>
-    </div>
+                <DropdownMenuSeparator />
+                <DropdownMenuItem
+                  onClick={onLogout}
+                  className="flex items-center gap-2 text-destructive focus:text-destructive"
+                >
+                  <LogOut className="h-4 w-4" />
+                  Logout
+                </DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
+          ) : (
+            /* Guest user actions - compact on mobile */
+            <Button variant="ghost" size="sm" asChild>
+              <Link href="/auth/login" className="flex items-center gap-2">
+                <LogIn className="h-4 w-4" />
+                <span className="hidden xs:inline">Login</span>
+              </Link>
+            </Button>
+          )}
+        </div>
+      </div>
+    </header>
   );
 }

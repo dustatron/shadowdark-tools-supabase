@@ -1,41 +1,42 @@
 "use client";
 
-import { Alert, Button, Group } from "@mantine/core";
-import { IconAlertCircle, IconRefresh } from "@tabler/icons-react";
+import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
+import { Button } from "@/components/ui/button";
+import { AlertCircle, RefreshCw } from "lucide-react";
 
 interface ErrorAlertProps {
   title?: string;
   message: string;
   onRetry?: () => void;
-  variant?: "light" | "filled" | "outline";
+  variant?: "default" | "destructive";
 }
 
 export function ErrorAlert({
   title = "Error",
   message,
   onRetry,
-  variant = "light",
+  variant = "destructive",
 }: ErrorAlertProps) {
   return (
-    <Alert
-      icon={<IconAlertCircle size={16} />}
-      title={title}
-      color="red"
-      variant={variant}
-    >
-      <Group justify="space-between" align="flex-start">
-        <div style={{ flex: 1 }}>{message}</div>
-        {onRetry && (
-          <Button
-            variant="subtle"
-            size="xs"
-            leftSection={<IconRefresh size={14} />}
-            onClick={onRetry}
-          >
-            Retry
-          </Button>
-        )}
-      </Group>
+    <Alert variant={variant}>
+      <AlertCircle className="h-4 w-4" />
+      <AlertTitle>{title}</AlertTitle>
+      <AlertDescription>
+        <div className="flex items-start justify-between gap-4">
+          <div className="flex-1">{message}</div>
+          {onRetry && (
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={onRetry}
+              className="shrink-0"
+            >
+              <RefreshCw className="mr-2 h-4 w-4" />
+              Retry
+            </Button>
+          )}
+        </div>
+      </AlertDescription>
     </Alert>
   );
 }
