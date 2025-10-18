@@ -5,6 +5,8 @@ import { SpellList } from "@/src/components/spells/SpellList";
 import { SpellFilters } from "@/src/components/spells/SpellFilters";
 import "@mantine/core/styles.css";
 import "@mantine/notifications/styles.css";
+import Link from "next/link";
+import { createClient } from "@/lib/supabase/client";
 
 interface Spell {
   id: string;
@@ -50,6 +52,7 @@ export default function SpellsPage() {
     total: 0,
     totalPages: 0,
   });
+  const [isAuthenticated, setIsAuthenticated] = useState(false);
 
   // Available filter options
   const [availableClasses, setAvailableClasses] = useState<string[]>([]);
@@ -60,6 +63,17 @@ export default function SpellsPage() {
   useEffect(() => {
     fetchSpells();
   }, [filters, pagination.page, pagination.limit]);
+
+  useEffect(() => {
+    const checkAuth = async () => {
+      const supabase = createClient();
+      const {
+        data: { user },
+      } = await supabase.auth.getUser();
+      setIsAuthenticated(!!user);
+    };
+    checkAuth();
+  }, []);
 
   const fetchSpells = async () => {
     try {
@@ -150,15 +164,50 @@ export default function SpellsPage() {
 
   return (
     <div style={{ padding: "20px" }}>
-      <h1
+      <div
         style={{
-          fontSize: "2rem",
-          fontWeight: "bold",
+          display: "flex",
+          justifyContent: "space-between",
+          alignItems: "center",
           marginBottom: "1.5rem",
         }}
       >
-        Spells
-      </h1>
+        <h1 style={{ fontSize: "2rem", fontWeight: "bold", margin: 0 }}>
+          Spells
+        </h1>
+        {isAuthenticated && (
+          <Link
+            href="/spells/create"
+            style={{
+              display: "inline-flex",
+              alignItems: "center",
+              gap: "8px",
+              padding: "8px 16px",
+              backgroundColor: "#228be6",
+              color: "white",
+              borderRadius: "4px",
+              textDecoration: "none",
+              fontSize: "14px",
+              fontWeight: 500,
+            }}
+          >
+            <svg
+              width="16"
+              height="16"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="2"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+            >
+              <line x1="12" y1="5" x2="12" y2="19"></line>
+              <line x1="5" y1="12" x2="19" y2="12"></line>
+            </svg>
+            Create Spell
+          </Link>
+        )}
+      </div>
 
       <div style={{ marginBottom: "20px" }}>
         <SpellFilters

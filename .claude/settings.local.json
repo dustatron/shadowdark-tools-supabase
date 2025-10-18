@@ -47,7 +47,14 @@
       "mcp__playwright__browser_evaluate",
       "mcp__playwright__browser_press_key",
       "Bash(psql postgresql://postgres:postgres@127.0.0.1:54322/postgres)",
-      "Bash(supabase db reset --local)"
+      "Bash(supabase db reset --local)",
+      "mcp__chrome-devtools__list_pages",
+      "mcp__chrome-devtools__navigate_page",
+      "mcp__chrome-devtools__take_snapshot",
+      "mcp__chrome-devtools__click",
+      "mcp__chrome-devtools__wait_for",
+      "mcp__chrome-devtools__take_screenshot",
+      "mcp__chrome-devtools__list_console_messages"
     ],
     "deny": [],
     "ask": []

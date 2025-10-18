@@ -2,11 +2,11 @@
 
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
-import { Container, Title, LoadingOverlay } from "@mantine/core";
-import { MonsterCreateEditForm } from "@/src/components/monsters/MonsterCreateEditForm";
+import { Container, Title, LoadingOverlay, Alert } from "@mantine/core";
 import { createClient } from "@/lib/supabase/client";
+import { IconInfoCircle } from "@tabler/icons-react";
 
-export default function CreateMonsterPage() {
+export default function CreateSpellPage() {
   const router = useRouter();
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [isChecking, setIsChecking] = useState(true);
@@ -21,7 +21,7 @@ export default function CreateMonsterPage() {
       if (!user) {
         // Redirect to login with return URL
         router.push(
-          "/auth/login?redirect=" + encodeURIComponent("/monsters/create"),
+          "/auth/login?redirect=" + encodeURIComponent("/spells/create"),
         );
       } else {
         setIsAuthenticated(true);
@@ -46,9 +46,18 @@ export default function CreateMonsterPage() {
   return (
     <Container size="lg" py="xl">
       <Title order={1} mb="xl">
-        Create Custom Monster
+        Create Custom Spell
       </Title>
-      <MonsterCreateEditForm mode="create" />
+      <Alert
+        icon={<IconInfoCircle size={16} />}
+        title="Coming Soon"
+        color="blue"
+      >
+        The spell creation form is not yet implemented. This page is reserved
+        for future development.
+      </Alert>
+      {/* TODO: Add SpellCreateEditForm component when available */}
+      {/* <SpellCreateEditForm mode="create" /> */}
     </Container>
   );
 }
