@@ -6,6 +6,7 @@ import { MonsterFilters } from "@/src/components/monsters/MonsterFilters";
 import "@mantine/core/styles.css";
 import "@mantine/notifications/styles.css";
 import Link from "next/link";
+import { createClient } from "@/lib/supabase/client";
 
 interface Monster {
   id: string;
@@ -64,6 +65,7 @@ export default function MonstersPage() {
     total: 0,
     totalPages: 0,
   });
+  const [isAuthenticated, setIsAuthenticated] = useState(false);
 
   // Available filter options
   const [availableTypes, setAvailableTypes] = useState<string[]>([]);
@@ -73,6 +75,17 @@ export default function MonstersPage() {
   useEffect(() => {
     fetchMonsters();
   }, [filters, pagination.page, pagination.limit]);
+
+  useEffect(() => {
+    const checkAuth = async () => {
+      const supabase = createClient();
+      const {
+        data: { user },
+      } = await supabase.auth.getUser();
+      setIsAuthenticated(!!user);
+    };
+    checkAuth();
+  }, []);
 
   const fetchMonsters = async () => {
     try {
@@ -190,36 +203,38 @@ export default function MonstersPage() {
         <h1 style={{ fontSize: "2rem", fontWeight: "bold", margin: 0 }}>
           Monsters
         </h1>
-        <Link
-          href="/monsters/create"
-          style={{
-            display: "inline-flex",
-            alignItems: "center",
-            gap: "8px",
-            padding: "8px 16px",
-            backgroundColor: "#228be6",
-            color: "white",
-            borderRadius: "4px",
-            textDecoration: "none",
-            fontSize: "14px",
-            fontWeight: 500,
-          }}
-        >
-          <svg
-            width="16"
-            height="16"
-            viewBox="0 0 24 24"
-            fill="none"
-            stroke="currentColor"
-            strokeWidth="2"
-            strokeLinecap="round"
-            strokeLinejoin="round"
+        {isAuthenticated && (
+          <Link
+            href="/monsters/create"
+            style={{
+              display: "inline-flex",
+              alignItems: "center",
+              gap: "8px",
+              padding: "8px 16px",
+              backgroundColor: "#228be6",
+              color: "white",
+              borderRadius: "4px",
+              textDecoration: "none",
+              fontSize: "14px",
+              fontWeight: 500,
+            }}
           >
-            <line x1="12" y1="5" x2="12" y2="19"></line>
-            <line x1="5" y1="12" x2="19" y2="12"></line>
-          </svg>
-          Create Monster
-        </Link>
+            <svg
+              width="16"
+              height="16"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="2"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+            >
+              <line x1="12" y1="5" x2="12" y2="19"></line>
+              <line x1="5" y1="12" x2="19" y2="12"></line>
+            </svg>
+            Create Monster
+          </Link>
+        )}
       </div>
 
       <div style={{ marginBottom: "20px" }}>
