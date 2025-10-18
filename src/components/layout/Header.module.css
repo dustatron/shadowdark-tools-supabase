@@ -1,6 +1,5 @@
 /* Header container with background and border */
 .header {
-  padding-top: var(--mantine-spacing-sm);
   background-color: light-dark(
     var(--mantine-color-gray-0),
     rgb(46, 46, 46)
@@ -10,7 +9,6 @@
 
 /* Top section (logo + actions) */
 .mainSection {
-  padding-bottom: var(--mantine-spacing-sm);
 }
 
 /* Tabs container */

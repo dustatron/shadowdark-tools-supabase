@@ -88,7 +88,7 @@ export function Header({
   return (
     <div className={classes.header}>
       <Container className={classes.mainSection} size="xl">
-        <Group justify="space-between" h={60}>
+        <Group justify="space-between" align="center" h={60}>
           {/* Mobile burger menu */}
           <Burger
             opened={mobileOpened}
