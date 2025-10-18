@@ -71,7 +71,9 @@
       "Bash(npx next lint:*)",
       "Bash(curl:*)",
       "Bash(npx eslint:*)",
-      "Bash(npx prettier:*)"
+      "Bash(npx prettier:*)",
+      "Bash(do echo \"=== $file ===\")",
+      "Bash(head:*)"
     ],
     "deny": [],
     "ask": []

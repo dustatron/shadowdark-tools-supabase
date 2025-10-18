@@ -3,10 +3,10 @@
 import { useState, useEffect } from "react";
 import { MonsterList } from "@/src/components/monsters/MonsterList";
 import { MonsterFilters } from "@/src/components/monsters/MonsterFilters";
-import "@mantine/core/styles.css";
-import "@mantine/notifications/styles.css";
 import Link from "next/link";
 import { createClient } from "@/lib/supabase/client";
+import { Plus } from "lucide-react";
+import { Button } from "@/components/ui/button";
 
 interface Monster {
   id: string;
@@ -191,53 +191,20 @@ export default function MonstersPage() {
   };
 
   return (
-    <div style={{ padding: "20px" }}>
-      <div
-        style={{
-          display: "flex",
-          justifyContent: "space-between",
-          alignItems: "center",
-          marginBottom: "1.5rem",
-        }}
-      >
-        <h1 style={{ fontSize: "2rem", fontWeight: "bold", margin: 0 }}>
-          Monsters
-        </h1>
+    <div className="container mx-auto p-4 md:p-6 lg:p-8">
+      <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between mb-6">
+        <h1 className="text-3xl font-bold tracking-tight">Monsters</h1>
         {isAuthenticated && (
-          <Link
-            href="/monsters/create"
-            style={{
-              display: "inline-flex",
-              alignItems: "center",
-              gap: "8px",
-              padding: "8px 16px",
-              backgroundColor: "#228be6",
-              color: "white",
-              borderRadius: "4px",
-              textDecoration: "none",
-              fontSize: "14px",
-              fontWeight: 500,
-            }}
-          >
-            <svg
-              width="16"
-              height="16"
-              viewBox="0 0 24 24"
-              fill="none"
-              stroke="currentColor"
-              strokeWidth="2"
-              strokeLinecap="round"
-              strokeLinejoin="round"
-            >
-              <line x1="12" y1="5" x2="12" y2="19"></line>
-              <line x1="5" y1="12" x2="19" y2="12"></line>
-            </svg>
-            Create Monster
-          </Link>
+          <Button asChild>
+            <Link href="/monsters/create">
+              <Plus className="mr-2 h-4 w-4" />
+              Create Monster
+            </Link>
+          </Button>
         )}
       </div>
 
-      <div style={{ marginBottom: "20px" }}>
+      <div className="mb-6">
         <MonsterFilters
           filters={filters}
           onFiltersChange={handleFiltersChange}

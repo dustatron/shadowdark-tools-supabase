@@ -1,24 +1,21 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { useParams, useRouter } from "next/navigation";
+import { useParams } from "next/navigation";
 import {
-  Container,
-  Paper,
-  Title,
-  Group,
-  Badge,
-  Stack,
-  Text,
-  Button,
-  LoadingOverlay,
-  Alert,
-} from "@mantine/core";
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
+import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
+import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
+import { Spinner } from "@/components/ui/spinner";
 import { SpellDetailBlock } from "@/src/components/spells/SpellDetailBlock";
-import { IconArrowLeft, IconAlertCircle } from "@tabler/icons-react";
+import { ArrowLeft, AlertCircle } from "lucide-react";
 import Link from "next/link";
-import "@mantine/core/styles.css";
-import "@mantine/notifications/styles.css";
 
 interface Spell {
   id: string;
@@ -35,7 +32,6 @@ interface Spell {
 
 export default function SpellDetailPage() {
   const params = useParams();
-  const router = useRouter();
   const spellSlug = params?.slug as string;
 
   const [spell, setSpell] = useState<Spell | null>(null);
@@ -74,65 +70,62 @@ export default function SpellDetailPage() {
     }
   };
 
-  const tierColor = spell
-    ? spell.tier <= 1
-      ? "gray"
-      : spell.tier <= 2
-        ? "blue"
-        : spell.tier <= 3
-          ? "grape"
-          : spell.tier <= 4
-            ? "red"
-            : "dark"
-    : "gray";
+  const getTierVariant = (
+    tier: number,
+  ): "default" | "secondary" | "destructive" | "outline" => {
+    if (tier <= 1) return "secondary";
+    if (tier <= 2) return "default";
+    if (tier <= 3) return "outline";
+    return "destructive";
+  };
 
   return (
-    <Container size="lg" py="xl">
-      <Button
-        component={Link}
-        href="/spells"
-        variant="subtle"
-        leftSection={<IconArrowLeft size={16} />}
-        mb="xl"
-      >
-        Back to Spells
+    <div className="container max-w-4xl mx-auto px-4 py-8">
+      <Button variant="ghost" asChild className="mb-6">
+        <Link href="/spells">
+          <ArrowLeft className="h-4 w-4" />
+          Back to Spells
+        </Link>
       </Button>
 
       {loading && (
-        <Paper shadow="sm" p="xl" pos="relative" mih={400}>
-          <LoadingOverlay visible={true} />
-        </Paper>
+        <Card className="min-h-[400px] flex items-center justify-center">
+          <CardContent>
+            <Spinner size="lg" />
+          </CardContent>
+        </Card>
       )}
 
       {error && (
-        <Alert icon={<IconAlertCircle size={16} />} title="Error" color="red">
-          {error}
+        <Alert variant="destructive">
+          <AlertCircle className="h-4 w-4" />
+          <AlertTitle>Error</AlertTitle>
+          <AlertDescription>{error}</AlertDescription>
         </Alert>
       )}
 
       {spell && !loading && !error && (
-        <Stack gap="lg">
-          <Paper shadow="sm" p="xl" withBorder>
-            <Group justify="space-between" align="flex-start" mb="md">
-              <div>
-                <Title order={1} mb="sm">
-                  {spell.name}
-                </Title>
-                <Group gap="xs">
-                  <Badge color={tierColor} size="lg">
-                    Tier {spell.tier}
-                  </Badge>
-                  <Badge variant="outline" size="lg">
-                    {spell.source}
-                  </Badge>
-                </Group>
+        <div className="flex flex-col gap-6">
+          <Card>
+            <CardHeader>
+              <div className="flex flex-col sm:flex-row justify-between items-start gap-4">
+                <div className="flex-1">
+                  <CardTitle className="text-3xl mb-3">{spell.name}</CardTitle>
+                  <div className="flex flex-wrap gap-2">
+                    <Badge variant={getTierVariant(spell.tier)}>
+                      Tier {spell.tier}
+                    </Badge>
+                    <Badge variant="outline">{spell.source}</Badge>
+                  </div>
+                </div>
               </div>
-            </Group>
-
-            <Text size="md" c="dimmed" mb="lg">
-              {spell.description}
-            </Text>
-          </Paper>
+            </CardHeader>
+            <CardContent>
+              <CardDescription className="text-base">
+                {spell.description}
+              </CardDescription>
+            </CardContent>
+          </Card>
 
           <SpellDetailBlock
             tier={spell.tier}
@@ -140,8 +133,8 @@ export default function SpellDetailPage() {
             duration={spell.duration}
             range={spell.range}
           />
-        </Stack>
+        </div>
       )}
-    </Container>
+    </div>
   );
 }

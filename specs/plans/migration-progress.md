@@ -1902,3 +1902,938 @@ const [debouncedSearch] = useDebounce(localSearch, 300);
 ---
 
 **End of Phase 2 Pre-Execution Analysis**
+
+---
+
+---
+
+# Phase 3: Page-Level Components Migration
+
+## Executive Summary
+
+**Migration Phase**: Phase 3 - Page-Level Components
+**Status**: 📊 **MONITORING** (Parallel execution in progress)
+**Start Time**: 2025-10-17 (awaiting execution)
+**Current Time**: 2025-10-17 (documentation/analysis phase)
+**Duration**: Not yet started
+**Overall Progress**: **0% of Phase 3 Complete** (Phase 0: 100% ✅, Phase 1: 33% 🚧, Phase 2: 0% ⏳)
+
+**BLOCKER**: Phase 3 cannot begin until Phase 2 is complete. However, documentation and analysis is being prepared for parallel execution monitoring.
+
+---
+
+## Phase 3 Goals
+
+**Objective**: Migrate page-level layouts and compositions from Mantine to shadcn/ui
+
+### Scope Clarification
+
+Based on the migration plan and current codebase analysis, **Phase 3 focuses on VIEW pages only**, not CREATE/EDIT pages:
+
+**In Scope** (5 pages):
+
+1. Homepage (`app/page.tsx`) - Landing page
+2. Monsters List Page (`app/monsters/page.tsx`) - Browse monsters
+3. Monster Detail Page (`app/monsters/[id]/page.tsx`) - View monster details
+4. Spells List Page (`app/spells/page.tsx`) - Browse spells
+5. Spell Detail Page (`app/spells/[slug]/page.tsx`) - View spell details
+
+**Out of Scope** (Deferred to Phase 4 - Forms):
+
+- `app/monsters/create/page.tsx` - Uses MonsterCreateEditForm (Phase 4)
+- `app/monsters/[id]/edit/page.tsx` - Uses MonsterCreateEditForm (Phase 4)
+- `app/spells/create/page.tsx` - Uses form components (Phase 4)
+
+**Rationale**: Create/edit pages depend on form components (MonsterCreateEditForm, etc.) which are high-complexity migrations scheduled for Phase 4.
+
+---
+
+## Pre-Migration Analysis
+
+### Current State Assessment
+
+#### File Line Counts (5 pages)
+
+| Page               | File Path                    | Lines     | Complexity | Mantine Components                               |
+| ------------------ | ---------------------------- | --------- | ---------- | ------------------------------------------------ |
+| **Homepage**       | `app/page.tsx`               | 139       | Medium     | ⚠️ **BROKEN**: Uses undefined Mantine components |
+| **Monsters List**  | `app/monsters/page.tsx`      | 229       | Low        | ✅ **CLEAN**: No Mantine imports                 |
+| **Monster Detail** | `app/monsters/[id]/page.tsx` | 432       | **High**   | ❌ **HEAVY**: 15+ Mantine components             |
+| **Spells List**    | `app/spells/page.tsx`        | 235       | Low        | ✅ **MOSTLY CLEAN**: Inline styles, no Mantine   |
+| **Spell Detail**   | `app/spells/[slug]/page.tsx` | 147       | Medium     | ❌ **MEDIUM**: 8 Mantine components              |
+| **Total**          | -                            | **1,182** | -          | **3/5 pages need migration**                     |
+
+---
+
+### Detailed Page Analysis
+
+#### 1. Homepage (`app/page.tsx`) - 139 lines ⚠️
+
+**Status**: **BROKEN CODE** - References undefined Mantine components
+**Complexity**: Medium
+**Priority**: **HIGH** - Page is currently broken
+
+**Issues Found**:
+
+```typescript
+// Lines 34-137: Using Mantine components that are NOT imported!
+<SimpleGrid>  // ❌ Not imported
+<Card>        // ✅ Imported from shadcn, but using Mantine props
+<Stack>       // ❌ Not imported
+<Group>       // ❌ Not imported
+<Text>        // ❌ Not imported
+<Button>      // ✅ Imported from shadcn, but using Mantine props
+<Container>   // ❌ Not imported
+<IconSword>, <IconWand>, <IconDice> // ❌ Tabler icons not imported
+```
+
+**Current Imports**:
+
+```typescript
+import { Button } from "@/components/ui/button";
+import { Card, CardContent } from "@/components/ui/card";
+import { Sword, Wand2, Dice6 } from "lucide-react"; // ✅ Lucide icons imported but NOT used
+```
+
+**Root Cause**: Homepage was partially migrated but left in a broken state. It imports shadcn components and Lucide icons but uses Mantine components in the JSX.
+
+**Migration Requirements**:
+
+- ❌ Replace `SimpleGrid` → Tailwind grid utilities
+- ✅ Update `Card` to use shadcn API (already imported)
+- ❌ Replace `Stack` → Tailwind flex column
+- ❌ Replace `Group` → Tailwind flex row
+- ❌ Replace `Text` → Semantic HTML (`<p>`, `<span>`)
+- ✅ Update `Button` to use shadcn API (already imported)
+- ❌ Replace `Container` → Tailwind container div
+- ✅ Replace Tabler icons → Use already-imported Lucide icons
+
+**Estimated Migration Time**: 1 hour
+
+---
+
+#### 2. Monsters List Page (`app/monsters/page.tsx`) - 229 lines ✅
+
+**Status**: **ALREADY MIGRATED** - No Mantine imports
+**Complexity**: Low
+**Priority**: None - Already complete
+
+**Current State**:
+
+```typescript
+// ✅ All imports are clean
+import { MonsterList } from "@/src/components/monsters/MonsterList";
+import { MonsterFilters } from "@/src/components/monsters/MonsterFilters";
+import { Button } from "@/components/ui/button";
+import { Plus } from "lucide-react";
+```
+
+**Page Structure**:
+
+- Uses Tailwind utilities for layout (`container mx-auto`, `flex flex-col gap-4`)
+- Uses shadcn Button component
+- Uses Lucide icons
+- Relies on Phase 2 components (MonsterList, MonsterFilters)
+
+**Blockers**:
+
+- ⚠️ **MonsterList** and **MonsterFilters** are Phase 2 components (not yet migrated)
+- Page will work once Phase 2 is complete
+
+**Migration Requirements**: **NONE** - Already complete
+
+---
+
+#### 3. Monster Detail Page (`app/monsters/[id]/page.tsx`) - 432 lines ❌
+
+**Status**: **NEEDS FULL MIGRATION** - Heavy Mantine usage
+**Complexity**: **HIGH** (largest Phase 3 file)
+**Priority**: **HIGH** - Core feature page
+
+**Mantine Imports Found**:
+
+```typescript
+import {
+  Container, // 1
+  Paper, // 2
+  Title, // 3
+  Group, // 4
+  Badge, // 5
+  Stack, // 6
+  Text, // 7
+  Button, // 8
+  LoadingOverlay, // 9
+  Alert, // 10
+  Modal, // 11
+  Menu, // 12
+  ActionIcon, // 13
+} from "@mantine/core";
+
+import { notifications } from "@mantine/notifications"; // 14
+
+// Tabler Icons (6 icons)
+import {
+  IconArrowLeft, // 1
+  IconAlertCircle, // 2
+  IconEdit, // 3
+  IconTrash, // 4
+  IconDots, // 5
+  IconCopy, // 6
+} from "@tabler/icons-react";
+```
+
+**Total Mantine Components**: 14 unique components
+**Total Icon Replacements**: 6 Tabler → Lucide
+
+**Migration Mapping**:
+
+| Mantine Component | shadcn/ui Replacement | Status   | Notes                                 |
+| ----------------- | --------------------- | -------- | ------------------------------------- |
+| `Container`       | Tailwind `container`  | ✅ Ready | `<div className="container mx-auto">` |
+| `Paper`           | `Card`                | ✅ Ready | shadcn Card already installed         |
+| `Title`           | Semantic HTML         | ✅ Ready | `<h1>`, `<h2>` with Tailwind          |
+| `Group`           | Tailwind flex         | ✅ Ready | `flex gap-*`                          |
+| `Badge`           | `Badge`               | ✅ Ready | shadcn Badge already installed        |
+| `Stack`           | Tailwind flex         | ✅ Ready | `flex flex-col gap-*`                 |
+| `Text`            | Semantic HTML         | ✅ Ready | `<p>`, `<span>` with Tailwind         |
+| `Button`          | `Button`              | ✅ Ready | shadcn Button already installed       |
+| `LoadingOverlay`  | Custom component      | ✅ Ready | Phase 1 utility component             |
+| `Alert`           | `Alert`               | ✅ Ready | shadcn Alert already installed        |
+| `Modal`           | `Dialog`              | ✅ Ready | shadcn Dialog already installed       |
+| `Menu`            | `DropdownMenu`        | ✅ Ready | shadcn DropdownMenu already installed |
+| `ActionIcon`      | `Button` variant      | ✅ Ready | Use `variant="ghost" size="icon"`     |
+| `notifications`   | `toast` (Sonner)      | ✅ Ready | Sonner already installed              |
+
+**Icon Migration**:
+
+| Tabler Icon       | Lucide Replacement  |
+| ----------------- | ------------------- |
+| `IconArrowLeft`   | `ArrowLeft`         |
+| `IconAlertCircle` | `AlertCircle`       |
+| `IconEdit`        | `Edit` or `Pencil`  |
+| `IconTrash`       | `Trash` or `Trash2` |
+| `IconDots`        | `MoreVertical`      |
+| `IconCopy`        | `Copy`              |
+
+**Phase 2 Dependencies** (Components used on this page):
+
+- ✅ MonsterStatBlock (Phase 2.1 - low complexity)
+- ✅ MonsterAttacksDisplay (Phase 2.1 - low complexity)
+- ✅ MonsterAbilitiesDisplay (Phase 2.1 - low complexity)
+- ✅ MonsterOwnershipCard (Phase 2.1 - medium complexity)
+
+**Migration Requirements**:
+
+- Replace all 14 Mantine components
+- Replace 6 Tabler icons with Lucide
+- Replace 3 `notifications.show()` calls with `toast()`
+- Update `Modal` → `Dialog` (different API)
+- Update `Menu` → `DropdownMenu` (different API)
+- Ensure Phase 2 components are migrated first
+
+**Estimated Migration Time**: 2-3 hours
+
+---
+
+#### 4. Spells List Page (`app/spells/page.tsx`) - 235 lines ✅
+
+**Status**: **MOSTLY CLEAN** - No Mantine imports, but uses inline styles
+**Complexity**: Low
+**Priority**: Low - Minor cleanup needed
+
+**Current State**:
+
+```typescript
+// ✅ All imports are clean
+import { SpellList } from "@/src/components/spells/SpellList";
+import { SpellFilters } from "@/src/components/spells/SpellFilters";
+import { Button } from "@/components/ui/button";
+import { Plus } from "lucide-react";
+```
+
+**Issues Found**:
+
+- ⚠️ **Inline styles** used instead of Tailwind classes (lines 166-233)
+- ⚠️ Manual SVG icon for Plus instead of using imported Lucide icon
+- ✅ No Mantine imports
+
+**Inline Styles to Replace**:
+
+```typescript
+// Lines 166-233: Uses inline styles
+<div style={{ padding: "20px" }}>                    // → className="p-5"
+<div style={{ display: "flex", ... }}>              // → className="flex justify-between items-center mb-6"
+<h1 style={{ fontSize: "2rem", ... }}>              // → className="text-3xl font-bold tracking-tight"
+<Link style={{ display: "inline-flex", ... }}>      // → <Button asChild>
+```
+
+**Migration Requirements**:
+
+- ✅ Replace inline styles with Tailwind classes
+- ✅ Replace manual SVG with imported `Plus` icon from Lucide
+- ✅ Use shadcn Button component for "Create Spell" link
+- ⚠️ Relies on Phase 2 components (SpellList, SpellFilters)
+
+**Estimated Migration Time**: 30 minutes
+
+---
+
+#### 5. Spell Detail Page (`app/spells/[slug]/page.tsx`) - 147 lines ❌
+
+**Status**: **NEEDS MIGRATION** - Medium Mantine usage
+**Complexity**: Medium
+**Priority**: Medium
+
+**Mantine Imports Found**:
+
+```typescript
+import {
+  Container, // 1
+  Paper, // 2
+  Title, // 3
+  Group, // 4
+  Badge, // 5
+  Stack, // 6
+  Text, // 7
+  Button, // 8
+  LoadingOverlay, // 9
+  Alert, // 10
+} from "@mantine/core";
+
+// Tabler Icons (2 icons)
+import {
+  IconArrowLeft, // 1
+  IconAlertCircle, // 2
+} from "@tabler/icons-react";
+```
+
+**Total Mantine Components**: 10 unique components
+**Total Icon Replacements**: 2 Tabler → Lucide
+
+**Migration Mapping**: (Same as Monster Detail page, subset of components)
+
+**Phase 2 Dependencies**:
+
+- ✅ SpellDetailBlock (Phase 2.2 - low complexity)
+
+**Migration Requirements**:
+
+- Replace all 10 Mantine components
+- Replace 2 Tabler icons with Lucide
+- Update loading/error states
+- Ensure SpellDetailBlock is migrated first (Phase 2)
+
+**Estimated Migration Time**: 1-1.5 hours
+
+---
+
+## Component Replacement Inventory (Phase 3)
+
+### Summary Statistics
+
+| Component Type         | Total Replacements Needed            |
+| ---------------------- | ------------------------------------ |
+| **Mantine Components** | 30+ instances across 3 pages         |
+| **Tabler Icons**       | 8 unique icons (14+ instances)       |
+| **Inline Styles**      | 10+ style objects (Spells List page) |
+| **notification calls** | 3 instances (Monster Detail page)    |
+
+### Detailed Component Tracking
+
+#### Per-Page Component Count
+
+| Page               | Mantine Components | Tailwind Patterns | Icons          | Status           |
+| ------------------ | ------------------ | ----------------- | -------------- | ---------------- |
+| **Homepage**       | 6 (broken)         | 3                 | 3              | ⚠️ Broken        |
+| **Monsters List**  | 0                  | ✅ Already using  | ✅ Lucide      | ✅ Done          |
+| **Monster Detail** | 14                 | 0                 | 6              | ⏳ Pending       |
+| **Spells List**    | 0                  | ⚠️ Inline styles  | 1 (manual SVG) | ⚠️ Minor         |
+| **Spell Detail**   | 10                 | 0                 | 2              | ⏳ Pending       |
+| **Total**          | **30**             | **3**             | **12**         | **40% Complete** |
+
+---
+
+## Phase 2 Integration Points
+
+**Critical**: Phase 3 pages depend heavily on Phase 2 components being migrated first.
+
+### Dependency Matrix
+
+| Phase 3 Page   | Phase 2 Component       | Status       | Blocker |
+| -------------- | ----------------------- | ------------ | ------- |
+| Monsters List  | MonsterList             | ⏳ Phase 2.1 | Yes     |
+| Monsters List  | MonsterFilters          | ⏳ Phase 2.1 | Yes     |
+| Monster Detail | MonsterStatBlock        | ⏳ Phase 2.1 | Yes     |
+| Monster Detail | MonsterAttacksDisplay   | ⏳ Phase 2.1 | Yes     |
+| Monster Detail | MonsterAbilitiesDisplay | ⏳ Phase 2.1 | Yes     |
+| Monster Detail | MonsterOwnershipCard    | ⏳ Phase 2.1 | Yes     |
+| Spells List    | SpellList               | ⏳ Phase 2.2 | Yes     |
+| Spells List    | SpellFilters            | ⏳ Phase 2.2 | Yes     |
+| Spell Detail   | SpellDetailBlock        | ⏳ Phase 2.2 | Yes     |
+
+**Total Phase 2 Dependencies**: 9 components
+**Completion Required**: Phase 2 must be 100% complete before Phase 3 can begin
+
+---
+
+## Migration Strategy
+
+### Recommended Execution Order
+
+**Phase 3 should be executed in this order once Phase 2 is complete:**
+
+#### Priority 1: Quick Wins (Est: 1.5 hours)
+
+1. **Homepage** (`app/page.tsx`) - 1 hour
+   - Fix broken state
+   - Use already-imported shadcn components
+   - Use already-imported Lucide icons
+
+2. **Spells List Page** (`app/spells/page.tsx`) - 30 minutes
+   - Replace inline styles with Tailwind
+   - Use Lucide icon instead of manual SVG
+
+#### Priority 2: Core Features (Est: 3-4.5 hours)
+
+3. **Monster Detail Page** (`app/monsters/[id]/page.tsx`) - 2-3 hours
+   - Largest file (432 lines)
+   - Most Mantine components (14)
+   - Most icon replacements (6)
+   - Core feature page (high user impact)
+
+4. **Spell Detail Page** (`app/spells/[slug]/page.tsx`) - 1-1.5 hours
+   - Similar pattern to Monster Detail
+   - Smaller scope (147 lines, 10 components)
+
+#### Priority 3: Verification
+
+5. **Monsters List Page** - Already complete ✅
+   - Verify integration with Phase 2 components
+   - Test pagination, filters, loading states
+
+**Total Estimated Time**: 5-6 hours
+
+---
+
+## Timeline Estimate
+
+### Assumptions
+
+- 1 developer
+- Phase 2 is 100% complete
+- All Phase 2 components are tested and working
+- No unexpected blockers
+
+### Breakdown
+
+| Stage                   | Task                    | Duration        | Dependencies            |
+| ----------------------- | ----------------------- | --------------- | ----------------------- |
+| **Setup**               | Code review and prep    | 30 min          | Phase 2 complete        |
+| **P1 - Homepage**       | Migrate broken homepage | 1 hour          | None                    |
+| **P1 - Spells List**    | Clean up inline styles  | 30 min          | None                    |
+| **P2 - Monster Detail** | Full migration          | 2-3 hours       | Phase 2.1 components    |
+| **P2 - Spell Detail**   | Full migration          | 1-1.5 hours     | Phase 2.2 components    |
+| **Testing**             | Manual QA all pages     | 1 hour          | All migrations complete |
+| **Total**               | -                       | **5.5-7 hours** | **~1 day**              |
+
+---
+
+## Migration Checklist
+
+### Pre-Flight Checks (Before Starting Phase 3)
+
+- [ ] **Phase 2 is 100% complete**
+  - [ ] All 11 Phase 2 components migrated
+  - [ ] MonsterList, MonsterFilters working
+  - [ ] SpellList, SpellFilters working
+  - [ ] All display components (StatBlock, AttacksDisplay, etc.) working
+
+- [ ] **Required shadcn components installed**
+  - [x] Button ✅
+  - [x] Badge ✅
+  - [x] Card ✅
+  - [x] Alert ✅
+  - [x] Dialog ✅
+  - [x] DropdownMenu ✅
+  - [x] Custom LoadingOverlay ✅ (Phase 1)
+
+- [ ] **Sonner toast system installed**
+  - [x] sonner package ✅ (Phase 0)
+  - [ ] Toaster component in layout
+  - [ ] toast() function tested
+
+- [ ] **Development environment ready**
+  - [ ] Dev server running
+  - [ ] Browser dev tools open
+  - [ ] No TypeScript errors
+  - [ ] No build errors
+
+---
+
+### Page-by-Page Migration Checklist
+
+#### Homepage (`app/page.tsx`)
+
+- [ ] Replace `SimpleGrid` → Tailwind grid
+- [ ] Update `Card` to shadcn API
+- [ ] Replace `Stack` → Tailwind flex
+- [ ] Replace `Group` → Tailwind flex
+- [ ] Replace `Text` → Semantic HTML
+- [ ] Update `Button` to shadcn API
+- [ ] Replace `Container` → Tailwind container
+- [ ] Replace Tabler icons → Lucide (Sword, Wand2, Dice6)
+- [ ] Test all feature card links
+- [ ] Test responsive layout
+- [ ] Verify visual parity
+
+#### Monsters List Page (`app/monsters/page.tsx`)
+
+- [x] Already migrated ✅
+- [ ] Test integration with MonsterList (Phase 2)
+- [ ] Test integration with MonsterFilters (Phase 2)
+- [ ] Test pagination
+- [ ] Test filters
+- [ ] Test loading states
+- [ ] Test error states
+- [ ] Test authentication-based "Create" button
+
+#### Monster Detail Page (`app/monsters/[id]/page.tsx`)
+
+- [ ] Replace `Container` → Tailwind container
+- [ ] Replace `Paper` → Card
+- [ ] Replace `Title` → Semantic HTML
+- [ ] Replace `Group` → Tailwind flex
+- [ ] Replace `Badge` → shadcn Badge
+- [ ] Replace `Stack` → Tailwind flex
+- [ ] Replace `Text` → Semantic HTML
+- [ ] Replace `Button` → shadcn Button
+- [ ] Replace `LoadingOverlay` → Custom component
+- [ ] Replace `Alert` → shadcn Alert
+- [ ] Replace `Modal` → shadcn Dialog
+- [ ] Replace `Menu` → shadcn DropdownMenu
+- [ ] Replace `ActionIcon` → Button variant
+- [ ] Replace `notifications` → toast (3 calls)
+- [ ] Replace Tabler icons → Lucide (6 icons)
+- [ ] Test MonsterStatBlock integration
+- [ ] Test MonsterAttacksDisplay integration
+- [ ] Test MonsterAbilitiesDisplay integration
+- [ ] Test MonsterOwnershipCard integration
+- [ ] Test edit/delete actions (owner only)
+- [ ] Test duplicate functionality
+- [ ] Test visibility toggle
+- [ ] Test loading states
+- [ ] Test error states
+- [ ] Test delete confirmation modal
+
+#### Spells List Page (`app/spells/page.tsx`)
+
+- [ ] Replace all inline styles with Tailwind classes
+- [ ] Replace manual SVG → Lucide Plus icon
+- [ ] Use shadcn Button for "Create Spell" link
+- [ ] Test integration with SpellList (Phase 2)
+- [ ] Test integration with SpellFilters (Phase 2)
+- [ ] Test pagination
+- [ ] Test filters
+- [ ] Test loading states
+- [ ] Test error states
+- [ ] Test authentication-based "Create" button
+
+#### Spell Detail Page (`app/spells/[slug]/page.tsx`)
+
+- [ ] Replace `Container` → Tailwind container
+- [ ] Replace `Paper` → Card
+- [ ] Replace `Title` → Semantic HTML
+- [ ] Replace `Group` → Tailwind flex
+- [ ] Replace `Badge` → shadcn Badge
+- [ ] Replace `Stack` → Tailwind flex
+- [ ] Replace `Text` → Semantic HTML
+- [ ] Replace `Button` → shadcn Button
+- [ ] Replace `LoadingOverlay` → Custom component
+- [ ] Replace `Alert` → shadcn Alert
+- [ ] Replace Tabler icons → Lucide (2 icons)
+- [ ] Test SpellDetailBlock integration
+- [ ] Test tier color display
+- [ ] Test loading states
+- [ ] Test error states
+
+---
+
+## Success Criteria
+
+### Functional Requirements (All 5 Pages)
+
+- [ ] All pages render without errors
+- [ ] All pages load data correctly
+- [ ] All interactive elements work (buttons, links, modals)
+- [ ] Authentication-based features work (Create buttons, Edit/Delete)
+- [ ] Loading states display correctly
+- [ ] Error states display correctly
+- [ ] Navigation between pages works
+- [ ] Back buttons work
+- [ ] Toast notifications work (replace Mantine notifications)
+- [ ] Pagination works (list pages)
+- [ ] Filters work (list pages)
+
+### Technical Requirements
+
+- [ ] Zero Mantine imports in all 5 pages
+- [ ] Zero Tabler icon imports in all 5 pages
+- [ ] Zero inline styles (or minimal, justified)
+- [ ] All TypeScript types preserved
+- [ ] No TypeScript compilation errors
+- [ ] No ESLint errors
+- [ ] App builds successfully
+- [ ] Dev server runs without errors
+
+### Visual Requirements
+
+- [ ] Visual parity with original design (within 5px tolerance)
+- [ ] Dark mode works correctly
+- [ ] Responsive layout works (mobile, tablet, desktop)
+- [ ] Colors match Shadowdark theme
+  - Challenge level badges (green/yellow/orange/red)
+  - Spell tier badges (gray/blue/grape/red/dark)
+  - Custom color palettes (shadowdark, blood, treasure, magic)
+- [ ] Typography matches (headings, body text)
+- [ ] Spacing/padding consistent
+- [ ] Icons render correctly
+
+### Performance Requirements
+
+- [ ] Page load times maintained or improved
+- [ ] No layout shift (CLS)
+- [ ] Smooth interactions
+- [ ] Toast notifications are performant
+
+---
+
+## Phase 3 Component Replacement Tracking Table
+
+| Page           | Mantine → shadcn | Tailwind Patterns | Icons Migrated | Toasts  | Status       |
+| -------------- | ---------------- | ----------------- | -------------- | ------- | ------------ |
+| Homepage       | 0/6              | 0/3               | 0/3            | N/A     | ⚠️ Broken    |
+| Monsters List  | ✅ 0/0           | ✅ Done           | ✅ Done        | N/A     | ✅ Done      |
+| Monster Detail | 0/14             | 0/10+             | 0/6            | 0/3     | ⏳ Pending   |
+| Spells List    | ✅ 0/0           | 0/10              | 0/1            | N/A     | ⚠️ Cleanup   |
+| Spell Detail   | 0/10             | 0/8               | 0/2            | N/A     | ⏳ Pending   |
+| **Total**      | **0/30**         | **0/31**          | **0/12**       | **0/3** | **20% Done** |
+
+---
+
+## Known Issues and Risks
+
+### Current Issues
+
+1. ⚠️ **Homepage is BROKEN** - Uses undefined Mantine components
+   - **Impact**: High - Homepage is user entry point
+   - **Mitigation**: Prioritize this as first Phase 3 task
+
+2. ⚠️ **Spells List uses inline styles** - Not a blocker but inconsistent
+   - **Impact**: Low - Page works, just needs cleanup
+   - **Mitigation**: Quick win, 30-minute fix
+
+3. ⚠️ **Phase 2 dependency** - All pages blocked until Phase 2 is complete
+   - **Impact**: High - Cannot start Phase 3 at all
+   - **Mitigation**: Focus on completing Phase 2 first
+
+### Potential Risks
+
+#### Risk 1: Dialog API Differences
+
+**Issue**: Mantine `Modal` vs shadcn `Dialog` have different APIs
+**Impact**: Medium - Delete confirmation modal on Monster Detail page
+**Mitigation**:
+
+- Study shadcn Dialog documentation
+- Test modal open/close behavior thoroughly
+- Ensure keyboard shortcuts work (Escape to close)
+
+#### Risk 2: Toast Migration
+
+**Issue**: Mantine `notifications.show()` vs Sonner `toast()` API differences
+**Impact**: Medium - 3 calls on Monster Detail page
+**Mitigation**:
+
+- Create mapping document (Mantine → Sonner)
+- Test success, error, and loading toast variants
+- Ensure toast position and duration match expectations
+
+#### Risk 3: Badge Color Mapping
+
+**Issue**: Mantine color names (green, yellow, orange, red, blue, grape) vs shadcn variants
+**Impact**: Low - Visual consistency
+**Mitigation**:
+
+- Map Mantine colors to shadcn variants manually
+- Use custom Tailwind classes if needed for exact matches
+- Use Shadowdark color palette (blood, treasure, magic) where appropriate
+
+#### Risk 4: Phase 2 Integration
+
+**Issue**: Pages rely on Phase 2 components working correctly
+**Impact**: High - Pages will break if Phase 2 components have issues
+**Mitigation**:
+
+- Thoroughly test all Phase 2 components before starting Phase 3
+- Create component integration checklist
+- Test data flow between pages and components
+
+---
+
+## Post-Migration Testing Plan
+
+### Manual Testing Checklist
+
+#### Homepage
+
+- [ ] All three feature cards render
+- [ ] Feature card links work (Monsters, Spells, Encounters)
+- [ ] "Encounters" card is disabled (Coming Soon)
+- [ ] CTA section renders
+- [ ] "Explore Monsters" button works
+- [ ] "Create Account" button works
+- [ ] Icons render correctly (Sword, Wand, Dice)
+- [ ] Responsive layout works (mobile, tablet, desktop)
+- [ ] Dark mode works
+
+#### Monsters List Page
+
+- [ ] Page renders with monster list
+- [ ] Filters work (search, CL range, types, locations, sources)
+- [ ] Filters debounce correctly (300ms)
+- [ ] Pagination works
+- [ ] Page size selector works
+- [ ] "Create Monster" button shows for authenticated users
+- [ ] "Create Monster" button hidden for guests
+- [ ] Monster cards clickable
+- [ ] Loading state displays
+- [ ] Error state displays with retry button
+- [ ] Empty state displays when no results
+
+#### Monster Detail Page
+
+- [ ] Page loads monster data correctly
+- [ ] All monster stats display
+- [ ] Challenge level badge colored correctly
+- [ ] Source badge displays
+- [ ] Custom/Public badges display (if applicable)
+- [ ] Tags display (types and locations)
+- [ ] Stat block renders (HP, AC, Speed)
+- [ ] Attacks display correctly
+- [ ] Abilities display correctly
+- [ ] Ownership card displays
+- [ ] "Back to Monsters" button works
+- [ ] **Edit** menu item shows for owner
+- [ ] **Delete** menu item shows for owner
+- [ ] **Duplicate** menu item always shows
+- [ ] Edit button navigates correctly
+- [ ] Delete button opens confirmation dialog
+- [ ] Delete confirmation works (shows toast, redirects)
+- [ ] Delete cancellation works
+- [ ] Duplicate button works (creates copy, shows toast)
+- [ ] Duplicate requires authentication (redirects to login)
+- [ ] Visibility toggle works (owner only)
+- [ ] Loading state displays
+- [ ] Error state displays (404, network error)
+
+#### Spells List Page
+
+- [ ] Page renders with spell list
+- [ ] Filters work (search, tier range, classes, durations, ranges, sources)
+- [ ] Filters debounce correctly (300ms)
+- [ ] Pagination works
+- [ ] Page size selector works
+- [ ] "Create Spell" button shows for authenticated users
+- [ ] "Create Spell" button hidden for guests
+- [ ] Plus icon renders correctly (Lucide)
+- [ ] Spell cards clickable
+- [ ] Loading state displays
+- [ ] Error state displays with retry button
+- [ ] Empty state displays when no results
+- [ ] **No inline styles** - All Tailwind classes
+
+#### Spell Detail Page
+
+- [ ] Page loads spell data correctly
+- [ ] Spell name displays
+- [ ] Tier badge colored correctly
+- [ ] Source badge displays
+- [ ] Description displays
+- [ ] Spell detail block renders (classes, duration, range)
+- [ ] "Back to Spells" button works
+- [ ] Loading state displays
+- [ ] Error state displays (404, network error)
+
+### Browser Testing
+
+- [ ] Chrome (desktop)
+- [ ] Firefox (desktop)
+- [ ] Safari (desktop)
+- [ ] Chrome (mobile)
+- [ ] Safari (iOS)
+
+### Accessibility Testing
+
+- [ ] Keyboard navigation works
+- [ ] Screen reader announces page titles
+- [ ] Buttons have accessible labels
+- [ ] Modals/dialogs trap focus
+- [ ] Color contrast meets WCAG AA
+- [ ] Focus indicators visible
+
+---
+
+## Documentation Updates
+
+After Phase 3 completion:
+
+- [ ] Update README.md
+  - Remove any Mantine references from setup instructions
+  - Add Phase 3 completion note
+
+- [ ] Update CLAUDE.md
+  - Mark Phase 3 as complete
+  - Update "Current Implementation" section
+
+- [ ] Create migration notes
+  - Document Dialog API differences
+  - Document Toast migration pattern
+  - Document Badge color mapping
+
+- [ ] Update component usage examples
+  - Show page-level component patterns
+  - Show Tailwind layout examples
+
+---
+
+## Parallel Execution Monitoring Framework
+
+**Note**: This section will be populated during actual Phase 3 execution to track real-time progress.
+
+### Execution Log Template
+
+```markdown
+## Phase 3 Execution Log
+
+**Start Time**: [TIMESTAMP]
+**Executor**: [DEVELOPER NAME or AGENT ID]
+
+### Timeline
+
+| Timestamp | Event                       | Page         | Status      | Notes |
+| --------- | --------------------------- | ------------ | ----------- | ----- |
+| [TIME]    | Phase 3 start               | -            | Started     | -     |
+| [TIME]    | Homepage migration start    | app/page.tsx | In Progress | -     |
+| [TIME]    | Homepage migration complete | app/page.tsx | ✅ Complete | -     |
+| ...       | ...                         | ...          | ...         | ...   |
+
+### Real-Time Progress
+
+**Current Task**: [TASK DESCRIPTION]
+**Current File**: [FILE PATH]
+**Progress**: [X/5 pages complete]
+
+### Issues Encountered
+
+1. **Issue**: [DESCRIPTION]
+   - **File**: [FILE PATH]
+   - **Line**: [LINE NUMBER]
+   - **Resolution**: [HOW IT WAS FIXED]
+   - **Duration**: [TIME SPENT]
+
+### Performance Metrics
+
+- **Total Duration**: [HOURS]
+- **Pages Migrated**: [X/5]
+- **Lines Changed**: [TOTAL]
+- **Components Replaced**: [X/30]
+- **Icons Migrated**: [X/12]
+- **Commits**: [NUMBER]
+```
+
+---
+
+## Recommendations
+
+### Before Starting Phase 3
+
+1. **Complete Phase 2 First** ⚠️
+   - Finish all 11 Phase 2 components
+   - Test component integration
+   - Verify no Mantine imports remain in components
+
+2. **Test Phase 2 Components Individually**
+   - MonsterList with mock data
+   - MonsterFilters with callbacks
+   - SpellList with mock data
+   - SpellFilters with callbacks
+   - All display components (StatBlock, AttacksDisplay, etc.)
+
+3. **Prepare Toast System**
+   - Add `<Toaster />` to root layout
+   - Test toast notifications manually
+   - Create helper function for common toast patterns
+
+4. **Review Dialog Component**
+   - Read shadcn Dialog documentation
+   - Test Dialog open/close
+   - Test Dialog with form submission
+
+### During Phase 3 Execution
+
+1. **Commit Frequently**
+   - Commit after each page migration
+   - Use descriptive commit messages
+   - Example: `feat(phase3): migrate monster detail page to shadcn`
+
+2. **Test Immediately**
+   - Test each page after migration
+   - Fix issues before moving to next page
+   - Don't batch all testing to the end
+
+3. **Monitor Bundle Size**
+   - Check bundle size after each commit
+   - Ensure Mantine code is being tree-shaken
+
+4. **Track Time**
+   - Record actual time vs estimates
+   - Adjust remaining estimates if needed
+
+### After Phase 3 Completion
+
+1. **Visual Regression Testing**
+   - Take screenshots of all pages
+   - Compare before/after
+   - Document any intentional visual changes
+
+2. **Performance Testing**
+   - Run Lighthouse audits
+   - Check Core Web Vitals
+   - Compare with Phase 0 baseline
+
+3. **Integration Testing**
+   - Test user flows end-to-end
+   - Browse monsters → View details → Edit (if owner)
+   - Browse spells → View details
+   - Test filters → Select result → Back button
+
+4. **Documentation**
+   - Update migration progress log
+   - Document lessons learned
+   - Note any technical debt
+
+---
+
+## Migration Log Metadata
+
+**Document Created**: 2025-10-17 (analysis phase)
+**Author**: Claude Code Agent
+**Migration Plan Reference**: `/specs/plans/shadcn-migration-plan.md`
+**Current Branch**: `shadcd-migration`
+**Project**: Shadowdark Monster Manager
+**Phase**: 3 of 5 (Page-Level Components)
+**Status**: 📊 DOCUMENTATION READY - Awaiting Phase 2 completion
+
+---
+
+**End of Phase 3 Pre-Execution Documentation**
