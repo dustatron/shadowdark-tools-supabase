@@ -1,6 +1,6 @@
 "use client";
 
-import { Card, CardContent } from "@/../../components/ui/card";
+import { Card, CardContent } from "@/components/ui/card";
 import { Users, Clock, Ruler, Star } from "lucide-react";
 
 interface SpellDetailBlockProps {

@@ -33,7 +33,6 @@ export function IconSelector({
       {error && <p className="text-sm text-destructive">{error}</p>}
       <p className="text-xs text-muted-foreground">
         Icon selector temporarily simplified. Enter icon name manually (e.g.,
-        &quot;Sword&quot;, &quot;Shield&quot;, &quot;Heart&quot;).
       </p>
     </div>
   );

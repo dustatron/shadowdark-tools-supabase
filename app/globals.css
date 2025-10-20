@@ -64,10 +64,9 @@
   * {
     @apply border-border;
   }
-  /* Remove bg/text application - let Mantine handle dark mode backgrounds */
-  /* body {
+  body {
     @apply bg-background text-foreground;
-  } */
+  }
 
   /* Shadowdark Typography - Matching Mantine heading sizes */
   h1 {
