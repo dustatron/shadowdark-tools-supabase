@@ -1,34 +1,30 @@
 "use client";
 
 import {
-  Card,
-  Group,
-  Text,
-  Badge,
-  Stack,
-  ActionIcon,
-  Menu,
-  Tooltip,
-  Collapse,
-  Button,
-  Divider,
-  Box,
-} from "@mantine/core";
-import {
-  IconDots,
-  IconEdit,
-  IconTrash,
-  IconEye,
-  IconChevronDown,
-  IconChevronUp,
-  IconHeart,
-  IconHeartFilled,
-  IconSword,
-  IconShield,
-  IconRun,
-} from "@tabler/icons-react";
+  MoreVertical,
+  Pencil,
+  Trash2,
+  Eye,
+  ChevronDown,
+  ChevronUp,
+  Heart,
+  Sword,
+  Shield,
+  Footprints,
+} from "lucide-react";
 import { useState } from "react";
 import Link from "next/link";
+import { Card, CardHeader, CardContent } from "@/components/ui/card";
+import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+  DropdownMenuSeparator,
+} from "@/components/ui/dropdown-menu";
+import { Separator } from "@/components/ui/separator";
 
 interface Monster {
   id: string;
@@ -87,244 +83,225 @@ export function MonsterCard({
 
   const challengeLevelColor =
     monster.challenge_level <= 3
-      ? "green"
+      ? "bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200"
       : monster.challenge_level <= 7
-        ? "yellow"
+        ? "bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-200"
         : monster.challenge_level <= 12
-          ? "orange"
-          : "red";
+          ? "bg-orange-100 text-orange-800 dark:bg-orange-900 dark:text-orange-200"
+          : "bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-200";
 
   return (
-    <Card shadow="sm" padding="md" radius="md" withBorder>
-      <Stack gap="sm">
-        {/* Header */}
-        <Group justify="space-between" align="flex-start">
-          <Stack gap="xs" style={{ flex: 1 }}>
-            <Group justify="space-between" align="flex-start">
-              <div>
-                <Text fw={600} size="lg" lineClamp={1}>
-                  {monster.name}
-                </Text>
-                <Group gap="xs" mt={2}>
-                  <Badge color={challengeLevelColor} size="sm">
-                    Level {monster.challenge_level}
-                  </Badge>
-                  <Badge variant="outline" size="sm">
-                    {monster.source}
-                  </Badge>
-                  {monster.monster_type === "user" && (
-                    <Badge variant="light" color="blue" size="sm">
-                      Custom
+    <Card className="shadow-sm">
+      <CardContent className="p-4">
+        <div className="flex flex-col gap-4">
+          {/* Header */}
+          <div className="flex items-start justify-between">
+            <div className="flex-1 flex flex-col gap-2">
+              <div className="flex items-start justify-between">
+                <div>
+                  <h3 className="text-lg font-semibold line-clamp-1">
+                    {monster.name}
+                  </h3>
+                  <div className="flex items-center gap-2 mt-1">
+                    <Badge className={challengeLevelColor}>
+                      Level {monster.challenge_level}
                     </Badge>
-                  )}
-                </Group>
-              </div>
+                    <Badge variant="outline">{monster.source}</Badge>
+                    {monster.monster_type === "user" && (
+                      <Badge variant="secondary">Custom</Badge>
+                    )}
+                  </div>
+                </div>
 
-              {showActions && (
-                <Group gap="xs">
-                  {onToggleFavorite && (
-                    <ActionIcon
-                      variant="subtle"
-                      color={isFavorited ? "red" : "gray"}
-                      onClick={() => onToggleFavorite(monster)}
-                    >
-                      {isFavorited ? (
-                        <IconHeartFilled size={16} />
-                      ) : (
-                        <IconHeart size={16} />
-                      )}
-                    </ActionIcon>
-                  )}
-
-                  <Menu shadow="md" width={200}>
-                    <Menu.Target>
-                      <ActionIcon variant="subtle">
-                        <IconDots size={16} />
-                      </ActionIcon>
-                    </Menu.Target>
-
-                    <Menu.Dropdown>
-                      <Menu.Item
-                        leftSection={<IconEye size={14} />}
-                        component={Link}
-                        href={`/monsters/${monster.id}`}
+                {showActions && (
+                  <div className="flex items-center gap-2">
+                    {onToggleFavorite && (
+                      <Button
+                        variant="ghost"
+                        size="icon"
+                        onClick={() => onToggleFavorite(monster)}
+                        className={
+                          isFavorited ? "text-red-500" : "text-gray-500"
+                        }
                       >
-                        View Details
-                      </Menu.Item>
+                        {isFavorited ? (
+                          <Heart size={16} />
+                        ) : (
+                          <Heart size={16} />
+                        )}
+                      </Button>
+                    )}
 
-                      {canEdit && onEdit && (
-                        <Menu.Item
-                          leftSection={<IconEdit size={14} />}
-                          onClick={() => onEdit(monster)}
-                        >
-                          Edit Monster
-                        </Menu.Item>
-                      )}
+                    <DropdownMenu>
+                      <DropdownMenuTrigger asChild>
+                        <Button variant="ghost" size="icon">
+                          <MoreVertical size={16} />
+                        </Button>
+                      </DropdownMenuTrigger>
 
-                      {canDelete && onDelete && (
-                        <>
-                          <Menu.Divider />
-                          <Menu.Item
-                            leftSection={<IconTrash size={14} />}
-                            color="red"
-                            onClick={() => onDelete(monster)}
+                      <DropdownMenuContent className="w-48">
+                        <DropdownMenuItem asChild>
+                          <Link
+                            href={`/monsters/${monster.id}`}
+                            className="flex items-center gap-2"
                           >
-                            Delete Monster
-                          </Menu.Item>
-                        </>
-                      )}
-                    </Menu.Dropdown>
-                  </Menu>
-                </Group>
-              )}
-            </Group>
-          </Stack>
-        </Group>
+                            <Eye size={14} />
+                            View Details
+                          </Link>
+                        </DropdownMenuItem>
 
-        {/* Stats */}
-        <Group gap="lg">
-          <Tooltip label="Hit Points">
-            <Group gap="xs">
-              <IconHeart size={16} color="red" />
-              <Text size="sm" fw={500}>
-                {monster.hit_points}
-              </Text>
-            </Group>
-          </Tooltip>
+                        {canEdit && onEdit && (
+                          <DropdownMenuItem onClick={() => onEdit(monster)}>
+                            <Pencil size={14} className="mr-2" />
+                            Edit Monster
+                          </DropdownMenuItem>
+                        )}
 
-          <Tooltip label="Armor Class">
-            <Group gap="xs">
-              <IconShield size={16} color="blue" />
-              <Text size="sm" fw={500}>
-                {monster.armor_class}
-              </Text>
-            </Group>
-          </Tooltip>
+                        {canDelete && onDelete && (
+                          <>
+                            <DropdownMenuSeparator />
+                            <DropdownMenuItem
+                              onClick={() => onDelete(monster)}
+                              className="text-red-600 focus:text-red-600"
+                            >
+                              <Trash2 size={14} className="mr-2" />
+                              Delete Monster
+                            </DropdownMenuItem>
+                          </>
+                        )}
+                      </DropdownMenuContent>
+                    </DropdownMenu>
+                  </div>
+                )}
+              </div>
+            </div>
+          </div>
 
-          <Tooltip label="Speed">
-            <Group gap="xs">
-              <IconRun size={16} color="green" />
-              <Text size="sm" fw={500}>
-                {monster.speed}
-              </Text>
-            </Group>
-          </Tooltip>
-        </Group>
+          {/* Stats */}
+          <div className="flex items-center gap-6">
+            <div className="flex items-center gap-2" title="Hit Points">
+              <Heart size={16} className="text-red-500" />
+              <span className="text-sm font-medium">{monster.hit_points}</span>
+            </div>
 
-        {/* Tags */}
-        <Group gap="xs">
-          {monster.tags.type?.map((type, index) => (
-            <Badge key={`type-${index}`} variant="light" size="xs">
-              {type}
-            </Badge>
-          ))}
-          {monster.tags.location?.map((location, index) => (
-            <Badge
-              key={`location-${index}`}
-              variant="outline"
-              size="xs"
-              color="gray"
-            >
-              {location}
-            </Badge>
-          ))}
-        </Group>
+            <div className="flex items-center gap-2" title="Armor Class">
+              <Shield size={16} className="text-blue-500" />
+              <span className="text-sm font-medium">{monster.armor_class}</span>
+            </div>
 
-        {/* Expandable Details */}
-        {!compact &&
-          (monster.attacks.length > 0 || monster.abilities.length > 0) && (
-            <>
-              <Button
-                variant="subtle"
-                size="xs"
-                rightSection={
-                  expanded ? (
-                    <IconChevronUp size={14} />
-                  ) : (
-                    <IconChevronDown size={14} />
-                  )
-                }
-                onClick={() => setExpanded(!expanded)}
+            <div className="flex items-center gap-2" title="Speed">
+              <Footprints size={16} className="text-green-500" />
+              <span className="text-sm font-medium">{monster.speed}</span>
+            </div>
+          </div>
+
+          {/* Tags */}
+          <div className="flex flex-wrap gap-2">
+            {monster.tags.type?.map((type, index) => (
+              <Badge key={`type-${index}`} variant="secondary">
+                {type}
+              </Badge>
+            ))}
+            {monster.tags.location?.map((location, index) => (
+              <Badge
+                key={`location-${index}`}
+                variant="outline"
+                className="text-gray-600"
               >
-                {expanded ? "Hide Details" : "Show Details"}
-              </Button>
+                {location}
+              </Badge>
+            ))}
+          </div>
 
-              <Collapse in={expanded}>
-                <Stack gap="md">
-                  {/* Attacks */}
-                  {monster.attacks.length > 0 && (
-                    <Box>
-                      <Group gap="xs" mb="xs">
-                        <IconSword size={16} />
-                        <Text fw={500} size="sm">
-                          Attacks
-                        </Text>
-                      </Group>
-                      <Stack gap="xs">
-                        {monster.attacks?.map((attack, index) => (
-                          <Box key={index} pl="md">
-                            <Group gap="xs">
-                              <Text size="sm" fw={500}>
-                                {attack.name}
-                              </Text>
-                              <Badge size="xs" variant="outline">
-                                {attack.type}
-                              </Badge>
-                              <Text size="sm" c="dimmed">
-                                {attack.damage} ({attack.range})
-                              </Text>
-                            </Group>
-                            {attack.description && (
-                              <Text size="xs" c="dimmed" pl="sm">
-                                {attack.description}
-                              </Text>
-                            )}
-                          </Box>
-                        ))}
-                      </Stack>
-                    </Box>
+          {/* Expandable Details */}
+          {!compact &&
+            (monster.attacks.length > 0 || monster.abilities.length > 0) && (
+              <>
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  onClick={() => setExpanded(!expanded)}
+                  className="w-full"
+                >
+                  {expanded ? "Hide Details" : "Show Details"}
+                  {expanded ? (
+                    <ChevronUp size={14} className="ml-2" />
+                  ) : (
+                    <ChevronDown size={14} className="ml-2" />
                   )}
+                </Button>
 
-                  {/* Abilities */}
-                  {monster.abilities.length > 0 && (
-                    <Box>
-                      <Text fw={500} size="sm" mb="xs">
-                        Abilities
-                      </Text>
-                      <Stack gap="xs">
-                        {monster.abilities?.map((ability, index) => (
-                          <Box key={index} pl="md">
-                            <Text size="sm" fw={500}>
-                              {ability.name}
-                            </Text>
-                            <Text size="xs" c="dimmed">
-                              {ability.description}
-                            </Text>
-                          </Box>
-                        ))}
-                      </Stack>
-                    </Box>
-                  )}
+                {expanded && (
+                  <div className="flex flex-col gap-4">
+                    {/* Attacks */}
+                    {monster.attacks.length > 0 && (
+                      <div>
+                        <div className="flex items-center gap-2 mb-2">
+                          <Sword size={16} />
+                          <h4 className="text-sm font-medium">Attacks</h4>
+                        </div>
+                        <div className="flex flex-col gap-2">
+                          {monster.attacks?.map((attack, index) => (
+                            <div key={index} className="pl-4">
+                              <div className="flex items-center gap-2">
+                                <span className="text-sm font-medium">
+                                  {attack.name}
+                                </span>
+                                <Badge variant="outline" className="text-xs">
+                                  {attack.type}
+                                </Badge>
+                                <span className="text-sm text-muted-foreground">
+                                  {attack.damage} ({attack.range})
+                                </span>
+                              </div>
+                              {attack.description && (
+                                <p className="text-xs text-muted-foreground pl-2">
+                                  {attack.description}
+                                </p>
+                              )}
+                            </div>
+                          ))}
+                        </div>
+                      </div>
+                    )}
 
-                  {/* Author Notes */}
-                  {monster.author_notes && (
-                    <>
-                      <Divider />
-                      <Box>
-                        <Text fw={500} size="sm" mb="xs">
-                          Notes
-                        </Text>
-                        <Text size="sm" c="dimmed">
-                          {monster.author_notes}
-                        </Text>
-                      </Box>
-                    </>
-                  )}
-                </Stack>
-              </Collapse>
-            </>
-          )}
-      </Stack>
+                    {/* Abilities */}
+                    {monster.abilities.length > 0 && (
+                      <div>
+                        <h4 className="text-sm font-medium mb-2">Abilities</h4>
+                        <div className="flex flex-col gap-2">
+                          {monster.abilities?.map((ability, index) => (
+                            <div key={index} className="pl-4">
+                              <p className="text-sm font-medium">
+                                {ability.name}
+                              </p>
+                              <p className="text-xs text-muted-foreground">
+                                {ability.description}
+                              </p>
+                            </div>
+                          ))}
+                        </div>
+                      </div>
+                    )}
+
+                    {/* Author Notes */}
+                    {monster.author_notes && (
+                      <>
+                        <Separator />
+                        <div>
+                          <h4 className="text-sm font-medium mb-2">Notes</h4>
+                          <p className="text-sm text-muted-foreground">
+                            {monster.author_notes}
+                          </p>
+                        </div>
+                      </>
+                    )}
+                  </div>
+                )}
+              </>
+            )}
+        </div>
+      </CardContent>
     </Card>
   );
 }

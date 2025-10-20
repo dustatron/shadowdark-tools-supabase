@@ -3,8 +3,8 @@
 import { useState, useEffect } from "react";
 import { SpellList } from "@/src/components/spells/SpellList";
 import { SpellFilters } from "@/src/components/spells/SpellFilters";
-import "@mantine/core/styles.css";
-import "@mantine/notifications/styles.css";
+import { Button } from "@/components/ui/button";
+import { Plus } from "lucide-react";
 import Link from "next/link";
 import { createClient } from "@/lib/supabase/client";
 
@@ -163,53 +163,20 @@ export default function SpellsPage() {
   };
 
   return (
-    <div style={{ padding: "20px" }}>
-      <div
-        style={{
-          display: "flex",
-          justifyContent: "space-between",
-          alignItems: "center",
-          marginBottom: "1.5rem",
-        }}
-      >
-        <h1 style={{ fontSize: "2rem", fontWeight: "bold", margin: 0 }}>
-          Spells
-        </h1>
+    <div className="container mx-auto px-4 py-8">
+      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-6">
+        <h1 className="text-3xl font-bold">Spells</h1>
         {isAuthenticated && (
-          <Link
-            href="/spells/create"
-            style={{
-              display: "inline-flex",
-              alignItems: "center",
-              gap: "8px",
-              padding: "8px 16px",
-              backgroundColor: "#228be6",
-              color: "white",
-              borderRadius: "4px",
-              textDecoration: "none",
-              fontSize: "14px",
-              fontWeight: 500,
-            }}
-          >
-            <svg
-              width="16"
-              height="16"
-              viewBox="0 0 24 24"
-              fill="none"
-              stroke="currentColor"
-              strokeWidth="2"
-              strokeLinecap="round"
-              strokeLinejoin="round"
-            >
-              <line x1="12" y1="5" x2="12" y2="19"></line>
-              <line x1="5" y1="12" x2="19" y2="12"></line>
-            </svg>
-            Create Spell
-          </Link>
+          <Button asChild>
+            <Link href="/spells/create">
+              <Plus className="h-4 w-4" />
+              Create Spell
+            </Link>
+          </Button>
         )}
       </div>
 
-      <div style={{ marginBottom: "20px" }}>
+      <div className="mb-6">
         <SpellFilters
           filters={filters}
           onFiltersChange={handleFiltersChange}

@@ -1,10 +1,7 @@
 import type { Metadata } from "next";
-import { ColorSchemeScript } from "@mantine/core";
-import { MantineProvider } from "@/src/components/providers/MantineProvider";
 import { RootProvider } from "@/src/components/providers/RootProvider";
-import "@mantine/core/styles.css";
-import { Notifications } from "@mantine/notifications";
-import "@mantine/notifications/styles.css";
+import { ThemeProvider } from "next-themes";
+import { Toaster } from "sonner";
 import "./globals.css";
 
 const defaultUrl = process.env.VERCEL_URL
@@ -77,14 +74,11 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en" suppressHydrationWarning>
-      <head>
-        <ColorSchemeScript defaultColorScheme="dark" />
-      </head>
       <body className="antialiased">
-        <MantineProvider>
-          <Notifications />
+        <ThemeProvider attribute="class" defaultTheme="dark">
           <RootProvider>{children}</RootProvider>
-        </MantineProvider>
+          <Toaster richColors position="top-right" />
+        </ThemeProvider>
       </body>
     </html>
   );

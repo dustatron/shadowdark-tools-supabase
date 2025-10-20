@@ -1,24 +1,12 @@
 "use client";
 
-import {
-  Paper,
-  Group,
-  Text,
-  Avatar,
-  Badge,
-  Button,
-  Stack,
-  Divider,
-} from "@mantine/core";
-import {
-  IconEdit,
-  IconTrash,
-  IconEye,
-  IconEyeOff,
-  IconCopy,
-  IconUser,
-} from "@tabler/icons-react";
+import { Pencil, Trash2, Eye, EyeOff, Copy, User } from "lucide-react";
 import Link from "next/link";
+import { Card, CardContent } from "@/components/ui/card";
+import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { Separator } from "@/components/ui/separator";
 
 interface Author {
   id: string;
@@ -68,133 +56,125 @@ export function MonsterOwnershipCard({
   };
 
   return (
-    <Paper shadow="sm" p="xl" withBorder>
-      <Stack gap="md">
-        {/* Header */}
-        <Group justify="space-between" align="flex-start">
-          <div>
-            <Text size="lg" fw={600} mb="xs">
-              {isOwner ? "Your Monster" : "Monster Information"}
-            </Text>
-            {isOfficialMonster && (
-              <Text size="sm" c="dimmed">
-                Official Shadowdark content
-              </Text>
-            )}
-          </div>
-          <Badge
-            variant={isOwner ? "filled" : "light"}
-            color={isOwner ? "blue" : "gray"}
-            size="lg"
-          >
-            {isOfficialMonster
-              ? "Official"
-              : isOwner
-                ? "Owned"
-                : isPublic
-                  ? "Community"
-                  : "Private"}
-          </Badge>
-        </Group>
-
-        {/* Author Information */}
-        {isCustomMonster && author && (
-          <>
-            <Divider />
-            <Group gap="md">
-              <Avatar
-                src={author.avatar_url}
-                alt={author.display_name || "User"}
-                radius="xl"
-                size="md"
-              >
-                <IconUser size={20} />
-              </Avatar>
-              <div>
-                <Text size="sm" c="dimmed">
-                  Created by
-                </Text>
-                <Text size="md" fw={500}>
-                  {author.display_name || "Anonymous"}
-                </Text>
-              </div>
-            </Group>
-          </>
-        )}
-
-        {/* Dates */}
-        {isCustomMonster && (createdAt || updatedAt) && (
-          <Group gap="xl">
-            {createdAt && (
-              <div>
-                <Text size="xs" c="dimmed">
-                  Created
-                </Text>
-                <Text size="sm">{formatDate(createdAt)}</Text>
-              </div>
-            )}
-            {updatedAt && updatedAt !== createdAt && (
-              <div>
-                <Text size="xs" c="dimmed">
-                  Last Updated
-                </Text>
-                <Text size="sm">{formatDate(updatedAt)}</Text>
-              </div>
-            )}
-          </Group>
-        )}
-
-        {/* Action Buttons */}
-        {isOwner && isCustomMonster && (
-          <>
-            <Divider />
-            <Group gap="sm">
-              <Button
-                component={Link}
-                href={`/monsters/${monsterId}/edit`}
-                leftSection={<IconEdit size={16} />}
-                variant="filled"
-              >
-                Edit Monster
-              </Button>
-              {onToggleVisibility && (
-                <Button
-                  onClick={onToggleVisibility}
-                  leftSection={
-                    isPublic ? <IconEyeOff size={16} /> : <IconEye size={16} />
-                  }
-                  variant="light"
-                >
-                  {isPublic ? "Make Private" : "Make Public"}
-                </Button>
+    <Card className="shadow-sm">
+      <CardContent className="p-6">
+        <div className="flex flex-col gap-4">
+          {/* Header */}
+          <div className="flex items-start justify-between">
+            <div>
+              <p className="text-lg font-semibold mb-2">
+                {isOwner ? "Your Monster" : "Monster Information"}
+              </p>
+              {isOfficialMonster && (
+                <p className="text-sm text-muted-foreground">
+                  Official Shadowdark content
+                </p>
               )}
-              <Button
-                onClick={onDelete}
-                leftSection={<IconTrash size={16} />}
-                color="red"
-                variant="light"
-              >
-                Delete
-              </Button>
-            </Group>
-          </>
-        )}
-
-        {/* Duplicate button for non-owners */}
-        {!isOwner && (
-          <>
-            <Divider />
-            <Button
-              onClick={onDuplicate}
-              leftSection={<IconCopy size={16} />}
-              variant="light"
-              fullWidth
+            </div>
+            <Badge
+              variant={isOwner ? "default" : "secondary"}
+              className="text-base px-3 py-1"
             >
-              Duplicate to My Collection
-            </Button>
-          </>
-        )}
-      </Stack>
-    </Paper>
+              {isOfficialMonster
+                ? "Official"
+                : isOwner
+                  ? "Owned"
+                  : isPublic
+                    ? "Community"
+                    : "Private"}
+            </Badge>
+          </div>
+
+          {/* Author Information */}
+          {isCustomMonster && author && (
+            <>
+              <Separator />
+              <div className="flex items-center gap-4">
+                <Avatar className="h-10 w-10">
+                  <AvatarImage
+                    src={author.avatar_url || undefined}
+                    alt={author.display_name || "User"}
+                  />
+                  <AvatarFallback>
+                    <User size={20} />
+                  </AvatarFallback>
+                </Avatar>
+                <div>
+                  <p className="text-sm text-muted-foreground">Created by</p>
+                  <p className="text-base font-medium">
+                    {author.display_name || "Anonymous"}
+                  </p>
+                </div>
+              </div>
+            </>
+          )}
+
+          {/* Dates */}
+          {isCustomMonster && (createdAt || updatedAt) && (
+            <div className="flex items-center gap-6">
+              {createdAt && (
+                <div>
+                  <p className="text-xs text-muted-foreground">Created</p>
+                  <p className="text-sm">{formatDate(createdAt)}</p>
+                </div>
+              )}
+              {updatedAt && updatedAt !== createdAt && (
+                <div>
+                  <p className="text-xs text-muted-foreground">Last Updated</p>
+                  <p className="text-sm">{formatDate(updatedAt)}</p>
+                </div>
+              )}
+            </div>
+          )}
+
+          {/* Action Buttons */}
+          {isOwner && isCustomMonster && (
+            <>
+              <Separator />
+              <div className="flex flex-wrap gap-2">
+                <Button asChild variant="default">
+                  <Link
+                    href={`/monsters/${monsterId}/edit`}
+                    className="flex items-center gap-2"
+                  >
+                    <Pencil size={16} />
+                    Edit Monster
+                  </Link>
+                </Button>
+                {onToggleVisibility && (
+                  <Button onClick={onToggleVisibility} variant="secondary">
+                    {isPublic ? (
+                      <EyeOff size={16} className="mr-2" />
+                    ) : (
+                      <Eye size={16} className="mr-2" />
+                    )}
+                    {isPublic ? "Make Private" : "Make Public"}
+                  </Button>
+                )}
+                <Button onClick={onDelete} variant="destructive">
+                  <Trash2 size={16} className="mr-2" />
+                  Delete
+                </Button>
+              </div>
+            </>
+          )}
+
+          {/* Duplicate button for non-owners */}
+          {!isOwner && (
+            <>
+              <Separator />
+              <Button
+                onClick={onDuplicate}
+                variant="secondary"
+                className="w-full"
+              >
+                <Copy size={16} className="mr-2" />
+                Duplicate to My Collection
+              </Button>
+            </>
+          )}
+        </div>
+      </CardContent>
+    </Card>
   );
 }

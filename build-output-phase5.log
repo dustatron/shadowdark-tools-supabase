@@ -1,0 +1,91 @@
+Warning: Ignoring extra certs from `/Users/dmccord/Apex.pem`, load failed: error:80000002:system library::No such file or directory
+
+> build
+> next build
+
+Warning: Ignoring extra certs from `/Users/dmccord/Apex.pem`, load failed: error:80000002:system library::No such file or directory
+ ⚠ Warning: Next.js inferred your workspace root, but it may not be correct.
+ We detected multiple lockfiles and selected the directory of /Users/dmccord/pnpm-lock.yaml as the root directory.
+ To silence this warning, set `outputFileTracingRoot` in your Next.js config, or consider removing one of the lockfiles if it's not needed.
+   See https://nextjs.org/docs/app/api-reference/config/next-config-js/output#caveats for more information.
+ Detected additional lockfiles: 
+   * /Users/dmccord/Projects/vibeCode/shadowdark-tools-supabase/package-lock.json
+
+   ▲ Next.js 15.5.3
+   - Environments: .env.local
+
+(node:9327) Warning: Setting the NODE_TLS_REJECT_UNAUTHORIZED environment variable to '0' makes TLS connections and HTTPS requests insecure by disabling certificate verification.
+(Use `node --trace-warnings ...` to show where the warning was created)
+   Creating an optimized production build ...
+Warning: Ignoring extra certs from `/Users/dmccord/Apex.pem`, load failed: error:80000002:system library::No such file or directory
+Warning: Ignoring extra certs from `/Users/dmccord/Apex.pem`, load failed: error:80000002:system library::No such file or directory
+(node:9332) Warning: Setting the NODE_TLS_REJECT_UNAUTHORIZED environment variable to '0' makes TLS connections and HTTPS requests insecure by disabling certificate verification.
+(Use `node --trace-warnings ...` to show where the warning was created)
+Warning: Ignoring extra certs from `/Users/dmccord/Apex.pem`, load failed: error:80000002:system library::No such file or directory
+ ✓ Compiled successfully in 2.9s
+   Linting and checking validity of types ...
+Warning: Ignoring extra certs from `/Users/dmccord/Apex.pem`, load failed: error:80000002:system library::No such file or directory
+Warning: Ignoring extra certs from `/Users/dmccord/Apex.pem`, load failed: error:80000002:system library::No such file or directory
+   Collecting page data ...
+Warning: Ignoring extra certs from `/Users/dmccord/Apex.pem`, load failed: error:80000002:system library::No such file or directory
+Warning: Ignoring extra certs from `/Users/dmccord/Apex.pem`, load failed: error:80000002:system library::No such file or directory
+Warning: Ignoring extra certs from `/Users/dmccord/Apex.pem`, load failed: error:80000002:system library::No such file or directory
+Warning: Ignoring extra certs from `/Users/dmccord/Apex.pem`, load failed: error:80000002:system library::No such file or directory
+Warning: Ignoring extra certs from `/Users/dmccord/Apex.pem`, load failed: error:80000002:system library::No such file or directory
+Warning: Ignoring extra certs from `/Users/dmccord/Apex.pem`, load failed: error:80000002:system library::No such file or directory
+Warning: Ignoring extra certs from `/Users/dmccord/Apex.pem`, load failed: error:80000002:system library::No such file or directory
+Warning: Ignoring extra certs from `/Users/dmccord/Apex.pem`, load failed: error:80000002:system library::No such file or directory
+Warning: Ignoring extra certs from `/Users/dmccord/Apex.pem`, load failed: error:80000002:system library::No such file or directory
+   Generating static pages (0/22) ...
+Warning: Ignoring extra certs from `/Users/dmccord/Apex.pem`, load failed: error:80000002:system library::No such file or directory
+Warning: Ignoring extra certs from `/Users/dmccord/Apex.pem`, load failed: error:80000002:system library::No such file or directory
+Warning: Ignoring extra certs from `/Users/dmccord/Apex.pem`, load failed: error:80000002:system library::No such file or directory
+Warning: Ignoring extra certs from `/Users/dmccord/Apex.pem`, load failed: error:80000002:system library::No such file or directory
+Warning: Ignoring extra certs from `/Users/dmccord/Apex.pem`, load failed: error:80000002:system library::No such file or directory
+Warning: Ignoring extra certs from `/Users/dmccord/Apex.pem`, load failed: error:80000002:system library::No such file or directory
+Warning: Ignoring extra certs from `/Users/dmccord/Apex.pem`, load failed: error:80000002:system library::No such file or directory
+Warning: Ignoring extra certs from `/Users/dmccord/Apex.pem`, load failed: error:80000002:system library::No such file or directory
+Warning: Ignoring extra certs from `/Users/dmccord/Apex.pem`, load failed: error:80000002:system library::No such file or directory
+   Generating static pages (5/22) 
+   Generating static pages (10/22) 
+   Generating static pages (16/22) 
+ ✓ Generating static pages (22/22)
+   Finalizing page optimization ...
+   Collecting build traces ...
+
+Route (app)                                 Size  First Load JS
+┌ ○ /                                      165 B         105 kB
+├ ○ /_not-found                            998 B         103 kB
+├ ƒ /api/monsters                          168 B         102 kB
+├ ƒ /api/monsters/[id]                     168 B         102 kB
+├ ƒ /api/monsters/random                   168 B         102 kB
+├ ƒ /api/search/spells                     168 B         102 kB
+├ ƒ /api/spells/[slug]                     168 B         102 kB
+├ ƒ /auth/confirm                          168 B         102 kB
+├ ƒ /auth/error                            168 B         102 kB
+├ ○ /auth/forgot-password                3.52 kB         160 kB
+├ ○ /auth/login                          3.61 kB         160 kB
+├ ○ /auth/sign-up                        3.64 kB         160 kB
+├ ○ /auth/sign-up-success                  168 B         102 kB
+├ ○ /auth/update-password                3.41 kB         156 kB
+├ ○ /monsters                            7.02 kB         216 kB
+├ ƒ /monsters/[id]                       7.91 kB         206 kB
+├ ƒ /monsters/[id]/edit                    918 B         238 kB
+├ ○ /monsters/create                       620 B         238 kB
+├ ○ /opengraph-image.png                     0 B            0 B
+├ ƒ /protected                           2.97 kB         117 kB
+├ ○ /spells                              4.59 kB         207 kB
+├ ƒ /spells/[slug]                       4.71 kB         118 kB
+├ ○ /spells/create                       2.41 kB         155 kB
+└ ○ /twitter-image.png                       0 B            0 B
++ First Load JS shared by all             102 kB
+  ├ chunks/1255-1ba95d892eb26910.js      45.7 kB
+  ├ chunks/4bd1b696-f785427dddbba9fb.js  54.2 kB
+  └ other shared chunks (total)          1.94 kB
+
+
+ƒ Middleware                             70.2 kB
+
+○  (Static)   prerendered as static content
+ƒ  (Dynamic)  server-rendered on demand
+

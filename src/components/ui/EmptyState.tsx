@@ -1,7 +1,7 @@
 "use client";
 
-import { Center, Stack, Text, Button, ThemeIcon } from "@mantine/core";
-import { IconPlus } from "@tabler/icons-react";
+import { Button } from "@/components/ui/button";
+import { FileQuestion, Plus } from "lucide-react";
 import { ReactNode } from "react";
 
 interface EmptyStateProps {
@@ -21,35 +21,29 @@ export function EmptyState({
   description,
   action,
 }: EmptyStateProps) {
-  return (
-    <Center py="xl">
-      <Stack align="center" gap="md" maw={400}>
-        {icon && (
-          <ThemeIcon size="xl" variant="light" color="gray">
-            {icon}
-          </ThemeIcon>
-        )}
+  const IconComponent = icon || <FileQuestion className="h-8 w-8" />;
 
-        <Stack align="center" gap="xs">
-          <Text size="lg" fw={500} ta="center">
-            {title}
-          </Text>
+  return (
+    <div className="flex items-center justify-center py-12">
+      <div className="flex max-w-md flex-col items-center gap-6">
+        <div className="rounded-full bg-muted p-4 text-muted-foreground">
+          {IconComponent}
+        </div>
+
+        <div className="flex flex-col items-center gap-2 text-center">
+          <h3 className="text-lg font-semibold">{title}</h3>
           {description && (
-            <Text size="sm" c="dimmed" ta="center">
-              {description}
-            </Text>
+            <p className="text-sm text-muted-foreground">{description}</p>
           )}
-        </Stack>
+        </div>
 
         {action && (
-          <Button
-            leftSection={action.icon || <IconPlus size={16} />}
-            onClick={action.onClick}
-          >
+          <Button onClick={action.onClick}>
+            {action.icon || <Plus className="mr-2 h-4 w-4" />}
             {action.label}
           </Button>
         )}
-      </Stack>
-    </Center>
+      </div>
+    </div>
   );
 }

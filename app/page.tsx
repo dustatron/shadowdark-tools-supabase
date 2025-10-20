@@ -1,15 +1,8 @@
-import {
-  Card,
-  Text,
-  Button,
-  Group,
-  Container,
-  Stack,
-  SimpleGrid,
-} from "@mantine/core";
-import { IconSword, IconWand, IconDice } from "@tabler/icons-react";
 import Link from "next/link";
 import type { Metadata } from "next";
+import { Button } from "@/components/ui/button";
+import { Card, CardContent } from "@/components/ui/card";
+import { Sword, Wand2, Dice6 } from "lucide-react";
 
 export const metadata: Metadata = {
   title: "Home | Shadowdark GM Tools",
@@ -24,123 +17,99 @@ export const metadata: Metadata = {
 
 export default function Home() {
   return (
-    <Container size="lg" py="xl">
-      <Stack gap="xl">
+    <div className="container mx-auto px-4 py-12">
+      <div className="flex flex-col gap-12">
         {/* Hero Section */}
-        <Stack gap="md" align="center" ta="center">
-          <Text size="3rem" fw={800} lh={1.2}>
+        <div className="flex flex-col gap-4 items-center text-center">
+          <h1 className="text-5xl font-extrabold leading-tight">
             Shadowdark GM Tools
-          </Text>
-          <Text size="xl" c="dimmed" maw={600}>
+          </h1>
+          <p className="text-xl text-muted-foreground max-w-2xl">
             Manage your monsters, create encounters, and organize your campaigns
             for Shadowdark RPG
-          </Text>
-        </Stack>
+          </p>
+        </div>
 
         {/* Feature Cards */}
-        <SimpleGrid cols={{ base: 1, sm: 2, md: 3 }} spacing="lg" mt="xl">
-          <Card
-            component={Link}
-            href="/monsters"
-            style={{ textDecoration: "none", height: "100%" }}
-            p="lg"
-          >
-            <Stack gap="md" h="100%">
-              <Group>
-                <IconSword
-                  size={32}
-                  stroke={1.5}
-                  color="var(--mantine-color-shadowdark-5)"
-                />
-                <Text size="xl" fw={700}>
-                  Monsters
-                </Text>
-              </Group>
-              <Text size="sm" c="dimmed">
-                Access a comprehensive database of official Shadowdark monsters.
-                Search, filter by challenge level, and create your own custom
-                monsters.
-              </Text>
-              <Button variant="light" fullWidth mt="auto">
-                Browse Monsters
-              </Button>
-            </Stack>
-          </Card>
+        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6 mt-12">
+          <Link href="/monsters" className="no-underline h-full">
+            <Card className="h-full hover:shadow-lg transition-shadow cursor-pointer">
+              <CardContent className="p-6">
+                <div className="flex flex-col gap-4 h-full">
+                  <div className="flex items-center gap-4">
+                    <Sword className="h-8 w-8 text-primary" />
+                    <h3 className="text-xl font-bold">Monsters</h3>
+                  </div>
+                  <p className="text-sm text-muted-foreground flex-grow">
+                    Access a comprehensive database of official Shadowdark
+                    monsters. Search, filter by challenge level, and create your
+                    own custom monsters.
+                  </p>
+                  <Button variant="secondary" className="w-full mt-auto">
+                    Browse Monsters
+                  </Button>
+                </div>
+              </CardContent>
+            </Card>
+          </Link>
 
-          <Card
-            component={Link}
-            href="/spells"
-            style={{ textDecoration: "none", height: "100%" }}
-            p="lg"
-          >
-            <Stack gap="md" h="100%">
-              <Group>
-                <IconWand
-                  size={32}
-                  stroke={1.5}
-                  color="var(--mantine-color-magic-5)"
-                />
-                <Text size="xl" fw={700}>
-                  Spells
-                </Text>
-              </Group>
-              <Text size="sm" c="dimmed">
-                Browse the complete spell database for Shadowdark. Filter by
-                tier, class, and search by name or description.
-              </Text>
-              <Button variant="light" fullWidth mt="auto">
-                Browse Spells
-              </Button>
-            </Stack>
-          </Card>
+          <Link href="/spells" className="no-underline h-full">
+            <Card className="h-full hover:shadow-lg transition-shadow cursor-pointer">
+              <CardContent className="p-6">
+                <div className="flex flex-col gap-4 h-full">
+                  <div className="flex items-center gap-4">
+                    <Wand2 className="h-8 w-8 text-primary" />
+                    <h3 className="text-xl font-bold">Spells</h3>
+                  </div>
+                  <p className="text-sm text-muted-foreground flex-grow">
+                    Browse the complete spell database for Shadowdark. Filter by
+                    tier, class, and search by name or description.
+                  </p>
+                  <Button variant="secondary" className="w-full mt-auto">
+                    Browse Spells
+                  </Button>
+                </div>
+              </CardContent>
+            </Card>
+          </Link>
 
-          <Card p="lg" style={{ height: "100%", opacity: 0.6 }}>
-            <Stack gap="md" h="100%">
-              <Group>
-                <IconDice
-                  size={32}
-                  stroke={1.5}
-                  color="var(--mantine-color-treasure-5)"
-                />
-                <Text size="xl" fw={700}>
-                  Encounters
-                </Text>
-              </Group>
-              <Text size="sm" c="dimmed">
-                Create balanced encounters for your party. Roll on encounter
-                tables or build custom encounters with your monster collection.
-              </Text>
-              <Button variant="light" fullWidth mt="auto" disabled>
-                Coming Soon
-              </Button>
-            </Stack>
+          <Card className="h-full opacity-60">
+            <CardContent className="p-6">
+              <div className="flex flex-col gap-4 h-full">
+                <div className="flex items-center gap-4">
+                  <Dice6 className="h-8 w-8 text-primary" />
+                  <h3 className="text-xl font-bold">Encounters</h3>
+                </div>
+                <p className="text-sm text-muted-foreground flex-grow">
+                  Create balanced encounters for your party. Roll on encounter
+                  tables or build custom encounters with your monster
+                  collection.
+                </p>
+                <Button variant="secondary" className="w-full mt-auto" disabled>
+                  Coming Soon
+                </Button>
+              </div>
+            </CardContent>
           </Card>
-        </SimpleGrid>
+        </div>
 
         {/* CTA Section */}
-        <Stack gap="md" align="center" ta="center" mt="xl">
-          <Text size="2rem" fw={700}>
-            Get Started
-          </Text>
-          <Text c="dimmed" maw={600}>
+        <div className="flex flex-col gap-4 items-center text-center mt-12">
+          <h2 className="text-3xl font-bold">Get Started</h2>
+          <p className="text-muted-foreground max-w-2xl">
             Start by browsing the monster database, or sign up to create custom
             monsters and manage your own campaigns.
-          </Text>
-          <Group justify="center" mt="md">
-            <Button size="lg" component={Link} href="/monsters">
-              Explore Monsters
+          </p>
+          <div className="flex items-center justify-center gap-4 mt-4">
+            <Button size="lg" asChild>
+              <Link href="/monsters">Explore Monsters</Link>
             </Button>
-            <Button
-              size="lg"
-              variant="light"
-              component={Link}
-              href="/auth/sign-up"
-            >
-              Create Account
+            <Button size="lg" variant="secondary" asChild>
+              <Link href="/auth/sign-up">Create Account</Link>
             </Button>
-          </Group>
-        </Stack>
-      </Stack>
-    </Container>
+          </div>
+        </div>
+      </div>
+    </div>
   );
 }

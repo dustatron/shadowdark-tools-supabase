@@ -2,38 +2,41 @@
 
 import { useState, useEffect } from "react";
 import { useParams, useRouter } from "next/navigation";
-import {
-  Container,
-  Paper,
-  Title,
-  Group,
-  Badge,
-  Stack,
-  Text,
-  Button,
-  LoadingOverlay,
-  Alert,
-  Modal,
-  Menu,
-  ActionIcon,
-} from "@mantine/core";
 import { MonsterStatBlock } from "@/src/components/monsters/MonsterStatBlock";
 import { MonsterAttacksDisplay } from "@/src/components/monsters/MonsterAttacksDisplay";
 import { MonsterAbilitiesDisplay } from "@/src/components/monsters/MonsterAbilitiesDisplay";
 import { MonsterOwnershipCard } from "@/src/components/monsters/MonsterOwnershipCard";
 import {
-  IconArrowLeft,
-  IconAlertCircle,
-  IconEdit,
-  IconTrash,
-  IconDots,
-  IconCopy,
-} from "@tabler/icons-react";
+  ArrowLeft,
+  AlertCircle,
+  Pencil,
+  Trash2,
+  MoreVertical,
+  Copy,
+} from "lucide-react";
 import Link from "next/link";
-import { notifications } from "@mantine/notifications";
 import { createClient } from "@/lib/supabase/client";
-import "@mantine/core/styles.css";
-import "@mantine/notifications/styles.css";
+import { Button } from "@/components/ui/button";
+import { Card, CardContent } from "@/components/ui/card";
+import { Badge } from "@/components/ui/badge";
+import { Alert, AlertDescription } from "@/components/ui/alert";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
+import { LoadingOverlay } from "@/components/ui/loading-overlay";
+import { toast } from "sonner";
 
 interface Author {
   id: string;
@@ -137,6 +140,20 @@ export default function MonsterDetailPage() {
           : "red"
     : "gray";
 
+  const getChallengeColorClass = (color: string) => {
+    const colorMap: Record<string, string> = {
+      green:
+        "bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200",
+      yellow:
+        "bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-200",
+      orange:
+        "bg-orange-100 text-orange-800 dark:bg-orange-900 dark:text-orange-200",
+      red: "bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-200",
+      gray: "bg-gray-100 text-gray-800 dark:bg-gray-900 dark:text-gray-200",
+    };
+    return colorMap[color] || colorMap.gray;
+  };
+
   const handleDelete = async () => {
     if (!monster) return;
 
@@ -150,19 +167,15 @@ export default function MonsterDetailPage() {
         throw new Error("Failed to delete monster");
       }
 
-      notifications.show({
-        title: "Success",
-        message: "Monster deleted successfully",
-        color: "green",
+      toast.success("Success", {
+        description: "Monster deleted successfully",
       });
 
       router.push("/monsters");
     } catch (err) {
       console.error("Error deleting monster:", err);
-      notifications.show({
-        title: "Error",
-        message: "Failed to delete monster",
-        color: "red",
+      toast.error("Error", {
+        description: "Failed to delete monster",
       });
     } finally {
       setIsDeleting(false);
@@ -203,19 +216,15 @@ export default function MonsterDetailPage() {
 
       const newMonster = await response.json();
 
-      notifications.show({
-        title: "Success",
-        message: "Monster duplicated successfully",
-        color: "green",
+      toast.success("Success", {
+        description: "Monster duplicated successfully",
       });
 
       router.push(`/monsters/${newMonster.id}`);
     } catch (err) {
       console.error("Error duplicating monster:", err);
-      notifications.show({
-        title: "Error",
-        message: "Failed to duplicate monster",
-        color: "red",
+      toast.error("Error", {
+        description: "Failed to duplicate monster",
       });
     }
   };
@@ -241,17 +250,13 @@ export default function MonsterDetailPage() {
       const updatedMonster = await response.json();
       setMonster(updatedMonster);
 
-      notifications.show({
-        title: "Success",
-        message: `Monster is now ${updatedMonster.is_public ? "public" : "private"}`,
-        color: "green",
+      toast.success("Success", {
+        description: `Monster is now ${updatedMonster.is_public ? "public" : "private"}`,
       });
     } catch (err) {
       console.error("Error toggling visibility:", err);
-      notifications.show({
-        title: "Error",
-        message: "Failed to update monster visibility",
-        color: "red",
+      toast.error("Error", {
+        description: "Failed to update monster visibility",
       });
     }
   };
@@ -259,117 +264,131 @@ export default function MonsterDetailPage() {
   const isOwner = currentUser && monster && monster.user_id === currentUser.id;
 
   return (
-    <Container size="lg" py="xl">
-      <Button
-        component={Link}
-        href="/monsters"
-        variant="subtle"
-        leftSection={<IconArrowLeft size={16} />}
-        mb="xl"
-      >
-        Back to Monsters
+    <div className="container mx-auto py-6 px-4 lg:px-8 max-w-5xl">
+      <Button asChild variant="ghost" className="mb-6 -ml-2">
+        <Link href="/monsters" className="flex items-center gap-2">
+          <ArrowLeft className="h-4 w-4" />
+          Back to Monsters
+        </Link>
       </Button>
 
       {loading && (
-        <Paper shadow="sm" p="xl" pos="relative" mih={400}>
-          <LoadingOverlay visible={true} />
-        </Paper>
+        <Card className="shadow-sm relative min-h-[400px]">
+          <CardContent className="p-6">
+            <LoadingOverlay visible={true} />
+          </CardContent>
+        </Card>
       )}
 
       {error && (
-        <Alert icon={<IconAlertCircle size={16} />} title="Error" color="red">
-          {error}
+        <Alert variant="destructive">
+          <AlertCircle className="h-4 w-4" />
+          <AlertDescription>{error}</AlertDescription>
         </Alert>
       )}
 
       {monster && !loading && !error && (
-        <Stack gap="lg">
+        <div className="flex flex-col gap-6">
           {/* Header */}
-          <Paper shadow="sm" p="xl" withBorder>
-            <Group justify="space-between" align="flex-start" mb="md">
-              <div>
-                <Title order={1} mb="sm">
-                  {monster.name}
-                </Title>
-                <Group gap="xs">
-                  <Badge color={challengeLevelColor} size="lg">
-                    Challenge Level {monster.challenge_level}
-                  </Badge>
-                  <Badge variant="outline" size="lg">
-                    {monster.source}
-                  </Badge>
-                  {monster.monster_type === "user" && (
-                    <Badge variant="light" color="blue" size="lg">
-                      Custom
+          <Card className="shadow-sm border">
+            <CardContent className="p-6">
+              <div className="flex justify-between items-start mb-4">
+                <div className="flex-1">
+                  <h1 className="text-3xl font-bold mb-3">{monster.name}</h1>
+                  <div className="flex flex-wrap gap-2">
+                    <Badge
+                      className={`${getChallengeColorClass(challengeLevelColor)} text-base px-3 py-1`}
+                    >
+                      Challenge Level {monster.challenge_level}
                     </Badge>
-                  )}
-                  {monster.is_public && (
-                    <Badge variant="light" color="green" size="lg">
-                      Public
+                    <Badge variant="outline" className="text-base px-3 py-1">
+                      {monster.source}
                     </Badge>
-                  )}
-                </Group>
+                    {monster.monster_type === "user" && (
+                      <Badge
+                        variant="secondary"
+                        className="text-base px-3 py-1 bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-200"
+                      >
+                        Custom
+                      </Badge>
+                    )}
+                    {monster.is_public && (
+                      <Badge
+                        variant="secondary"
+                        className="text-base px-3 py-1 bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200"
+                      >
+                        Public
+                      </Badge>
+                    )}
+                  </div>
+                </div>
+
+                {/* Action Menu */}
+                <DropdownMenu>
+                  <DropdownMenuTrigger asChild>
+                    <Button variant="ghost" size="icon">
+                      <MoreVertical className="h-5 w-5" />
+                    </Button>
+                  </DropdownMenuTrigger>
+                  <DropdownMenuContent align="end">
+                    {isOwner && (
+                      <>
+                        <DropdownMenuItem asChild>
+                          <Link
+                            href={`/monsters/${monsterId}/edit`}
+                            className="flex items-center gap-2 cursor-pointer"
+                          >
+                            <Pencil className="h-4 w-4" />
+                            Edit Monster
+                          </Link>
+                        </DropdownMenuItem>
+                        <DropdownMenuItem
+                          className="text-destructive flex items-center gap-2 cursor-pointer"
+                          onClick={() => setDeleteModalOpen(true)}
+                        >
+                          <Trash2 className="h-4 w-4" />
+                          Delete Monster
+                        </DropdownMenuItem>
+                        <DropdownMenuSeparator />
+                      </>
+                    )}
+                    <DropdownMenuItem
+                      onClick={handleDuplicate}
+                      className="flex items-center gap-2 cursor-pointer"
+                    >
+                      <Copy className="h-4 w-4" />
+                      Duplicate Monster
+                    </DropdownMenuItem>
+                  </DropdownMenuContent>
+                </DropdownMenu>
               </div>
 
-              {/* Action Menu */}
-              <Menu position="bottom-end" withinPortal>
-                <Menu.Target>
-                  <ActionIcon variant="subtle" color="gray">
-                    <IconDots size={20} />
-                  </ActionIcon>
-                </Menu.Target>
+              {/* Description */}
+              {monster.author_notes && (
+                <p className="text-base text-muted-foreground mb-4">
+                  {monster.author_notes}
+                </p>
+              )}
 
-                <Menu.Dropdown>
-                  {isOwner && (
-                    <>
-                      <Menu.Item
-                        leftSection={<IconEdit size={16} />}
-                        component={Link}
-                        href={`/monsters/${monsterId}/edit`}
-                      >
-                        Edit Monster
-                      </Menu.Item>
-                      <Menu.Item
-                        leftSection={<IconTrash size={16} />}
-                        color="red"
-                        onClick={() => setDeleteModalOpen(true)}
-                      >
-                        Delete Monster
-                      </Menu.Item>
-                      <Menu.Divider />
-                    </>
-                  )}
-                  <Menu.Item
-                    leftSection={<IconCopy size={16} />}
-                    onClick={handleDuplicate}
+              {/* Tags */}
+              <div className="flex flex-wrap gap-2">
+                {monster.tags.type.map((type, index) => (
+                  <Badge key={`type-${index}`} variant="secondary">
+                    {type}
+                  </Badge>
+                ))}
+                {monster.tags.location.map((location, index) => (
+                  <Badge
+                    key={`location-${index}`}
+                    variant="outline"
+                    className="text-gray-600 dark:text-gray-400"
                   >
-                    Duplicate Monster
-                  </Menu.Item>
-                </Menu.Dropdown>
-              </Menu>
-            </Group>
-
-            {/* Description */}
-            {monster.author_notes && (
-              <Text size="md" c="dimmed" mb="lg">
-                {monster.author_notes}
-              </Text>
-            )}
-
-            {/* Tags */}
-            <Group gap="xs">
-              {monster.tags.type.map((type, index) => (
-                <Badge key={`type-${index}`} variant="light">
-                  {type}
-                </Badge>
-              ))}
-              {monster.tags.location.map((location, index) => (
-                <Badge key={`location-${index}`} variant="outline" color="gray">
-                  {location}
-                </Badge>
-              ))}
-            </Group>
-          </Paper>
+                    {location}
+                  </Badge>
+                ))}
+              </div>
+            </CardContent>
+          </Card>
 
           {/* Stats */}
           <MonsterStatBlock
@@ -404,29 +423,37 @@ export default function MonsterDetailPage() {
                 : undefined
             }
           />
-        </Stack>
+        </div>
       )}
 
-      {/* Delete Confirmation Modal */}
-      <Modal
-        opened={deleteModalOpen}
-        onClose={() => setDeleteModalOpen(false)}
-        title="Delete Monster"
-        centered
-      >
-        <Text mb="lg">
-          Are you sure you want to delete &quot;{monster?.name}&quot;? This
-          action cannot be undone.
-        </Text>
-        <Group justify="flex-end">
-          <Button variant="subtle" onClick={() => setDeleteModalOpen(false)}>
-            Cancel
-          </Button>
-          <Button color="red" onClick={handleDelete} loading={isDeleting}>
-            Delete Monster
-          </Button>
-        </Group>
-      </Modal>
-    </Container>
+      {/* Delete Confirmation Dialog */}
+      <Dialog open={deleteModalOpen} onOpenChange={setDeleteModalOpen}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Delete Monster</DialogTitle>
+            <DialogDescription>
+              Are you sure you want to delete &quot;{monster?.name}&quot;? This
+              action cannot be undone.
+            </DialogDescription>
+          </DialogHeader>
+          <DialogFooter>
+            <Button
+              variant="ghost"
+              onClick={() => setDeleteModalOpen(false)}
+              disabled={isDeleting}
+            >
+              Cancel
+            </Button>
+            <Button
+              variant="destructive"
+              onClick={handleDelete}
+              disabled={isDeleting}
+            >
+              {isDeleting ? "Deleting..." : "Delete Monster"}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+    </div>
   );
 }

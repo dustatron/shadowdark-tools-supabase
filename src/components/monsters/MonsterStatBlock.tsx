@@ -1,7 +1,7 @@
 "use client";
 
-import { Paper, Group, Text, Grid } from "@mantine/core";
-import { IconHeart, IconShield, IconRun } from "@tabler/icons-react";
+import { Heart, Shield, Footprints } from "lucide-react";
+import { Card, CardContent } from "@/components/ui/card";
 
 interface MonsterStatBlockProps {
   hitPoints: number;
@@ -18,72 +18,54 @@ export function MonsterStatBlock({
 }: MonsterStatBlockProps) {
   if (compact) {
     return (
-      <Group gap="lg">
-        <Group gap="xs">
-          <IconHeart size={16} color="red" />
-          <Text size="sm" fw={500}>
-            {hitPoints}
-          </Text>
-        </Group>
-        <Group gap="xs">
-          <IconShield size={16} color="blue" />
-          <Text size="sm" fw={500}>
-            {armorClass}
-          </Text>
-        </Group>
-        <Group gap="xs">
-          <IconRun size={16} color="green" />
-          <Text size="sm" fw={500}>
-            {speed}
-          </Text>
-        </Group>
-      </Group>
+      <div className="flex items-center gap-6">
+        <div className="flex items-center gap-2">
+          <Heart size={16} className="text-red-500" />
+          <span className="text-sm font-medium">{hitPoints}</span>
+        </div>
+        <div className="flex items-center gap-2">
+          <Shield size={16} className="text-blue-500" />
+          <span className="text-sm font-medium">{armorClass}</span>
+        </div>
+        <div className="flex items-center gap-2">
+          <Footprints size={16} className="text-green-500" />
+          <span className="text-sm font-medium">{speed}</span>
+        </div>
+      </div>
     );
   }
 
   return (
-    <Paper shadow="sm" p="xl" withBorder>
-      <Grid>
-        <Grid.Col span={{ base: 12, sm: 4 }}>
-          <Group gap="md">
-            <IconHeart size={24} color="red" />
+    <Card className="shadow-sm">
+      <CardContent className="p-6">
+        <div className="grid grid-cols-1 sm:grid-cols-3 gap-6">
+          <div className="flex items-center gap-4">
+            <Heart size={24} className="text-red-500" />
             <div>
-              <Text size="xs" c="dimmed" tt="uppercase">
+              <p className="text-xs text-muted-foreground uppercase">
                 Hit Points
-              </Text>
-              <Text size="xl" fw={700}>
-                {hitPoints}
-              </Text>
+              </p>
+              <p className="text-xl font-bold">{hitPoints}</p>
             </div>
-          </Group>
-        </Grid.Col>
-        <Grid.Col span={{ base: 12, sm: 4 }}>
-          <Group gap="md">
-            <IconShield size={24} color="blue" />
+          </div>
+          <div className="flex items-center gap-4">
+            <Shield size={24} className="text-blue-500" />
             <div>
-              <Text size="xs" c="dimmed" tt="uppercase">
+              <p className="text-xs text-muted-foreground uppercase">
                 Armor Class
-              </Text>
-              <Text size="xl" fw={700}>
-                {armorClass}
-              </Text>
+              </p>
+              <p className="text-xl font-bold">{armorClass}</p>
             </div>
-          </Group>
-        </Grid.Col>
-        <Grid.Col span={{ base: 12, sm: 4 }}>
-          <Group gap="md">
-            <IconRun size={24} color="green" />
+          </div>
+          <div className="flex items-center gap-4">
+            <Footprints size={24} className="text-green-500" />
             <div>
-              <Text size="xs" c="dimmed" tt="uppercase">
-                Speed
-              </Text>
-              <Text size="xl" fw={700}>
-                {speed}
-              </Text>
+              <p className="text-xs text-muted-foreground uppercase">Speed</p>
+              <p className="text-xl font-bold">{speed}</p>
             </div>
-          </Group>
-        </Grid.Col>
-      </Grid>
-    </Paper>
+          </div>
+        </div>
+      </CardContent>
+    </Card>
   );
 }

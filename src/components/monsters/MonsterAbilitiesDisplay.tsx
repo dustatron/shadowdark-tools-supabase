@@ -1,6 +1,7 @@
 "use client";
 
-import { Paper, Title, Stack, Text, Divider } from "@mantine/core";
+import { Card, CardContent } from "@/components/ui/card";
+import { Separator } from "@/components/ui/separator";
 
 interface Ability {
   name: string;
@@ -21,21 +22,19 @@ export function MonsterAbilitiesDisplay({
   }
 
   return (
-    <Paper shadow="sm" p="xl" withBorder>
-      <Title order={3} mb="md">
-        {title}
-      </Title>
-      <Stack gap="md">
-        {abilities.map((ability, index) => (
-          <div key={index}>
-            <Text fw={600} size="lg" mb="xs">
-              {ability.name}
-            </Text>
-            <Text size="sm">{ability.description}</Text>
-            {index < abilities.length - 1 && <Divider mt="md" />}
-          </div>
-        ))}
-      </Stack>
-    </Paper>
+    <Card className="shadow-sm">
+      <CardContent className="p-6">
+        <h3 className="text-lg font-semibold mb-4">{title}</h3>
+        <div className="flex flex-col gap-4">
+          {abilities.map((ability, index) => (
+            <div key={index}>
+              <p className="text-lg font-semibold mb-2">{ability.name}</p>
+              <p className="text-sm">{ability.description}</p>
+              {index < abilities.length - 1 && <Separator className="mt-4" />}
+            </div>
+          ))}
+        </div>
+      </CardContent>
+    </Card>
   );
 }

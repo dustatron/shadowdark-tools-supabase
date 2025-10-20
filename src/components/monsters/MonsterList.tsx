@@ -1,12 +1,11 @@
 "use client";
 
-import { SimpleGrid, Stack } from "@mantine/core";
 import { MonsterCard } from "./MonsterCard";
 import { EmptyState } from "../ui/EmptyState";
 import { LoadingSpinner } from "../ui/LoadingSpinner";
 import { ErrorAlert } from "../ui/ErrorAlert";
 import { Pagination } from "../ui/Pagination";
-import { IconSearch } from "@tabler/icons-react";
+import { Search } from "lucide-react";
 
 interface Monster {
   id: string;
@@ -97,7 +96,7 @@ export function MonsterList({
   if (monsters.length === 0) {
     return (
       <EmptyState
-        icon={<IconSearch size={48} />}
+        icon={<Search size={48} />}
         title={emptyStateTitle}
         description={emptyStateDescription}
         action={
@@ -113,8 +112,10 @@ export function MonsterList({
   }
 
   return (
-    <Stack gap="lg">
-      <SimpleGrid cols={{ base: 1, sm: 2, lg: compact ? 4 : 3 }} spacing="md">
+    <div className="flex flex-col gap-6">
+      <div
+        className={`grid gap-4 ${compact ? "grid-cols-1 sm:grid-cols-2 lg:grid-cols-4" : "grid-cols-1 sm:grid-cols-2 lg:grid-cols-3"}`}
+      >
         {monsters?.map((monster) => (
           <MonsterCard
             key={monster.id}
@@ -127,7 +128,7 @@ export function MonsterList({
             compact={compact}
           />
         ))}
-      </SimpleGrid>
+      </div>
 
       {pagination && pagination.totalPages > 1 && (
         <Pagination
@@ -139,6 +140,6 @@ export function MonsterList({
           onPageSizeChange={onPageSizeChange}
         />
       )}
-    </Stack>
+    </div>
   );
 }

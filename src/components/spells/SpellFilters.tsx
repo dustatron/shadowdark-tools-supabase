@@ -1,27 +1,18 @@
 "use client";
 
-import {
-  Card,
-  Stack,
-  TextInput,
-  MultiSelect,
-  RangeSlider,
-  Button,
-  Group,
-  Text,
-  Collapse,
-  ActionIcon,
-  Grid,
-} from "@mantine/core";
-import {
-  IconSearch,
-  IconFilter,
-  IconFilterOff,
-  IconChevronDown,
-  IconChevronUp,
-} from "@tabler/icons-react";
+import { Search, Filter, FilterX, ChevronDown, ChevronUp } from "lucide-react";
 import { useState, useEffect } from "react";
-import { useDebouncedValue } from "@mantine/hooks";
+import { useDebounce } from "use-debounce";
+import { Card, CardContent } from "../../../components/ui/card";
+import { Input } from "../../../components/ui/input";
+import { Button } from "../../../components/ui/button";
+import { MultiSelect } from "../../../components/ui/multi-select";
+import { Slider } from "../../../components/ui/slider";
+import {
+  Collapsible,
+  CollapsibleContent,
+  CollapsibleTrigger,
+} from "../../../components/ui/collapsible";
 
 interface FilterValues {
   search: string;
@@ -63,7 +54,7 @@ export function SpellFilters({
   const [expanded, setExpanded] = useState(false);
   const [localSearch, setLocalSearch] = useState(filters.search);
 
-  const [debouncedSearch] = useDebouncedValue(localSearch, 300);
+  const [debouncedSearch] = useDebounce(localSearch, 300);
 
   useEffect(() => {
     if (debouncedSearch !== filters.search) {
@@ -105,142 +96,157 @@ export function SpellFilters({
   ].filter(Boolean).length;
 
   return (
-    <Card withBorder>
-      <Stack gap="md">
-        <Group>
-          <TextInput
-            placeholder="Search spells by name or description..."
-            leftSection={<IconSearch size={16} />}
-            value={localSearch}
-            onChange={(e) => setLocalSearch(e.target.value)}
-            style={{ flex: 1 }}
-            disabled={loading}
-          />
+    <Card>
+      <CardContent className="p-4 space-y-4">
+        <div className="flex flex-col sm:flex-row gap-4">
+          <div className="relative flex-1">
+            <Search
+              size={16}
+              className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground pointer-events-none"
+            />
+            <Input
+              placeholder="Search spells by name or description..."
+              value={localSearch}
+              onChange={(e) => setLocalSearch(e.target.value)}
+              disabled={loading}
+              className="pl-9"
+            />
+          </div>
 
-          <Group gap="xs">
-            <Button
-              variant={expanded ? "filled" : "light"}
-              leftSection={<IconFilter size={16} />}
-              rightSection={
-                expanded ? (
-                  <IconChevronUp size={14} />
-                ) : (
-                  <IconChevronDown size={14} />
-                )
-              }
-              onClick={() => setExpanded(!expanded)}
-            >
-              Filters
-              {activeFilterCount > 0 && (
-                <Text size="xs" ml={4}>
-                  ({activeFilterCount})
-                </Text>
-              )}
-            </Button>
+          <div className="flex gap-2">
+            <Collapsible open={expanded} onOpenChange={setExpanded}>
+              <CollapsibleTrigger asChild>
+                <Button
+                  variant={expanded ? "default" : "outline"}
+                  className="gap-2"
+                >
+                  <Filter size={16} />
+                  Filters
+                  {activeFilterCount > 0 && (
+                    <span className="text-xs">({activeFilterCount})</span>
+                  )}
+                  {expanded ? (
+                    <ChevronUp size={14} />
+                  ) : (
+                    <ChevronDown size={14} />
+                  )}
+                </Button>
+              </CollapsibleTrigger>
+            </Collapsible>
 
             {hasActiveFilters && (
-              <ActionIcon
-                variant="subtle"
-                color="red"
+              <Button
+                variant="ghost"
+                size="icon"
                 onClick={clearFilters}
                 title="Clear all filters"
+                className="text-destructive hover:text-destructive"
               >
-                <IconFilterOff size={16} />
-              </ActionIcon>
-            )}
-          </Group>
-        </Group>
-
-        <Collapse in={expanded}>
-          <Stack gap="md">
-            <Grid>
-              <Grid.Col span={12}>
-                <Text size="sm" fw={500} mb="xs">
-                  Tier: {filters.tierRange[0]} - {filters.tierRange[1]}
-                </Text>
-                <RangeSlider
-                  min={1}
-                  max={5}
-                  step={1}
-                  value={filters.tierRange}
-                  onChange={(value) => handleFilterChange("tierRange", value)}
-                  marks={[
-                    { value: 1, label: "1" },
-                    { value: 2, label: "2" },
-                    { value: 3, label: "3" },
-                    { value: 4, label: "4" },
-                    { value: 5, label: "5" },
-                  ]}
-                  disabled={loading}
-                />
-              </Grid.Col>
-
-              <Grid.Col span={6}>
-                <MultiSelect
-                  label="Classes"
-                  placeholder="Select classes"
-                  data={availableClasses.map((c) => ({ value: c, label: c }))}
-                  value={filters.classes}
-                  onChange={(value) => handleFilterChange("classes", value)}
-                  searchable
-                  clearable
-                  disabled={loading}
-                />
-              </Grid.Col>
-
-              <Grid.Col span={6}>
-                <MultiSelect
-                  label="Durations"
-                  placeholder="Select durations"
-                  data={availableDurations.map((d) => ({ value: d, label: d }))}
-                  value={filters.durations}
-                  onChange={(value) => handleFilterChange("durations", value)}
-                  searchable
-                  clearable
-                  disabled={loading}
-                />
-              </Grid.Col>
-
-              <Grid.Col span={6}>
-                <MultiSelect
-                  label="Ranges"
-                  placeholder="Select ranges"
-                  data={availableRanges.map((r) => ({ value: r, label: r }))}
-                  value={filters.ranges}
-                  onChange={(value) => handleFilterChange("ranges", value)}
-                  searchable
-                  clearable
-                  disabled={loading}
-                />
-              </Grid.Col>
-
-              <Grid.Col span={6}>
-                <MultiSelect
-                  label="Sources"
-                  placeholder="Select sources"
-                  data={availableSources.map((s) => ({ value: s, label: s }))}
-                  value={filters.sources}
-                  onChange={(value) => handleFilterChange("sources", value)}
-                  searchable
-                  clearable
-                  disabled={loading}
-                />
-              </Grid.Col>
-            </Grid>
-
-            <Group justify="flex-end">
-              <Button
-                variant="subtle"
-                size="sm"
-                onClick={clearFilters}
-                disabled={!hasActiveFilters || loading}
-              >
-                Clear All
+                <FilterX size={16} />
               </Button>
-            </Group>
-          </Stack>
-        </Collapse>
-      </Stack>
+            )}
+          </div>
+        </div>
+
+        <Collapsible open={expanded} onOpenChange={setExpanded}>
+          <CollapsibleContent>
+            <div className="space-y-4 pt-4">
+              <div className="grid grid-cols-1 gap-4">
+                <div className="space-y-2">
+                  <label className="text-sm font-medium">
+                    Tier: {filters.tierRange[0]} - {filters.tierRange[1]}
+                  </label>
+                  <Slider
+                    min={1}
+                    max={5}
+                    step={1}
+                    value={filters.tierRange}
+                    onValueChange={(value) =>
+                      handleFilterChange("tierRange", value as [number, number])
+                    }
+                    disabled={loading}
+                    className="w-full"
+                  />
+                  <div className="flex justify-between text-xs text-muted-foreground">
+                    {[1, 2, 3, 4, 5].map((tier) => (
+                      <span key={tier}>{tier}</span>
+                    ))}
+                  </div>
+                </div>
+
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                  <MultiSelect
+                    label="Classes"
+                    placeholder="Select classes"
+                    options={availableClasses.map((c) => ({
+                      value: c,
+                      label: c,
+                    }))}
+                    selected={filters.classes}
+                    onChange={(value) => handleFilterChange("classes", value)}
+                    searchable
+                    clearable
+                    disabled={loading}
+                  />
+
+                  <MultiSelect
+                    label="Durations"
+                    placeholder="Select durations"
+                    options={availableDurations.map((d) => ({
+                      value: d,
+                      label: d,
+                    }))}
+                    selected={filters.durations}
+                    onChange={(value) => handleFilterChange("durations", value)}
+                    searchable
+                    clearable
+                    disabled={loading}
+                  />
+
+                  <MultiSelect
+                    label="Ranges"
+                    placeholder="Select ranges"
+                    options={availableRanges.map((r) => ({
+                      value: r,
+                      label: r,
+                    }))}
+                    selected={filters.ranges}
+                    onChange={(value) => handleFilterChange("ranges", value)}
+                    searchable
+                    clearable
+                    disabled={loading}
+                  />
+
+                  <MultiSelect
+                    label="Sources"
+                    placeholder="Select sources"
+                    options={availableSources.map((s) => ({
+                      value: s,
+                      label: s,
+                    }))}
+                    selected={filters.sources}
+                    onChange={(value) => handleFilterChange("sources", value)}
+                    searchable
+                    clearable
+                    disabled={loading}
+                  />
+                </div>
+              </div>
+
+              <div className="flex justify-end">
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  onClick={clearFilters}
+                  disabled={!hasActiveFilters || loading}
+                >
+                  Clear All
+                </Button>
+              </div>
+            </div>
+          </CollapsibleContent>
+        </Collapsible>
+      </CardContent>
     </Card>
   );
 }

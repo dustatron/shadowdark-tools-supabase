@@ -1,11 +1,12 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { Container, Title, LoadingOverlay, Alert } from "@mantine/core";
 import { useParams, useRouter } from "next/navigation";
 import { MonsterCreateEditForm } from "@/src/components/monsters/MonsterCreateEditForm";
-import { IconAlertCircle } from "@tabler/icons-react";
+import { AlertCircle } from "lucide-react";
 import { createClient } from "@/lib/supabase/client";
+import { LoadingSpinner } from "@/src/components/ui/LoadingSpinner";
+import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 
 export default function EditMonsterPage() {
   const params = useParams();
@@ -68,27 +69,29 @@ export default function EditMonsterPage() {
 
   if (loading) {
     return (
-      <Container size="lg" py="xl" pos="relative" mih={400}>
-        <LoadingOverlay visible={true} />
-      </Container>
+      <div className="container mx-auto px-4 py-8">
+        <div className="flex items-center justify-center min-h-[400px]">
+          <LoadingSpinner size="lg" />
+        </div>
+      </div>
     );
   }
 
   if (error) {
     return (
-      <Container size="lg" py="xl">
-        <Alert icon={<IconAlertCircle size={16} />} title="Error" color="red">
-          {error}
+      <div className="container mx-auto px-4 py-8">
+        <Alert variant="destructive">
+          <AlertCircle className="h-4 w-4" />
+          <AlertTitle>Error</AlertTitle>
+          <AlertDescription>{error}</AlertDescription>
         </Alert>
-      </Container>
+      </div>
     );
   }
 
   return (
-    <Container size="lg" py="xl">
-      <Title order={1} mb="xl">
-        Edit Monster
-      </Title>
+    <div className="container mx-auto px-4 py-8">
+      <h1 className="text-3xl font-bold mb-6">Edit Monster</h1>
       {monster && (
         <MonsterCreateEditForm
           mode="edit"
@@ -96,6 +99,6 @@ export default function EditMonsterPage() {
           onCancel={() => router.push(`/monsters/${monsterId}`)}
         />
       )}
-    </Container>
+    </div>
   );
 }

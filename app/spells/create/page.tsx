@@ -2,9 +2,10 @@
 
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
-import { Container, Title, LoadingOverlay, Alert } from "@mantine/core";
 import { createClient } from "@/lib/supabase/client";
-import { IconInfoCircle } from "@tabler/icons-react";
+import { Info } from "lucide-react";
+import { LoadingSpinner } from "@/src/components/ui/LoadingSpinner";
+import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 
 export default function CreateSpellPage() {
   const router = useRouter();
@@ -33,9 +34,11 @@ export default function CreateSpellPage() {
 
   if (isChecking) {
     return (
-      <Container size="lg" py="xl" pos="relative" mih={400}>
-        <LoadingOverlay visible={true} />
-      </Container>
+      <div className="container mx-auto px-4 py-8">
+        <div className="flex items-center justify-center min-h-[400px]">
+          <LoadingSpinner size="lg" />
+        </div>
+      </div>
     );
   }
 
@@ -44,20 +47,18 @@ export default function CreateSpellPage() {
   }
 
   return (
-    <Container size="lg" py="xl">
-      <Title order={1} mb="xl">
-        Create Custom Spell
-      </Title>
-      <Alert
-        icon={<IconInfoCircle size={16} />}
-        title="Coming Soon"
-        color="blue"
-      >
-        The spell creation form is not yet implemented. This page is reserved
-        for future development.
+    <div className="container mx-auto px-4 py-8">
+      <h1 className="text-3xl font-bold mb-6">Create Custom Spell</h1>
+      <Alert>
+        <Info className="h-4 w-4" />
+        <AlertTitle>Coming Soon</AlertTitle>
+        <AlertDescription>
+          The spell creation form is not yet implemented. This page is reserved
+          for future development.
+        </AlertDescription>
       </Alert>
       {/* TODO: Add SpellCreateEditForm component when available */}
       {/* <SpellCreateEditForm mode="create" /> */}
-    </Container>
+    </div>
   );
 }
