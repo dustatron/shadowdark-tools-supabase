@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { RootProvider } from "@/src/components/providers/RootProvider";
 import { ThemeProvider } from "next-themes";
 import { Toaster } from "sonner";
+import { AppNavbar } from "@/components/navigation/app-navbar";
 import "./globals.css";
 
 const defaultUrl = process.env.VERCEL_URL
@@ -76,6 +77,7 @@ export default function RootLayout({
     <html lang="en" suppressHydrationWarning>
       <body className="antialiased">
         <ThemeProvider attribute="class" defaultTheme="dark">
+          <AppNavbar />
           <RootProvider>{children}</RootProvider>
           <Toaster richColors position="top-right" />
         </ThemeProvider>
