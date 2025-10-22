@@ -85,7 +85,8 @@
       "SlashCommand(/do-parallel)",
       "SlashCommand(/implement)",
       "Bash(.specify/scripts/bash/check-prerequisites.sh:*)",
-      "WebFetch(domain:sonner.emilkowal.ski)"
+      "WebFetch(domain:sonner.emilkowal.ski)",
+      "Bash(.specify/scripts/bash/create-new-feature.sh:*)"
     ],
     "deny": [],
     "ask": []
