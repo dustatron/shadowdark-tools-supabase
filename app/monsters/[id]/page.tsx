@@ -42,6 +42,7 @@ interface Author {
   id: string;
   display_name: string | null;
   avatar_url: string | null;
+  username_slug: string | null;
 }
 
 interface Monster {

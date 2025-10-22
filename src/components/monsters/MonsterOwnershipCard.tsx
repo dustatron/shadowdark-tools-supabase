@@ -12,6 +12,7 @@ interface Author {
   id: string;
   display_name: string | null;
   avatar_url: string | null;
+  username_slug: string | null;
 }
 
 interface MonsterOwnershipCardProps {
@@ -101,9 +102,18 @@ export function MonsterOwnershipCard({
                 </Avatar>
                 <div>
                   <p className="text-sm text-muted-foreground">Created by</p>
-                  <p className="text-base font-medium">
-                    {author.display_name || "Anonymous"}
-                  </p>
+                  {author.username_slug ? (
+                    <Link
+                      href={`/users/${author.username_slug}`}
+                      className="text-base font-medium hover:underline"
+                    >
+                      {author.display_name || "Anonymous"}
+                    </Link>
+                  ) : (
+                    <p className="text-base font-medium">
+                      {author.display_name || "Anonymous"}
+                    </p>
+                  )}
                 </div>
               </div>
             </>

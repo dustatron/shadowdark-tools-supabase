@@ -16,11 +16,11 @@
 ### Frontend
 
 - **Framework**: Next.js 15 (App Router) with TypeScript
-- **UI Library**: Mantine UI 8.3.1 (primary component library)
+- **UI Library**: shadcn/ui (built on Radix UI primitives)
 - **Styling**: Tailwind CSS 3.4.1
 - **Forms**: React Hook Form 7.63 + Zod 4.1.11 validation
 - **State Management**: @tanstack/react-query 5.89 (server state), Zustand (planned for client state)
-- **Icons**: @tabler/icons-react 3.35, Lucide React 0.545
+- **Icons**: Lucide React 0.545
 
 ### Backend & Infrastructure
 
@@ -310,7 +310,7 @@ catch (error) {
 ### Styling
 
 - Tailwind for utility classes
-- Mantine for complex components (forms, tables, modals)
+- shadcn/ui for complex components (forms, tables, modals, dialogs)
 - CSS modules only when necessary
 - Mobile-first responsive design
 
@@ -340,35 +340,30 @@ This project has custom Claude Code agents for domain-specific tasks:
    - State management
    - Data fetching patterns
 
-5. **mantine-ui-specialist** - Mantine UI expertise
-   - Component usage
-   - Theme customization
-   - Form handling with @mantine/form
-
-6. **form-validation-specialist** - Form validation with Zod
+5. **form-validation-specialist** - Form validation with Zod
    - Schema design
    - Error handling
    - Type-safe forms
 
-7. **data-migration-specialist** - Supabase migrations
+6. **data-migration-specialist** - Supabase migrations
    - SQL migration files
    - Data seeding
    - Schema changes
 
-8. **test-engineer** - Testing implementation
+7. **test-engineer** - Testing implementation
    - Vitest unit tests
    - Playwright E2E tests
    - Component testing
 
-9. **frontend-pm** - Project planning and specs
+8. **frontend-pm** - Project planning and specs
    - Feature specifications
    - PRD generation
    - Task breakdown
 
-10. **api-route-specialist** - Next.js API route development
-    - Route handlers
-    - Server actions
-    - API error handling
+9. **api-route-specialist** - Next.js API route development
+   - Route handlers
+   - Server actions
+   - API error handling
 
 ## Custom Slash Commands
 
@@ -634,7 +629,7 @@ USING (
 - [Shadowdark RPG](https://www.thearcanelibrary.com/pages/shadowdark) - Official game rules
 - [Next.js Docs](https://nextjs.org/docs) - Framework documentation
 - [Supabase Docs](https://supabase.com/docs) - Backend/database docs
-- [Mantine UI](https://mantine.dev/) - Component library docs
+- [shadcn/ui](https://ui.shadcn.com/) - Component library docs
 
 ### Project-Specific
 
@@ -649,10 +644,11 @@ When working on this project:
 1. **Game Rules Questions**: Use the `shadowdark-specialist` agent
 2. **Database Design**: Use the `supabase-db-architect` agent
 3. **Architecture Decisions**: Use the `nextjs-architect` agent
-4. **Component Development**: Use the `react-developer` or `mantine-ui-specialist` agents
+4. **Component Development**: Use the `react-developer` agent
 5. **Feature Planning**: Use the `frontend-pm` agent or `/specify` command
 
 ## Last Updated
 
+- **October 22, 2025** - Migrated from Mantine UI to shadcn/ui
 - **October 17, 2025** - Added Next.js 15 API route patterns and async params documentation
 - **October 16, 2025** - Initial claude.md creation

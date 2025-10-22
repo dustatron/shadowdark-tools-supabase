@@ -79,7 +79,9 @@
       "Bash(./replace-icons.sh)",
       "Bash(tee:*)",
       "Bash(./fix-icon-names.sh:*)",
-      "Bash(./fix-all-icons.sh:*)"
+      "Bash(./fix-all-icons.sh:*)",
+      "Bash(npx supabase db push:*)",
+      "Bash(npm run dev)"
     ],
     "deny": [],
     "ask": []

@@ -40,8 +40,8 @@ export function LoginForm({
       });
       if (error) throw error;
 
-      // Check for redirect parameter and use it, otherwise default to /protected
-      const redirectTo = searchParams.get("redirect") || "/protected";
+      // Check for redirect parameter and use it, otherwise default to /dashboard
+      const redirectTo = searchParams.get("redirect") || "/dashboard";
       router.push(redirectTo);
     } catch (error: unknown) {
       setError(error instanceof Error ? error.message : "An error occurred");
