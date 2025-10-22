@@ -90,8 +90,10 @@ export function MonsterCard({
           ? "bg-orange-100 text-orange-800 dark:bg-orange-900 dark:text-orange-200"
           : "bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-200";
 
-  return (
-    <Card className="shadow-sm">
+  const cardContent = (
+    <Card
+      className={`shadow-sm ${!showActions ? "hover:shadow-md transition-shadow cursor-pointer" : ""}`}
+    >
       <CardContent className="p-4">
         <div className="flex flex-col gap-4">
           {/* Header */}
@@ -304,4 +306,15 @@ export function MonsterCard({
       </CardContent>
     </Card>
   );
+
+  // If showActions is false, wrap in Link to make whole card clickable
+  if (!showActions) {
+    return (
+      <Link href={`/monsters/${monster.id}`} className="block">
+        {cardContent}
+      </Link>
+    );
+  }
+
+  return cardContent;
 }

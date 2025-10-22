@@ -102,9 +102,9 @@ GMs waste time referencing _Shadowdark_ monster stats, building lists, and gener
    - No sharing lists/tables yet.
 
 8. **Dashboard & Navigation**:
-   - Post-login: Tabs (Monsters, Lists, Encounters, Favorites, Community) via Mantine Tabs (top bar desktop; hamburger mobile).
+   - Post-login: Tabs (Monsters, Lists, Encounters, Favorites, Community) via shadcn tabs (top bar desktop; hamburger mobile).
    - Sections: Recent items, random button, search. Favorites: List view (searchable/filterable by type; quick actions: unfavorite, add to list, view). My Public Items: Tabbed list (monsters/groups/lists/tables; actions: edit, toggle private, delete).
-   - Profile/Settings: Edit name/bio/avatar (Cloudinary widget, initials fallback via Mantine Avatar). View public items.
+   - Profile/Settings: Edit name/bio/avatar (Cloudinary widget, initials fallback via shadcn avatar). View public items.
 
 9. **Exports & Printing**:
    - JSON/Markdown for monsters/lists/tables/groups. No PDF.
@@ -116,7 +116,7 @@ GMs waste time referencing _Shadowdark_ monster stats, building lists, and gener
 
 11. **Admin Dashboard**:
     - Access: `isAdmin` boolean in users table; middleware check.
-    - Sections: Manage official monsters (edit/insert via forms, bulk import script). Tags: Add/edit predefined lists (types/locations). Flags: Searchable table (Mantine DataTable; actions: resolve/remove/edit). Audit Log: For flag actions (`audit_logs` table; admin-only).
+    - Sections: Manage official monsters (edit/insert via forms, bulk import script). Tags: Add/edit predefined lists (types/locations). Flags: Searchable table (shadcn data table; actions: resolve/remove/edit). Audit Log: For flag actions (`audit_logs` table; admin-only).
     - Single admin; no multi-user roles.
 
 ### 3.2 Non-Core Features
@@ -125,14 +125,14 @@ GMs waste time referencing _Shadowdark_ monster stats, building lists, and gener
 - Settings: Remember last (fuzziness, filters, die size) via localStorage.
 - Bulk Actions: Multi-select in searches/community/favorites/lists (add to list/group/export).
 - SEO: Dynamic meta (titles/descriptions/sitemaps) for landing/community/details. No Open Graph/Twitter Cards.
-- Loading: Skeleton/spinners (Mantine).
-- Errors: Global handling (React Boundaries + Mantine Toasts).
+- Loading: Skeleton/spinners (shadcn).
+- Errors: Global handling (React Boundaries + shadcn toasts).
 - Validation: Zod everywhere (forms, imports); _Shadowdark_ rules (e.g., XP calc, stat warnings).
 - Drag-and-Drop: Reordering within lists/tables/groups (@dnd-kit; no cross-movement/visual extras).
 
 ## 4. Technical Stack
 
-- **Frontend**: Next.js (App Router, TypeScript), Mantine (UI components), React Hook Form + Zod (forms), Zustand (global state: filters, search, lists).
+- **Frontend**: Next.js (App Router, TypeScript), shadcn/ui (UI components built on Radix UI), React Hook Form + Zod (forms), Zustand (global state: filters, search, lists).
 - **Backend/Database**: Supabase (Postgres: two monster tables + views/junctions for lists/groups/tables/flags/favorites/audit; RLS for ownership/public; pg_trgm for fuzzy; Edge Functions for calculations/uploads/searches). JSON import script (Node.js/Zod).
 - **Images/Icons**: Cloudinary (widget for uploads: icons/art/avatars; auto-optimize: formats, resize/compress). Game-icons.net API (dynamic search, cache none).
 - **Other**: @dnd-kit (drag), Markdown rendering (e.g., react-markdown). No state mgmt beyond Zustand.
@@ -157,10 +157,10 @@ GMs waste time referencing _Shadowdark_ monster stats, building lists, and gener
 
 ## 5. UI/UX Guidelines
 
-- **Design**: Mantine theme (responsive: mobile hamburger, desktop tabs). Dark mode (localStorage). Infinite scroll for lists/searches.
-- **Components**: Forms (repeatable for JSONB), cards for results, DataTable for admin/dashboards, modals for uploads/searches.
+- **Design**: shadcn/ui theme (responsive: mobile hamburger, desktop tabs). Dark mode (localStorage). Infinite scroll for lists/searches.
+- **Components**: Forms (repeatable for JSONB), cards for results, data tables for admin/dashboards, dialogs for uploads/searches.
 - **Interactions**: Live search (debounced), toasts for actions, tooltips for rules.
-- **Mobile**: Responsive (Tailwind/Mantine); touch-friendly (no full keyboard shortcuts).
+- **Mobile**: Responsive (Tailwind/shadcn); touch-friendly (no full keyboard shortcuts).
 - **Print**: @media queries for clean sheets.
 
 ## 6. Non-Functional Requirements

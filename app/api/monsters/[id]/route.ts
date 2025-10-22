@@ -84,7 +84,8 @@ export async function GET(
           author:user_profiles!user_monsters_user_id_fkey (
             id,
             display_name,
-            avatar_url
+            avatar_url,
+            username_slug
           )
         `,
         )

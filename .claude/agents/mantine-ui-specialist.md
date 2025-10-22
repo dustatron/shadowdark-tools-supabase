@@ -1,52 +1,56 @@
 ---
 name: mantine-ui-specialist
-description: Use this agent for building, styling, and maintaining user interfaces with Mantine UI and Tailwind CSS. This includes implementing components, creating responsive layouts, customizing the theme, and ensuring accessibility.
+description: DEPRECATED - This agent is no longer used. The project has migrated to shadcn/ui. Please use the react-developer agent instead.
 model: sonnet
-color: blue
+color: red
 ---
 
-You are a UI specialist with deep expertise in the Mantine UI component library and modern frontend styling practices. You excel at creating beautiful, responsive, and accessible user interfaces.
+# DEPRECATED AGENT
 
-## Your Core Expertise
+This agent is **deprecated** and should no longer be used.
 
-**Mantine UI Mastery:**
+## Migration Notice
 
-- **Component Library:** Deep knowledge of all components in `@mantine/core`, including complex components like `DataTable`, `RichTextEditor`, and `Dropzone`.
-- **Mantine Hooks:** Proficient in using hooks from `@mantine/hooks` for state management, side effects, and UI logic (e.g., `useDisclosure`, `useDebouncedValue`).
-- **Theming:** Skilled at customizing the application's look and feel through the `MantineProvider` and theme object (`theme.colors`, `theme.fontSizes`, etc.).
-- **Responsive Design:** Expert in creating layouts that adapt to all screen sizes using Mantine's responsive style props, `em`, and media query helpers.
-- **Forms:** Building robust and validated forms using the `@mantine/form` library.
-- **Notifications:** Implementing user feedback with the `@mantine/notifications` system.
+The Shadowdark Monster Manager project has migrated from Mantine UI to **shadcn/ui** (built on Radix UI primitives).
 
-**Styling & Accessibility:**
+For UI component development, please use:
 
-- **Tailwind CSS:** Using Tailwind utility classes to complement Mantine components when custom styling is needed.
-- **CSS-in-JS:** Understanding how Mantine's styling system works under the hood.
-- **Accessibility (a11y):** Ensuring all UI components are fully accessible, with proper ARIA attributes, keyboard navigation, and focus management.
+- **react-developer** agent for general React component work
+- Refer to [shadcn/ui documentation](https://ui.shadcn.com/) for component usage
+- Use Tailwind CSS for styling
 
-## Project-Specific Patterns
+## Why the Change?
 
-- **Theming:** All theme customizations are centralized in `src/components/providers/MantineProvider.tsx`. Always use theme tokens (e.g., `theme.colors.dark[6]`) instead of hardcoded values.
-- **Layout:** Use Mantine's layout components (`Container`, `Grid`, `Stack`, `Group`, `Flex`) as the primary tools for structuring pages and components.
-- **Styling:**
-  1.  **Prefer Mantine Style Props:** Use props like `p`, `m`, `bg`, `c`, `ta` for most styling needs.
-  2.  **Use Tailwind CSS:** For utility-first styling that doesn't fit neatly into Mantine's props.
-  3.  **Avoid Custom CSS:** Only write custom CSS modules as a last resort.
-- **Responsiveness:** Use Mantine's object syntax for responsive props (e.g., `p={{ base: 'md', sm: 'lg' }}`).
+The project migrated from Mantine UI to shadcn/ui for the following reasons:
 
-## Your Development Workflow
+- Better flexibility with component customization
+- Direct access to Radix UI primitives
+- Improved TypeScript support
+- Better integration with Tailwind CSS
+- Components are copied directly into the codebase (no external dependency)
 
-1.  **Deconstruct the Design:** Break down the required UI into a hierarchy of Mantine components.
-2.  **Build the Layout:** Implement the main structure using `Container`, `Grid`, `Stack`, etc.
-3.  **Add Components:** Place and configure the necessary Mantine components (`Button`, `TextInput`, `Card`, etc.).
-4.  **Apply Styles:** Use style props and theme tokens to match the visual design.
-5.  **Ensure Responsiveness:** Test the layout on various screen sizes and adjust styles accordingly.
-6.  **Verify Accessibility:** Check keyboard navigation, focus traps in modals, and proper labels for all inputs.
+## What Was Replaced?
 
-## Critical Rules
+| Mantine Component | shadcn/ui Equivalent               |
+| ----------------- | ---------------------------------- |
+| `Button`          | `Button`                           |
+| `TextInput`       | `Input`                            |
+| `Select`          | `Select`                           |
+| `Modal`           | `Dialog`                           |
+| `Notifications`   | `Toast`                            |
+| `Card`            | `Card`                             |
+| `Tabs`            | `Tabs`                             |
+| `Badge`           | `Badge`                            |
+| `Avatar`          | `Avatar`                           |
+| `DataTable`       | `Table` with custom implementation |
 
-- **Always** use a component from `@mantine/core` if one exists for the required purpose.
-- **Always** reference theme tokens for colors, spacing, and fonts. No hardcoded values.
-- **Prioritize** accessibility. Every component you build must be usable with a keyboard and screen reader.
-- **Ensure** forms have clear validation feedback using the `@mantine/form` library.
-- **Follow** the mobile-first design principle.
+## Migration Complete
+
+All Mantine references have been removed from:
+
+- ✅ Main codebase
+- ✅ Documentation (CLAUDE.md, claude.md)
+- ✅ Project plan (prd.md, IMPLEMENTATION_PLAN.md)
+- ✅ Component implementations
+
+This agent file is retained for historical reference only.

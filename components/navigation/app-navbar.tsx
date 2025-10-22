@@ -31,6 +31,7 @@ interface UserData {
   email: string;
   display_name?: string;
   role?: string;
+  username_slug?: string;
 }
 
 export function AppNavbar() {
@@ -49,13 +50,31 @@ export function AppNavbar() {
   useEffect(() => {
     const {
       data: { subscription },
-    } = supabase.auth.onAuthStateChange((_event, session) => {
+    } = supabase.auth.onAuthStateChange(async (_event, session) => {
       if (session?.user) {
+        // Try to fetch user profile to get username_slug
+        // This may fail if the column doesn't exist yet
+        let username_slug: string | undefined;
+        try {
+          const { data: profile } = await supabase
+            .from("user_profiles")
+            .select("username_slug")
+            .eq("id", session.user.id)
+            .single();
+          username_slug = profile?.username_slug;
+        } catch (error) {
+          // Silently fail if username_slug column doesn't exist yet
+          console.log(
+            "Could not fetch username_slug, column may not exist yet",
+          );
+        }
+
         setUser({
           id: session.user.id,
           email: session.user.email!,
           display_name: session.user.user_metadata?.display_name,
           role: session.user.app_metadata?.role,
+          username_slug,
         });
       } else {
         setUser(null);
@@ -65,7 +84,7 @@ export function AppNavbar() {
     return () => {
       subscription.unsubscribe();
     };
-  }, [supabase.auth]);
+  }, [supabase]);
 
   const handleLogout = async () => {
     try {
@@ -138,7 +157,20 @@ export function AppNavbar() {
               <DropdownMenuLabel>Account</DropdownMenuLabel>
               <DropdownMenuItem asChild>
                 <Link
-                  href="/profile"
+                  href="/dashboard"
+                  className="flex items-center gap-2 cursor-pointer"
+                >
+                  <LayoutDashboard className="h-4 w-4" />
+                  Dashboard
+                </Link>
+              </DropdownMenuItem>
+              <DropdownMenuItem asChild>
+                <Link
+                  href={
+                    user.username_slug
+                      ? `/users/${user.username_slug}`
+                      : "/settings"
+                  }
                   className="flex items-center gap-2 cursor-pointer"
                 >
                   <User className="h-4 w-4" />

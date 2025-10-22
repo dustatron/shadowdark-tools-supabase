@@ -11,13 +11,12 @@ This document outlines the comprehensive implementation plan to transform the cu
 - ✅ Next.js 15 with App Router configured
 - ✅ Supabase authentication working
 - ✅ TypeScript and ESLint setup
-- ✅ Basic component structure with shadcn/ui
+- ✅ shadcn/ui component library integrated
 - ✅ Tailwind CSS styling
 - ✅ Middleware for auth protection
 
 ### Migration Requirements
 
-- **UI Framework**: Transition from shadcn/ui to Mantine (gradual migration)
 - **State Management**: Add Zustand for global state
 - **Database**: Design and implement comprehensive schema
 - **Testing**: Add Vitest and Playwright testing infrastructure
@@ -91,13 +90,12 @@ CREATE POLICY "Admins have full access" ON official_monsters
 
 ```json
 {
-  "@mantine/core": "^7.x",
-  "@mantine/hooks": "^7.x",
-  "@mantine/form": "^7.x",
-  "@mantine/modals": "^7.x",
-  "@mantine/notifications": "^7.x",
-  "@mantine/dropzone": "^7.x",
-  "@mantine/dates": "^7.x",
+  "@radix-ui/react-dialog": "^1.x",
+  "@radix-ui/react-dropdown-menu": "^2.x",
+  "@radix-ui/react-tabs": "^1.x",
+  "@radix-ui/react-toast": "^1.x",
+  "@radix-ui/react-avatar": "^1.x",
+  "@radix-ui/react-select": "^2.x",
   "zustand": "^4.x",
   "react-hook-form": "^7.x",
   "zod": "^3.x",
@@ -108,7 +106,8 @@ CREATE POLICY "Admins have full access" ON official_monsters
   "react-markdown": "^9.x",
   "@cloudinary/react": "^1.x",
   "vitest": "^1.x",
-  "@playwright/test": "^1.x"
+  "@playwright/test": "^1.x",
+  "lucide-react": "^0.x"
 }
 ```
 
@@ -280,8 +279,10 @@ $$;
 
 ```typescript
 // components/monsters/MonsterCard.tsx
-import { Card, Badge, Group, Text, ActionIcon } from '@mantine/core';
-import { IconHeart, IconPlus, IconEye } from '@tabler/icons-react';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Badge } from '@/components/ui/badge';
+import { Button } from '@/components/ui/button';
+import { Heart, Plus, Eye } from 'lucide-react';
 
 interface MonsterCardProps {
   monster: Monster;
@@ -292,33 +293,37 @@ interface MonsterCardProps {
 
 export function MonsterCard({ monster, onAddToList, onFavorite, onView }: MonsterCardProps) {
   return (
-    <Card shadow="sm" padding="lg" radius="md" withBorder>
-      <Group justify="space-between" mb="xs">
-        <Text fw={500}>{monster.name}</Text>
-        <Badge color="blue">CL {monster.challengeLevel}</Badge>
-      </Group>
+    <Card>
+      <CardHeader>
+        <div className="flex items-center justify-between">
+          <CardTitle>{monster.name}</CardTitle>
+          <Badge variant="secondary">CL {monster.challengeLevel}</Badge>
+        </div>
+      </CardHeader>
 
-      <Text size="sm" c="dimmed" mb="md">
-        HP: {monster.hitPoints} | AC: {monster.armorClass}
-      </Text>
+      <CardContent>
+        <p className="text-sm text-muted-foreground mb-4">
+          HP: {monster.hitPoints} | AC: {monster.armorClass}
+        </p>
 
-      <Group gap="xs" mb="md">
-        {monster.tags.type.map(tag => (
-          <Badge key={tag} variant="light" size="xs">{tag}</Badge>
-        ))}
-      </Group>
+        <div className="flex gap-2 mb-4">
+          {monster.tags.type.map(tag => (
+            <Badge key={tag} variant="outline">{tag}</Badge>
+          ))}
+        </div>
 
-      <Group justify="flex-end" gap="xs">
-        <ActionIcon variant="light" onClick={() => onView?.(monster)}>
-          <IconEye size="1rem" />
-        </ActionIcon>
-        <ActionIcon variant="light" onClick={() => onFavorite?.(monster)}>
-          <IconHeart size="1rem" />
-        </ActionIcon>
-        <ActionIcon variant="light" onClick={() => onAddToList?.(monster)}>
-          <IconPlus size="1rem" />
-        </ActionIcon>
-      </Group>
+        <div className="flex justify-end gap-2">
+          <Button variant="ghost" size="icon" onClick={() => onView?.(monster)}>
+            <Eye className="h-4 w-4" />
+          </Button>
+          <Button variant="ghost" size="icon" onClick={() => onFavorite?.(monster)}>
+            <Heart className="h-4 w-4" />
+          </Button>
+          <Button variant="ghost" size="icon" onClick={() => onAddToList?.(monster)}>
+            <Plus className="h-4 w-4" />
+          </Button>
+        </div>
+      </CardContent>
     </Card>
   );
 }
@@ -328,8 +333,10 @@ export function MonsterCard({ monster, onAddToList, onFavorite, onView }: Monste
 
 ```typescript
 // components/search/MonsterSearch.tsx
-import { TextInput, Select, MultiSelect, Group, Button } from '@mantine/core';
-import { IconSearch, IconDice6 } from '@tabler/icons-react';
+import { Input } from '@/components/ui/input';
+import { Button } from '@/components/ui/button';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { Search, Dices } from 'lucide-react';
 import { useMonsterStore } from '@/lib/store/monsters';
 
 export function MonsterSearch() {
@@ -345,67 +352,81 @@ export function MonsterSearch() {
 
   return (
     <div className="space-y-4">
-      <Group grow>
-        <TextInput
-          placeholder="Search monsters..."
-          value={searchQuery}
-          onChange={(e) => setSearchQuery(e.target.value)}
-          leftSection={<IconSearch size="1rem" />}
-        />
+      <div className="flex gap-2">
+        <div className="relative flex-1">
+          <Search className="absolute left-2 top-2.5 h-4 w-4 text-muted-foreground" />
+          <Input
+            placeholder="Search monsters..."
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
+            className="pl-8"
+          />
+        </div>
         <Button
-          variant="light"
-          leftSection={<IconDice6 size="1rem" />}
+          variant="outline"
           onClick={getRandomMonster}
         >
+          <Dices className="mr-2 h-4 w-4" />
           Random
         </Button>
-      </Group>
+      </div>
 
-      <Group grow>
-        <Select
-          label="Fuzziness"
-          data={[
-            { value: 'low', label: 'Low (Exact matches)' },
-            { value: 'medium', label: 'Medium (Some tolerance)' },
-            { value: 'high', label: 'High (Loose matching)' },
-          ]}
-          value={searchFilters.fuzziness}
-          onChange={(value) => setFilters({ ...searchFilters, fuzziness: value })}
-        />
-        <Select
-          label="Min Challenge Level"
-          data={Array.from({ length: 20 }, (_, i) => ({
-            value: String(i + 1),
-            label: String(i + 1)
-          }))}
-          value={searchFilters.minCL}
-          onChange={(value) => setFilters({ ...searchFilters, minCL: value })}
-        />
-        <Select
-          label="Max Challenge Level"
-          data={Array.from({ length: 20 }, (_, i) => ({
-            value: String(i + 1),
-            label: String(i + 1)
-          }))}
-          value={searchFilters.maxCL}
-          onChange={(value) => setFilters({ ...searchFilters, maxCL: value })}
-        />
-      </Group>
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+        <div>
+          <label className="text-sm font-medium">Fuzziness</label>
+          <Select
+            value={searchFilters.fuzziness}
+            onValueChange={(value) => setFilters({ ...searchFilters, fuzziness: value })}
+          >
+            <SelectTrigger>
+              <SelectValue />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="low">Low (Exact matches)</SelectItem>
+              <SelectItem value="medium">Medium (Some tolerance)</SelectItem>
+              <SelectItem value="high">High (Loose matching)</SelectItem>
+            </SelectContent>
+          </Select>
+        </div>
 
-      <Group grow>
-        <MultiSelect
-          label="Monster Types"
-          data={typeOptions}
-          value={searchFilters.tagTypes}
-          onChange={(value) => setFilters({ ...searchFilters, tagTypes: value })}
-        />
-        <MultiSelect
-          label="Locations"
-          data={locationOptions}
-          value={searchFilters.tagLocations}
-          onChange={(value) => setFilters({ ...searchFilters, tagLocations: value })}
-        />
-      </Group>
+        <div>
+          <label className="text-sm font-medium">Min Challenge Level</label>
+          <Select
+            value={searchFilters.minCL}
+            onValueChange={(value) => setFilters({ ...searchFilters, minCL: value })}
+          >
+            <SelectTrigger>
+              <SelectValue />
+            </SelectTrigger>
+            <SelectContent>
+              {Array.from({ length: 20 }, (_, i) => (
+                <SelectItem key={i + 1} value={String(i + 1)}>
+                  {i + 1}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+        </div>
+
+        <div>
+          <label className="text-sm font-medium">Max Challenge Level</label>
+          <Select
+            value={searchFilters.maxCL}
+            onValueChange={(value) => setFilters({ ...searchFilters, maxCL: value })}
+          >
+            <SelectTrigger>
+              <SelectValue />
+            </SelectTrigger>
+            <SelectContent>
+              {Array.from({ length: 20 }, (_, i) => (
+                <SelectItem key={i + 1} value={String(i + 1)}>
+                  {i + 1}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+        </div>
+      </div>
     </div>
   );
 }
@@ -541,6 +562,9 @@ export class EncounterTableGenerator {
 
 ```typescript
 // components/community/CommunityBrowser.tsx
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+
 export function CommunityBrowser() {
   const [contentType, setContentType] = useState<'monsters' | 'groups'>('monsters');
   const [sortBy, setSortBy] = useState<'recent' | 'popular' | 'name'>('recent');
@@ -552,25 +576,25 @@ export function CommunityBrowser() {
 
   return (
     <div className="space-y-6">
-      <Group justify="space-between">
-        <SegmentedControl
-          value={contentType}
-          onChange={setContentType}
-          data={[
-            { label: 'Monsters', value: 'monsters' },
-            { label: 'Groups', value: 'groups' },
-          ]}
-        />
-        <Select
-          value={sortBy}
-          onChange={setSortBy}
-          data={[
-            { label: 'Most Recent', value: 'recent' },
-            { label: 'Most Popular', value: 'popular' },
-            { label: 'Alphabetical', value: 'name' },
-          ]}
-        />
-      </Group>
+      <div className="flex justify-between items-center">
+        <Tabs value={contentType} onValueChange={(v) => setContentType(v as 'monsters' | 'groups')}>
+          <TabsList>
+            <TabsTrigger value="monsters">Monsters</TabsTrigger>
+            <TabsTrigger value="groups">Groups</TabsTrigger>
+          </TabsList>
+        </Tabs>
+
+        <Select value={sortBy} onValueChange={(v) => setSortBy(v as typeof sortBy)}>
+          <SelectTrigger className="w-[180px]">
+            <SelectValue />
+          </SelectTrigger>
+          <SelectContent>
+            <SelectItem value="recent">Most Recent</SelectItem>
+            <SelectItem value="popular">Most Popular</SelectItem>
+            <SelectItem value="name">Alphabetical</SelectItem>
+          </SelectContent>
+        </Select>
+      </div>
 
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
         {publicContent?.map(item => (
@@ -591,15 +615,26 @@ export function CommunityBrowser() {
 
 ```typescript
 // components/moderation/FlagModal.tsx
-export function FlagModal({ content, opened, onClose, onSubmit }: FlagModalProps) {
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from '@/components/ui/dialog';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { Textarea } from '@/components/ui/textarea';
+import { Button } from '@/components/ui/button';
+import { Label } from '@/components/ui/label';
+import { useForm } from 'react-hook-form';
+import { zodResolver } from '@hookform/resolvers/zod';
+import { z } from 'zod';
+
+const flagSchema = z.object({
+  reason: z.string().min(1, 'Please select a reason'),
+  comment: z.string().min(10, 'Please provide more details'),
+});
+
+export function FlagModal({ content, open, onClose, onSubmit }: FlagModalProps) {
   const form = useForm({
-    initialValues: {
+    resolver: zodResolver(flagSchema),
+    defaultValues: {
       reason: '',
       comment: '',
-    },
-    validate: {
-      reason: (value) => !value ? 'Please select a reason' : null,
-      comment: (value) => value.length < 10 ? 'Please provide more details' : null,
     },
   });
 
@@ -612,30 +647,50 @@ export function FlagModal({ content, opened, onClose, onSubmit }: FlagModalProps
   ];
 
   return (
-    <Modal opened={opened} onClose={onClose} title="Report Content">
-      <form onSubmit={form.onSubmit(onSubmit)}>
-        <Select
-          label="Reason for reporting"
-          placeholder="Select a reason"
-          data={flagReasons}
-          {...form.getInputProps('reason')}
-          mb="md"
-        />
+    <Dialog open={open} onOpenChange={onClose}>
+      <DialogContent>
+        <DialogHeader>
+          <DialogTitle>Report Content</DialogTitle>
+        </DialogHeader>
+        <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
+          <div>
+            <Label htmlFor="reason">Reason for reporting</Label>
+            <Select {...form.register('reason')}>
+              <SelectTrigger>
+                <SelectValue placeholder="Select a reason" />
+              </SelectTrigger>
+              <SelectContent>
+                {flagReasons.map(reason => (
+                  <SelectItem key={reason.value} value={reason.value}>
+                    {reason.label}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+            {form.formState.errors.reason && (
+              <p className="text-sm text-destructive">{form.formState.errors.reason.message}</p>
+            )}
+          </div>
 
-        <Textarea
-          label="Additional details"
-          placeholder="Please provide more information about the issue"
-          minRows={3}
-          {...form.getInputProps('comment')}
-          mb="md"
-        />
+          <div>
+            <Label htmlFor="comment">Additional details</Label>
+            <Textarea
+              {...form.register('comment')}
+              placeholder="Please provide more information about the issue"
+              rows={3}
+            />
+            {form.formState.errors.comment && (
+              <p className="text-sm text-destructive">{form.formState.errors.comment.message}</p>
+            )}
+          </div>
 
-        <Group justify="flex-end">
-          <Button variant="subtle" onClick={onClose}>Cancel</Button>
-          <Button type="submit" color="red">Report</Button>
-        </Group>
-      </form>
-    </Modal>
+          <DialogFooter>
+            <Button variant="outline" onClick={onClose}>Cancel</Button>
+            <Button type="submit" variant="destructive">Report</Button>
+          </DialogFooter>
+        </form>
+      </DialogContent>
+    </Dialog>
   );
 }
 ```
@@ -644,34 +699,38 @@ export function FlagModal({ content, opened, onClose, onSubmit }: FlagModalProps
 
 ```typescript
 // app/admin/page.tsx
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+
 export default function AdminDashboard() {
   return (
     <div className="space-y-6">
-      <PageHeader title="Admin Dashboard" />
+      <div className="border-b pb-4">
+        <h1 className="text-3xl font-bold">Admin Dashboard</h1>
+      </div>
 
       <Tabs defaultValue="flags">
-        <Tabs.List>
-          <Tabs.Tab value="flags">Content Flags</Tabs.Tab>
-          <Tabs.Tab value="monsters">Official Monsters</Tabs.Tab>
-          <Tabs.Tab value="tags">Manage Tags</Tabs.Tab>
-          <Tabs.Tab value="audit">Audit Log</Tabs.Tab>
-        </Tabs.List>
+        <TabsList>
+          <TabsTrigger value="flags">Content Flags</TabsTrigger>
+          <TabsTrigger value="monsters">Official Monsters</TabsTrigger>
+          <TabsTrigger value="tags">Manage Tags</TabsTrigger>
+          <TabsTrigger value="audit">Audit Log</TabsTrigger>
+        </TabsList>
 
-        <Tabs.Panel value="flags">
+        <TabsContent value="flags">
           <FlagsManagement />
-        </Tabs.Panel>
+        </TabsContent>
 
-        <Tabs.Panel value="monsters">
+        <TabsContent value="monsters">
           <OfficialMonstersManagement />
-        </Tabs.Panel>
+        </TabsContent>
 
-        <Tabs.Panel value="tags">
+        <TabsContent value="tags">
           <TagsManagement />
-        </Tabs.Panel>
+        </TabsContent>
 
-        <Tabs.Panel value="audit">
+        <TabsContent value="audit">
           <AuditLog />
-        </Tabs.Panel>
+        </TabsContent>
       </Tabs>
     </div>
   );
@@ -711,7 +770,6 @@ export function VirtualizedResults({ monsters }: { monsters: Monster[] }) {
 ```typescript
 // __tests__/utils/test-utils.tsx
 import { render, RenderOptions } from '@testing-library/react';
-import { MantineProvider } from '@mantine/core';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 
 const AllTheProviders = ({ children }: { children: React.ReactNode }) => {
@@ -724,9 +782,7 @@ const AllTheProviders = ({ children }: { children: React.ReactNode }) => {
 
   return (
     <QueryClientProvider client={queryClient}>
-      <MantineProvider>
-        {children}
-      </MantineProvider>
+      {children}
     </QueryClientProvider>
   );
 };
