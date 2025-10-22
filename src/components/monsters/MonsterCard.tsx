@@ -7,10 +7,10 @@ import {
   Eye,
   ChevronDown,
   ChevronUp,
-  Heart,
   Sword,
   Shield,
   Footprints,
+  Heart,
 } from "lucide-react";
 import { useState } from "react";
 import Link from "next/link";
@@ -25,6 +25,7 @@ import {
   DropdownMenuSeparator,
 } from "@/components/ui/dropdown-menu";
 import { Separator } from "@/components/ui/separator";
+import { FavoriteButton } from "@/components/favorites/FavoriteButton";
 
 interface Monster {
   id: string;
@@ -57,10 +58,9 @@ interface Monster {
 interface MonsterCardProps {
   monster: Monster;
   currentUserId?: string;
+  favoriteId?: string | null;
   onEdit?: (monster: Monster) => void;
   onDelete?: (monster: Monster) => void;
-  onToggleFavorite?: (monster: Monster) => void;
-  isFavorited?: boolean;
   showActions?: boolean;
   compact?: boolean;
 }
@@ -68,10 +68,9 @@ interface MonsterCardProps {
 export function MonsterCard({
   monster,
   currentUserId,
+  favoriteId,
   onEdit,
   onDelete,
-  onToggleFavorite,
-  isFavorited = false,
   showActions = true,
   compact = false,
 }: MonsterCardProps) {
@@ -117,21 +116,13 @@ export function MonsterCard({
 
                 {showActions && (
                   <div className="flex items-center gap-2">
-                    {onToggleFavorite && (
-                      <Button
-                        variant="ghost"
-                        size="icon"
-                        onClick={() => onToggleFavorite(monster)}
-                        className={
-                          isFavorited ? "text-red-500" : "text-gray-500"
-                        }
-                      >
-                        {isFavorited ? (
-                          <Heart size={16} />
-                        ) : (
-                          <Heart size={16} />
-                        )}
-                      </Button>
+                    {currentUserId && (
+                      <FavoriteButton
+                        itemId={monster.id}
+                        itemType="monster"
+                        initialFavoriteId={favoriteId || undefined}
+                        compact={true}
+                      />
                     )}
 
                     <DropdownMenu>

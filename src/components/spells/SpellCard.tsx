@@ -9,15 +9,24 @@ import {
   CollapsibleTrigger,
 } from "@/components/ui/collapsible";
 import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
+import {
   ChevronDown,
   ChevronUp,
   Book,
   Clock,
   Users,
   Ruler,
+  MoreVertical,
+  Eye,
 } from "lucide-react";
 import { useState } from "react";
 import Link from "next/link";
+import { FavoriteButton } from "@/components/favorites/FavoriteButton";
 
 interface Spell {
   id: string;
@@ -36,9 +45,17 @@ interface Spell {
 
 interface SpellCardProps {
   spell: Spell;
+  currentUserId?: string;
+  favoriteId?: string | null;
+  showActions?: boolean;
 }
 
-export function SpellCard({ spell }: SpellCardProps) {
+export function SpellCard({
+  spell,
+  currentUserId,
+  favoriteId,
+  showActions = true,
+}: SpellCardProps) {
   const [expanded, setExpanded] = useState(false);
 
   const tierVariant =
@@ -68,6 +85,39 @@ export function SpellCard({ spell }: SpellCardProps) {
               <Badge variant="outline">{spell.source}</Badge>
             </div>
           </div>
+
+          {showActions && (
+            <div className="flex items-center gap-2">
+              {currentUserId && (
+                <FavoriteButton
+                  itemId={spell.id}
+                  itemType="spell"
+                  initialFavoriteId={favoriteId || undefined}
+                  compact={true}
+                />
+              )}
+
+              <DropdownMenu>
+                <DropdownMenuTrigger asChild>
+                  <Button variant="ghost" size="icon">
+                    <MoreVertical size={16} />
+                  </Button>
+                </DropdownMenuTrigger>
+
+                <DropdownMenuContent className="w-48">
+                  <DropdownMenuItem asChild>
+                    <Link
+                      href={`/spells/${spell.slug}`}
+                      className="flex items-center gap-2"
+                    >
+                      <Eye size={14} />
+                      <span>View Details</span>
+                    </Link>
+                  </DropdownMenuItem>
+                </DropdownMenuContent>
+              </DropdownMenu>
+            </div>
+          )}
         </div>
       </CardHeader>
 

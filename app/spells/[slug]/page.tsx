@@ -16,6 +16,8 @@ import { Spinner } from "@/components/ui/spinner";
 import { SpellDetailBlock } from "@/src/components/spells/SpellDetailBlock";
 import { ArrowLeft, AlertCircle } from "lucide-react";
 import Link from "next/link";
+import { createClient } from "@/lib/supabase/client";
+import { FavoriteButton } from "@/components/favorites/FavoriteButton";
 
 interface Spell {
   id: string;
@@ -37,12 +39,26 @@ export default function SpellDetailPage() {
   const [spell, setSpell] = useState<Spell | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [currentUserId, setCurrentUserId] = useState<string | null>(null);
+  const [favoriteId, setFavoriteId] = useState<string | null>(null);
 
   useEffect(() => {
     if (spellSlug) {
       fetchSpell();
+      checkCurrentUser();
     }
   }, [spellSlug]);
+
+  const checkCurrentUser = async () => {
+    const supabase = createClient();
+    const {
+      data: { user },
+    } = await supabase.auth.getUser();
+
+    if (user) {
+      setCurrentUserId(user.id);
+    }
+  };
 
   const fetchSpell = async () => {
     try {
@@ -62,6 +78,20 @@ export default function SpellDetailPage() {
 
       const data = await response.json();
       setSpell(data);
+
+      // Fetch favorite status if user is logged in
+      if (currentUserId && data.id) {
+        const supabase = createClient();
+        const { data: favorite } = await supabase
+          .from("favorites")
+          .select("id")
+          .eq("user_id", currentUserId)
+          .eq("item_type", "spell")
+          .eq("item_id", data.id)
+          .single();
+
+        setFavoriteId(favorite?.id || null);
+      }
     } catch (err) {
       console.error("Error fetching spell:", err);
       setError("An error occurred while loading the spell");
@@ -118,6 +148,13 @@ export default function SpellDetailPage() {
                     <Badge variant="outline">{spell.source}</Badge>
                   </div>
                 </div>
+                {currentUserId && spell && (
+                  <FavoriteButton
+                    itemId={spell.id}
+                    itemType="spell"
+                    initialFavoriteId={favoriteId || undefined}
+                  />
+                )}
               </div>
             </CardHeader>
             <CardContent>

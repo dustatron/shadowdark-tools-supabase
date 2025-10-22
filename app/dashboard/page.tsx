@@ -5,6 +5,8 @@ import { Settings } from "lucide-react";
 import Link from "next/link";
 import { QuickStats } from "@/components/dashboard/QuickStats";
 import { DashboardTabs } from "@/components/dashboard/DashboardTabs";
+import { MonsterCard } from "@/src/components/monsters/MonsterCard";
+import { SpellCard } from "@/src/components/spells/SpellCard";
 import { getProfileStats } from "@/lib/api/profiles";
 import {
   getUserMonsters,
@@ -52,11 +54,90 @@ export default async function DashboardPage() {
         <QuickStats stats={stats} />
 
         <DashboardTabs
-          monstersContent={<div>Monsters: {monsters.length}</div>}
-          spellsContent={<div>Spells: {spells.length}</div>}
+          monstersContent={
+            monsters.length > 0 ? (
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                {monsters.map((monster) => (
+                  <MonsterCard
+                    key={monster.id}
+                    monster={monster}
+                    currentUserId={user.id}
+                    showActions={true}
+                  />
+                ))}
+              </div>
+            ) : (
+              <div className="text-center py-8 text-muted-foreground">
+                No custom monsters yet. Create your first monster to get
+                started!
+              </div>
+            )
+          }
+          spellsContent={
+            spells.length > 0 ? (
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                {spells.map((spell) => (
+                  <SpellCard
+                    key={spell.id}
+                    spell={spell}
+                    currentUserId={user.id}
+                    showActions={true}
+                  />
+                ))}
+              </div>
+            ) : (
+              <div className="text-center py-8 text-muted-foreground">
+                No custom spells yet. Create your first spell to get started!
+              </div>
+            )
+          }
           encountersContent={<div>Encounters: {encounters.length}</div>}
-          favMonstersContent={<div>Fav Monsters: {favMonsters.length}</div>}
-          favSpellsContent={<div>Fav Spells: {favSpells.length}</div>}
+          favMonstersContent={
+            favMonsters.length > 0 ? (
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                {favMonsters.map(
+                  (favorite) =>
+                    favorite.monster && (
+                      <MonsterCard
+                        key={favorite.id}
+                        monster={favorite.monster}
+                        currentUserId={user.id}
+                        favoriteId={favorite.id}
+                        showActions={true}
+                      />
+                    ),
+                )}
+              </div>
+            ) : (
+              <div className="text-center py-8 text-muted-foreground">
+                No favorite monsters yet. Browse monsters and click the heart
+                icon to add favorites!
+              </div>
+            )
+          }
+          favSpellsContent={
+            favSpells.length > 0 ? (
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                {favSpells.map(
+                  (favorite) =>
+                    favorite.spell && (
+                      <SpellCard
+                        key={favorite.id}
+                        spell={favorite.spell}
+                        currentUserId={user.id}
+                        favoriteId={favorite.id}
+                        showActions={true}
+                      />
+                    ),
+                )}
+              </div>
+            ) : (
+              <div className="text-center py-8 text-muted-foreground">
+                No favorite spells yet. Browse spells and click the heart icon
+                to add favorites!
+              </div>
+            )
+          }
         />
       </div>
     </div>
