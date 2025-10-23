@@ -1,9 +1,9 @@
 "use client";
 
 import { useState, useTransition } from "react";
-import { Button } from "@mantine/core";
+import { Button } from "@/components/ui/button";
 import { Heart } from "lucide-react";
-import { notifications } from "@mantine/notifications";
+import { toast } from "sonner";
 import { toggleFavorite } from "@/app/actions/favorites";
 
 interface FavoriteButtonProps {
@@ -28,29 +28,19 @@ export function FavoriteButton({
         const result = await toggleFavorite(itemType, itemId, favoriteId);
 
         if (result.error) {
-          notifications.show({
-            title: "Error",
-            message: result.error,
-            color: "red",
-          });
+          toast.error(result.error);
           return;
         }
 
         setFavoriteId(result.favoriteId || undefined);
 
-        notifications.show({
-          title: "Success",
-          message: result.favoriteId
-            ? "Added to favorites"
-            : "Removed from favorites",
-          color: "green",
-        });
+        if (result.favoriteId) {
+          toast.success("Added to favorites");
+        } else {
+          toast.success("Removed from favorites");
+        }
       } catch (error) {
-        notifications.show({
-          title: "Error",
-          message: "Something went wrong",
-          color: "red",
-        });
+        toast.error("Something went wrong");
       }
     });
   };
@@ -59,18 +49,17 @@ export function FavoriteButton({
 
   return (
     <Button
-      variant={compact ? "subtle" : "outline"}
-      size={compact ? "xs" : "sm"}
+      variant={compact ? "ghost" : "outline"}
+      size={compact ? "icon-sm" : "sm"}
       onClick={handleToggle}
-      loading={isPending}
-      leftSection={
-        <Heart
-          size={16}
-          fill={isFavorited ? "currentColor" : "none"}
-          className={isFavorited ? "text-red-500" : ""}
-        />
-      }
+      disabled={isPending}
+      className={isFavorited ? "text-red-500 hover:text-red-600" : ""}
     >
+      <Heart
+        size={16}
+        fill={isFavorited ? "currentColor" : "none"}
+        className={isFavorited ? "text-red-500" : ""}
+      />
       {!compact && (isFavorited ? "Favorited" : "Favorite")}
     </Button>
   );

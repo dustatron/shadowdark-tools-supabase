@@ -37,6 +37,7 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { LoadingOverlay } from "@/components/ui/loading-overlay";
 import { toast } from "sonner";
+import { FavoriteButton } from "@/components/favorites/FavoriteButton";
 
 interface Author {
   id: string;
@@ -89,6 +90,7 @@ export default function MonsterDetailPage() {
   const [deleteModalOpen, setDeleteModalOpen] = useState(false);
   const [isDeleting, setIsDeleting] = useState(false);
   const [currentUser, setCurrentUser] = useState<any>(null);
+  const [favoriteId, setFavoriteId] = useState<string | null>(null);
 
   useEffect(() => {
     if (monsterId) {
@@ -103,6 +105,19 @@ export default function MonsterDetailPage() {
       data: { user },
     } = await supabase.auth.getUser();
     setCurrentUser(user);
+
+    // Fetch favorite status if user is logged in
+    if (user && monsterId) {
+      const { data: favorite } = await supabase
+        .from("favorites")
+        .select("id")
+        .eq("user_id", user.id)
+        .eq("item_type", "monster")
+        .eq("item_id", monsterId)
+        .single();
+
+      setFavoriteId(favorite?.id || null);
+    }
   };
 
   const fetchMonster = async () => {
@@ -324,44 +339,55 @@ export default function MonsterDetailPage() {
                   </div>
                 </div>
 
-                {/* Action Menu */}
-                <DropdownMenu>
-                  <DropdownMenuTrigger asChild>
-                    <Button variant="ghost" size="icon">
-                      <MoreVertical className="h-5 w-5" />
-                    </Button>
-                  </DropdownMenuTrigger>
-                  <DropdownMenuContent align="end">
-                    {isOwner && (
-                      <>
-                        <DropdownMenuItem asChild>
-                          <Link
-                            href={`/monsters/${monsterId}/edit`}
-                            className="flex items-center gap-2 cursor-pointer"
+                {/* Action Buttons */}
+                <div className="flex items-center gap-2">
+                  {currentUser && monster && (
+                    <FavoriteButton
+                      itemId={monster.id}
+                      itemType="monster"
+                      initialFavoriteId={favoriteId || undefined}
+                    />
+                  )}
+
+                  {/* Action Menu */}
+                  <DropdownMenu>
+                    <DropdownMenuTrigger asChild>
+                      <Button variant="ghost" size="icon">
+                        <MoreVertical className="h-5 w-5" />
+                      </Button>
+                    </DropdownMenuTrigger>
+                    <DropdownMenuContent align="end">
+                      {isOwner && (
+                        <>
+                          <DropdownMenuItem asChild>
+                            <Link
+                              href={`/monsters/${monsterId}/edit`}
+                              className="flex items-center gap-2 cursor-pointer"
+                            >
+                              <Pencil className="h-4 w-4" />
+                              Edit Monster
+                            </Link>
+                          </DropdownMenuItem>
+                          <DropdownMenuItem
+                            className="text-destructive flex items-center gap-2 cursor-pointer"
+                            onClick={() => setDeleteModalOpen(true)}
                           >
-                            <Pencil className="h-4 w-4" />
-                            Edit Monster
-                          </Link>
-                        </DropdownMenuItem>
-                        <DropdownMenuItem
-                          className="text-destructive flex items-center gap-2 cursor-pointer"
-                          onClick={() => setDeleteModalOpen(true)}
-                        >
-                          <Trash2 className="h-4 w-4" />
-                          Delete Monster
-                        </DropdownMenuItem>
-                        <DropdownMenuSeparator />
-                      </>
-                    )}
-                    <DropdownMenuItem
-                      onClick={handleDuplicate}
-                      className="flex items-center gap-2 cursor-pointer"
-                    >
-                      <Copy className="h-4 w-4" />
-                      Duplicate Monster
-                    </DropdownMenuItem>
-                  </DropdownMenuContent>
-                </DropdownMenu>
+                            <Trash2 className="h-4 w-4" />
+                            Delete Monster
+                          </DropdownMenuItem>
+                          <DropdownMenuSeparator />
+                        </>
+                      )}
+                      <DropdownMenuItem
+                        onClick={handleDuplicate}
+                        className="flex items-center gap-2 cursor-pointer"
+                      >
+                        <Copy className="h-4 w-4" />
+                        Duplicate Monster
+                      </DropdownMenuItem>
+                    </DropdownMenuContent>
+                  </DropdownMenu>
+                </div>
               </div>
 
               {/* Description */}

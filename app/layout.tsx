@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import { RootProvider } from "@/src/components/providers/RootProvider";
 import { ThemeProvider } from "next-themes";
-import { Toaster } from "sonner";
+import { Toaster } from "@/components/ui/sonner";
 import { AppNavbar } from "@/components/navigation/app-navbar";
 import "./globals.css";
 
@@ -79,7 +79,7 @@ export default function RootLayout({
         <ThemeProvider attribute="class" defaultTheme="dark">
           <AppNavbar />
           <RootProvider>{children}</RootProvider>
-          <Toaster richColors position="top-right" />
+          <Toaster richColors position="top-right" closeButton />
         </ThemeProvider>
       </body>
     </html>

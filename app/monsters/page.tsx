@@ -7,6 +7,7 @@ import Link from "next/link";
 import { createClient } from "@/lib/supabase/client";
 import { Plus } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { createFavoritesMap } from "@/lib/utils/favorites";
 
 interface Monster {
   id: string;
@@ -66,6 +67,10 @@ export default function MonstersPage() {
     totalPages: 0,
   });
   const [isAuthenticated, setIsAuthenticated] = useState(false);
+  const [currentUserId, setCurrentUserId] = useState<string | null>(null);
+  const [favoritesMap, setFavoritesMap] = useState<Map<string, string>>(
+    new Map(),
+  );
 
   // Available filter options
   const [availableTypes, setAvailableTypes] = useState<string[]>([]);
@@ -77,14 +82,35 @@ export default function MonstersPage() {
   }, [filters, pagination.page, pagination.limit]);
 
   useEffect(() => {
-    const checkAuth = async () => {
+    const checkAuthAndFavorites = async () => {
       const supabase = createClient();
       const {
         data: { user },
       } = await supabase.auth.getUser();
+
       setIsAuthenticated(!!user);
+      setCurrentUserId(user?.id || null);
+
+      // Fetch user's favorite monsters if authenticated
+      if (user) {
+        const { data: favorites } = await supabase
+          .from("favorites")
+          .select("id, item_id")
+          .eq("user_id", user.id)
+          .eq("item_type", "monster");
+
+        if (favorites) {
+          const favMap = createFavoritesMap(
+            favorites.map((fav) => ({
+              item_id: fav.item_id,
+              favorite_id: fav.id,
+            })),
+          );
+          setFavoritesMap(favMap);
+        }
+      }
     };
-    checkAuth();
+    checkAuthAndFavorites();
   }, []);
 
   const fetchMonsters = async () => {
@@ -220,6 +246,8 @@ export default function MonstersPage() {
         pagination={pagination}
         loading={loading}
         error={error || undefined}
+        currentUserId={currentUserId || undefined}
+        favoritesMap={favoritesMap}
         onPageChange={handlePageChange}
         onPageSizeChange={handlePageSizeChange}
         onRetry={fetchMonsters}

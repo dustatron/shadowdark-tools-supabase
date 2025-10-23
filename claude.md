@@ -340,30 +340,39 @@ This project has custom Claude Code agents for domain-specific tasks:
    - State management
    - Data fetching patterns
 
-5. **form-validation-specialist** - Form validation with Zod
-   - Schema design
+5. **shadcn-ui-specialist** - shadcn/ui component expert
+   - Component composition and customization
+   - Radix UI primitive integration
+   - CVA variant creation
+   - Accessibility patterns
+   - Tailwind CSS styling
+
+6. **form-validation-specialist** - Form validation with react-hook-form + Zod
+   - react-hook-form integration
+   - Zod schema design
+   - shadcn/ui Form components
    - Error handling
    - Type-safe forms
 
-6. **data-migration-specialist** - Supabase migrations
+7. **data-migration-specialist** - Supabase migrations
    - SQL migration files
    - Data seeding
    - Schema changes
 
-7. **test-engineer** - Testing implementation
+8. **test-engineer** - Testing implementation
    - Vitest unit tests
    - Playwright E2E tests
    - Component testing
 
-8. **frontend-pm** - Project planning and specs
+9. **frontend-pm** - Project planning and specs
    - Feature specifications
    - PRD generation
    - Task breakdown
 
-9. **api-route-specialist** - Next.js API route development
-   - Route handlers
-   - Server actions
-   - API error handling
+10. **api-route-specialist** - Next.js API route development
+    - Route handlers
+    - Server actions
+    - API error handling
 
 ## Custom Slash Commands
 

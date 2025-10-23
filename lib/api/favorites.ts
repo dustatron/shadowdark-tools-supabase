@@ -46,3 +46,23 @@ export async function getFavoriteId(
 
   return data?.id || null;
 }
+
+export async function getUserFavoriteIds(
+  userId: string,
+  itemType: "monster" | "spell",
+): Promise<Array<{ item_id: string; favorite_id: string }>> {
+  const supabase = await createClient();
+
+  const { data, error } = await supabase
+    .from("favorites")
+    .select("id, item_id")
+    .eq("user_id", userId)
+    .eq("item_type", itemType);
+
+  if (error) return [];
+
+  return data.map((fav) => ({
+    item_id: fav.item_id,
+    favorite_id: fav.id,
+  }));
+}

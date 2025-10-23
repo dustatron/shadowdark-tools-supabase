@@ -48,12 +48,11 @@ interface MonsterListProps {
   loading?: boolean;
   error?: string;
   currentUserId?: string;
-  favoriteMonsterIds?: string[];
+  favoritesMap?: Map<string, string>;
   onPageChange?: (page: number) => void;
   onPageSizeChange?: (pageSize: number) => void;
   onEditMonster?: (monster: Monster) => void;
   onDeleteMonster?: (monster: Monster) => void;
-  onToggleFavorite?: (monster: Monster) => void;
   onRetry?: () => void;
   onCreateMonster?: () => void;
   compact?: boolean;
@@ -67,12 +66,11 @@ export function MonsterList({
   loading = false,
   error,
   currentUserId,
-  favoriteMonsterIds = [],
+  favoritesMap,
   onPageChange,
   onPageSizeChange,
   onEditMonster,
   onDeleteMonster,
-  onToggleFavorite,
   onRetry,
   onCreateMonster,
   compact = false,
@@ -121,10 +119,9 @@ export function MonsterList({
             key={monster.id}
             monster={monster}
             currentUserId={currentUserId}
+            favoriteId={favoritesMap?.get(monster.id) || null}
             onEdit={onEditMonster}
             onDelete={onDeleteMonster}
-            onToggleFavorite={onToggleFavorite}
-            isFavorited={favoriteMonsterIds.includes(monster.id)}
             compact={compact}
           />
         ))}

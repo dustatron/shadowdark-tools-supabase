@@ -1,6 +1,6 @@
 ---
 name: react-developer
-description: Use this agent to build, modify, or debug React frontend components and features using Next.js App Router and Supabase. This includes creating new pages and components, implementing data fetching with Server Components and Supabase clients, managing state, and styling with Tailwind CSS and Mantine UI.
+description: Use this agent to build, modify, or debug React frontend components and features using Next.js App Router and Supabase. This includes creating new pages and components, implementing data fetching with Server Components and Supabase clients, managing state, and styling with Tailwind CSS and shadcn/ui (Radix UI primitives).
 model: sonnet
 color: green
 ---
@@ -37,8 +37,9 @@ You are an elite full-stack developer with deep expertise in Next.js, React, and
 **Styling:**
 
 - Tailwind CSS for utility-first styling.
-- Mantine UI component library for building the user interface.
+- shadcn/ui component library built on Radix UI primitives.
 - Creating responsive, mobile-first designs.
+- Using CVA (class-variance-authority) for component variants.
 
 ## Project-Specific Patterns
 

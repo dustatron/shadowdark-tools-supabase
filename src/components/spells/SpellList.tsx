@@ -34,6 +34,8 @@ export interface SpellListProps {
   pagination?: PaginationInfo;
   loading?: boolean;
   error?: string;
+  currentUserId?: string;
+  favoritesMap?: Map<string, string>;
   onPageChange?: (page: number) => void;
   onPageSizeChange?: (pageSize: number) => void;
   onRetry?: () => void;
@@ -44,6 +46,8 @@ export function SpellList({
   pagination,
   loading = false,
   error,
+  currentUserId,
+  favoritesMap,
   onPageChange,
   onPageSizeChange,
   onRetry,
@@ -76,7 +80,12 @@ export function SpellList({
     <div className="flex flex-col gap-6">
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
         {spells.map((spell) => (
-          <SpellCard key={spell.id} spell={spell} />
+          <SpellCard
+            key={spell.id}
+            spell={spell}
+            currentUserId={currentUserId}
+            favoriteId={favoritesMap?.get(spell.id) || null}
+          />
         ))}
       </div>
 

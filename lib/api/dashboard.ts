@@ -35,34 +35,66 @@ export async function getUserEncounterTables(userId: string) {
 
 export async function getFavoriteMonsters(userId: string) {
   const supabase = await createClient();
-  const { data } = await supabase
+
+  // First get the favorites
+  const { data: favorites } = await supabase
     .from("favorites")
-    .select(
-      `
-      *,
-      monster:all_monsters(*)
-    `,
-    )
+    .select("*")
     .eq("user_id", userId)
     .eq("item_type", "monster")
     .order("created_at", { ascending: false });
 
-  return data || [];
+  if (!favorites || favorites.length === 0) {
+    return [];
+  }
+
+  // Get all monster IDs
+  const monsterIds = favorites.map((f) => f.item_id);
+
+  // Fetch the monsters
+  const { data: monsters } = await supabase
+    .from("all_monsters")
+    .select("*")
+    .in("id", monsterIds);
+
+  // Combine the data
+  const monstersMap = new Map(monsters?.map((m) => [m.id, m]) || []);
+
+  return favorites.map((fav) => ({
+    ...fav,
+    monster: monstersMap.get(fav.item_id) || null,
+  }));
 }
 
 export async function getFavoriteSpells(userId: string) {
   const supabase = await createClient();
-  const { data } = await supabase
+
+  // First get the favorites
+  const { data: favorites } = await supabase
     .from("favorites")
-    .select(
-      `
-      *,
-      spell:all_spells(*)
-    `,
-    )
+    .select("*")
     .eq("user_id", userId)
     .eq("item_type", "spell")
     .order("created_at", { ascending: false });
 
-  return data || [];
+  if (!favorites || favorites.length === 0) {
+    return [];
+  }
+
+  // Get all spell IDs
+  const spellIds = favorites.map((f) => f.item_id);
+
+  // Fetch the spells
+  const { data: spells } = await supabase
+    .from("all_spells")
+    .select("*")
+    .in("id", spellIds);
+
+  // Combine the data
+  const spellsMap = new Map(spells?.map((s) => [s.id, s]) || []);
+
+  return favorites.map((fav) => ({
+    ...fav,
+    spell: spellsMap.get(fav.item_id) || null,
+  }));
 }

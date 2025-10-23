@@ -81,7 +81,15 @@
       "Bash(./fix-icon-names.sh:*)",
       "Bash(./fix-all-icons.sh:*)",
       "Bash(npx supabase db push:*)",
-      "Bash(npm run dev)"
+      "Bash(npm run dev)",
+      "SlashCommand(/do-parallel)",
+      "SlashCommand(/implement)",
+      "Bash(.specify/scripts/bash/check-prerequisites.sh:*)",
+      "WebFetch(domain:sonner.emilkowal.ski)",
+      "Bash(.specify/scripts/bash/create-new-feature.sh:*)",
+      "Bash(.specify/scripts/bash/setup-plan.sh:*)",
+      "Bash(.specify/scripts/bash/update-agent-context.sh:*)",
+      "Bash(rm:*)"
     ],
     "deny": [],
     "ask": []
