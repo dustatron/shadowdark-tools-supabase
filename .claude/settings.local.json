@@ -86,7 +86,10 @@
       "SlashCommand(/implement)",
       "Bash(.specify/scripts/bash/check-prerequisites.sh:*)",
       "WebFetch(domain:sonner.emilkowal.ski)",
-      "Bash(.specify/scripts/bash/create-new-feature.sh:*)"
+      "Bash(.specify/scripts/bash/create-new-feature.sh:*)",
+      "Bash(.specify/scripts/bash/setup-plan.sh:*)",
+      "Bash(.specify/scripts/bash/update-agent-context.sh:*)",
+      "Bash(rm:*)"
     ],
     "deny": [],
     "ask": []

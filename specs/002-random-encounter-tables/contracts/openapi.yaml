@@ -1,0 +1,703 @@
+openapi: 3.1.0
+info:
+  title: Random Encounter Tables API
+  version: 1.0.0
+  description: API for creating, managing, rolling on, and sharing random encounter tables for Shadowdark RPG
+
+servers:
+  - url: /api
+    description: Next.js API routes
+
+components:
+  securitySchemes:
+    supabaseAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+      description: Supabase JWT from auth.session
+
+  schemas:
+    Error:
+      type: object
+      required:
+        - error
+      properties:
+        error:
+          type: string
+        details:
+          type: array
+          items:
+            type: object
+
+    EncounterTableFilters:
+      type: object
+      required:
+        - sources
+      properties:
+        sources:
+          type: array
+          items:
+            type: string
+            enum: [official, user, public]
+          minItems: 1
+        level_min:
+          type: integer
+          minimum: 1
+          maximum: 20
+          default: 1
+        level_max:
+          type: integer
+          minimum: 1
+          maximum: 20
+          default: 20
+        alignments:
+          type: array
+          items:
+            type: string
+            enum: [Lawful, Neutral, Chaotic]
+        movement_types:
+          type: array
+          items:
+            type: string
+            enum: [fly, swim, burrow, climb]
+        search_query:
+          type: string
+          maxLength: 100
+
+    MonsterSnapshot:
+      type: object
+      required:
+        - id
+        - name
+        - source
+        - challenge_level
+        - armor_class
+        - hit_points
+        - hit_dice
+        - speed
+        - attacks
+        - abilities
+      properties:
+        id:
+          type: string
+          format: uuid
+        name:
+          type: string
+        source:
+          type: string
+          enum: [official, user]
+        challenge_level:
+          type: integer
+        armor_class:
+          type: integer
+        hit_points:
+          type: integer
+        hit_dice:
+          type: string
+        speed:
+          type: string
+        movement_types:
+          type: array
+          items:
+            type: string
+        str:
+          type: integer
+        dex:
+          type: integer
+        con:
+          type: integer
+        int:
+          type: integer
+        wis:
+          type: integer
+        cha:
+          type: integer
+        str_mod:
+          type: integer
+        dex_mod:
+          type: integer
+        con_mod:
+          type: integer
+        int_mod:
+          type: integer
+        wis_mod:
+          type: integer
+        cha_mod:
+          type: integer
+        attacks:
+          type: array
+          items:
+            type: object
+        abilities:
+          type: array
+          items:
+            type: object
+        traits:
+          type: string
+          nullable: true
+        alignment:
+          type: string
+          enum: [Lawful, Neutral, Chaotic]
+          nullable: true
+        size:
+          type: string
+          nullable: true
+        type:
+          type: string
+          nullable: true
+        description:
+          type: string
+          nullable: true
+
+    EncounterTableEntry:
+      type: object
+      required:
+        - id
+        - table_id
+        - roll_number
+        - monster_snapshot
+        - created_at
+        - updated_at
+      properties:
+        id:
+          type: string
+          format: uuid
+        table_id:
+          type: string
+          format: uuid
+        roll_number:
+          type: integer
+          minimum: 1
+        monster_id:
+          type: string
+          format: uuid
+          nullable: true
+        monster_snapshot:
+          $ref: '#/components/schemas/MonsterSnapshot'
+        created_at:
+          type: string
+          format: date-time
+        updated_at:
+          type: string
+          format: date-time
+
+    EncounterTable:
+      type: object
+      required:
+        - id
+        - user_id
+        - name
+        - die_size
+        - is_public
+        - filters
+        - created_at
+        - updated_at
+      properties:
+        id:
+          type: string
+          format: uuid
+        user_id:
+          type: string
+          format: uuid
+        name:
+          type: string
+          minLength: 3
+          maxLength: 100
+        description:
+          type: string
+          maxLength: 500
+          nullable: true
+        die_size:
+          type: integer
+          minimum: 2
+          maximum: 1000
+        is_public:
+          type: boolean
+        public_slug:
+          type: string
+          minLength: 8
+          maxLength: 8
+          nullable: true
+        filters:
+          $ref: '#/components/schemas/EncounterTableFilters'
+        entries:
+          type: array
+          items:
+            $ref: '#/components/schemas/EncounterTableEntry'
+        created_at:
+          type: string
+          format: date-time
+        updated_at:
+          type: string
+          format: date-time
+
+    CreateEncounterTableRequest:
+      type: object
+      required:
+        - name
+        - die_size
+        - filters
+      properties:
+        name:
+          type: string
+          minLength: 3
+          maxLength: 100
+        description:
+          type: string
+          maxLength: 500
+        die_size:
+          type: integer
+          minimum: 2
+          maximum: 1000
+        filters:
+          $ref: '#/components/schemas/EncounterTableFilters'
+        generate_immediately:
+          type: boolean
+          default: true
+          description: Whether to generate entries immediately
+
+    UpdateEncounterTableRequest:
+      type: object
+      properties:
+        name:
+          type: string
+          minLength: 3
+          maxLength: 100
+        description:
+          type: string
+          maxLength: 500
+        filters:
+          $ref: '#/components/schemas/EncounterTableFilters'
+
+    ReplaceEntryRequest:
+      type: object
+      required:
+        - mode
+      properties:
+        mode:
+          type: string
+          enum: [random, search]
+          description: "random: Replace with random monster matching filters. search: Replace with specific monster"
+        monster_id:
+          type: string
+          format: uuid
+          description: Required when mode=search
+
+    ShareTableRequest:
+      type: object
+      required:
+        - is_public
+      properties:
+        is_public:
+          type: boolean
+
+    RollResult:
+      type: object
+      required:
+        - roll_number
+        - entry
+      properties:
+        roll_number:
+          type: integer
+          minimum: 1
+        entry:
+          $ref: '#/components/schemas/EncounterTableEntry'
+
+paths:
+  /encounter-tables:
+    get:
+      summary: List user's encounter tables
+      security:
+        - supabaseAuth: []
+      parameters:
+        - name: page
+          in: query
+          schema:
+            type: integer
+            minimum: 1
+            default: 1
+        - name: limit
+          in: query
+          schema:
+            type: integer
+            minimum: 1
+            maximum: 100
+            default: 20
+      responses:
+        '200':
+          description: List of encounter tables
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/EncounterTable'
+                  pagination:
+                    type: object
+                    properties:
+                      page:
+                        type: integer
+                      limit:
+                        type: integer
+                      total:
+                        type: integer
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+    post:
+      summary: Create new encounter table
+      security:
+        - supabaseAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateEncounterTableRequest'
+      responses:
+        '201':
+          description: Table created successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/EncounterTable'
+        '400':
+          description: Validation error or insufficient monsters
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+  /encounter-tables/{id}:
+    get:
+      summary: Get single encounter table with entries
+      security:
+        - supabaseAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        '200':
+          description: Encounter table details
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/EncounterTable'
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '404':
+          description: Table not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+    patch:
+      summary: Update encounter table settings
+      security:
+        - supabaseAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UpdateEncounterTableRequest'
+      responses:
+        '200':
+          description: Table updated successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/EncounterTable'
+        '400':
+          description: Validation error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '404':
+          description: Table not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+    delete:
+      summary: Delete encounter table
+      security:
+        - supabaseAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        '204':
+          description: Table deleted successfully
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '404':
+          description: Table not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+  /encounter-tables/{id}/generate:
+    post:
+      summary: Regenerate all table entries
+      description: Replaces all entries with new random monsters matching the table's filters
+      security:
+        - supabaseAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        '200':
+          description: Table regenerated successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/EncounterTable'
+        '400':
+          description: Insufficient monsters match criteria
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '404':
+          description: Table not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+  /encounter-tables/{id}/entries/{roll}:
+    patch:
+      summary: Replace single table entry
+      security:
+        - supabaseAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+        - name: roll
+          in: path
+          required: true
+          schema:
+            type: integer
+            minimum: 1
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ReplaceEntryRequest'
+      responses:
+        '200':
+          description: Entry replaced successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/EncounterTableEntry'
+        '400':
+          description: Validation error or no available monsters
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '404':
+          description: Table or entry not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+  /encounter-tables/{id}/roll:
+    post:
+      summary: Roll on encounter table
+      description: Generates random number from 1 to die_size and returns corresponding entry
+      security:
+        - supabaseAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        '200':
+          description: Roll result
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/RollResult'
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '404':
+          description: Table not found or no entries
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+  /encounter-tables/{id}/share:
+    patch:
+      summary: Toggle table public status
+      security:
+        - supabaseAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ShareTableRequest'
+      responses:
+        '200':
+          description: Public status updated
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/EncounterTable'
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '404':
+          description: Table not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+  /encounter-tables/public/{slug}:
+    get:
+      summary: View public encounter table
+      description: Anyone can view public tables (no auth required)
+      parameters:
+        - name: slug
+          in: path
+          required: true
+          schema:
+            type: string
+            minLength: 8
+            maxLength: 8
+      responses:
+        '200':
+          description: Public table details
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/EncounterTable'
+        '404':
+          description: Public table not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+  /encounter-tables/public/{slug}/copy:
+    post:
+      summary: Copy public table to user's collection
+      security:
+        - supabaseAuth: []
+      parameters:
+        - name: slug
+          in: path
+          required: true
+          schema:
+            type: string
+            minLength: 8
+            maxLength: 8
+      responses:
+        '201':
+          description: Table copied successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/EncounterTable'
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '404':
+          description: Public table not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
