@@ -1,17 +1,17 @@
 /**
  * API Route: /api/encounter-tables/[id]/generate
- * Regenerates all entries for an encounter table
+ * Handles regeneration of all table entries with new random monsters
  */
 
 import { NextRequest, NextResponse } from "next/server";
 import { createClient } from "@/lib/supabase/server";
-import { UUIDSchema } from "@/lib/encounter-tables/schemas";
 import { regenerateTableEntries } from "@/lib/encounter-tables/utils/generate-table";
-import { selectTableWithEntries } from "@/lib/encounter-tables/queries";
+import { TABLE_SELECT } from "@/lib/encounter-tables/queries";
 
 /**
  * POST /api/encounter-tables/[id]/generate
- * Regenerates all table entries with new random monsters matching the table's filters
+ * Regenerate all entries for an encounter table
+ * Replaces all existing entries with new random monsters matching the table's filters
  */
 export async function POST(
   request: NextRequest,
@@ -20,15 +20,6 @@ export async function POST(
   try {
     const supabase = await createClient();
     const { id } = await params;
-
-    // Validate UUID
-    const uuidResult = UUIDSchema.safeParse(id);
-    if (!uuidResult.success) {
-      return NextResponse.json(
-        { error: "Invalid table ID format" },
-        { status: 400 },
-      );
-    }
 
     // Check authentication
     const {
@@ -43,41 +34,41 @@ export async function POST(
       );
     }
 
-    // Fetch existing table to get filters and die_size
+    // Fetch the table with ownership check
     const { data: table, error: fetchError } = await supabase
       .from("encounter_tables")
-      .select("id, user_id, die_size, filters")
+      .select(TABLE_SELECT)
       .eq("id", id)
       .eq("user_id", user.id)
       .single();
 
     if (fetchError || !table) {
-      return NextResponse.json({ error: "Table not found" }, { status: 404 });
+      return NextResponse.json(
+        { error: "Table not found or access denied" },
+        { status: 404 },
+      );
     }
 
-    // Verify ownership (RLS should handle this, but double-check)
-    if (table.user_id !== user.id) {
-      return NextResponse.json({ error: "Table not found" }, { status: 404 });
-    }
-
+    // Generate new entries using the table's filters
     try {
-      // Generate new entries
       const newEntries = await regenerateTableEntries(
         table.id,
         table.die_size,
         table.filters,
       );
 
-      // Delete old entries
+      // Delete old entries and insert new ones
+      // Note: Supabase doesn't have a direct transaction API, but we can use sequential operations
+      // RLS policies ensure we can only delete entries from tables we own
       const { error: deleteError } = await supabase
         .from("encounter_table_entries")
         .delete()
-        .eq("table_id", id);
+        .eq("table_id", table.id);
 
       if (deleteError) {
         console.error("Error deleting old entries:", deleteError);
         return NextResponse.json(
-          { error: "Failed to delete old entries" },
+          { error: "Failed to clear existing table entries" },
           { status: 500 },
         );
       }
@@ -90,35 +81,48 @@ export async function POST(
       if (insertError) {
         console.error("Error inserting new entries:", insertError);
         return NextResponse.json(
-          { error: "Failed to generate new entries" },
+          { error: "Failed to generate new table entries" },
           { status: 500 },
         );
       }
 
-      // Update the table's updated_at timestamp
-      const { error: updateError } = await supabase
+      // Fetch the complete table with new entries
+      const { data: updatedTable, error: refetchError } = await supabase
         .from("encounter_tables")
-        .update({ updated_at: new Date().toISOString() })
-        .eq("id", id);
+        .select(
+          `
+          ${TABLE_SELECT},
+          entries:encounter_table_entries(
+            id,
+            table_id,
+            roll_number,
+            monster_id,
+            monster_snapshot,
+            created_at,
+            updated_at
+          )
+        `,
+        )
+        .eq("id", table.id)
+        .order("roll_number", {
+          foreignTable: "encounter_table_entries",
+          ascending: true,
+        })
+        .single();
 
-      if (updateError) {
-        console.error("Error updating table timestamp:", updateError);
-        // Non-critical error, continue
-      }
-
-      // Fetch and return the complete table with new entries
-      const { data: completeTable, error: finalFetchError } =
-        await selectTableWithEntries(supabase, id);
-
-      if (finalFetchError || !completeTable) {
-        console.error("Error fetching updated table:", finalFetchError);
+      if (refetchError) {
+        console.error("Error fetching updated table:", refetchError);
+        // Still return success since entries were created, just without full data
         return NextResponse.json(
-          { error: "Table regenerated but failed to fetch result" },
-          { status: 500 },
+          {
+            message: "Table regenerated successfully",
+            table_id: table.id,
+          },
+          { status: 200 },
         );
       }
 
-      return NextResponse.json(completeTable);
+      return NextResponse.json(updatedTable, { status: 200 });
     } catch (error) {
       console.error("Error generating table entries:", error);
 
@@ -126,7 +130,7 @@ export async function POST(
       if (error instanceof Error) {
         return NextResponse.json(
           {
-            error: error.message.includes("monsters match")
+            error: error.message.includes("monsters")
               ? error.message
               : "Insufficient monsters match your criteria",
           },
@@ -135,7 +139,7 @@ export async function POST(
       }
 
       return NextResponse.json(
-        { error: "Failed to regenerate table entries" },
+        { error: "Failed to regenerate encounter table" },
         { status: 500 },
       );
     }
