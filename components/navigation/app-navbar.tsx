@@ -233,6 +233,7 @@ export function AppNavbar() {
         { href: "/", label: "Home" },
         { href: "/monsters", label: "Monsters" },
         { href: "/spells", label: "Spells" },
+        { href: "/encounter-tables", label: "Encounter Tables" },
       ]}
       rightContent={renderRightContent()}
     />

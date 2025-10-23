@@ -90,6 +90,8 @@
       "Bash(.specify/scripts/bash/setup-plan.sh:*)",
       "Bash(.specify/scripts/bash/update-agent-context.sh:*)",
       "Bash(rm:*)",
+      "Bash(npm run lint:fix:*)",
+      "Bash(awk:*)",
       "mcp__chrome-devtools__fill",
       "mcp__supabase__search_docs",
       "WebFetch(domain:supabase.com)",
