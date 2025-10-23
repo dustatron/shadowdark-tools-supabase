@@ -94,8 +94,8 @@ export function buildMonsterFilterQuery(
   }
 
   // Source filter - handle official, user, and public monsters
-  // Note: This assumes the all_monsters view has a 'source' field
-  // that distinguishes between 'official' and 'user' sources
+  // Note: The all_monsters view uses 'monster_type' field
+  // with values 'official' for official_monsters and 'custom' for user_monsters
   // and an 'is_public' field for user monsters
   if (filters.sources && filters.sources.length > 0) {
     const hasOfficial = filters.sources.includes("official");
@@ -106,14 +106,15 @@ export function buildMonsterFilterQuery(
     // If all three are selected, no filter needed
     if (!(hasOfficial && hasUser && hasPublic)) {
       if (hasOfficial && !hasUser && !hasPublic) {
-        // Only official
-        query = query.eq("source", "official");
+        // Only official monsters
+        query = query.eq("monster_type", "official");
       } else if (hasUser && !hasOfficial && !hasPublic) {
         // Only user's own monsters (not public)
-        query = query.eq("source", "user").eq("is_public", false);
-      } else if (hasPublic && !hasOfficial && !hasUser) {
+        // Note: This will need user_id from context to work properly
+        query = query.eq("monster_type", "custom").eq("is_public", false);
+      } else if (hasPublic && !hasOfficial && !hasPublic) {
         // Only public user monsters
-        query = query.eq("source", "user").eq("is_public", true);
+        query = query.eq("monster_type", "custom").eq("is_public", true);
       } else {
         // Mixed sources - use OR logic
         // This is more complex and may need custom SQL
