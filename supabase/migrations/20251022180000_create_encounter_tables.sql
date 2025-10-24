@@ -29,7 +29,7 @@ CREATE INDEX idx_encounter_tables_created_at ON encounter_tables(created_at DESC
 CREATE TRIGGER update_encounter_tables_updated_at
   BEFORE UPDATE ON encounter_tables
   FOR EACH ROW
-  EXECUTE FUNCTION update_updated_at_column();
+  EXECUTE FUNCTION public.handle_updated_at();
 
 -- ============================================
 -- Table: encounter_table_entries
@@ -43,10 +43,14 @@ CREATE TABLE encounter_table_entries (
   created_at TIMESTAMPTZ NOT NULL DEFAULT now(),
   updated_at TIMESTAMPTZ NOT NULL DEFAULT now(),
 
-  -- Constraints
-  CONSTRAINT unique_roll_per_table UNIQUE (table_id, roll_number),
-  CONSTRAINT unique_monster_per_table UNIQUE (table_id, monster_id) WHERE monster_id IS NOT NULL
+  -- Constraint: one roll per table
+  CONSTRAINT unique_roll_per_table UNIQUE (table_id, roll_number)
 );
+
+-- Partial unique index: one monster per table (excluding NULL monster_id)
+CREATE UNIQUE INDEX idx_unique_monster_per_table
+  ON encounter_table_entries(table_id, monster_id)
+  WHERE monster_id IS NOT NULL;
 
 -- Indexes for encounter_table_entries
 CREATE INDEX idx_encounter_entries_table_id ON encounter_table_entries(table_id);
@@ -56,7 +60,7 @@ CREATE INDEX idx_encounter_entries_roll_number ON encounter_table_entries(table_
 CREATE TRIGGER update_encounter_entries_updated_at
   BEFORE UPDATE ON encounter_table_entries
   FOR EACH ROW
-  EXECUTE FUNCTION update_updated_at_column();
+  EXECUTE FUNCTION public.handle_updated_at();
 
 -- ============================================
 -- RLS Policies: encounter_tables
