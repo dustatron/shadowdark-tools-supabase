@@ -292,8 +292,113 @@ export async function POST(request: NextRequest) {
 }
 ```
 
+## Zod Schema Best Practices - CRITICAL
+
+### Optional Fields with Defaults
+
+The order of `.optional()` and `.default()` matters. **ALWAYS** use `.optional()` before `.default()`:
+
+```typescript
+// ✅ CORRECT - optional() BEFORE default()
+const schema = z.object({
+  level_min: z.number().int().min(1).max(20).optional().default(1),
+  level_max: z.number().int().min(1).max(20).optional().default(20),
+  is_public: z.boolean().optional().default(false),
+});
+
+// ❌ WRONG - default() without optional()
+const schema = z.object({
+  level_min: z.number().int().min(1).max(20).default(1), // Type errors
+});
+```
+
+### Error Messages - Type-Specific APIs
+
+Different Zod types have different error message APIs. Don't assume all types support the same parameters:
+
+```typescript
+// ✅ CORRECT - String with error messages
+z.string().min(1, "Name is required").max(100, "Name too long");
+
+// ✅ CORRECT - Number with messages as second parameter
+z.number().min(1, "Must be at least 1").max(20, "Cannot exceed 20");
+
+// ✅ CORRECT - Enum with message parameter
+z.enum(["official", "user", "public"], {
+  message: 'Must be either "official", "user", or "public"',
+});
+
+// ❌ WRONG - Enum with errorMap (doesn't exist)
+z.enum(["official", "user"], {
+  errorMap: () => ({ message: "Invalid" }), // Not supported
+});
+
+// ✅ CORRECT - Boolean without error params
+z.boolean(); // Boolean doesn't support error messages in constructor
+
+// ❌ WRONG - Boolean with error params
+z.boolean({
+  invalid_type_error: "Must be boolean", // Not supported
+});
+```
+
+### Refinements and Custom Validation
+
+```typescript
+const schema = z
+  .object({
+    level_min: z.number().optional().default(1),
+    level_max: z.number().optional().default(20),
+  })
+  .refine((data) => data.level_min! <= data.level_max!, {
+    message: "Min must be less than or equal to max",
+    path: ["level_min"], // Attach error to specific field
+  });
+```
+
+## react-hook-form Integration - CRITICAL
+
+### Type Inference - Don't Fight TypeScript
+
+When using `zodResolver`, **NEVER** add explicit type annotations to `useForm`. Let TypeScript infer the type from the resolver:
+
+```typescript
+// ✅ CORRECT - Let TypeScript infer from resolver
+const form = useForm({
+  resolver: zodResolver(EncounterTableCreateSchema),
+  defaultValues: {
+    name: "",
+    level_min: 1,
+    level_max: 20,
+  },
+});
+
+// ❌ WRONG - Explicit type annotation conflicts with inferred type
+const form = useForm<EncounterTableCreateInput>({
+  resolver: zodResolver(EncounterTableCreateSchema),
+  // Type error: level_min?: number | undefined vs level_min: number
+});
+```
+
+The inferred type from `zodResolver` includes the exact optionality and defaults from your Zod schema. Explicit type annotations often conflict because they don't match Zod's internal representation.
+
+### Why This Happens
+
+When you use `.optional().default()` in Zod:
+
+- The schema accepts `undefined` as input
+- But outputs a non-undefined value (the default)
+- TypeScript sees `level_min?: number | undefined` in the input type
+- But your manual type might define it as `level_min: number`
+- This causes type conflicts
+
+**Solution**: Always let the resolver infer the type.
+
 ## Critical Rules
 
+- **Always** use `.optional()` BEFORE `.default()` in Zod schemas.
+- **Never** add explicit type annotations to `useForm` when using `zodResolver`.
+- **Always** check Zod documentation for type-specific error message APIs.
 - **Always** use a Zod schema as the single source of truth for validation.
 - **Always** use the `react-hook-form` hook to manage form state.
 - **Always** use shadcn/ui Form components for consistent UI and error display.
