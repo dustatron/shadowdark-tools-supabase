@@ -99,9 +99,6 @@ export const createMonsterSchema = z.object({
   is_public: z.boolean().default(false),
 });
 
-// Update Monster Request schema for PUT /api/monsters/{id}
-export const updateMonsterSchema = createMonsterSchema;
-
 // Monster search query parameters for GET /api/monsters
 export const monsterSearchSchema = z.object({
   q: z.string().optional(),
@@ -147,7 +144,6 @@ export const randomMonsterSchema = z.object({
 // Type exports for TypeScript
 export type Monster = z.infer<typeof monsterSchema>;
 export type CreateMonsterRequest = z.infer<typeof createMonsterSchema>;
-export type UpdateMonsterRequest = z.infer<typeof updateMonsterSchema>;
 export type MonsterSearchParams = z.infer<typeof monsterSearchSchema>;
 export type MonsterSearchResponse = z.infer<typeof monsterSearchResponseSchema>;
 export type Attack = z.infer<typeof attackSchema>;
@@ -162,10 +158,6 @@ export function validateMonsterSearch(params: unknown) {
 
 export function validateCreateMonster(data: unknown) {
   return createMonsterSchema.safeParse(data);
-}
-
-export function validateUpdateMonster(data: unknown) {
-  return updateMonsterSchema.safeParse(data);
 }
 
 export function validateMonster(data: unknown) {
