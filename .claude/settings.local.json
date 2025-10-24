@@ -89,7 +89,13 @@
       "Bash(.specify/scripts/bash/create-new-feature.sh:*)",
       "Bash(.specify/scripts/bash/setup-plan.sh:*)",
       "Bash(.specify/scripts/bash/update-agent-context.sh:*)",
-      "Bash(rm:*)"
+      "Bash(rm:*)",
+      "mcp__chrome-devtools__fill",
+      "mcp__supabase__search_docs",
+      "WebFetch(domain:supabase.com)",
+      "mcp__chrome-devtools__fill_form",
+      "mcp__chrome-devtools__navigate_page_history",
+      "mcp__supabase__get_logs"
     ],
     "deny": [],
     "ask": []
