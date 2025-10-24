@@ -14,15 +14,15 @@ export const EncounterTableFiltersSchema = z
     sources: z
       .array(z.enum(["official", "user", "public"]))
       .min(1, "At least one monster source required"),
-    level_min: z.number().int().min(1).max(20).default(1),
-    level_max: z.number().int().min(1).max(20).default(20),
+    level_min: z.number().int().min(1).max(20).optional().default(1),
+    level_max: z.number().int().min(1).max(20).optional().default(20),
     alignments: z.array(z.enum(["Lawful", "Neutral", "Chaotic"])).optional(),
     movement_types: z
       .array(z.enum(["fly", "swim", "burrow", "climb"]))
       .optional(),
     search_query: z.string().max(100).optional(),
   })
-  .refine((data) => data.level_min <= data.level_max, {
+  .refine((data) => data.level_min! <= data.level_max!, {
     message: "Minimum level must be less than or equal to maximum level",
     path: ["level_min"],
   });
@@ -81,9 +81,7 @@ export type EncounterTableUpdateInput = z.infer<
 export const ReplaceEntrySchema = z
   .object({
     mode: z.enum(["random", "search"], {
-      errorMap: () => ({
-        message: 'Mode must be either "random" or "search"',
-      }),
+      message: 'Mode must be either "random" or "search"',
     }),
     monster_id: z.string().uuid().optional(),
   })
@@ -108,10 +106,7 @@ export type ReplaceEntryInput = z.infer<typeof ReplaceEntrySchema>;
 // ============================================
 
 export const ShareTableSchema = z.object({
-  is_public: z.boolean({
-    required_error: "is_public field is required",
-    invalid_type_error: "is_public must be a boolean",
-  }),
+  is_public: z.boolean(),
 });
 
 export type ShareTableInput = z.infer<typeof ShareTableSchema>;

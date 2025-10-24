@@ -68,7 +68,7 @@ export function EncounterTableForm({
       : false,
   );
 
-  const form = useForm<EncounterTableCreateInput>({
+  const form = useForm({
     resolver: zodResolver(EncounterTableCreateSchema),
     defaultValues: {
       name: initialData?.name || "",

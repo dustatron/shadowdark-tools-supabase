@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { use, useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { EncounterTableForm } from "@/components/encounter-tables/EncounterTableForm";
 import { Button } from "@/components/ui/button";
@@ -29,10 +29,11 @@ import type { EncounterTable } from "@/lib/encounter-tables/types";
 import { toast } from "sonner";
 
 interface PageProps {
-  params: { id: string };
+  params: Promise<{ id: string }>;
 }
 
 export default function EncounterTableSettingsPage({ params }: PageProps) {
+  const { id } = use(params);
   const router = useRouter();
   const [table, setTable] = useState<EncounterTable | null>(null);
   const [loading, setLoading] = useState(true);
@@ -42,7 +43,7 @@ export default function EncounterTableSettingsPage({ params }: PageProps) {
   useEffect(() => {
     const fetchTable = async () => {
       try {
-        const response = await fetch(`/api/encounter-tables/${params.id}`);
+        const response = await fetch(`/api/encounter-tables/${id}`);
 
         if (!response.ok) {
           throw new Error("Failed to fetch table");
@@ -62,11 +63,11 @@ export default function EncounterTableSettingsPage({ params }: PageProps) {
     };
 
     fetchTable();
-  }, [params.id, router]);
+  }, [id, router]);
 
   const handleUpdate = async (data: EncounterTableCreateInput) => {
     try {
-      const response = await fetch(`/api/encounter-tables/${params.id}`, {
+      const response = await fetch(`/api/encounter-tables/${id}`, {
         method: "PATCH",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(data),
@@ -81,7 +82,7 @@ export default function EncounterTableSettingsPage({ params }: PageProps) {
         description: "Encounter table updated successfully",
       });
 
-      router.push(`/encounter-tables/${params.id}`);
+      router.push(`/encounter-tables/${id}`);
     } catch (error) {
       console.error("Error updating table:", error);
       toast.error("Error", {
@@ -94,12 +95,9 @@ export default function EncounterTableSettingsPage({ params }: PageProps) {
   const handleRegenerate = async () => {
     setRegenerating(true);
     try {
-      const response = await fetch(
-        `/api/encounter-tables/${params.id}/generate`,
-        {
-          method: "POST",
-        },
-      );
+      const response = await fetch(`/api/encounter-tables/${id}/generate`, {
+        method: "POST",
+      });
 
       if (!response.ok) {
         const error = await response.json();
@@ -110,7 +108,7 @@ export default function EncounterTableSettingsPage({ params }: PageProps) {
         description: "Table regenerated successfully",
       });
 
-      router.push(`/encounter-tables/${params.id}`);
+      router.push(`/encounter-tables/${id}`);
     } catch (error) {
       console.error("Error regenerating table:", error);
       toast.error("Error", {
@@ -125,7 +123,7 @@ export default function EncounterTableSettingsPage({ params }: PageProps) {
   const handleDelete = async () => {
     setDeleting(true);
     try {
-      const response = await fetch(`/api/encounter-tables/${params.id}`, {
+      const response = await fetch(`/api/encounter-tables/${id}`, {
         method: "DELETE",
       });
 
@@ -191,7 +189,7 @@ export default function EncounterTableSettingsPage({ params }: PageProps) {
             <EncounterTableForm
               initialData={initialData}
               onSubmit={handleUpdate}
-              onCancel={() => router.push(`/encounter-tables/${params.id}`)}
+              onCancel={() => router.push(`/encounter-tables/${id}`)}
               isEdit
             />
           </CardContent>

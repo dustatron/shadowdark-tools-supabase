@@ -60,14 +60,14 @@ export default function NewEncounterTablePage() {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  const form = useForm<EncounterTableCreateInput>({
+  const form = useForm({
     resolver: zodResolver(EncounterTableCreateSchema),
     defaultValues: {
       name: "",
       description: "",
       die_size: 20,
       filters: {
-        sources: ["official"],
+        sources: ["official" as const],
         level_min: 1,
         level_max: 20,
         alignments: [],
