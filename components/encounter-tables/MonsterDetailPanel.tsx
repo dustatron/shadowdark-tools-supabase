@@ -7,7 +7,6 @@ import {
   SheetContent,
   SheetHeader,
   SheetTitle,
-  SheetClose,
 } from "@/components/ui/sheet";
 import {
   Dialog,
@@ -106,14 +105,17 @@ export function MonsterDetailPanel({
         </div>
       </div>
 
+      <Separator />
+
       {/* Description */}
       {monster.description && (
-        <div>
-          <p className="text-sm text-muted-foreground">{monster.description}</p>
-        </div>
+        <Card>
+          <CardContent className="p-4">
+            <h3 className="text-lg font-semibold mb-2">Description</h3>
+            <p className="text-sm whitespace-pre-wrap">{monster.description}</p>
+          </CardContent>
+        </Card>
       )}
-
-      <Separator />
 
       {/* Core Stats */}
       <Card>
@@ -130,14 +132,11 @@ export function MonsterDetailPanel({
                 Hit Points
               </p>
               <p className="text-xl font-bold">{monster.hit_points}</p>
-              <p className="text-xs text-muted-foreground">
-                {monster.hit_dice}
-              </p>
             </div>
-            <div>
-              <p className="text-xs text-muted-foreground uppercase">Speed</p>
-              <p className="text-xl font-bold">{monster.speed}</p>
-            </div>
+          </div>
+          <div>
+            <p className="text-xs text-muted-foreground uppercase">Speed</p>
+            <p className="text-xl font-bold">{monster.speed}</p>
           </div>
         </CardContent>
       </Card>

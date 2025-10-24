@@ -145,6 +145,7 @@ export function EncounterTableClient({
         <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
           <div>
             <div className="text-sm text-muted-foreground">Challenge Level</div>
+
             <div className="text-lg font-semibold">
               {monster.challenge_level}
             </div>
@@ -159,10 +160,10 @@ export function EncounterTableClient({
               {monster.hit_points} ({monster.hit_dice})
             </div>
           </div>
-          <div>
-            <div className="text-sm text-muted-foreground">Speed</div>
-            <div className="text-lg font-semibold">{monster.speed}</div>
-          </div>
+        </div>
+        <div>
+          <div className="text-sm text-muted-foreground">Speed</div>
+          <div className="text-lg font-semibold">{monster.speed}</div>
         </div>
 
         <Separator />
@@ -449,6 +450,7 @@ export function EncounterTableClient({
                 <div className="flex items-start justify-between">
                   <div className="flex-1">
                     <CardTitle>{selectedEntry.monster_snapshot.name}</CardTitle>
+                    <div>{selectedEntry.monster_snapshot.description}</div>
                     <CardDescription>
                       {selectedEntry.monster_snapshot.size}{" "}
                       {selectedEntry.monster_snapshot.type}
