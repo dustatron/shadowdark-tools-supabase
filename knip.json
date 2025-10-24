@@ -1,0 +1,28 @@
+{
+  "$schema": "https://unpkg.com/knip@5/schema.json",
+  "entry": [
+    "app/**/*.{ts,tsx}",
+    "components/**/*.{ts,tsx}",
+    "lib/**/*.{ts,tsx}"
+  ],
+  "project": [
+    "**/*.{ts,tsx,js,jsx,mjs}",
+    "!**/*.test.{ts,tsx}",
+    "!**/*.spec.{ts,tsx}"
+  ],
+  "ignore": [
+    "scripts/**",
+    "supabase/**",
+    ".next/**",
+    "node_modules/**",
+    "dist/**",
+    "build/**",
+    "coverage/**"
+  ],
+  "ignoreDependencies": [
+    "eslint-config-next",
+    "eslint-config-prettier",
+    "eslint-plugin-prettier",
+    "supabase"
+  ]
+}

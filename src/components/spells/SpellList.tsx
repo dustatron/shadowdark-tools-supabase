@@ -29,7 +29,7 @@ interface PaginationInfo {
   totalPages: number;
 }
 
-export interface SpellListProps {
+interface SpellListProps {
   spells: Spell[];
   pagination?: PaginationInfo;
   loading?: boolean;
