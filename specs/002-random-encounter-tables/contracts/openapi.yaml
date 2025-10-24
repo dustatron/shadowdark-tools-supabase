@@ -173,7 +173,7 @@ components:
           format: uuid
           nullable: true
         monster_snapshot:
-          $ref: '#/components/schemas/MonsterSnapshot'
+          $ref: "#/components/schemas/MonsterSnapshot"
         created_at:
           type: string
           format: date-time
@@ -219,11 +219,11 @@ components:
           maxLength: 8
           nullable: true
         filters:
-          $ref: '#/components/schemas/EncounterTableFilters'
+          $ref: "#/components/schemas/EncounterTableFilters"
         entries:
           type: array
           items:
-            $ref: '#/components/schemas/EncounterTableEntry'
+            $ref: "#/components/schemas/EncounterTableEntry"
         created_at:
           type: string
           format: date-time
@@ -250,7 +250,7 @@ components:
           minimum: 2
           maximum: 1000
         filters:
-          $ref: '#/components/schemas/EncounterTableFilters'
+          $ref: "#/components/schemas/EncounterTableFilters"
         generate_immediately:
           type: boolean
           default: true
@@ -267,7 +267,7 @@ components:
           type: string
           maxLength: 500
         filters:
-          $ref: '#/components/schemas/EncounterTableFilters'
+          $ref: "#/components/schemas/EncounterTableFilters"
 
     ReplaceEntryRequest:
       type: object
@@ -301,7 +301,7 @@ components:
           type: integer
           minimum: 1
         entry:
-          $ref: '#/components/schemas/EncounterTableEntry'
+          $ref: "#/components/schemas/EncounterTableEntry"
 
 paths:
   /encounter-tables:
@@ -324,7 +324,7 @@ paths:
             maximum: 100
             default: 20
       responses:
-        '200':
+        "200":
           description: List of encounter tables
           content:
             application/json:
@@ -334,7 +334,7 @@ paths:
                   data:
                     type: array
                     items:
-                      $ref: '#/components/schemas/EncounterTable'
+                      $ref: "#/components/schemas/EncounterTable"
                   pagination:
                     type: object
                     properties:
@@ -344,12 +344,12 @@ paths:
                         type: integer
                       total:
                         type: integer
-        '401':
+        "401":
           description: Unauthorized
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/Error'
+                $ref: "#/components/schemas/Error"
 
     post:
       summary: Create new encounter table
@@ -360,26 +360,26 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/CreateEncounterTableRequest'
+              $ref: "#/components/schemas/CreateEncounterTableRequest"
       responses:
-        '201':
+        "201":
           description: Table created successfully
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/EncounterTable'
-        '400':
+                $ref: "#/components/schemas/EncounterTable"
+        "400":
           description: Validation error or insufficient monsters
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/Error'
-        '401':
+                $ref: "#/components/schemas/Error"
+        "401":
           description: Unauthorized
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/Error'
+                $ref: "#/components/schemas/Error"
 
   /encounter-tables/{id}:
     get:
@@ -394,24 +394,24 @@ paths:
             type: string
             format: uuid
       responses:
-        '200':
+        "200":
           description: Encounter table details
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/EncounterTable'
-        '401':
+                $ref: "#/components/schemas/EncounterTable"
+        "401":
           description: Unauthorized
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/Error'
-        '404':
+                $ref: "#/components/schemas/Error"
+        "404":
           description: Table not found
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/Error'
+                $ref: "#/components/schemas/Error"
 
     patch:
       summary: Update encounter table settings
@@ -429,32 +429,32 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/UpdateEncounterTableRequest'
+              $ref: "#/components/schemas/UpdateEncounterTableRequest"
       responses:
-        '200':
+        "200":
           description: Table updated successfully
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/EncounterTable'
-        '400':
+                $ref: "#/components/schemas/EncounterTable"
+        "400":
           description: Validation error
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/Error'
-        '401':
+                $ref: "#/components/schemas/Error"
+        "401":
           description: Unauthorized
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/Error'
-        '404':
+                $ref: "#/components/schemas/Error"
+        "404":
           description: Table not found
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/Error'
+                $ref: "#/components/schemas/Error"
 
     delete:
       summary: Delete encounter table
@@ -468,20 +468,20 @@ paths:
             type: string
             format: uuid
       responses:
-        '204':
+        "204":
           description: Table deleted successfully
-        '401':
+        "401":
           description: Unauthorized
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/Error'
-        '404':
+                $ref: "#/components/schemas/Error"
+        "404":
           description: Table not found
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/Error'
+                $ref: "#/components/schemas/Error"
 
   /encounter-tables/{id}/generate:
     post:
@@ -497,30 +497,30 @@ paths:
             type: string
             format: uuid
       responses:
-        '200':
+        "200":
           description: Table regenerated successfully
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/EncounterTable'
-        '400':
+                $ref: "#/components/schemas/EncounterTable"
+        "400":
           description: Insufficient monsters match criteria
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/Error'
-        '401':
+                $ref: "#/components/schemas/Error"
+        "401":
           description: Unauthorized
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/Error'
-        '404':
+                $ref: "#/components/schemas/Error"
+        "404":
           description: Table not found
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/Error'
+                $ref: "#/components/schemas/Error"
 
   /encounter-tables/{id}/entries/{roll}:
     patch:
@@ -545,32 +545,32 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/ReplaceEntryRequest'
+              $ref: "#/components/schemas/ReplaceEntryRequest"
       responses:
-        '200':
+        "200":
           description: Entry replaced successfully
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/EncounterTableEntry'
-        '400':
+                $ref: "#/components/schemas/EncounterTableEntry"
+        "400":
           description: Validation error or no available monsters
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/Error'
-        '401':
+                $ref: "#/components/schemas/Error"
+        "401":
           description: Unauthorized
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/Error'
-        '404':
+                $ref: "#/components/schemas/Error"
+        "404":
           description: Table or entry not found
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/Error'
+                $ref: "#/components/schemas/Error"
 
   /encounter-tables/{id}/roll:
     post:
@@ -586,24 +586,24 @@ paths:
             type: string
             format: uuid
       responses:
-        '200':
+        "200":
           description: Roll result
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/RollResult'
-        '401':
+                $ref: "#/components/schemas/RollResult"
+        "401":
           description: Unauthorized
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/Error'
-        '404':
+                $ref: "#/components/schemas/Error"
+        "404":
           description: Table not found or no entries
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/Error'
+                $ref: "#/components/schemas/Error"
 
   /encounter-tables/{id}/share:
     patch:
@@ -622,26 +622,26 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/ShareTableRequest'
+              $ref: "#/components/schemas/ShareTableRequest"
       responses:
-        '200':
+        "200":
           description: Public status updated
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/EncounterTable'
-        '401':
+                $ref: "#/components/schemas/EncounterTable"
+        "401":
           description: Unauthorized
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/Error'
-        '404':
+                $ref: "#/components/schemas/Error"
+        "404":
           description: Table not found
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/Error'
+                $ref: "#/components/schemas/Error"
 
   /encounter-tables/public/{slug}:
     get:
@@ -656,18 +656,18 @@ paths:
             minLength: 8
             maxLength: 8
       responses:
-        '200':
+        "200":
           description: Public table details
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/EncounterTable'
-        '404':
+                $ref: "#/components/schemas/EncounterTable"
+        "404":
           description: Public table not found
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/Error'
+                $ref: "#/components/schemas/Error"
 
   /encounter-tables/public/{slug}/copy:
     post:
@@ -683,21 +683,21 @@ paths:
             minLength: 8
             maxLength: 8
       responses:
-        '201':
+        "201":
           description: Table copied successfully
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/EncounterTable'
-        '401':
+                $ref: "#/components/schemas/EncounterTable"
+        "401":
           description: Unauthorized
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/Error'
-        '404':
+                $ref: "#/components/schemas/Error"
+        "404":
           description: Public table not found
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/Error'
+                $ref: "#/components/schemas/Error"

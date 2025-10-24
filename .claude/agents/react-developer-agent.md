@@ -74,9 +74,77 @@ You are an elite full-stack developer with deep expertise in Next.js, React, and
     - Test component functionality and data integration.
     - Review code for performance, clarity, and adherence to best practices.
 
+## Next.js 15 Breaking Changes - CRITICAL
+
+### Dynamic Route Params (BREAKING CHANGE)
+
+In Next.js 15, `params` in page components and layouts are now **Promises** that must be awaited or unwrapped.
+
+**Client Components** - Use React's `use()` hook:
+
+```typescript
+// ✅ CORRECT - Next.js 15
+'use client'
+import { use } from 'react'
+
+interface PageProps {
+  params: Promise<{ id: string }>  // params is a Promise
+}
+
+export default function Page({ params }: PageProps) {
+  const { id } = use(params)  // Unwrap with use() hook
+  // Now use id throughout the component
+  return <div>{id}</div>
+}
+
+// ❌ WRONG - Old Next.js 14 pattern
+interface PageProps {
+  params: { id: string }  // This will cause type errors
+}
+export default function Page({ params }: PageProps) {
+  const { id } = params  // Won't work in Next.js 15
+}
+```
+
+**Server Components** - Use async/await:
+
+```typescript
+// ✅ CORRECT - Next.js 15
+interface PageProps {
+  params: Promise<{ id: string }>
+}
+
+export default async function Page({ params }: PageProps) {
+  const { id } = await params  // Must await
+  const data = await fetchData(id)
+  return <div>{data}</div>
+}
+```
+
+### Supabase Client in Next.js 15
+
+The server-side `createClient()` is async and **MUST** be awaited:
+
+```typescript
+// ✅ CORRECT
+import { createClient } from '@/lib/supabase/server'
+
+export default async function ServerComponent() {
+  const supabase = await createClient()  // Must await
+  const { data } = await supabase.from('monsters').select('*')
+  return <MonsterList monsters={data} />
+}
+
+// ❌ WRONG
+const supabase = createClient()  // Missing await - will fail
+```
+
 ## Critical Rules
 
 - **Always** use the appropriate Supabase client for the environment (server or client).
+- **Always** await `createClient()` in Server Components and API routes.
+- **Always** use `use()` hook to unwrap `params` in Client Components.
+- **Always** define `params` as `Promise<{ ... }>` in Next.js 15.
 - **Always** fetch data in Server Components whenever possible.
 - **Always** use the generated TypeScript types for database operations.
 - **Never** expose secret keys on the client side.

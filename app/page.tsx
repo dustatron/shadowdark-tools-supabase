@@ -73,24 +73,26 @@ export default function Home() {
             </Card>
           </Link>
 
-          <Card className="h-full opacity-60">
-            <CardContent className="p-6">
-              <div className="flex flex-col gap-4 h-full">
-                <div className="flex items-center gap-4">
-                  <Dice6 className="h-8 w-8 text-primary" />
-                  <h3 className="text-xl font-bold">Encounters</h3>
+          <Link href="/encounter-tables" className="no-underline h-full">
+            <Card className="h-full hover:shadow-lg transition-shadow cursor-pointer">
+              <CardContent className="p-6">
+                <div className="flex flex-col gap-4 h-full">
+                  <div className="flex items-center gap-4">
+                    <Dice6 className="h-8 w-8 text-primary" />
+                    <h3 className="text-xl font-bold">Encounter Tables</h3>
+                  </div>
+                  <p className="text-sm text-muted-foreground flex-grow">
+                    Create random encounter tables with monster filtering. Roll
+                    on tables during gameplay, share publicly, and copy tables
+                    from the community.
+                  </p>
+                  <Button variant="secondary" className="w-full mt-auto">
+                    Browse Encounter Tables
+                  </Button>
                 </div>
-                <p className="text-sm text-muted-foreground flex-grow">
-                  Create balanced encounters for your party. Roll on encounter
-                  tables or build custom encounters with your monster
-                  collection.
-                </p>
-                <Button variant="secondary" className="w-full mt-auto" disabled>
-                  Coming Soon
-                </Button>
-              </div>
-            </CardContent>
-          </Card>
+              </CardContent>
+            </Card>
+          </Link>
         </div>
 
         {/* CTA Section */}
