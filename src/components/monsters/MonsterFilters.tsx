@@ -9,6 +9,14 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { MultiSelect } from "@/components/ui/multi-select";
 import { Collapsible, CollapsibleContent } from "@/components/ui/collapsible";
+import {
+  Sheet,
+  SheetContent,
+  SheetHeader,
+  SheetTitle,
+  SheetTrigger,
+  SheetFooter,
+} from "@/components/ui/sheet";
 import { cn } from "@/lib/utils";
 
 interface FilterValues {
@@ -70,6 +78,7 @@ export function MonsterFilters({
   loading = false,
 }: MonsterFiltersProps) {
   const [expanded, setExpanded] = useState(false);
+  const [mobileSheetOpen, setMobileSheetOpen] = useState(false);
   const [localSearch, setLocalSearch] = useState(filters.search);
 
   // Debounce search input
@@ -113,17 +122,107 @@ export function MonsterFilters({
     filters.monsterSource !== "all",
   ].filter(Boolean).length;
 
+  // Reusable filter content component
+  const FilterContent = () => (
+    <div className="flex flex-col gap-4">
+      {/* Challenge Level Range */}
+      <div className="space-y-2">
+        <label className="text-sm font-medium">Challenge Level Range</label>
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+          <div className="space-y-2">
+            <label className="text-xs text-muted-foreground">Min Level</label>
+            <Input
+              type="number"
+              min={1}
+              max={20}
+              value={filters.challengeLevelRange[0]}
+              onChange={(e) => {
+                const min = parseInt(e.target.value) || 1;
+                handleFilterChange("challengeLevelRange", [
+                  Math.min(min, filters.challengeLevelRange[1]),
+                  filters.challengeLevelRange[1],
+                ]);
+              }}
+              disabled={loading}
+            />
+          </div>
+          <div className="space-y-2">
+            <label className="text-xs text-muted-foreground">Max Level</label>
+            <Input
+              type="number"
+              min={1}
+              max={20}
+              value={filters.challengeLevelRange[1]}
+              onChange={(e) => {
+                const max = parseInt(e.target.value) || 20;
+                handleFilterChange("challengeLevelRange", [
+                  filters.challengeLevelRange[0],
+                  Math.max(max, filters.challengeLevelRange[0]),
+                ]);
+              }}
+              disabled={loading}
+            />
+          </div>
+        </div>
+      </div>
+
+      <div className="grid grid-cols-1 gap-4">
+        {/* Monster Types */}
+        <MultiSelect
+          label="Monster Types"
+          placeholder="Select types"
+          options={availableTypes.map((type) => ({
+            value: type,
+            label: type,
+          }))}
+          selected={filters.types}
+          onChange={(value) => handleFilterChange("types", value)}
+          searchable
+          clearable
+          disabled={loading}
+        />
+
+        {/* Speed Type */}
+        <MultiSelect
+          label="Speed"
+          placeholder="Select speed types"
+          options={availableSpeedTypes.map((speed) => ({
+            value: speed,
+            label: speed,
+          }))}
+          selected={filters.speedType}
+          onChange={(value) => handleFilterChange("speedType", value)}
+          searchable
+          clearable
+          disabled={loading}
+        />
+      </div>
+
+      {/* Filter Actions */}
+      <div className="flex justify-end">
+        <Button
+          variant="ghost"
+          size="sm"
+          onClick={clearFilters}
+          disabled={!hasActiveFilters || loading}
+        >
+          Clear All
+        </Button>
+      </div>
+    </div>
+  );
+
   return (
     <Card>
       <CardContent className="pt-6">
         <div className="flex flex-col gap-4">
           {/* Monster Source Filter */}
-          <div className="flex gap-2">
+          <div className="grid grid-cols-3 gap-2">
             <Button
               variant={filters.monsterSource === "all" ? "default" : "outline"}
               onClick={() => handleFilterChange("monsterSource", "all")}
               disabled={loading}
-              className="flex-1"
+              className="text-xs sm:text-sm"
             >
               All Monsters
             </Button>
@@ -133,7 +232,7 @@ export function MonsterFilters({
               }
               onClick={() => handleFilterChange("monsterSource", "official")}
               disabled={loading}
-              className="flex-1"
+              className="text-xs sm:text-sm"
             >
               Core Monsters
             </Button>
@@ -143,13 +242,13 @@ export function MonsterFilters({
               }
               onClick={() => handleFilterChange("monsterSource", "custom")}
               disabled={loading}
-              className="flex-1"
+              className="text-xs sm:text-sm"
             >
               User Created
             </Button>
           </div>
 
-          {/* Search and Quick Filters */}
+          {/* Search and Filter Button */}
           <div className="flex gap-2">
             <div className="relative flex-1">
               <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
@@ -163,9 +262,39 @@ export function MonsterFilters({
             </div>
 
             <div className="flex gap-2">
+              {/* Mobile Filter Button - Opens Sheet */}
+              <Sheet open={mobileSheetOpen} onOpenChange={setMobileSheetOpen}>
+                <SheetTrigger asChild>
+                  <Button
+                    variant={activeFilterCount > 0 ? "default" : "outline"}
+                    className="md:hidden"
+                  >
+                    <Filter className="h-4 w-4" />
+                    {activeFilterCount > 0 && (
+                      <Badge variant="secondary" className="ml-2">
+                        {activeFilterCount}
+                      </Badge>
+                    )}
+                  </Button>
+                </SheetTrigger>
+                <SheetContent
+                  side="bottom"
+                  className="h-[90vh] px-4 pb-8 sm:px-6"
+                >
+                  <SheetHeader className="pb-4">
+                    <SheetTitle>Filter Monsters</SheetTitle>
+                  </SheetHeader>
+                  <div className="overflow-y-auto h-[calc(90vh-80px)] px-1">
+                    <FilterContent />
+                  </div>
+                </SheetContent>
+              </Sheet>
+
+              {/* Desktop Filter Button - Toggles Collapsible */}
               <Button
                 variant={expanded ? "default" : "outline"}
                 onClick={() => setExpanded(!expanded)}
+                className="hidden md:flex"
               >
                 <Filter className="h-4 w-4 mr-2" />
                 Filters
@@ -194,100 +323,15 @@ export function MonsterFilters({
             </div>
           </div>
 
-          {/* Advanced Filters */}
-          <Collapsible open={expanded} onOpenChange={setExpanded}>
+          {/* Desktop Advanced Filters - Collapsible */}
+          <Collapsible
+            open={expanded}
+            onOpenChange={setExpanded}
+            className="hidden md:block"
+          >
             <CollapsibleContent>
-              <div className="flex flex-col gap-4 pt-4 border-t">
-                {/* Challenge Level Range */}
-                <div className="space-y-2">
-                  <label className="text-sm font-medium">
-                    Challenge Level Range
-                  </label>
-                  <div className="grid grid-cols-2 gap-4">
-                    <div className="space-y-2">
-                      <label className="text-xs text-muted-foreground">
-                        Min Level
-                      </label>
-                      <Input
-                        type="number"
-                        min={1}
-                        max={20}
-                        value={filters.challengeLevelRange[0]}
-                        onChange={(e) => {
-                          const min = parseInt(e.target.value) || 1;
-                          handleFilterChange("challengeLevelRange", [
-                            Math.min(min, filters.challengeLevelRange[1]),
-                            filters.challengeLevelRange[1],
-                          ]);
-                        }}
-                        disabled={loading}
-                      />
-                    </div>
-                    <div className="space-y-2">
-                      <label className="text-xs text-muted-foreground">
-                        Max Level
-                      </label>
-                      <Input
-                        type="number"
-                        min={1}
-                        max={20}
-                        value={filters.challengeLevelRange[1]}
-                        onChange={(e) => {
-                          const max = parseInt(e.target.value) || 20;
-                          handleFilterChange("challengeLevelRange", [
-                            filters.challengeLevelRange[0],
-                            Math.max(max, filters.challengeLevelRange[0]),
-                          ]);
-                        }}
-                        disabled={loading}
-                      />
-                    </div>
-                  </div>
-                </div>
-
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  {/* Monster Types */}
-                  <MultiSelect
-                    label="Monster Types"
-                    placeholder="Select types"
-                    options={availableTypes.map((type) => ({
-                      value: type,
-                      label: type,
-                    }))}
-                    selected={filters.types}
-                    onChange={(value) => handleFilterChange("types", value)}
-                    searchable
-                    clearable
-                    disabled={loading}
-                  />
-
-                  {/* Speed Type */}
-                  <MultiSelect
-                    label="Speed"
-                    placeholder="Select speed types"
-                    options={availableSpeedTypes.map((speed) => ({
-                      value: speed,
-                      label: speed,
-                    }))}
-                    selected={filters.speedType}
-                    onChange={(value) => handleFilterChange("speedType", value)}
-                    searchable
-                    clearable
-                    disabled={loading}
-                  />
-                </div>
-
-                {/* Filter Actions */}
-                <div className="flex justify-end">
-                  <Button
-                    variant="ghost"
-                    size="sm"
-                    onClick={clearFilters}
-                    disabled={!hasActiveFilters || loading}
-                  >
-                    Clear All
-                  </Button>
-                </div>
+              <div className="pt-4 border-t">
+                <FilterContent />
               </div>
             </CollapsibleContent>
           </Collapsible>

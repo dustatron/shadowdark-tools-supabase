@@ -64,8 +64,8 @@ export default function MonstersPage() {
     total: 0,
     totalPages: 0,
   });
-  const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [currentUserId, setCurrentUserId] = useState<string | null>(null);
+
   const [favoritesMap, setFavoritesMap] = useState<Map<string, string>>(
     new Map(),
   );
@@ -85,7 +85,8 @@ export default function MonstersPage() {
         data: { user },
       } = await supabase.auth.getUser();
 
-      setIsAuthenticated(!!user);
+      console.log("user?", user);
+
       setCurrentUserId(user?.id || null);
 
       // Fetch user's favorite monsters if authenticated
@@ -214,7 +215,7 @@ export default function MonstersPage() {
     <div className="container mx-auto p-4 md:p-6 lg:p-8">
       <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between mb-6">
         <h1 className="text-3xl font-bold tracking-tight">Monsters</h1>
-        {isAuthenticated && (
+        {currentUserId && (
           <Button asChild>
             <Link href="/monsters/create">
               <Plus className="mr-2 h-4 w-4" />
