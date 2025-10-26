@@ -1,5 +1,4 @@
 import { createClient } from "@/lib/supabase/server";
-import { notFound } from "next/navigation";
 import { MonsterDetailClient } from "./MonsterDetailClient";
 import { ArrowLeft, AlertCircle } from "lucide-react";
 import Link from "next/link";

@@ -69,7 +69,7 @@ export async function GET(
 
     // First try official_monsters
     let { data: monster, error } = await supabase
-      .from("official_monsters")
+      .from("all_monsters")
       .select("*")
       .eq("id", id)
       .single();
