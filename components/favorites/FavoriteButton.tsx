@@ -33,12 +33,6 @@ export function FavoriteButton({
         }
 
         setFavoriteId(result.favoriteId || undefined);
-
-        if (result.favoriteId) {
-          toast.success("Added to favorites");
-        } else {
-          toast.success("Removed from favorites");
-        }
       } catch (error) {
         toast.error("Something went wrong");
       }
@@ -50,7 +44,7 @@ export function FavoriteButton({
   return (
     <Button
       variant={compact ? "ghost" : "outline"}
-      size={compact ? "icon-sm" : "sm"}
+      size={compact ? "icon-lg" : "lg"}
       onClick={handleToggle}
       disabled={isPending}
       className={isFavorited ? "text-red-500 hover:text-red-600" : ""}

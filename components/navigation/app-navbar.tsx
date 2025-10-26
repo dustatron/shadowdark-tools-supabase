@@ -26,7 +26,7 @@ import {
   LayoutDashboard,
 } from "lucide-react";
 
-interface UserData {
+export interface UserData {
   id: string;
   email: string;
   display_name?: string;
@@ -235,6 +235,7 @@ export function AppNavbar() {
         { href: "/spells", label: "Spells" },
         { href: "/encounter-tables", label: "Encounter Tables" },
       ]}
+      userdata={user}
       rightContent={renderRightContent()}
     />
   );

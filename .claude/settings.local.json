@@ -101,7 +101,9 @@
       "mcp__playwright__browser_close",
       "Bash(npm run knip:*)",
       "Bash(npm uninstall:*)",
-      "Bash(npm run test:run:*)"
+      "Bash(npm run test:run:*)",
+      "Bash(psql:*)",
+      "mcp__chrome-devtools__resize_page"
     ],
     "deny": [],
     "ask": []

@@ -119,6 +119,10 @@ export const monsterSearchSchema = z.object({
     .array(z.string())
     .or(z.string().transform((str) => [str]))
     .optional(),
+  speed: z
+    .array(z.string())
+    .or(z.string().transform((str) => [str]))
+    .optional(),
   type: z.enum(["official", "custom", "public"]).optional(),
   limit: z
     .number()

@@ -15,6 +15,7 @@ import {
   PopoverTrigger,
 } from "@/components/ui/popover";
 import { cn } from "@/lib/utils";
+import { UserData } from "../navigation/app-navbar";
 
 // Types
 export interface NavigationLink {
@@ -30,6 +31,7 @@ export interface NavbarProps {
     label: string;
     onClick: () => void;
   };
+  userdata: UserData | null;
   ctaButton?: {
     label: string;
     onClick: () => void;
@@ -95,6 +97,7 @@ export function Navbar({
   ctaButton,
   rightContent,
   className,
+  userdata,
 }: NavbarProps) {
   const [isOpen, setIsOpen] = useState(false);
   const popoverRef = useRef<HTMLDivElement>(null);
@@ -232,8 +235,25 @@ export function Navbar({
                     <div className="my-1 border-t" />
                   )}
                 {rightContent ? (
-                  <div className="px-2 py-1" onClick={() => setIsOpen(false)}>
-                    {rightContent}
+                  <div className="flex flex-col space-y-2">
+                    <Link
+                      href="/dashboard"
+                      className="px-3 py-2 text-sm font-medium rounded-md hover:bg-accent hover:text-accent-foreground transition-colors"
+                    >
+                      Dashboard
+                    </Link>
+                    <Link
+                      href="/settings"
+                      className="px-3 py-2 text-sm font-medium rounded-md hover:bg-accent hover:text-accent-foreground transition-colors"
+                    >
+                      Settings
+                    </Link>
+                    <Link
+                      href={`/users/${userdata?.username_slug}`}
+                      className="px-3 py-2 text-sm font-medium rounded-md hover:bg-accent hover:text-accent-foreground transition-colors"
+                    >
+                      Profile
+                    </Link>
                   </div>
                 ) : (
                   <>
@@ -250,10 +270,11 @@ export function Navbar({
                         {signInButton.label}
                       </Button>
                     )}
+
                     {ctaButton && (
                       <Button
                         variant={ctaButton.variant || "default"}
-                        size="sm"
+                        size="icon"
                         onClick={() => {
                           ctaButton.onClick();
                           setIsOpen(false);

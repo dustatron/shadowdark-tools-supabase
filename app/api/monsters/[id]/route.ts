@@ -67,15 +67,15 @@ export async function GET(
       data: { user },
     } = await supabase.auth.getUser();
 
-    // First try official_monsters
+    // First try all_monsters view (includes official and public custom monsters)
     let { data: monster, error } = await supabase
-      .from("official_monsters")
+      .from("all_monsters")
       .select("*")
       .eq("id", id)
       .single();
 
-    // If not found in official, try user_monsters with author info
-    if (!monster) {
+    // If not found in all_monsters, try user_monsters directly (for private custom monsters)
+    if (!monster || error) {
       const { data: userMonster, error: userError } = await supabase
         .from("user_monsters")
         .select(

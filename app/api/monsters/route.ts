@@ -28,6 +28,13 @@ export async function GET(request: NextRequest) {
             .map((t) => t.trim())
             .filter((t) => t)
         : undefined,
+      speed: searchParams.get("speed")
+        ? searchParams
+            .get("speed")!
+            .split(",")
+            .map((s) => s.trim())
+            .filter((s) => s)
+        : undefined,
       type: searchParams.get("type") || undefined,
       limit: Math.min(
         Math.max(parseInt(searchParams.get("limit") || "20"), 1),
@@ -182,12 +189,42 @@ export async function GET(request: NextRequest) {
         userQuery = userQuery.lte("challenge_level", params.max_cl);
     }
 
-    // Apply tags filter (single tag for now, as per test)
+    // Apply tags filter - support multiple tags with OR logic
     if (params.tags && params.tags.length > 0) {
-      const tag = params.tags[0]; // Test uses single tag
-      if (officialQuery)
-        officialQuery = officialQuery.contains("tags.type", [tag]);
-      if (userQuery) userQuery = userQuery.contains("tags.type", [tag]);
+      // For a single tag, use contains on the nested JSONB structure
+      // For multiple tags, build OR conditions
+      if (params.tags.length === 1) {
+        const tag = params.tags[0];
+        if (officialQuery) {
+          officialQuery = officialQuery.contains("tags", { type: [tag] });
+        }
+        if (userQuery) {
+          userQuery = userQuery.contains("tags", { type: [tag] });
+        }
+      } else {
+        // Build OR conditions for multiple tags
+        const tagConditions = params.tags
+          .map((tag) => `tags.cs.{"type":["${tag}"]}`)
+          .join(",");
+
+        if (officialQuery) {
+          officialQuery = officialQuery.or(tagConditions);
+        }
+        if (userQuery) {
+          userQuery = userQuery.or(tagConditions);
+        }
+      }
+    }
+
+    // Apply speed filter - support multiple speed types with OR logic
+    if (params.speed && params.speed.length > 0) {
+      // Use .in() for both single and multiple values
+      if (officialQuery) {
+        officialQuery = officialQuery.in("speed", params.speed);
+      }
+      if (userQuery) {
+        userQuery = userQuery.in("speed", params.speed);
+      }
     }
 
     // Apply sorting
