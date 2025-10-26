@@ -36,7 +36,6 @@ export default async function MonsterDetailPage({
       source,
       author_notes,
       monster_type,
-      creator_id,
       user_id,
       is_public,
       created_at,
