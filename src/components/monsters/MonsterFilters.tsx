@@ -7,7 +7,6 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { Slider } from "@/components/ui/slider";
 import { MultiSelect } from "@/components/ui/multi-select";
 import {
   Collapsible,
@@ -185,30 +184,46 @@ export function MonsterFilters({
                 {/* Challenge Level Range */}
                 <div className="space-y-2">
                   <label className="text-sm font-medium">
-                    Challenge Level: {filters.challengeLevelRange[0]} -{" "}
-                    {filters.challengeLevelRange[1]}
+                    Challenge Level Range
                   </label>
-                  <div className="px-2">
-                    <Slider
-                      min={1}
-                      max={20}
-                      step={1}
-                      value={filters.challengeLevelRange}
-                      onValueChange={(value) =>
-                        handleFilterChange(
-                          "challengeLevelRange",
-                          value as [number, number],
-                        )
-                      }
-                      disabled={loading}
-                      className="w-full"
-                    />
-                    <div className="flex justify-between text-xs text-muted-foreground mt-2">
-                      <span>1</span>
-                      <span>5</span>
-                      <span>10</span>
-                      <span>15</span>
-                      <span>20</span>
+                  <div className="grid grid-cols-2 gap-4">
+                    <div className="space-y-2">
+                      <label className="text-xs text-muted-foreground">
+                        Min Level
+                      </label>
+                      <Input
+                        type="number"
+                        min={1}
+                        max={20}
+                        value={filters.challengeLevelRange[0]}
+                        onChange={(e) => {
+                          const min = parseInt(e.target.value) || 1;
+                          handleFilterChange("challengeLevelRange", [
+                            Math.min(min, filters.challengeLevelRange[1]),
+                            filters.challengeLevelRange[1],
+                          ]);
+                        }}
+                        disabled={loading}
+                      />
+                    </div>
+                    <div className="space-y-2">
+                      <label className="text-xs text-muted-foreground">
+                        Max Level
+                      </label>
+                      <Input
+                        type="number"
+                        min={1}
+                        max={20}
+                        value={filters.challengeLevelRange[1]}
+                        onChange={(e) => {
+                          const max = parseInt(e.target.value) || 20;
+                          handleFilterChange("challengeLevelRange", [
+                            filters.challengeLevelRange[0],
+                            Math.max(max, filters.challengeLevelRange[0]),
+                          ]);
+                        }}
+                        disabled={loading}
+                      />
                     </div>
                   </div>
                 </div>

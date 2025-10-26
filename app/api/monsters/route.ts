@@ -182,12 +182,31 @@ export async function GET(request: NextRequest) {
         userQuery = userQuery.lte("challenge_level", params.max_cl);
     }
 
-    // Apply tags filter (single tag for now, as per test)
+    // Apply tags filter - support multiple tags with OR logic
     if (params.tags && params.tags.length > 0) {
-      const tag = params.tags[0]; // Test uses single tag
-      if (officialQuery)
-        officialQuery = officialQuery.contains("tags.type", [tag]);
-      if (userQuery) userQuery = userQuery.contains("tags.type", [tag]);
+      // For a single tag, use contains on the nested JSONB structure
+      // For multiple tags, build OR conditions
+      if (params.tags.length === 1) {
+        const tag = params.tags[0];
+        if (officialQuery) {
+          officialQuery = officialQuery.contains("tags", { type: [tag] });
+        }
+        if (userQuery) {
+          userQuery = userQuery.contains("tags", { type: [tag] });
+        }
+      } else {
+        // Build OR conditions for multiple tags
+        const tagConditions = params.tags
+          .map((tag) => `tags.cs.{"type":["${tag}"]}`)
+          .join(",");
+
+        if (officialQuery) {
+          officialQuery = officialQuery.or(tagConditions);
+        }
+        if (userQuery) {
+          userQuery = userQuery.or(tagConditions);
+        }
+      }
     }
 
     // Apply sorting
