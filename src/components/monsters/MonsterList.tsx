@@ -56,6 +56,7 @@ interface MonsterListProps {
   onRetry?: () => void;
   onCreateMonster?: () => void;
   compact?: boolean;
+  preserveSearchParams?: boolean;
   emptyStateTitle?: string;
   emptyStateDescription?: string;
 }
@@ -74,6 +75,7 @@ export function MonsterList({
   onRetry,
   onCreateMonster,
   compact = false,
+  preserveSearchParams = true,
   emptyStateTitle = "No monsters found",
   emptyStateDescription = "Try adjusting your search filters or create a new monster.",
 }: MonsterListProps) {
@@ -123,6 +125,7 @@ export function MonsterList({
             onEdit={onEditMonster}
             onDelete={onDeleteMonster}
             compact={compact}
+            preserveSearchParams={preserveSearchParams}
           />
         ))}
       </div>

@@ -1,10 +1,6 @@
 "use client";
 
 import {
-  MoreVertical,
-  Pencil,
-  Trash2,
-  Eye,
   ChevronDown,
   ChevronUp,
   Sword,
@@ -14,6 +10,7 @@ import {
 } from "lucide-react";
 import { useState } from "react";
 import Link from "next/link";
+import { useSearchParams } from "next/navigation";
 import { Card, CardHeader, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -57,6 +54,7 @@ interface MonsterCardProps {
   onDelete?: (monster: Monster) => void;
   showActions?: boolean;
   compact?: boolean;
+  preserveSearchParams?: boolean;
 }
 
 export function MonsterCard({
@@ -65,8 +63,49 @@ export function MonsterCard({
   favoriteId,
   showActions = true,
   compact = false,
+  preserveSearchParams = false,
 }: MonsterCardProps) {
   const [expanded, setExpanded] = useState(false);
+  const searchParams = useSearchParams();
+
+  // Generate monster detail URL with preserved search parameters
+  const getMonsterUrl = () => {
+    if (!preserveSearchParams) {
+      return `/monsters/${monster.id}`;
+    }
+
+    const params = new URLSearchParams();
+
+    // Preserve all relevant search parameters
+    const q = searchParams.get("q") || searchParams.get("search");
+    if (q) params.set("q", q);
+
+    const minCl = searchParams.get("min_cl");
+    if (minCl) params.set("min_cl", minCl);
+
+    const maxCl = searchParams.get("max_cl");
+    if (maxCl) params.set("max_cl", maxCl);
+
+    const types = searchParams.get("types");
+    if (types) params.set("types", types);
+
+    const speed = searchParams.get("speed");
+    if (speed) params.set("speed", speed);
+
+    const type = searchParams.get("type") || searchParams.get("source");
+    if (type && type !== "all") params.set("type", type);
+
+    const page = searchParams.get("page");
+    if (page && page !== "1") params.set("page", page);
+
+    const limit = searchParams.get("limit");
+    if (limit && limit !== "20") params.set("limit", limit);
+
+    const queryString = params.toString();
+    return queryString
+      ? `/monsters/${monster.id}?${queryString}`
+      : `/monsters/${monster.id}`;
+  };
 
   const challengeLevelColor =
     monster.challenge_level <= 3
@@ -91,10 +130,7 @@ export function MonsterCard({
           />
         )}
       </div>
-      <Link
-        href={`/monsters/${monster.id}`}
-        className="flex items-center gap-2"
-      >
+      <Link href={getMonsterUrl()} className="flex items-center gap-2">
         <CardHeader>
           <div className="flex justify-between">
             <h3 className="text-xl font-semibold line-clamp-1">
@@ -236,7 +272,7 @@ export function MonsterCard({
   // If showActions is false, wrap in Link to make whole card clickable
   if (!showActions) {
     return (
-      <Link href={`/monsters/${monster.id}`} className="block">
+      <Link href={getMonsterUrl()} className="block">
         {cardContent}
       </Link>
     );

@@ -273,6 +273,7 @@ export function MonstersClient({
         onPageChange={handlePageChange}
         onPageSizeChange={handlePageSizeChange}
         onRetry={fetchMonsters}
+        preserveSearchParams={true}
       />
     </div>
   );

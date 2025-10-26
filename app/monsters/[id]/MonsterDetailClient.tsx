@@ -1,24 +1,16 @@
 "use client";
 
-import { useState } from "react";
-import { useRouter } from "next/navigation";
+import { useState, useEffect } from "react";
+import { useRouter, useSearchParams } from "next/navigation";
 import { MonsterStatBlock } from "@/src/components/monsters/MonsterStatBlock";
 import { MonsterAttacksDisplay } from "@/src/components/monsters/MonsterAttacksDisplay";
 import { MonsterAbilitiesDisplay } from "@/src/components/monsters/MonsterAbilitiesDisplay";
 import { MonsterOwnershipCard } from "@/src/components/monsters/MonsterOwnershipCard";
-import {
-  ArrowLeft,
-  AlertCircle,
-  Pencil,
-  Trash2,
-  MoreVertical,
-  Copy,
-} from "lucide-react";
+import { ArrowLeft, Pencil, Trash2, MoreVertical, Copy } from "lucide-react";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { Alert, AlertDescription } from "@/components/ui/alert";
 import {
   Dialog,
   DialogContent,
@@ -89,9 +81,44 @@ export function MonsterDetailClient({
   favoriteId,
 }: MonsterDetailClientProps) {
   const router = useRouter();
+  const searchParams = useSearchParams();
   const [monster, setMonster] = useState<Monster>(initialMonster);
   const [deleteModalOpen, setDeleteModalOpen] = useState(false);
   const [isDeleting, setIsDeleting] = useState(false);
+  const [backUrl, setBackUrl] = useState("/monsters");
+
+  // Generate back URL with preserved query parameters
+  useEffect(() => {
+    const params = new URLSearchParams();
+
+    // Preserve all relevant search parameters
+    const q = searchParams.get("q") || searchParams.get("search");
+    if (q) params.set("q", q);
+
+    const minCl = searchParams.get("min_cl");
+    if (minCl) params.set("min_cl", minCl);
+
+    const maxCl = searchParams.get("max_cl");
+    if (maxCl) params.set("max_cl", maxCl);
+
+    const types = searchParams.get("types");
+    if (types) params.set("types", types);
+
+    const speed = searchParams.get("speed");
+    if (speed) params.set("speed", speed);
+
+    const type = searchParams.get("type") || searchParams.get("source");
+    if (type && type !== "all") params.set("type", type);
+
+    const page = searchParams.get("page");
+    if (page && page !== "1") params.set("page", page);
+
+    const limit = searchParams.get("limit");
+    if (limit && limit !== "20") params.set("limit", limit);
+
+    const queryString = params.toString();
+    setBackUrl(queryString ? `/monsters?${queryString}` : "/monsters");
+  }, [searchParams]);
 
   const challengeLevelColor =
     monster.challenge_level <= 3
@@ -131,7 +158,7 @@ export function MonsterDetailClient({
         description: "Monster deleted successfully",
       });
 
-      router.push("/monsters");
+      router.push(backUrl);
     } catch (err) {
       console.error("Error deleting monster:", err);
       toast.error("Error", {
@@ -224,7 +251,7 @@ export function MonsterDetailClient({
   return (
     <div className="container mx-auto py-6 px-4 lg:px-8 max-w-5xl">
       <Button asChild variant="ghost" className="mb-6 -ml-2">
-        <Link href="/monsters" className="flex items-center gap-2">
+        <Link href={backUrl} className="flex items-center gap-2">
           <ArrowLeft className="h-4 w-4" />
           Back to Monsters
         </Link>
@@ -265,7 +292,6 @@ export function MonsterDetailClient({
                 </div>
               </div>
 
-              {/* Action Buttons */}
               <div className="flex items-center gap-2">
                 {currentUserId && (
                   <FavoriteButton
@@ -274,45 +300,6 @@ export function MonsterDetailClient({
                     initialFavoriteId={favoriteId || undefined}
                   />
                 )}
-
-                {/* Action Menu */}
-                <DropdownMenu>
-                  <DropdownMenuTrigger asChild>
-                    <Button variant="ghost" size="icon">
-                      <MoreVertical className="h-5 w-5" />
-                    </Button>
-                  </DropdownMenuTrigger>
-                  <DropdownMenuContent align="end">
-                    {isOwner && (
-                      <>
-                        <DropdownMenuItem asChild>
-                          <Link
-                            href={`/monsters/${monster.id}/edit`}
-                            className="flex items-center gap-2 cursor-pointer"
-                          >
-                            <Pencil className="h-4 w-4" />
-                            Edit Monster
-                          </Link>
-                        </DropdownMenuItem>
-                        <DropdownMenuItem
-                          className="text-destructive flex items-center gap-2 cursor-pointer"
-                          onClick={() => setDeleteModalOpen(true)}
-                        >
-                          <Trash2 className="h-4 w-4" />
-                          Delete Monster
-                        </DropdownMenuItem>
-                        <DropdownMenuSeparator />
-                      </>
-                    )}
-                    <DropdownMenuItem
-                      onClick={handleDuplicate}
-                      className="flex items-center gap-2 cursor-pointer"
-                    >
-                      <Copy className="h-4 w-4" />
-                      Duplicate Monster
-                    </DropdownMenuItem>
-                  </DropdownMenuContent>
-                </DropdownMenu>
               </div>
             </div>
 
@@ -363,7 +350,7 @@ export function MonsterDetailClient({
           monsterType={monster.monster_type || "official"}
           isPublic={monster.is_public || false}
           author={monster.author || null}
-          isOwner={isOwner}
+          isOwner={!!isOwner}
           createdAt={monster.created_at}
           updatedAt={monster.updated_at}
           onDelete={() => setDeleteModalOpen(true)}

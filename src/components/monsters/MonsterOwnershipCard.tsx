@@ -137,40 +137,42 @@ export function MonsterOwnershipCard({
             </div>
           )}
 
-          {/* Action Buttons */}
           {isOwner && isCustomMonster && (
             <>
               <Separator />
-              <div>
-                <Button onClick={onDelete} variant="destructive">
-                  <Trash2 size={16} className="mr-2" />
-                  Delete
-                </Button>
-              </div>
-              <div className="flex flex-wrap gap-2">
-                <Button asChild variant="default">
-                  <Link
-                    href={`/monsters/${monsterId}/edit`}
-                    className="flex items-center gap-2"
-                  >
-                    <Pencil size={16} />
-                    Edit Monster
-                  </Link>
-                </Button>
-                {onToggleVisibility && (
-                  <Button onClick={onToggleVisibility} variant="secondary">
-                    {isPublic ? (
-                      <EyeOff size={16} className="mr-2" />
-                    ) : (
-                      <Eye size={16} className="mr-2" />
-                    )}
-                    {isPublic ? "Make Private" : "Make Public"}
+              <div className="flex justify-between">
+                <div className="flex space-x-2">
+                  <Button onClick={onDelete} variant="destructive">
+                    <Trash2 size={16} className="mr-2" />
+                    Delete
                   </Button>
-                )}
-                <Button onClick={onDuplicate} variant="default" className="">
-                  <Copy size={16} className="mr-2" />
-                  Duplicate
-                </Button>
+                  <Button onClick={onDuplicate} variant="default" className="">
+                    <Copy size={16} className="mr-2" />
+                    Duplicate
+                  </Button>
+                </div>
+                <div className="flex flex-wrap gap-2">
+                  {onToggleVisibility && (
+                    <Button onClick={onToggleVisibility} variant="secondary">
+                      {isPublic ? (
+                        <EyeOff size={16} className="mr-2" />
+                      ) : (
+                        <Eye size={16} className="mr-2" />
+                      )}
+                      {isPublic ? "Make Private" : "Make Public"}
+                    </Button>
+                  )}
+
+                  <Button asChild variant="default">
+                    <Link
+                      href={`/monsters/${monsterId}/edit`}
+                      className="flex items-center gap-2"
+                    >
+                      <Pencil size={16} />
+                      Edit Monster
+                    </Link>
+                  </Button>
+                </div>
               </div>
             </>
           )}
