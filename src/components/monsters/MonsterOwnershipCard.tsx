@@ -141,6 +141,12 @@ export function MonsterOwnershipCard({
           {isOwner && isCustomMonster && (
             <>
               <Separator />
+              <div>
+                <Button onClick={onDelete} variant="destructive">
+                  <Trash2 size={16} className="mr-2" />
+                  Delete
+                </Button>
+              </div>
               <div className="flex flex-wrap gap-2">
                 <Button asChild variant="default">
                   <Link
@@ -161,9 +167,9 @@ export function MonsterOwnershipCard({
                     {isPublic ? "Make Private" : "Make Public"}
                   </Button>
                 )}
-                <Button onClick={onDelete} variant="destructive">
-                  <Trash2 size={16} className="mr-2" />
-                  Delete
+                <Button onClick={onDuplicate} variant="default" className="">
+                  <Copy size={16} className="mr-2" />
+                  Duplicate
                 </Button>
               </div>
             </>
@@ -179,7 +185,7 @@ export function MonsterOwnershipCard({
                 className="w-full"
               >
                 <Copy size={16} className="mr-2" />
-                Duplicate to My Collection
+                Duplicate and Edit
               </Button>
             </>
           )}
