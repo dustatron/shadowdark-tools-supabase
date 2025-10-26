@@ -81,7 +81,6 @@ export function MonsterList({
     return <LoadingSpinner message="Loading monsters..." />;
   }
 
-  console.log("user Monster list", currentUserId);
   if (error) {
     return (
       <ErrorAlert

@@ -79,37 +79,40 @@ export function MonsterCard({
 
   const cardContent = (
     <Card
-      className={`shadow-sm ${!showActions ? "hover:shadow-md transition-shadow cursor-pointer" : ""}`}
+      className={`shadow-sm ${!showActions ? "hover:shadow-md transition-shadow cursor-pointer" : ""} `}
     >
-      <CardHeader>
-        <div className="flex justify-between">
-          <Link
-            href={`/monsters/${monster.id}`}
-            className="flex items-center gap-2"
-          >
-            <h3 className="text-lg font-semibold line-clamp-1">
+      <div className="float-end">
+        {currentUserId && (
+          <FavoriteButton
+            itemId={monster.id}
+            itemType="monster"
+            initialFavoriteId={favoriteId || undefined}
+            compact={true}
+          />
+        )}
+      </div>
+      <Link
+        href={`/monsters/${monster.id}`}
+        className="flex items-center gap-2"
+      >
+        <CardHeader>
+          <div className="flex justify-between">
+            <h3 className="text-xl font-semibold line-clamp-1">
               {monster.name}
             </h3>
-          </Link>
-          {currentUserId && (
-            <FavoriteButton
-              itemId={monster.id}
-              itemType="monster"
-              initialFavoriteId={favoriteId || undefined}
-              compact={true}
-            />
-          )}
-        </div>
-        <div className="flex items-center gap-2 mt-1">
-          <Badge className={challengeLevelColor}>
-            Level {monster.challenge_level}
-          </Badge>
-          <Badge variant="outline">
-            {monster.source === "Custom" ? "User Create" : "Shadowdark Core"}
-          </Badge>
-        </div>
-      </CardHeader>
-      <CardContent className="p-4">
+          </div>
+
+          <div className="flex items-center gap-2 mt-1">
+            <Badge className={challengeLevelColor}>
+              Level {monster.challenge_level}
+            </Badge>
+            <Badge variant="outline">
+              {monster.source === "Custom" ? "User Create" : "Shadowdark Core"}
+            </Badge>
+          </div>
+        </CardHeader>
+      </Link>
+      <CardContent className="p-4 border-t-2">
         {/* Header */}
 
         {/* Stats */}

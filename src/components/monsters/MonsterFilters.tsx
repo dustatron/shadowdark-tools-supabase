@@ -82,7 +82,7 @@ export function MonsterFilters({
   const [localSearch, setLocalSearch] = useState(filters.search);
 
   // Debounce search input
-  const [debouncedSearch] = useDebounce(localSearch, 300);
+  const [debouncedSearch] = useDebounce(localSearch, 500);
 
   useEffect(() => {
     if (debouncedSearch !== filters.search) {
@@ -143,7 +143,6 @@ export function MonsterFilters({
                   filters.challengeLevelRange[1],
                 ]);
               }}
-              disabled={loading}
             />
           </div>
           <div className="space-y-2">
@@ -160,7 +159,6 @@ export function MonsterFilters({
                   Math.max(max, filters.challengeLevelRange[0]),
                 ]);
               }}
-              disabled={loading}
             />
           </div>
         </div>
@@ -256,7 +254,6 @@ export function MonsterFilters({
                 placeholder="Search monsters by name or description..."
                 value={localSearch}
                 onChange={(e) => setLocalSearch(e.target.value)}
-                disabled={loading}
                 className="pl-9"
               />
             </div>
