@@ -18,14 +18,11 @@ import {
   SheetFooter,
 } from "@/components/ui/sheet";
 import { cn } from "@/lib/utils";
-
-interface FilterValues {
-  search: string;
-  challengeLevelRange: [number, number];
-  types: string[];
-  speedType: string[];
-  monsterSource: "all" | "official" | "custom";
-}
+import {
+  AVAILABLE_SPEED_TYPES,
+  FilterValues,
+  DEFAULT_FILTERS,
+} from "@/lib/types/monsters";
 
 interface MonsterFiltersProps {
   filters: FilterValues;
@@ -35,40 +32,6 @@ interface MonsterFiltersProps {
   availableSources?: string[];
   loading?: boolean;
 }
-
-const DEFAULT_FILTERS: FilterValues = {
-  search: "",
-  challengeLevelRange: [1, 20],
-  types: [],
-  speedType: [],
-  monsterSource: "all",
-};
-
-// Static speed types from all_monsters table
-export const AVAILABLE_SPEED_TYPES = [
-  "close",
-  "close (climb)",
-  "close (swim)",
-  "double near",
-  "double near (burrow)",
-  "double near (burrow, swim)",
-  "double near (climb)",
-  "double near (fly)",
-  "double near (fly, swim)",
-  "double near (swim)",
-  "far (teleport)",
-  "near",
-  "near (burrow)",
-  "near (burrow, climb)",
-  "near (climb)",
-  "near (climb, fly)",
-  "near (climb, swim)",
-  "near (fly)",
-  "near (swim)",
-  "near (swim, fly)",
-  "none",
-  "triple near (burrow, swim)",
-];
 
 export function MonsterFilters({
   filters,

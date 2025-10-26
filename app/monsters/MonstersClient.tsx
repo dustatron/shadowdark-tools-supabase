@@ -1,12 +1,18 @@
 "use client";
 
 import { useState, useEffect } from "react";
+import { useRouter } from "next/navigation";
 import { MonsterList } from "@/src/components/monsters/MonsterList";
 import { MonsterFilters } from "@/src/components/monsters/MonsterFilters";
 import Link from "next/link";
 import { createClient } from "@/lib/supabase/client";
 import { Plus } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import {
+  FilterValues,
+  PaginationState,
+  serializeFiltersToSearchParams,
+} from "@/lib/types/monsters";
 
 interface Monster {
   id: string;
@@ -36,38 +42,26 @@ interface Monster {
   creator_id?: string;
 }
 
-interface FilterValues {
-  search: string;
-  challengeLevelRange: [number, number];
-  types: string[];
-  speedType: string[];
-  monsterSource: "all" | "official" | "custom";
-}
-
-const DEFAULT_FILTERS: FilterValues = {
-  search: "",
-  challengeLevelRange: [1, 20],
-  types: [],
-  speedType: [],
-  monsterSource: "all",
-};
-
 interface MonstersClientProps {
   currentUserId: string | null;
   initialFavoritesMap: Map<string, string>;
+  initialFilters: FilterValues;
+  initialPagination: PaginationState;
 }
 
 export function MonstersClient({
   currentUserId,
   initialFavoritesMap,
+  initialFilters,
+  initialPagination,
 }: MonstersClientProps) {
+  const router = useRouter();
   const [monsters, setMonsters] = useState<Monster[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  const [filters, setFilters] = useState<FilterValues>(DEFAULT_FILTERS);
+  const [filters, setFilters] = useState<FilterValues>(initialFilters);
   const [pagination, setPagination] = useState({
-    page: 1,
-    limit: 20,
+    ...initialPagination,
     total: 0,
     totalPages: 0,
   });
@@ -208,17 +202,41 @@ export function MonstersClient({
     }
   };
 
+  // Update URL when filters or pagination change
+  const updateURL = (
+    newFilters: FilterValues,
+    newPagination: { page: number; limit: number },
+  ) => {
+    const params = serializeFiltersToSearchParams(newFilters, newPagination);
+    const queryString = params.toString();
+
+    // Use router.push to update URL without page reload
+    router.push(queryString ? `/monsters?${queryString}` : "/monsters", {
+      scroll: false,
+    });
+  };
+
   const handleFiltersChange = (newFilters: FilterValues) => {
     setFilters(newFilters);
+    const newPagination = { ...pagination, page: 1 };
     setPagination((prev) => ({ ...prev, page: 1 })); // Reset to page 1 when filters change
+
+    // Update URL
+    updateURL(newFilters, newPagination);
   };
 
   const handlePageChange = (page: number) => {
     setPagination((prev) => ({ ...prev, page }));
+
+    // Update URL with new page
+    updateURL(filters, { page, limit: pagination.limit });
   };
 
   const handlePageSizeChange = (pageSize: number) => {
     setPagination((prev) => ({ ...prev, limit: pageSize, page: 1 }));
+
+    // Update URL with new page size
+    updateURL(filters, { page: 1, limit: pageSize });
   };
 
   return (
