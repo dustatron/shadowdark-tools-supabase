@@ -28,6 +28,13 @@ export async function GET(request: NextRequest) {
             .map((t) => t.trim())
             .filter((t) => t)
         : undefined,
+      speed: searchParams.get("speed")
+        ? searchParams
+            .get("speed")!
+            .split(",")
+            .map((s) => s.trim())
+            .filter((s) => s)
+        : undefined,
       type: searchParams.get("type") || undefined,
       limit: Math.min(
         Math.max(parseInt(searchParams.get("limit") || "20"), 1),
@@ -206,6 +213,17 @@ export async function GET(request: NextRequest) {
         if (userQuery) {
           userQuery = userQuery.or(tagConditions);
         }
+      }
+    }
+
+    // Apply speed filter - support multiple speed types with OR logic
+    if (params.speed && params.speed.length > 0) {
+      // Use .in() for both single and multiple values
+      if (officialQuery) {
+        officialQuery = officialQuery.in("speed", params.speed);
+      }
+      if (userQuery) {
+        userQuery = userQuery.in("speed", params.speed);
       }
     }
 

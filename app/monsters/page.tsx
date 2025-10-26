@@ -41,8 +41,7 @@ interface FilterValues {
   search: string;
   challengeLevelRange: [number, number];
   types: string[];
-  locations: string[];
-  sources: string[];
+  speedType: string[];
   monsterSource: "all" | "official" | "custom";
 }
 
@@ -50,8 +49,7 @@ const DEFAULT_FILTERS: FilterValues = {
   search: "",
   challengeLevelRange: [1, 20],
   types: [],
-  locations: [],
-  sources: [],
+  speedType: [],
   monsterSource: "all",
 };
 
@@ -74,7 +72,6 @@ export default function MonstersPage() {
 
   // Available filter options
   const [availableTypes, setAvailableTypes] = useState<string[]>([]);
-  const [availableLocations, setAvailableLocations] = useState<string[]>([]);
   const [availableSources, setAvailableSources] = useState<string[]>([]);
 
   useEffect(() => {
@@ -141,18 +138,20 @@ export default function MonstersPage() {
         params.append("max_cl", filters.challengeLevelRange[1].toString());
       }
 
-      // API expects 'tags' for both types and locations
+      // API expects 'tags' for types
       if (filters.types.length > 0) {
         params.append("tags", filters.types.join(","));
+      }
+
+      // API expects 'speed' parameter for speed filtering
+      if (filters.speedType.length > 0) {
+        params.append("speed", filters.speedType.join(","));
       }
 
       // API expects 'type' parameter for monster source filtering
       if (filters.monsterSource !== "all") {
         params.append("type", filters.monsterSource);
       }
-
-      // Note: The current API doesn't support separate location filtering yet
-      // It only supports tag-based filtering
 
       const response = await fetch(`/api/monsters?${params.toString()}`);
 
@@ -176,15 +175,11 @@ export default function MonstersPage() {
       // Extract unique filter options from results
       if (data.monsters && data.monsters.length > 0) {
         const types = new Set<string>();
-        const locations = new Set<string>();
         const sources = new Set<string>();
 
         data.monsters.forEach((monster: Monster) => {
           if (monster.tags?.type) {
             monster.tags.type.forEach((t) => types.add(t));
-          }
-          if (monster.tags?.location) {
-            monster.tags.location.forEach((l) => locations.add(l));
           }
           if (monster.source) {
             sources.add(monster.source);
@@ -192,7 +187,6 @@ export default function MonstersPage() {
         });
 
         setAvailableTypes(Array.from(types).sort());
-        setAvailableLocations(Array.from(locations).sort());
         setAvailableSources(Array.from(sources).sort());
       }
     } catch (err) {
@@ -235,7 +229,6 @@ export default function MonstersPage() {
           filters={filters}
           onFiltersChange={handleFiltersChange}
           availableTypes={availableTypes}
-          availableLocations={availableLocations}
           availableSources={availableSources}
           loading={loading}
         />

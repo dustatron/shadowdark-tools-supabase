@@ -8,19 +8,14 @@ import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { MultiSelect } from "@/components/ui/multi-select";
-import {
-  Collapsible,
-  CollapsibleContent,
-  CollapsibleTrigger,
-} from "@/components/ui/collapsible";
+import { Collapsible, CollapsibleContent } from "@/components/ui/collapsible";
 import { cn } from "@/lib/utils";
 
 interface FilterValues {
   search: string;
   challengeLevelRange: [number, number];
   types: string[];
-  locations: string[];
-  sources: string[];
+  speedType: string[];
   monsterSource: "all" | "official" | "custom";
 }
 
@@ -28,7 +23,7 @@ interface MonsterFiltersProps {
   filters: FilterValues;
   onFiltersChange: (filters: FilterValues) => void;
   availableTypes?: string[];
-  availableLocations?: string[];
+  availableSpeedTypes?: string[];
   availableSources?: string[];
   loading?: boolean;
 }
@@ -37,17 +32,41 @@ const DEFAULT_FILTERS: FilterValues = {
   search: "",
   challengeLevelRange: [1, 20],
   types: [],
-  locations: [],
-  sources: [],
+  speedType: [],
   monsterSource: "all",
 };
+
+// Static speed types from all_monsters table
+export const AVAILABLE_SPEED_TYPES = [
+  "close",
+  "close (climb)",
+  "close (swim)",
+  "double near",
+  "double near (burrow)",
+  "double near (burrow, swim)",
+  "double near (climb)",
+  "double near (fly)",
+  "double near (fly, swim)",
+  "double near (swim)",
+  "far (teleport)",
+  "near",
+  "near (burrow)",
+  "near (burrow, climb)",
+  "near (climb)",
+  "near (climb, fly)",
+  "near (climb, swim)",
+  "near (fly)",
+  "near (swim)",
+  "near (swim, fly)",
+  "none",
+  "triple near (burrow, swim)",
+];
 
 export function MonsterFilters({
   filters,
   onFiltersChange,
   availableTypes = [],
-  availableLocations = [],
-  availableSources = [],
+  availableSpeedTypes = AVAILABLE_SPEED_TYPES,
   loading = false,
 }: MonsterFiltersProps) {
   const [expanded, setExpanded] = useState(false);
@@ -82,8 +101,7 @@ export function MonsterFilters({
     filters.challengeLevelRange[0] !== 1 ||
     filters.challengeLevelRange[1] !== 20 ||
     filters.types.length > 0 ||
-    filters.locations.length > 0 ||
-    filters.sources.length > 0 ||
+    filters.speedType.length > 0 ||
     filters.monsterSource !== "all";
 
   const activeFilterCount = [
@@ -91,8 +109,7 @@ export function MonsterFilters({
     filters.challengeLevelRange[0] !== 1 ||
       filters.challengeLevelRange[1] !== 20,
     filters.types.length > 0,
-    filters.locations.length > 0,
-    filters.sources.length > 0,
+    filters.speedType.length > 0,
     filters.monsterSource !== "all",
   ].filter(Boolean).length;
 
@@ -244,36 +261,21 @@ export function MonsterFilters({
                     disabled={loading}
                   />
 
-                  {/* Locations */}
+                  {/* Speed Type */}
                   <MultiSelect
-                    label="Locations"
-                    placeholder="Select locations"
-                    options={availableLocations.map((loc) => ({
-                      value: loc,
-                      label: loc,
+                    label="Speed"
+                    placeholder="Select speed types"
+                    options={availableSpeedTypes.map((speed) => ({
+                      value: speed,
+                      label: speed,
                     }))}
-                    selected={filters.locations}
-                    onChange={(value) => handleFilterChange("locations", value)}
+                    selected={filters.speedType}
+                    onChange={(value) => handleFilterChange("speedType", value)}
                     searchable
                     clearable
                     disabled={loading}
                   />
                 </div>
-
-                {/* Sources */}
-                <MultiSelect
-                  label="Sources"
-                  placeholder="Select sources"
-                  options={availableSources.map((source) => ({
-                    value: source,
-                    label: source,
-                  }))}
-                  selected={filters.sources}
-                  onChange={(value) => handleFilterChange("sources", value)}
-                  searchable
-                  clearable
-                  disabled={loading}
-                />
 
                 {/* Filter Actions */}
                 <div className="flex justify-end">
