@@ -7,7 +7,7 @@ import {
   useState,
   ReactNode,
 } from "react";
-import { createSupabaseClient } from "@/src/lib/supabase/client";
+import { createClient } from "@/lib/supabase/client";
 import { User } from "@supabase/supabase-js";
 
 export interface UserData {
@@ -34,46 +34,41 @@ interface AuthProviderProps {
 export function AuthProvider({ children, initialSession }: AuthProviderProps) {
   const [user, setUser] = useState<UserData | null>(null);
   const [loading, setLoading] = useState(true);
-  const supabase = createSupabaseClient();
+  const supabase = createClient();
 
   useEffect(() => {
     let mounted = true;
 
-    // Use initial session if provided, otherwise fetch from client
-    const getInitialSession = async () => {
+    // Get initial user - uses getUser() for server validation (secure)
+    const getInitialUser = async () => {
       try {
-        let session;
+        const {
+          data: { user },
+          error,
+        } = await supabase.auth.getUser();
 
-        if (initialSession) {
-          console.log("Using initial session from server:", initialSession);
-          session = initialSession;
-        } else {
-          console.log("Fetching session from client...");
-          const {
-            data: { session: clientSession },
-          } = await supabase.auth.getSession();
-          session = clientSession;
-        }
+        if (error) throw error;
 
         if (mounted) {
-          if (session?.user) {
-            await fetchUserProfile(session.user);
+          if (user) {
+            await fetchUserProfile(user);
           } else {
-            console.log("No user in session, setting user to null");
             setUser(null);
           }
-          setLoading(false);
         }
       } catch (error) {
-        console.error("Error getting initial session:", error);
+        console.error("Error getting user:", error);
         if (mounted) {
           setUser(null);
+        }
+      } finally {
+        if (mounted) {
           setLoading(false);
         }
       }
     };
 
-    getInitialSession();
+    getInitialUser();
 
     // Listen to auth state changes
     const {
