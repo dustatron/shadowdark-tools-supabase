@@ -77,8 +77,10 @@ export default function RootLayout({
     <html lang="en" suppressHydrationWarning>
       <body className="antialiased">
         <ThemeProvider attribute="class" defaultTheme="dark">
-          <AppNavbar />
-          <RootProvider>{children}</RootProvider>
+          <RootProvider>
+            <AppNavbar />
+            {children}
+          </RootProvider>
           <Toaster richColors position="top-right" closeButton />
         </ThemeProvider>
       </body>

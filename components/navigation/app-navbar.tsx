@@ -15,7 +15,6 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
-import { createSupabaseClient } from "@/src/lib/supabase/client";
 import { toast } from "sonner";
 import {
   Sun,
@@ -25,73 +24,22 @@ import {
   LogOut,
   LayoutDashboard,
 } from "lucide-react";
-
-export interface UserData {
-  id: string;
-  email: string;
-  display_name?: string;
-  role?: string;
-  username_slug?: string;
-}
+import { useAuth, UserData } from "@/src/components/providers/AuthProvider";
 
 export function AppNavbar() {
   const router = useRouter();
   const { theme, setTheme } = useTheme();
-  const [user, setUser] = useState<UserData | null>(null);
+  const { user, loading, signOut } = useAuth();
   const [mounted, setMounted] = useState(false);
-  const supabase = createSupabaseClient();
 
   // Prevent hydration mismatch
   useEffect(() => {
     setMounted(true);
   }, []);
 
-  // Listen to auth state changes
-  useEffect(() => {
-    const {
-      data: { subscription },
-    } = supabase.auth.onAuthStateChange(async (_event, session) => {
-      if (session?.user) {
-        // Try to fetch user profile to get username_slug
-        // This may fail if the column doesn't exist yet
-        let username_slug: string | undefined;
-        try {
-          const { data: profile } = await supabase
-            .from("user_profiles")
-            .select("username_slug")
-            .eq("id", session.user.id)
-            .single();
-          username_slug = profile?.username_slug;
-        } catch (error) {
-          // Silently fail if username_slug column doesn't exist yet
-          console.log(
-            "Could not fetch username_slug, column may not exist yet",
-          );
-        }
-
-        setUser({
-          id: session.user.id,
-          email: session.user.email!,
-          display_name: session.user.user_metadata?.display_name,
-          role: session.user.app_metadata?.role,
-          username_slug,
-        });
-      } else {
-        setUser(null);
-      }
-    });
-
-    return () => {
-      subscription.unsubscribe();
-    };
-  }, [supabase]);
-
   const handleLogout = async () => {
     try {
-      const { error } = await supabase.auth.signOut();
-      if (error) throw error;
-
-      setUser(null);
+      await signOut();
       toast.success("Logged out successfully");
       router.push("/");
     } catch (error) {
@@ -116,8 +64,8 @@ export function AppNavbar() {
 
   // Custom rendering for auth buttons with theme toggle (desktop)
   const renderRightContent = () => {
-    if (!mounted) {
-      // Return placeholder during SSR to avoid hydration mismatch
+    if (!mounted || loading) {
+      // Return placeholder during SSR or loading to avoid hydration mismatch
       return null;
     }
 
