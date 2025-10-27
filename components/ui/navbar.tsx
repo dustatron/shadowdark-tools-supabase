@@ -15,7 +15,7 @@ import {
   PopoverTrigger,
 } from "@/components/ui/popover";
 import { cn } from "@/lib/utils";
-import { UserData } from "../navigation/app-navbar";
+import { UserData } from "@/src/components/providers/AuthProvider";
 
 // Types
 export interface NavigationLink {
