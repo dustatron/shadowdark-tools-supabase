@@ -28,31 +28,48 @@ const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
 interface AuthProviderProps {
   children: ReactNode;
+  initialSession?: any;
 }
 
-export function AuthProvider({ children }: AuthProviderProps) {
+export function AuthProvider({ children, initialSession }: AuthProviderProps) {
   const [user, setUser] = useState<UserData | null>(null);
   const [loading, setLoading] = useState(true);
   const supabase = createSupabaseClient();
 
   useEffect(() => {
-    // Get initial session
+    let mounted = true;
+
+    // Use initial session if provided, otherwise fetch from client
     const getInitialSession = async () => {
       try {
-        const {
-          data: { session },
-        } = await supabase.auth.getSession();
+        let session;
 
-        if (session?.user) {
-          await fetchUserProfile(session.user);
+        if (initialSession) {
+          console.log("Using initial session from server:", initialSession);
+          session = initialSession;
         } else {
-          setUser(null);
+          console.log("Fetching session from client...");
+          const {
+            data: { session: clientSession },
+          } = await supabase.auth.getSession();
+          session = clientSession;
+        }
+
+        if (mounted) {
+          if (session?.user) {
+            await fetchUserProfile(session.user);
+          } else {
+            console.log("No user in session, setting user to null");
+            setUser(null);
+          }
+          setLoading(false);
         }
       } catch (error) {
         console.error("Error getting initial session:", error);
-        setUser(null);
-      } finally {
-        setLoading(false);
+        if (mounted) {
+          setUser(null);
+          setLoading(false);
+        }
       }
     };
 
@@ -62,6 +79,8 @@ export function AuthProvider({ children }: AuthProviderProps) {
     const {
       data: { subscription },
     } = supabase.auth.onAuthStateChange(async (_event, session) => {
+      if (!mounted) return;
+
       if (session?.user) {
         await fetchUserProfile(session.user);
       } else {
@@ -71,12 +90,15 @@ export function AuthProvider({ children }: AuthProviderProps) {
     });
 
     return () => {
+      mounted = false;
       subscription.unsubscribe();
     };
   }, [supabase]);
 
   const fetchUserProfile = async (authUser: User) => {
     try {
+      console.log("Fetching user profile for:", authUser.id);
+
       // Try to fetch user profile to get username_slug
       // This may fail if the column doesn't exist yet
       let username_slug: string | undefined;
@@ -87,26 +109,32 @@ export function AuthProvider({ children }: AuthProviderProps) {
           .eq("id", authUser.id)
           .single();
         username_slug = profile?.username_slug;
+        console.log("Found username_slug:", username_slug);
       } catch (error) {
         // Silently fail if username_slug column doesn't exist yet
         console.log("Could not fetch username_slug, column may not exist yet");
       }
 
-      setUser({
+      const userData = {
         id: authUser.id,
         email: authUser.email!,
         display_name: authUser.user_metadata?.display_name,
         role: authUser.app_metadata?.role,
         username_slug,
-      });
+      };
+
+      console.log("Setting user data:", userData);
+      setUser(userData);
     } catch (error) {
       console.error("Error fetching user profile:", error);
-      setUser({
+      const userData = {
         id: authUser.id,
         email: authUser.email!,
         display_name: authUser.user_metadata?.display_name,
         role: authUser.app_metadata?.role,
-      });
+      };
+      console.log("Setting fallback user data:", userData);
+      setUser(userData);
     }
   };
 
