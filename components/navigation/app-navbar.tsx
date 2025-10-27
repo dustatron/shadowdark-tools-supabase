@@ -32,6 +32,10 @@ export function AppNavbar() {
   const { user, loading, signOut } = useAuth();
   const [mounted, setMounted] = useState(false);
 
+  console.log("AppNavbar - user:", user);
+  console.log("AppNavbar - loading:", loading);
+  console.log("AppNavbar - mounted:", mounted);
+
   // Prevent hydration mismatch
   useEffect(() => {
     setMounted(true);

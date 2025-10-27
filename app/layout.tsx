@@ -3,7 +3,11 @@ import { RootProvider } from "@/src/components/providers/RootProvider";
 import { ThemeProvider } from "next-themes";
 import { Toaster } from "@/components/ui/sonner";
 import { AppNavbar } from "@/components/navigation/app-navbar";
+import { getServerSession } from "@/lib/auth-helpers";
 import "./globals.css";
+
+// Force dynamic rendering since we use server-side authentication
+export const dynamic = "force-dynamic";
 
 const defaultUrl = process.env.VERCEL_URL
   ? `https://${process.env.VERCEL_URL}`
@@ -68,16 +72,18 @@ export const metadata: Metadata = {
   },
 };
 
-export default function RootLayout({
+export default async function RootLayout({
   children,
 }: Readonly<{
   children: React.ReactNode;
 }>) {
+  const initialSession = await getServerSession();
+
   return (
     <html lang="en" suppressHydrationWarning>
       <body className="antialiased">
         <ThemeProvider attribute="class" defaultTheme="dark">
-          <RootProvider>
+          <RootProvider initialSession={initialSession}>
             <AppNavbar />
             {children}
           </RootProvider>
