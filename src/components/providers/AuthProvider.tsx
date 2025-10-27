@@ -7,7 +7,7 @@ import {
   useState,
   ReactNode,
 } from "react";
-import { createSupabaseClient } from "@/src/lib/supabase/client";
+import { createClient } from "@/lib/supabase/client";
 import { User } from "@supabase/supabase-js";
 
 export interface UserData {
@@ -34,46 +34,48 @@ interface AuthProviderProps {
 export function AuthProvider({ children, initialSession }: AuthProviderProps) {
   const [user, setUser] = useState<UserData | null>(null);
   const [loading, setLoading] = useState(true);
-  const supabase = createSupabaseClient();
+  const supabase = createClient();
 
   useEffect(() => {
     let mounted = true;
 
-    // Use initial session if provided, otherwise fetch from client
-    const getInitialSession = async () => {
+    // Get initial user - uses session from server if available, otherwise fetches from client
+    const getInitialUser = async () => {
       try {
-        let session;
-
-        if (initialSession) {
-          console.log("Using initial session from server:", initialSession);
-          session = initialSession;
-        } else {
-          console.log("Fetching session from client...");
-          const {
-            data: { session: clientSession },
-          } = await supabase.auth.getSession();
-          session = clientSession;
-        }
-
-        if (mounted) {
-          if (session?.user) {
-            await fetchUserProfile(session.user);
-          } else {
-            console.log("No user in session, setting user to null");
-            setUser(null);
+        // If we have an initial session from the server, use it directly
+        if (initialSession?.user) {
+          console.log("Using initial session from server");
+          if (mounted) {
+            await fetchUserProfile(initialSession.user);
           }
-          setLoading(false);
+        } else {
+          // Otherwise, get the session from the client
+          console.log("Fetching session from client");
+          const {
+            data: { session },
+          } = await supabase.auth.getSession();
+
+          if (mounted) {
+            if (session?.user) {
+              await fetchUserProfile(session.user);
+            } else {
+              setUser(null);
+            }
+          }
         }
       } catch (error) {
-        console.error("Error getting initial session:", error);
+        console.error("Error getting user:", error);
         if (mounted) {
           setUser(null);
+        }
+      } finally {
+        if (mounted) {
           setLoading(false);
         }
       }
     };
 
-    getInitialSession();
+    getInitialUser();
 
     // Listen to auth state changes
     const {

@@ -103,7 +103,9 @@
       "Bash(npm uninstall:*)",
       "Bash(npm run test:run:*)",
       "Bash(psql:*)",
-      "mcp__chrome-devtools__resize_page"
+      "mcp__chrome-devtools__resize_page",
+      "mcp__chrome-devtools__get_console_message",
+      "Bash(git checkout:*)"
     ],
     "deny": [],
     "ask": []
