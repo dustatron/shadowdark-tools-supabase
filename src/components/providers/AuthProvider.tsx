@@ -39,21 +39,28 @@ export function AuthProvider({ children, initialSession }: AuthProviderProps) {
   useEffect(() => {
     let mounted = true;
 
-    // Get initial user - uses getUser() for server validation (secure)
+    // Get initial user - uses session from server if available, otherwise fetches from client
     const getInitialUser = async () => {
       try {
-        const {
-          data: { user },
-          error,
-        } = await supabase.auth.getUser();
+        // If we have an initial session from the server, use it directly
+        if (initialSession?.user) {
+          console.log("Using initial session from server");
+          if (mounted) {
+            await fetchUserProfile(initialSession.user);
+          }
+        } else {
+          // Otherwise, get the session from the client
+          console.log("Fetching session from client");
+          const {
+            data: { session },
+          } = await supabase.auth.getSession();
 
-        if (error) throw error;
-
-        if (mounted) {
-          if (user) {
-            await fetchUserProfile(user);
-          } else {
-            setUser(null);
+          if (mounted) {
+            if (session?.user) {
+              await fetchUserProfile(session.user);
+            } else {
+              setUser(null);
+            }
           }
         }
       } catch (error) {
