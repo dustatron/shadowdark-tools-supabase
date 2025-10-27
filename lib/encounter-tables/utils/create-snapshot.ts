@@ -32,9 +32,32 @@ export async function createMonsterSnapshot(
     throw new Error(`Monster with ID ${monsterId} not found`);
   }
 
-  // Return the monster data as a snapshot
-  // The snapshot preserves all fields at the time of creation
-  return monster as MonsterSnapshot;
+  // Helper function to calculate raw ability score from modifier
+  // Formula: score = 10 + (modifier * 2)
+  const calculateAbilityScore = (modifier: number = 0): number => {
+    return 10 + modifier * 2;
+  };
+
+  // Map database fields to MonsterSnapshot format
+  // Database has modifiers only (strength_mod, dexterity_mod, etc.)
+  // Snapshot needs both raw scores and modifiers
+  return {
+    ...monster,
+    // Raw ability scores (calculated from modifiers)
+    str: calculateAbilityScore(monster.strength_mod),
+    dex: calculateAbilityScore(monster.dexterity_mod),
+    con: calculateAbilityScore(monster.constitution_mod),
+    int: calculateAbilityScore(monster.intelligence_mod),
+    wis: calculateAbilityScore(monster.wisdom_mod),
+    cha: calculateAbilityScore(monster.charisma_mod),
+    // Modifiers (map from database field names)
+    str_mod: monster.strength_mod ?? 0,
+    dex_mod: monster.dexterity_mod ?? 0,
+    con_mod: monster.constitution_mod ?? 0,
+    int_mod: monster.intelligence_mod ?? 0,
+    wis_mod: monster.wisdom_mod ?? 0,
+    cha_mod: monster.charisma_mod ?? 0,
+  } as MonsterSnapshot;
 }
 
 /**
@@ -66,5 +89,27 @@ export async function createMultipleSnapshots(
     );
   }
 
-  return monsters as MonsterSnapshot[];
+  // Helper function to calculate raw ability score from modifier
+  const calculateAbilityScore = (modifier: number = 0): number => {
+    return 10 + modifier * 2;
+  };
+
+  // Map each monster to snapshot format
+  return monsters.map((monster) => ({
+    ...monster,
+    // Raw ability scores (calculated from modifiers)
+    str: calculateAbilityScore(monster.strength_mod),
+    dex: calculateAbilityScore(monster.dexterity_mod),
+    con: calculateAbilityScore(monster.constitution_mod),
+    int: calculateAbilityScore(monster.intelligence_mod),
+    wis: calculateAbilityScore(monster.wisdom_mod),
+    cha: calculateAbilityScore(monster.charisma_mod),
+    // Modifiers (map from database field names)
+    str_mod: monster.strength_mod ?? 0,
+    dex_mod: monster.dexterity_mod ?? 0,
+    con_mod: monster.constitution_mod ?? 0,
+    int_mod: monster.intelligence_mod ?? 0,
+    wis_mod: monster.wisdom_mod ?? 0,
+    cha_mod: monster.charisma_mod ?? 0,
+  })) as MonsterSnapshot[];
 }

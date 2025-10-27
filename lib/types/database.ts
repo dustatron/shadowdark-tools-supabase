@@ -26,6 +26,13 @@ export interface DatabaseMonster {
   author_notes?: string;
   icon_url?: string;
   art_url?: string;
+  // Ability score modifiers (-5 to +5)
+  strength_mod: number;
+  dexterity_mod: number;
+  constitution_mod: number;
+  intelligence_mod: number;
+  wisdom_mod: number;
+  charisma_mod: number;
   is_official: boolean;
   is_public: boolean;
   user_id?: string; // UUID, null for official monsters

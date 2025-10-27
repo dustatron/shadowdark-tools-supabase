@@ -6,6 +6,7 @@ import { MonsterStatBlock } from "@/src/components/monsters/MonsterStatBlock";
 import { MonsterAttacksDisplay } from "@/src/components/monsters/MonsterAttacksDisplay";
 import { MonsterAbilitiesDisplay } from "@/src/components/monsters/MonsterAbilitiesDisplay";
 import { MonsterOwnershipCard } from "@/src/components/monsters/MonsterOwnershipCard";
+import { AbilityScoresCard } from "@/src/components/monsters/AbilityScoresCard";
 import { ArrowLeft, Pencil, Trash2, MoreVertical, Copy } from "lucide-react";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
@@ -60,6 +61,13 @@ interface Monster {
   };
   source: string;
   author_notes?: string;
+  // Ability score modifiers
+  strength_mod?: number;
+  dexterity_mod?: number;
+  constitution_mod?: number;
+  intelligence_mod?: number;
+  wisdom_mod?: number;
+  charisma_mod?: number;
   monster_type?: "official" | "user" | "custom";
   creator_id?: string;
   user_id?: string;
@@ -335,6 +343,16 @@ export function MonsterDetailClient({
           hitPoints={monster.hit_points}
           armorClass={monster.armor_class}
           speed={monster.speed}
+        />
+
+        {/* Ability Scores */}
+        <AbilityScoresCard
+          strength={monster.strength_mod}
+          dexterity={monster.dexterity_mod}
+          constitution={monster.constitution_mod}
+          intelligence={monster.intelligence_mod}
+          wisdom={monster.wisdom_mod}
+          charisma={monster.charisma_mod}
         />
 
         {/* Attacks */}

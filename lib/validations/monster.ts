@@ -63,6 +63,13 @@ export const monsterSchema = z.object({
   author_notes: z.string().optional(),
   icon_url: z.string().url().optional().or(z.literal("")),
   art_url: z.string().url().optional().or(z.literal("")),
+  // Ability score modifiers (-5 to +5)
+  strength_mod: z.number().int().min(-5).max(5).default(0),
+  dexterity_mod: z.number().int().min(-5).max(5).default(0),
+  constitution_mod: z.number().int().min(-5).max(5).default(0),
+  intelligence_mod: z.number().int().min(-5).max(5).default(0),
+  wisdom_mod: z.number().int().min(-5).max(5).default(0),
+  charisma_mod: z.number().int().min(-5).max(5).default(0),
   is_official: z.boolean().default(false),
   is_public: z.boolean().default(false),
   user_id: uuidSchema.optional(),
@@ -96,6 +103,13 @@ export const createMonsterSchema = z.object({
   author_notes: z.string().optional(),
   icon_url: z.string().url().optional().or(z.literal("")),
   art_url: z.string().url().optional().or(z.literal("")),
+  // Ability score modifiers (-5 to +5)
+  strength_mod: z.number().int().min(-5).max(5).default(0),
+  dexterity_mod: z.number().int().min(-5).max(5).default(0),
+  constitution_mod: z.number().int().min(-5).max(5).default(0),
+  intelligence_mod: z.number().int().min(-5).max(5).default(0),
+  wisdom_mod: z.number().int().min(-5).max(5).default(0),
+  charisma_mod: z.number().int().min(-5).max(5).default(0),
   is_public: z.boolean().default(false),
 });
 

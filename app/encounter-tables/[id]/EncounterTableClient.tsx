@@ -168,47 +168,50 @@ export function EncounterTableClient({
 
         <Separator />
 
-        <div className="grid grid-cols-3 md:grid-cols-6 gap-4 text-center">
-          <div>
-            <div className="text-xs text-muted-foreground">STR</div>
-            <div className="font-semibold">
-              {monster.str} ({monster.str_mod >= 0 ? "+" : ""}
-              {monster.str_mod})
+        <div>
+          <h4 className="font-semibold mb-2">Modifiers</h4>
+          <div className="grid grid-cols-3 md:grid-cols-6 gap-4 text-center">
+            <div>
+              <div className="text-xs text-muted-foreground">STR</div>
+              <div className="text-2xl font-bold">
+                {monster.str_mod >= 0 ? "+" : ""}
+                {monster.str_mod}
+              </div>
             </div>
-          </div>
-          <div>
-            <div className="text-xs text-muted-foreground">DEX</div>
-            <div className="font-semibold">
-              {monster.dex} ({monster.dex_mod >= 0 ? "+" : ""}
-              {monster.dex_mod})
+            <div>
+              <div className="text-xs text-muted-foreground">DEX</div>
+              <div className="text-2xl font-bold">
+                {monster.dex_mod >= 0 ? "+" : ""}
+                {monster.dex_mod}
+              </div>
             </div>
-          </div>
-          <div>
-            <div className="text-xs text-muted-foreground">CON</div>
-            <div className="font-semibold">
-              {monster.con} ({monster.con_mod >= 0 ? "+" : ""}
-              {monster.con_mod})
+            <div>
+              <div className="text-xs text-muted-foreground">CON</div>
+              <div className="text-2xl font-bold">
+                {monster.con_mod >= 0 ? "+" : ""}
+                {monster.con_mod}
+              </div>
             </div>
-          </div>
-          <div>
-            <div className="text-xs text-muted-foreground">INT</div>
-            <div className="font-semibold">
-              {monster.int} ({monster.int_mod >= 0 ? "+" : ""}
-              {monster.int_mod})
+            <div>
+              <div className="text-xs text-muted-foreground">INT</div>
+              <div className="text-2xl font-bold">
+                {monster.int_mod >= 0 ? "+" : ""}
+                {monster.int_mod}
+              </div>
             </div>
-          </div>
-          <div>
-            <div className="text-xs text-muted-foreground">WIS</div>
-            <div className="font-semibold">
-              {monster.wis} ({monster.wis_mod >= 0 ? "+" : ""}
-              {monster.wis_mod})
+            <div>
+              <div className="text-xs text-muted-foreground">WIS</div>
+              <div className="text-2xl font-bold">
+                {monster.wis_mod >= 0 ? "+" : ""}
+                {monster.wis_mod}
+              </div>
             </div>
-          </div>
-          <div>
-            <div className="text-xs text-muted-foreground">CHA</div>
-            <div className="font-semibold">
-              {monster.cha} ({monster.cha_mod >= 0 ? "+" : ""}
-              {monster.cha_mod})
+            <div>
+              <div className="text-xs text-muted-foreground">CHA</div>
+              <div className="text-2xl font-bold">
+                {monster.cha_mod >= 0 ? "+" : ""}
+                {monster.cha_mod}
+              </div>
             </div>
           </div>
         </div>

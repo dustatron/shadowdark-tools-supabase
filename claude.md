@@ -1,4 +1,16 @@
 # Shadowdark Monster Manager - Project Context
+- In all interactions and commit messages, be extremely concise and sacrifice grammar for the sake of concision. 
+
+## GITHUB
+- Your primary method for interacting with GitHub should the GitHub CLI.
+
+## Playwright
+- Your Primary method of interacting with playwright should be through the Playwright MCP server
+
+
+## Plans
+- At the end of each plan, give me a list of unresolved questions to answer, if any. Make the questions extremely concise. Sacrifice grammar for sake of concision. 
+  
 
 ## Project Overview
 
