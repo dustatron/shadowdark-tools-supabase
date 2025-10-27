@@ -101,22 +101,36 @@ export function AuthProvider({ children, initialSession }: AuthProviderProps) {
     try {
       console.log("Fetching user profile for:", authUser.id);
 
-      // Try to fetch user profile to get username_slug
-      // This may fail if the column doesn't exist yet
+      // Try to fetch user profile to get username_slug with timeout
       let username_slug: string | undefined;
       try {
-        const { data: profile } = await supabase
+        // Add a timeout to prevent hanging indefinitely
+        const profilePromise = supabase
           .from("user_profiles")
           .select("username_slug")
           .eq("id", authUser.id)
           .single();
+
+        const timeoutPromise = new Promise((_, reject) =>
+          setTimeout(() => reject(new Error("Profile fetch timeout")), 3000),
+        );
+
+        const { data: profile } = (await Promise.race([
+          profilePromise,
+          timeoutPromise,
+        ])) as any;
+
         username_slug = profile?.username_slug;
         console.log("Found username_slug:", username_slug);
       } catch (error) {
-        // Silently fail if username_slug column doesn't exist yet
-        console.log("Could not fetch username_slug, column may not exist yet");
+        // Silently fail if username_slug column doesn't exist yet or query times out
+        console.log(
+          "Could not fetch username_slug:",
+          error instanceof Error ? error.message : "Unknown error",
+        );
       }
 
+      // Always set user data, even if profile fetch failed
       const userData = {
         id: authUser.id,
         email: authUser.email!,
@@ -129,6 +143,7 @@ export function AuthProvider({ children, initialSession }: AuthProviderProps) {
       setUser(userData);
     } catch (error) {
       console.error("Error fetching user profile:", error);
+      // Fallback: set basic user data without profile info
       const userData = {
         id: authUser.id,
         email: authUser.email!,
