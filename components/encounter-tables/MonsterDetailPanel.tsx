@@ -20,6 +20,7 @@ import { Separator } from "@/components/ui/separator";
 import { Card, CardContent } from "@/components/ui/card";
 import { MonsterAttacksDisplay } from "@/src/components/monsters/MonsterAttacksDisplay";
 import { MonsterAbilitiesDisplay } from "@/src/components/monsters/MonsterAbilitiesDisplay";
+import { AbilityScoresCard } from "@/src/components/monsters/AbilityScoresCard";
 import {
   MonsterSnapshot,
   Attack as EncounterAttack,
@@ -141,61 +142,15 @@ export function MonsterDetailPanel({
         </CardContent>
       </Card>
 
-      {/* Ability Scores */}
-      <Card>
-        <CardContent className="p-4">
-          <div className="grid grid-cols-3 sm:grid-cols-6 gap-4">
-            <div className="text-center">
-              <p className="text-xs text-muted-foreground uppercase">STR</p>
-              <p className="text-lg font-bold">{monster.str}</p>
-              <p className="text-sm text-muted-foreground">
-                ({monster.str_mod >= 0 ? "+" : ""}
-                {monster.str_mod})
-              </p>
-            </div>
-            <div className="text-center">
-              <p className="text-xs text-muted-foreground uppercase">DEX</p>
-              <p className="text-lg font-bold">{monster.dex}</p>
-              <p className="text-sm text-muted-foreground">
-                ({monster.dex_mod >= 0 ? "+" : ""}
-                {monster.dex_mod})
-              </p>
-            </div>
-            <div className="text-center">
-              <p className="text-xs text-muted-foreground uppercase">CON</p>
-              <p className="text-lg font-bold">{monster.con}</p>
-              <p className="text-sm text-muted-foreground">
-                ({monster.con_mod >= 0 ? "+" : ""}
-                {monster.con_mod})
-              </p>
-            </div>
-            <div className="text-center">
-              <p className="text-xs text-muted-foreground uppercase">INT</p>
-              <p className="text-lg font-bold">{monster.int}</p>
-              <p className="text-sm text-muted-foreground">
-                ({monster.int_mod >= 0 ? "+" : ""}
-                {monster.int_mod})
-              </p>
-            </div>
-            <div className="text-center">
-              <p className="text-xs text-muted-foreground uppercase">WIS</p>
-              <p className="text-lg font-bold">{monster.wis}</p>
-              <p className="text-sm text-muted-foreground">
-                ({monster.wis_mod >= 0 ? "+" : ""}
-                {monster.wis_mod})
-              </p>
-            </div>
-            <div className="text-center">
-              <p className="text-xs text-muted-foreground uppercase">CHA</p>
-              <p className="text-lg font-bold">{monster.cha}</p>
-              <p className="text-sm text-muted-foreground">
-                ({monster.cha_mod >= 0 ? "+" : ""}
-                {monster.cha_mod})
-              </p>
-            </div>
-          </div>
-        </CardContent>
-      </Card>
+      {/* Ability Score Modifiers */}
+      <AbilityScoresCard
+        strength={monster.str_mod}
+        dexterity={monster.dex_mod}
+        constitution={monster.con_mod}
+        intelligence={monster.int_mod}
+        wisdom={monster.wis_mod}
+        charisma={monster.cha_mod}
+      />
 
       {/* Attacks */}
       {monster.attacks.length > 0 && (

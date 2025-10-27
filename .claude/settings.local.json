@@ -105,7 +105,8 @@
       "Bash(psql:*)",
       "mcp__chrome-devtools__resize_page",
       "mcp__chrome-devtools__get_console_message",
-      "Bash(git checkout:*)"
+      "Bash(git checkout:*)",
+      "mcp__supabase__get_project_url"
     ],
     "deny": [],
     "ask": []
