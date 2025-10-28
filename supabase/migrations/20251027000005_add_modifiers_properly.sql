@@ -1,23 +1,107 @@
+-- Drop view and functions first to avoid column reordering issues
+DROP VIEW IF EXISTS public.all_monsters;
+DROP FUNCTION IF EXISTS public.search_monsters;
+DROP FUNCTION IF EXISTS public.get_random_monsters;
+
 -- Add ability score modifier columns to official_monsters table
 ALTER TABLE official_monsters
-  ADD COLUMN strength_mod INTEGER DEFAULT 0 CHECK (strength_mod >= -5 AND strength_mod <= 5),
-  ADD COLUMN dexterity_mod INTEGER DEFAULT 0 CHECK (dexterity_mod >= -5 AND dexterity_mod <= 5),
-  ADD COLUMN constitution_mod INTEGER DEFAULT 0 CHECK (constitution_mod >= -5 AND constitution_mod <= 5),
-  ADD COLUMN intelligence_mod INTEGER DEFAULT 0 CHECK (intelligence_mod >= -5 AND intelligence_mod <= 5),
-  ADD COLUMN wisdom_mod INTEGER DEFAULT 0 CHECK (wisdom_mod >= -5 AND wisdom_mod <= 5),
-  ADD COLUMN charisma_mod INTEGER DEFAULT 0 CHECK (charisma_mod >= -5 AND charisma_mod <= 5);
+  ADD COLUMN IF NOT EXISTS strength_mod INTEGER DEFAULT 0 CHECK (strength_mod >= -5 AND strength_mod <= 5),
+  ADD COLUMN IF NOT EXISTS dexterity_mod INTEGER DEFAULT 0 CHECK (dexterity_mod >= -5 AND dexterity_mod <= 5),
+  ADD COLUMN IF NOT EXISTS constitution_mod INTEGER DEFAULT 0 CHECK (constitution_mod >= -5 AND constitution_mod <= 5),
+  ADD COLUMN IF NOT EXISTS intelligence_mod INTEGER DEFAULT 0 CHECK (intelligence_mod >= -5 AND intelligence_mod <= 5),
+  ADD COLUMN IF NOT EXISTS wisdom_mod INTEGER DEFAULT 0 CHECK (wisdom_mod >= -5 AND wisdom_mod <= 5),
+  ADD COLUMN IF NOT EXISTS charisma_mod INTEGER DEFAULT 0 CHECK (charisma_mod >= -5 AND charisma_mod <= 5);
 
 -- Add ability score modifier columns to user_monsters table
 ALTER TABLE user_monsters
-  ADD COLUMN strength_mod INTEGER DEFAULT 0 CHECK (strength_mod >= -5 AND strength_mod <= 5),
-  ADD COLUMN dexterity_mod INTEGER DEFAULT 0 CHECK (dexterity_mod >= -5 AND dexterity_mod <= 5),
-  ADD COLUMN constitution_mod INTEGER DEFAULT 0 CHECK (constitution_mod >= -5 AND constitution_mod <= 5),
-  ADD COLUMN intelligence_mod INTEGER DEFAULT 0 CHECK (intelligence_mod >= -5 AND intelligence_mod <= 5),
-  ADD COLUMN wisdom_mod INTEGER DEFAULT 0 CHECK (wisdom_mod >= -5 AND wisdom_mod <= 5),
-  ADD COLUMN charisma_mod INTEGER DEFAULT 0 CHECK (charisma_mod >= -5 AND charisma_mod <= 5);
+  ADD COLUMN IF NOT EXISTS strength_mod INTEGER DEFAULT 0 CHECK (strength_mod >= -5 AND strength_mod <= 5),
+  ADD COLUMN IF NOT EXISTS dexterity_mod INTEGER DEFAULT 0 CHECK (dexterity_mod >= -5 AND dexterity_mod <= 5),
+  ADD COLUMN IF NOT EXISTS constitution_mod INTEGER DEFAULT 0 CHECK (constitution_mod >= -5 AND constitution_mod <= 5),
+  ADD COLUMN IF NOT EXISTS intelligence_mod INTEGER DEFAULT 0 CHECK (intelligence_mod >= -5 AND intelligence_mod <= 5),
+  ADD COLUMN IF NOT EXISTS wisdom_mod INTEGER DEFAULT 0 CHECK (wisdom_mod >= -5 AND wisdom_mod <= 5),
+  ADD COLUMN IF NOT EXISTS charisma_mod INTEGER DEFAULT 0 CHECK (charisma_mod >= -5 AND charisma_mod <= 5);
 
--- Recreate all_monsters view to include new ability modifier columns
-CREATE OR REPLACE VIEW public.all_monsters AS
+-- Populate ability score modifiers for official monsters
+UPDATE official_monsters
+SET
+  strength_mod = CASE
+    WHEN challenge_level <= 1 THEN 0
+    WHEN challenge_level <= 3 THEN 1
+    WHEN challenge_level <= 5 THEN 2
+    WHEN challenge_level <= 7 THEN 3
+    WHEN challenge_level <= 9 THEN 4
+    ELSE 5
+  END,
+  dexterity_mod = CASE
+    WHEN challenge_level <= 1 THEN 0
+    WHEN challenge_level <= 3 THEN 1
+    WHEN challenge_level <= 5 THEN 1
+    WHEN challenge_level <= 7 THEN 2
+    WHEN challenge_level <= 9 THEN 3
+    ELSE 4
+  END,
+  constitution_mod = CASE
+    WHEN challenge_level <= 1 THEN 0
+    WHEN challenge_level <= 3 THEN 1
+    WHEN challenge_level <= 5 THEN 2
+    WHEN challenge_level <= 7 THEN 2
+    WHEN challenge_level <= 9 THEN 3
+    ELSE 4
+  END,
+  intelligence_mod = CASE
+    WHEN challenge_level <= 2 THEN 0
+    WHEN challenge_level <= 5 THEN 1
+    WHEN challenge_level <= 8 THEN 2
+    ELSE 3
+  END,
+  wisdom_mod = CASE
+    WHEN challenge_level <= 2 THEN 0
+    WHEN challenge_level <= 5 THEN 1
+    WHEN challenge_level <= 8 THEN 2
+    ELSE 3
+  END,
+  charisma_mod = CASE
+    WHEN challenge_level <= 2 THEN 0
+    WHEN challenge_level <= 5 THEN 1
+    WHEN challenge_level <= 8 THEN 1
+    ELSE 2
+  END
+WHERE strength_mod = 0 AND dexterity_mod = 0;
+
+-- Special cases: Beasts typically have lower INT
+UPDATE official_monsters
+SET
+  intelligence_mod = GREATEST(intelligence_mod - 2, -2),
+  charisma_mod = GREATEST(charisma_mod - 1, -1)
+WHERE tags->>'type' LIKE '%beast%'
+  AND intelligence_mod > -2;
+
+-- Special cases: Undead typically have lower CHA, higher CON
+UPDATE official_monsters
+SET
+  constitution_mod = LEAST(constitution_mod + 1, 5),
+  charisma_mod = GREATEST(charisma_mod - 2, -2)
+WHERE tags->>'type' LIKE '%undead%'
+  AND charisma_mod > -2;
+
+-- Special cases: Celestials/Angels have higher CHA
+UPDATE official_monsters
+SET
+  charisma_mod = LEAST(charisma_mod + 2, 5)
+WHERE tags->>'type' LIKE '%celestial%'
+  OR name ILIKE '%angel%'
+  AND charisma_mod < 5;
+
+-- Special cases: Constructs have no mental stats
+UPDATE official_monsters
+SET
+  intelligence_mod = -5,
+  wisdom_mod = -5,
+  charisma_mod = -5
+WHERE tags->>'type' LIKE '%construct%';
+
+-- Recreate all_monsters view with ability modifiers
+CREATE VIEW public.all_monsters AS
 SELECT
     id,
     name,
@@ -166,7 +250,6 @@ BEGIN
         END as relevance
     FROM public.all_monsters am
     WHERE
-        -- Text search
         (search_query IS NULL OR (
             to_tsvector('english',
                 COALESCE(am.name, '') || ' ' ||
@@ -175,20 +258,16 @@ BEGIN
             ) @@ plainto_tsquery('english', search_query)
             OR similarity(am.name, search_query) > 0.3
         ))
-        -- Challenge level range
         AND (min_challenge_level IS NULL OR am.challenge_level >= min_challenge_level)
         AND (max_challenge_level IS NULL OR am.challenge_level <= max_challenge_level)
-        -- Monster type filter
         AND (monster_types IS NULL OR (
             SELECT bool_or(tag_value IN (SELECT unnest(monster_types)))
             FROM jsonb_array_elements_text(am.tags->'type') as tag_value
         ))
-        -- Location tags filter
         AND (location_tags IS NULL OR (
             SELECT bool_or(tag_value IN (SELECT unnest(location_tags)))
             FROM jsonb_array_elements_text(am.tags->'location') as tag_value
         ))
-        -- Source filter
         AND (source_filter IS NULL OR am.source ILIKE '%' || source_filter || '%')
     ORDER BY
         CASE WHEN search_query IS NULL THEN am.name ELSE NULL END,
@@ -268,15 +347,12 @@ BEGIN
         am.updated_at
     FROM public.all_monsters am
     WHERE
-        -- Challenge level range
         (min_challenge_level IS NULL OR am.challenge_level >= min_challenge_level)
         AND (max_challenge_level IS NULL OR am.challenge_level <= max_challenge_level)
-        -- Monster type filter
         AND (monster_types IS NULL OR (
             SELECT bool_or(tag_value IN (SELECT unnest(monster_types)))
             FROM jsonb_array_elements_text(am.tags->'type') as tag_value
         ))
-        -- Location tags filter
         AND (location_tags IS NULL OR (
             SELECT bool_or(tag_value IN (SELECT unnest(location_tags)))
             FROM jsonb_array_elements_text(am.tags->'location') as tag_value
