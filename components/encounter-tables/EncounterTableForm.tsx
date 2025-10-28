@@ -7,14 +7,12 @@ import { Textarea } from "@/components/ui/textarea";
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
 import { Checkbox } from "@/components/ui/checkbox";
-import { Slider } from "@/components/ui/slider";
 import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
+  Accordion,
+  AccordionContent,
+  AccordionItem,
+  AccordionTrigger,
+} from "@/components/ui/accordion";
 import {
   EncounterTableCreateSchema,
   type EncounterTableCreateInput,
@@ -25,6 +23,7 @@ import type {
   MovementType,
 } from "@/lib/encounter-tables/types";
 import { useState } from "react";
+import { DiceSizeSelector } from "./DiceSizeSelector";
 
 interface EncounterTableFormProps {
   onSubmit: (data: EncounterTableCreateInput) => Promise<void>;
@@ -32,9 +31,6 @@ interface EncounterTableFormProps {
   initialData?: Partial<EncounterTableCreateInput>;
   isEdit?: boolean;
 }
-
-// Standard die sizes for RPGs
-const STANDARD_DIE_SIZES = [4, 6, 8, 10, 12, 20, 100];
 
 const MONSTER_SOURCES: { value: MonsterSource; label: string }[] = [
   { value: "official", label: "Official Monsters" },
@@ -62,11 +58,6 @@ export function EncounterTableForm({
   isEdit = false,
 }: EncounterTableFormProps) {
   const [loading, setLoading] = useState(false);
-  const [useCustomDie, setUseCustomDie] = useState(
-    initialData?.die_size
-      ? !STANDARD_DIE_SIZES.includes(initialData.die_size)
-      : false,
-  );
 
   const form = useForm({
     resolver: zodResolver(EncounterTableCreateSchema),
@@ -88,10 +79,6 @@ export function EncounterTableForm({
 
   const descriptionLength = form.watch("description")?.length || 0;
   const selectedSources = form.watch("filters.sources") || [];
-  const levelRange = [
-    form.watch("filters.level_min") || 1,
-    form.watch("filters.level_max") || 20,
-  ];
 
   const handleSubmit = async (data: EncounterTableCreateInput) => {
     setLoading(true);
@@ -149,65 +136,20 @@ export function EncounterTableForm({
       {/* Die Size Selection */}
       <div className="space-y-2">
         <Label htmlFor="die_size">Die Size</Label>
-        <div className="flex items-center gap-4">
-          {!useCustomDie ? (
-            <Controller
-              control={form.control}
-              name="die_size"
-              render={({ field }) => (
-                <Select
-                  value={field.value?.toString()}
-                  onValueChange={(value) => field.onChange(parseInt(value, 10))}
-                >
-                  <SelectTrigger
-                    className="w-[180px]"
-                    aria-label="Select die size"
-                  >
-                    <SelectValue placeholder="Select die size" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {STANDARD_DIE_SIZES.map((size) => (
-                      <SelectItem key={size} value={size.toString()}>
-                        d{size}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-              )}
-            />
-          ) : (
-            <Input
-              type="number"
-              min={2}
-              max={1000}
-              className="w-[180px]"
-              placeholder="Enter custom die size"
-              {...form.register("die_size", { valueAsNumber: true })}
-              aria-label="Custom die size"
-              aria-invalid={!!form.formState.errors.die_size}
+        <Controller
+          control={form.control}
+          name="die_size"
+          render={({ field }) => (
+            <DiceSizeSelector
+              value={field.value}
+              onChange={field.onChange}
+              error={form.formState.errors.die_size?.message}
             />
           )}
-          <Button
-            type="button"
-            variant="outline"
-            onClick={() => {
-              setUseCustomDie(!useCustomDie);
-              if (!useCustomDie) {
-                form.setValue("die_size", 20);
-              }
-            }}
-          >
-            {useCustomDie ? "Use Standard Die" : "Use Custom Die"}
-          </Button>
-        </div>
+        />
         <p className="text-sm text-muted-foreground">
-          Number of entries in the encounter table (2-1000)
+          Number of entries in the encounter table (1-1000)
         </p>
-        {form.formState.errors.die_size && (
-          <p className="text-sm text-destructive">
-            {form.formState.errors.die_size.message}
-          </p>
-        )}
       </div>
 
       {/* Monster Sources */}
@@ -255,150 +197,181 @@ export function EncounterTableForm({
         )}
       </div>
 
-      {/* Level Range Slider */}
+      {/* Challenge Level Range */}
       <div className="space-y-3">
-        <div className="flex items-center justify-between">
-          <Label>Challenge Level Range</Label>
-          <span className="text-sm text-muted-foreground">
-            Level {levelRange[0]} - {levelRange[1]}
-          </span>
-        </div>
-        <Controller
-          control={form.control}
-          name="filters.level_min"
-          render={({ field: minField }) => (
-            <Controller
-              control={form.control}
-              name="filters.level_max"
-              render={({ field: maxField }) => (
-                <Slider
-                  min={1}
-                  max={20}
-                  step={1}
-                  value={[minField.value || 1, maxField.value || 20]}
-                  onValueChange={([min, max]) => {
-                    minField.onChange(min);
-                    maxField.onChange(max);
-                  }}
-                  aria-label="Challenge level range"
-                />
-              )}
+        <Label>Challenge Level Range</Label>
+        <div className="grid grid-cols-2 gap-4">
+          <div className="space-y-2">
+            <Label
+              htmlFor="level_min"
+              className="text-sm text-muted-foreground"
+            >
+              Minimum
+            </Label>
+            <Input
+              id="level_min"
+              type="number"
+              min={1}
+              max={20}
+              {...form.register("filters.level_min", { valueAsNumber: true })}
+              aria-invalid={!!form.formState.errors.filters?.level_min}
             />
-          )}
-        />
+            {form.formState.errors.filters?.level_min && (
+              <p className="text-sm text-destructive">
+                {form.formState.errors.filters.level_min.message}
+              </p>
+            )}
+          </div>
+          <div className="space-y-2">
+            <Label
+              htmlFor="level_max"
+              className="text-sm text-muted-foreground"
+            >
+              Maximum
+            </Label>
+            <Input
+              id="level_max"
+              type="number"
+              min={1}
+              max={20}
+              {...form.register("filters.level_max", { valueAsNumber: true })}
+              aria-invalid={!!form.formState.errors.filters?.level_max}
+            />
+            {form.formState.errors.filters?.level_max && (
+              <p className="text-sm text-destructive">
+                {form.formState.errors.filters.level_max.message}
+              </p>
+            )}
+          </div>
+        </div>
         <p className="text-sm text-muted-foreground">
           Monsters within this challenge level range will be included
         </p>
-        {(form.formState.errors.filters?.level_min ||
-          form.formState.errors.filters?.level_max) && (
-          <p className="text-sm text-destructive">
-            {form.formState.errors.filters?.level_min?.message ||
-              form.formState.errors.filters?.level_max?.message}
-          </p>
-        )}
       </div>
 
-      {/* Alignments (Optional) */}
-      <div className="space-y-3">
-        <Label>Alignments (Optional)</Label>
-        <p className="text-sm text-muted-foreground">
-          Filter by alignment, or leave unchecked for all alignments
-        </p>
-        <div className="space-y-2">
-          {ALIGNMENTS.map((alignment) => (
-            <div key={alignment.value} className="flex items-center space-x-2">
-              <Controller
-                control={form.control}
-                name="filters.alignments"
-                render={({ field }) => (
-                  <Checkbox
-                    id={`alignment-${alignment.value}`}
-                    checked={field.value?.includes(alignment.value)}
-                    onCheckedChange={(checked) => {
-                      const currentAlignments = field.value || [];
-                      if (checked) {
-                        field.onChange([...currentAlignments, alignment.value]);
-                      } else {
-                        field.onChange(
-                          currentAlignments.filter(
-                            (a) => a !== alignment.value,
-                          ),
-                        );
-                      }
-                    }}
-                  />
-                )}
-              />
-              <Label
-                htmlFor={`alignment-${alignment.value}`}
-                className="font-normal cursor-pointer"
-              >
-                {alignment.label}
-              </Label>
+      {/* Additional Filters */}
+      <Accordion type="single" collapsible className="w-full">
+        <AccordionItem value="additional-filters">
+          <AccordionTrigger>Additional Filters (Optional)</AccordionTrigger>
+          <AccordionContent className="space-y-6 pt-4">
+            {/* Alignments */}
+            <div className="space-y-3">
+              <Label>Alignments</Label>
+              <p className="text-sm text-muted-foreground">
+                Filter by alignment, or leave unchecked for all alignments
+              </p>
+              <div className="space-y-2">
+                {ALIGNMENTS.map((alignment) => (
+                  <div
+                    key={alignment.value}
+                    className="flex items-center space-x-2"
+                  >
+                    <Controller
+                      control={form.control}
+                      name="filters.alignments"
+                      render={({ field }) => (
+                        <Checkbox
+                          id={`alignment-${alignment.value}`}
+                          checked={field.value?.includes(alignment.value)}
+                          onCheckedChange={(checked) => {
+                            const currentAlignments = field.value || [];
+                            if (checked) {
+                              field.onChange([
+                                ...currentAlignments,
+                                alignment.value,
+                              ]);
+                            } else {
+                              field.onChange(
+                                currentAlignments.filter(
+                                  (a) => a !== alignment.value,
+                                ),
+                              );
+                            }
+                          }}
+                        />
+                      )}
+                    />
+                    <Label
+                      htmlFor={`alignment-${alignment.value}`}
+                      className="font-normal cursor-pointer"
+                    >
+                      {alignment.label}
+                    </Label>
+                  </div>
+                ))}
+              </div>
             </div>
-          ))}
-        </div>
-      </div>
 
-      {/* Movement Types (Optional) */}
-      <div className="space-y-3">
-        <Label>Special Movement (Optional)</Label>
-        <p className="text-sm text-muted-foreground">
-          Filter for monsters with specific movement abilities
-        </p>
-        <div className="space-y-2">
-          {MOVEMENT_TYPES.map((movement) => (
-            <div key={movement.value} className="flex items-center space-x-2">
-              <Controller
-                control={form.control}
-                name="filters.movement_types"
-                render={({ field }) => (
-                  <Checkbox
-                    id={`movement-${movement.value}`}
-                    checked={field.value?.includes(movement.value)}
-                    onCheckedChange={(checked) => {
-                      const currentMovements = field.value || [];
-                      if (checked) {
-                        field.onChange([...currentMovements, movement.value]);
-                      } else {
-                        field.onChange(
-                          currentMovements.filter((m) => m !== movement.value),
-                        );
-                      }
-                    }}
-                  />
-                )}
-              />
-              <Label
-                htmlFor={`movement-${movement.value}`}
-                className="font-normal cursor-pointer"
-              >
-                {movement.label}
-              </Label>
+            {/* Movement Types */}
+            <div className="space-y-3">
+              <Label>Special Movement</Label>
+              <p className="text-sm text-muted-foreground">
+                Filter for monsters with specific movement abilities
+              </p>
+              <div className="space-y-2">
+                {MOVEMENT_TYPES.map((movement) => (
+                  <div
+                    key={movement.value}
+                    className="flex items-center space-x-2"
+                  >
+                    <Controller
+                      control={form.control}
+                      name="filters.movement_types"
+                      render={({ field }) => (
+                        <Checkbox
+                          id={`movement-${movement.value}`}
+                          checked={field.value?.includes(movement.value)}
+                          onCheckedChange={(checked) => {
+                            const currentMovements = field.value || [];
+                            if (checked) {
+                              field.onChange([
+                                ...currentMovements,
+                                movement.value,
+                              ]);
+                            } else {
+                              field.onChange(
+                                currentMovements.filter(
+                                  (m) => m !== movement.value,
+                                ),
+                              );
+                            }
+                          }}
+                        />
+                      )}
+                    />
+                    <Label
+                      htmlFor={`movement-${movement.value}`}
+                      className="font-normal cursor-pointer"
+                    >
+                      {movement.label}
+                    </Label>
+                  </div>
+                ))}
+              </div>
             </div>
-          ))}
-        </div>
-      </div>
 
-      {/* Search Query (Optional) */}
-      <div className="space-y-2">
-        <Label htmlFor="search_query">Search Query (Optional)</Label>
-        <Input
-          id="search_query"
-          maxLength={100}
-          placeholder="e.g., dragon, undead, goblin"
-          {...form.register("filters.search_query")}
-          aria-invalid={!!form.formState.errors.filters?.search_query}
-        />
-        <p className="text-sm text-muted-foreground">
-          Filter monsters by name, type, or description
-        </p>
-        {form.formState.errors.filters?.search_query && (
-          <p className="text-sm text-destructive">
-            {form.formState.errors.filters.search_query.message}
-          </p>
-        )}
-      </div>
+            {/* Search Query */}
+            <div className="space-y-2">
+              <Label htmlFor="search_query">Search Query</Label>
+              <Input
+                id="search_query"
+                maxLength={100}
+                placeholder="e.g., dragon, undead, goblin"
+                {...form.register("filters.search_query")}
+                aria-invalid={!!form.formState.errors.filters?.search_query}
+              />
+              <p className="text-sm text-muted-foreground">
+                Filter monsters by name, type, or description
+              </p>
+              {form.formState.errors.filters?.search_query && (
+                <p className="text-sm text-destructive">
+                  {form.formState.errors.filters.search_query.message}
+                </p>
+              )}
+            </div>
+          </AccordionContent>
+        </AccordionItem>
+      </Accordion>
 
       {/* Generate Immediately Checkbox */}
       {!isEdit && (

@@ -47,7 +47,7 @@ export const EncounterTableCreateSchema = z.object({
   die_size: z
     .number()
     .int()
-    .min(2, "Die size must be at least 2")
+    .min(1, "Die size must be at least 1")
     .max(1000, "Die size cannot exceed 1000"),
   filters: EncounterTableFiltersSchema,
   generate_immediately: z.boolean().default(true).optional(),
