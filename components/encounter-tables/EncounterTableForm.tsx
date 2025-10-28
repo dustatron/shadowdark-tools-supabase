@@ -22,8 +22,9 @@ import type {
   Alignment,
   MovementType,
 } from "@/lib/encounter-tables/types";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { DiceSizeSelector } from "./DiceSizeSelector";
+import { generateEncounterTableName } from "@/lib/encounter-tables/utils/generate-table-name";
 
 interface EncounterTableFormProps {
   onSubmit: (data: EncounterTableCreateInput) => Promise<void>;
@@ -79,6 +80,13 @@ export function EncounterTableForm({
 
   const descriptionLength = form.watch("description")?.length || 0;
   const selectedSources = form.watch("filters.sources") || [];
+
+  // Auto-generate name on mount if no initial name provided
+  useEffect(() => {
+    if (!initialData?.name && !form.getValues("name")) {
+      form.setValue("name", generateEncounterTableName());
+    }
+  }, []); // Only run once on mount
 
   const handleSubmit = async (data: EncounterTableCreateInput) => {
     setLoading(true);
