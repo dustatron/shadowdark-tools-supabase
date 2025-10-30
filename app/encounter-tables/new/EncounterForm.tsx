@@ -1,11 +1,12 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { EncounterTableCreateSchema } from "@/lib/encounter-tables/schemas";
 import type { EncounterTableCreateInput } from "@/lib/encounter-tables/schemas";
+import { generateEncounterTableName } from "@/lib/encounter-tables/utils/generate-name";
 import { Button } from "@/components/ui/button";
 import {
   Form,
@@ -33,7 +34,8 @@ import {
   AccordionTrigger,
 } from "@/components/ui/accordion";
 import { Alert, AlertDescription } from "@/components/ui/alert";
-import { Loader2, AlertCircle, ArrowLeft } from "lucide-react";
+import { Loader2, AlertCircle, ArrowLeft, RefreshCw } from "lucide-react";
+import { toast } from "sonner";
 import Link from "next/link";
 
 const COMMON_DIE_SIZES = [6, 8, 10, 12, 20, 100];
@@ -41,11 +43,6 @@ const MONSTER_SOURCES = [
   { value: "official", label: "Official Monsters" },
   { value: "user", label: "My Custom Monsters" },
   { value: "public", label: "Community Monsters" },
-];
-const ALIGNMENTS = [
-  { value: "Lawful", label: "Lawful" },
-  { value: "Neutral", label: "Neutral" },
-  { value: "Chaotic", label: "Chaotic" },
 ];
 const MOVEMENT_TYPES = [
   { value: "fly", label: "Flying" },
@@ -79,13 +76,22 @@ export default function EncounterForm() {
         sources: ["official" as const],
         level_min: 1,
         level_max: 20,
-        alignments: [],
         movement_types: [],
         search_query: "",
       },
       generate_immediately: true,
     },
   });
+
+  // Auto-generate name on mount
+  useEffect(() => {
+    try {
+      form.setValue("name", generateEncounterTableName());
+    } catch (err) {
+      console.error("Error generating name:", err);
+      toast.error("Failed to generate table name. Please enter manually.");
+    }
+  }, [form]);
 
   const generatePreview = async (data: EncounterTableCreateInput) => {
     setIsGenerating(true);
@@ -109,7 +115,10 @@ export default function EncounterForm() {
       setPreviewData(result.preview);
     } catch (err) {
       console.error("Error generating preview:", err);
-      setError(err instanceof Error ? err.message : "An error occurred");
+      const errorMessage =
+        err instanceof Error ? err.message : "An error occurred";
+      setError(errorMessage);
+      toast.error(errorMessage);
     } finally {
       setIsGenerating(false);
     }
@@ -147,7 +156,10 @@ export default function EncounterForm() {
       router.push(`/encounter-tables/${result.id}`);
     } catch (err) {
       console.error("Error saving encounter table:", err);
-      setError(err instanceof Error ? err.message : "An error occurred");
+      const errorMessage =
+        err instanceof Error ? err.message : "An error occurred";
+      setError(errorMessage);
+      toast.error(errorMessage);
       setIsSaving(false);
     }
   };
@@ -195,7 +207,30 @@ export default function EncounterForm() {
                     name="name"
                     render={({ field }) => (
                       <FormItem>
-                        <FormLabel>Table Name</FormLabel>
+                        <div className="flex items-center justify-between">
+                          <FormLabel>Table Name</FormLabel>
+                          <Button
+                            type="button"
+                            variant="ghost"
+                            size="sm"
+                            onClick={() => {
+                              try {
+                                form.setValue(
+                                  "name",
+                                  generateEncounterTableName(),
+                                );
+                              } catch (err) {
+                                console.error("Error generating name:", err);
+                                toast.error(
+                                  "Failed to generate table name. Please enter manually.",
+                                );
+                              }
+                            }}
+                            className="h-8 px-2"
+                          >
+                            <RefreshCw className="h-4 w-4" />
+                          </Button>
+                        </div>
                         <FormControl>
                           <Input
                             placeholder="e.g., Forest Encounters"
@@ -359,59 +394,6 @@ export default function EncounterForm() {
 
                         <FormField
                           control={form.control}
-                          name="filters.alignments"
-                          render={() => (
-                            <FormItem>
-                              <FormLabel>Alignments (Optional)</FormLabel>
-                              <FormDescription>
-                                Filter by creature alignment
-                              </FormDescription>
-                              <div className="grid grid-cols-3 gap-2">
-                                {ALIGNMENTS.map((alignment) => (
-                                  <FormField
-                                    key={alignment.value}
-                                    control={form.control}
-                                    name="filters.alignments"
-                                    render={({ field }) => (
-                                      <FormItem className="flex items-center space-x-2 space-y-0">
-                                        <FormControl>
-                                          <Checkbox
-                                            checked={field.value?.includes(
-                                              alignment.value as any,
-                                            )}
-                                            onCheckedChange={(checked) => {
-                                              const current = field.value || [];
-                                              if (checked) {
-                                                field.onChange([
-                                                  ...current,
-                                                  alignment.value,
-                                                ]);
-                                              } else {
-                                                field.onChange(
-                                                  current.filter(
-                                                    (val) =>
-                                                      val !== alignment.value,
-                                                  ),
-                                                );
-                                              }
-                                            }}
-                                          />
-                                        </FormControl>
-                                        <FormLabel className="font-normal cursor-pointer">
-                                          {alignment.label}
-                                        </FormLabel>
-                                      </FormItem>
-                                    )}
-                                  />
-                                ))}
-                              </div>
-                              <FormMessage />
-                            </FormItem>
-                          )}
-                        />
-
-                        <FormField
-                          control={form.control}
                           name="filters.movement_types"
                           render={() => (
                             <FormItem>
@@ -548,7 +530,14 @@ export default function EncounterForm() {
                               {entry.roll_number}
                             </td>
                             <td className="p-3">
-                              {entry.monster_snapshot.name}
+                              <Link
+                                href={`/monsters/${entry.monster_id}`}
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                className="text-primary hover:underline"
+                              >
+                                {entry.monster_snapshot.name}
+                              </Link>
                             </td>
                             <td className="p-3">
                               {entry.monster_snapshot.challenge_level}

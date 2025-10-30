@@ -19,7 +19,6 @@ export interface EncounterTableFilters {
   sources: MonsterSource[]; // At least 1 required
   level_min: number; // 1-20, default 1
   level_max: number; // 1-20, default 20, must be >= level_min
-  alignments?: Alignment[]; // Optional filter
   movement_types?: MovementType[]; // Optional filter
   search_query?: string; // Max 100 characters, optional
 }

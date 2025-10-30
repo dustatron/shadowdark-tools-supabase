@@ -124,25 +124,22 @@ export function buildMonsterFilterQuery(
     }
   }
 
-  // Alignment filter (optional)
-  if (filters.alignments && filters.alignments.length > 0) {
-    query = query.in("alignment", filters.alignments);
-  }
-
   // Movement types filter (optional)
-  // Assumes movement_types is a JSONB array field
+  // Movement types are stored in the speed field as text (e.g., "near (fly)", "near (swim)")
   if (filters.movement_types && filters.movement_types.length > 0) {
-    // PostgreSQL array overlap operator: &&
-    // Check if any of the requested movement types exist in the monster's movement_types
-    query = query.overlaps("movement_types", filters.movement_types);
+    // Build OR conditions for each movement type
+    const movementConditions = filters.movement_types.map(
+      (type) => `speed.ilike.%${type}%`,
+    );
+    query = query.or(movementConditions.join(","));
   }
 
   // Search query filter (optional)
-  // Search in name and description fields
+  // Search in name and author_notes fields (no description field in monsters table)
   if (filters.search_query && filters.search_query.trim().length > 0) {
     const searchTerm = `%${filters.search_query.trim()}%`;
     query = query.or(
-      `name.ilike.${searchTerm},description.ilike.${searchTerm}`,
+      `name.ilike.${searchTerm},author_notes.ilike.${searchTerm}`,
     );
   }
 

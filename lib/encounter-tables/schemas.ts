@@ -16,7 +16,6 @@ export const EncounterTableFiltersSchema = z
       .min(1, "At least one monster source required"),
     level_min: z.number().int().min(1).max(20).optional().default(1),
     level_max: z.number().int().min(1).max(20).optional().default(20),
-    alignments: z.array(z.enum(["Lawful", "Neutral", "Chaotic"])).optional(),
     movement_types: z
       .array(z.enum(["fly", "swim", "burrow", "climb"]))
       .optional(),
