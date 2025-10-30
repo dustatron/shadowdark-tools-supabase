@@ -36,6 +36,7 @@ const MONSTER_SOURCES: { value: MonsterSource; label: string }[] = [
   { value: "official", label: "Official Monsters" },
   { value: "user", label: "My Custom Monsters" },
   { value: "public", label: "Community Monsters" },
+  { value: "favorites", label: "My Favorites" },
 ];
 
 const MOVEMENT_TYPES: { value: MovementType; label: string }[] = [

@@ -7,7 +7,7 @@
 // Enums and Union Types
 // ============================================
 
-export type MonsterSource = "official" | "user" | "public";
+export type MonsterSource = "official" | "user" | "public" | "favorites";
 export type Alignment = "Lawful" | "Neutral" | "Chaotic";
 export type MovementType = "fly" | "swim" | "burrow" | "climb";
 

@@ -10,6 +10,12 @@
 
 - Your Primary method of interacting with playwright should be through the Playwright MCP server
 
+## Supabase Database
+
+- Your primary method for interacting with the Supabase database should be through the Supabase MCP server
+- Use MCP tools for: querying tables, executing SQL, applying migrations, checking schemas, getting logs
+- Project ID: hvtkkugamifjglxkqsrc
+
 ## Plans
 
 - At the end of each plan, give me a list of unresolved questions to answer, if any. Make the questions extremely concise. Sacrifice grammar for sake of concision.

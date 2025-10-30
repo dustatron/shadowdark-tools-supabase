@@ -12,7 +12,7 @@ import { z } from "zod";
 export const EncounterTableFiltersSchema = z
   .object({
     sources: z
-      .array(z.enum(["official", "user", "public"]))
+      .array(z.enum(["official", "user", "public", "favorites"]))
       .min(1, "At least one monster source required"),
     level_min: z.number().int().min(1).max(20).optional().default(1),
     level_max: z.number().int().min(1).max(20).optional().default(20),

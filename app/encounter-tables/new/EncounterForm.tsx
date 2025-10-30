@@ -20,13 +20,7 @@ import {
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Checkbox } from "@/components/ui/checkbox";
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import {
   Accordion,
   AccordionContent,
@@ -37,12 +31,14 @@ import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Loader2, AlertCircle, ArrowLeft, RefreshCw } from "lucide-react";
 import { toast } from "sonner";
 import Link from "next/link";
+import { EncounterTablePreview } from "./EncounterTablePreview";
 
-const COMMON_DIE_SIZES = [6, 8, 10, 12, 20, 100];
+const COMMON_DIE_SIZES = [4, 6, 8, 10, 12, 20, 100];
 const MONSTER_SOURCES = [
   { value: "official", label: "Official Monsters" },
   { value: "user", label: "My Custom Monsters" },
   { value: "public", label: "Community Monsters" },
+  { value: "favorites", label: "My Favorites" },
 ];
 const MOVEMENT_TYPES = [
   { value: "fly", label: "Flying" },
@@ -164,19 +160,12 @@ export default function EncounterForm() {
     }
   };
 
-  const selectedSources = form.watch("filters.sources");
-  const levelMin = form.watch("filters.level_min");
-  const levelMax = form.watch("filters.level_max");
+  const LEVEL_MIN = form.watch("filters.level_min");
+  const LEVEL_MAX = form.watch("filters.level_max");
 
   return (
     <div className="container mx-auto p-4 md:p-6 lg:p-8 max-w-7xl">
       <div className="mb-6">
-        <Button variant="ghost" asChild className="mb-4">
-          <Link href="/encounter-tables">
-            <ArrowLeft className="mr-2 h-4 w-4" />
-            Back to Tables
-          </Link>
-        </Button>
         <h1 className="text-3xl font-bold tracking-tight">
           Encounter Generate
         </h1>
@@ -292,7 +281,7 @@ export default function EncounterForm() {
                   <Accordion type="single" collapsible>
                     <AccordionItem value="filters">
                       <AccordionTrigger>Monster Filters</AccordionTrigger>
-                      <AccordionContent className="space-y-6 pt-4">
+                      <AccordionContent className="space-y-6 pt-4 px-2">
                         <FormField
                           control={form.control}
                           name="filters.sources"
@@ -356,8 +345,7 @@ export default function EncounterForm() {
                                 <FormControl>
                                   <Input
                                     type="number"
-                                    min={1}
-                                    max={20}
+                                    min={LEVEL_MIN}
                                     {...field}
                                     onChange={(e) =>
                                       field.onChange(Number(e.target.value))
@@ -378,8 +366,7 @@ export default function EncounterForm() {
                                 <FormControl>
                                   <Input
                                     type="number"
-                                    min={levelMin || 1}
-                                    max={20}
+                                    max={LEVEL_MAX}
                                     {...field}
                                     onChange={(e) =>
                                       field.onChange(Number(e.target.value))
@@ -497,103 +484,13 @@ export default function EncounterForm() {
 
         {/* Right Column - Preview */}
         <div className="lg:sticky lg:top-6 lg:self-start">
-          {previewData ? (
-            <Card>
-              <CardHeader>
-                <CardTitle>Preview: {previewData.name}</CardTitle>
-                {previewData.description && (
-                  <CardDescription>{previewData.description}</CardDescription>
-                )}
-              </CardHeader>
-              <CardContent className="space-y-4">
-                <div className="rounded-md border">
-                  <div className="max-h-[500px] overflow-y-auto">
-                    <table className="w-full">
-                      <thead className="sticky top-0 bg-background border-b">
-                        <tr>
-                          <th className="text-left p-3 font-semibold">Roll</th>
-                          <th className="text-left p-3 font-semibold">
-                            Monster
-                          </th>
-                          <th className="text-left p-3 font-semibold">Level</th>
-                          <th className="text-left p-3 font-semibold">AC</th>
-                          <th className="text-left p-3 font-semibold">HP</th>
-                        </tr>
-                      </thead>
-                      <tbody>
-                        {previewData.entries.map((entry) => (
-                          <tr
-                            key={entry.roll_number}
-                            className="border-b last:border-0 hover:bg-muted/50"
-                          >
-                            <td className="p-3 font-mono">
-                              {entry.roll_number}
-                            </td>
-                            <td className="p-3">
-                              <Link
-                                href={`/monsters/${entry.monster_id}`}
-                                target="_blank"
-                                rel="noopener noreferrer"
-                                className="text-primary hover:underline"
-                              >
-                                {entry.monster_snapshot.name}
-                              </Link>
-                            </td>
-                            <td className="p-3">
-                              {entry.monster_snapshot.challenge_level}
-                            </td>
-                            <td className="p-3">
-                              {entry.monster_snapshot.armor_class}
-                            </td>
-                            <td className="p-3">
-                              {entry.monster_snapshot.hit_points}
-                            </td>
-                          </tr>
-                        ))}
-                      </tbody>
-                    </table>
-                  </div>
-                </div>
-
-                <div className="flex justify-end gap-4">
-                  <Button
-                    type="button"
-                    variant="outline"
-                    onClick={form.handleSubmit(generatePreview)}
-                    disabled={isSaving || isGenerating}
-                  >
-                    {isGenerating ? (
-                      <>
-                        <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                        Regenerating...
-                      </>
-                    ) : (
-                      "Regenerate"
-                    )}
-                  </Button>
-                  <Button
-                    onClick={saveTable}
-                    disabled={isSaving || isGenerating}
-                  >
-                    {isSaving ? (
-                      <>
-                        <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                        Saving...
-                      </>
-                    ) : (
-                      "Save Table"
-                    )}
-                  </Button>
-                </div>
-              </CardContent>
-            </Card>
-          ) : (
-            <Card className="lg:block hidden">
-              <CardContent className="p-6 text-center text-muted-foreground">
-                <p>Generate a preview to see your encounter table</p>
-              </CardContent>
-            </Card>
-          )}
+          <EncounterTablePreview
+            previewData={previewData}
+            isGenerating={isGenerating}
+            isSaving={isSaving}
+            onRegenerate={form.handleSubmit(generatePreview)}
+            onSave={saveTable}
+          />
         </div>
       </div>
     </div>
