@@ -1,10 +1,10 @@
 "use client";
 
 import { useRouter } from "next/navigation";
-import { useEffect, useState } from "react";
+import { useEffect, useState, useMemo, useCallback } from "react";
 import { useTheme } from "next-themes";
 import Link from "next/link";
-import { Navbar } from "@/components/ui/navbar";
+import { Navbar, UserMenuItem } from "@/components/ui/navbar";
 import { Button } from "@/components/ui/button";
 import {
   DropdownMenu,
@@ -41,7 +41,7 @@ export function AppNavbar() {
     setMounted(true);
   }, []);
 
-  const handleLogout = async () => {
+  const handleLogout = useCallback(async () => {
     try {
       await signOut();
       toast.success("Logged out successfully");
@@ -50,7 +50,7 @@ export function AppNavbar() {
       console.error("Error signing out:", error);
       toast.error("Failed to sign out");
     }
-  };
+  }, [signOut, router]);
 
   const getUserInitials = (user: UserData) => {
     if (user.display_name) {
@@ -65,6 +65,53 @@ export function AppNavbar() {
   };
 
   const isAdmin = user?.role === "admin" || user?.role === "moderator";
+
+  // Build user menu items for mobile drawer
+  const userMenuItems = useMemo<UserMenuItem[]>(() => {
+    if (!user) return [];
+
+    const items: UserMenuItem[] = [
+      {
+        label: "Dashboard",
+        href: "/dashboard",
+        icon: <LayoutDashboard className="h-4 w-4" />,
+      },
+    ];
+
+    // Only show profile link if username_slug exists
+    if (user.username_slug) {
+      items.push({
+        label: "Profile",
+        href: `/users/${user.username_slug}`,
+        icon: <User className="h-4 w-4" />,
+      });
+    }
+
+    items.push({
+      label: "Settings",
+      href: "/settings",
+      icon: <Settings className="h-4 w-4" />,
+    });
+
+    if (isAdmin) {
+      items.push({ separator: true });
+      items.push({
+        label: "Admin Dashboard",
+        href: "/admin",
+        icon: <LayoutDashboard className="h-4 w-4" />,
+      });
+    }
+
+    items.push({ separator: true });
+    items.push({
+      label: "Logout",
+      onClick: handleLogout,
+      icon: <LogOut className="h-4 w-4" />,
+      destructive: true,
+    });
+
+    return items;
+  }, [user, isAdmin, handleLogout]);
 
   // Theme toggle - always visible, separate from auth state
   const renderThemeToggle = () => {
@@ -119,19 +166,17 @@ export function AppNavbar() {
               Dashboard
             </Link>
           </DropdownMenuItem>
-          <DropdownMenuItem asChild>
-            <Link
-              href={
-                user.username_slug
-                  ? `/users/${user.username_slug}`
-                  : "/settings"
-              }
-              className="flex items-center gap-2 cursor-pointer"
-            >
-              <User className="h-4 w-4" />
-              Profile
-            </Link>
-          </DropdownMenuItem>
+          {user.username_slug && (
+            <DropdownMenuItem asChild>
+              <Link
+                href={`/users/${user.username_slug}`}
+                className="flex items-center gap-2 cursor-pointer"
+              >
+                <User className="h-4 w-4" />
+                Profile
+              </Link>
+            </DropdownMenuItem>
+          )}
           <DropdownMenuItem asChild>
             <Link
               href="/settings"
@@ -199,6 +244,15 @@ export function AppNavbar() {
         { href: "/encounter-tables", label: "Encounter Tables" },
       ]}
       userdata={user}
+      userMenuItems={userMenuItems}
+      signInButton={
+        !user
+          ? {
+              label: "Sign In",
+              onClick: () => router.push("/auth/login"),
+            }
+          : undefined
+      }
       themeToggle={renderThemeToggle()}
       rightContent={renderRightContent()}
     />

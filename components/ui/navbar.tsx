@@ -1,7 +1,7 @@
 "use client";
 
 import * as React from "react";
-import { useEffect, useState, useRef } from "react";
+import { useState } from "react";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import {
@@ -9,11 +9,7 @@ import {
   NavigationMenuItem,
   NavigationMenuList,
 } from "@/components/ui/navigation-menu";
-import {
-  Popover,
-  PopoverContent,
-  PopoverTrigger,
-} from "@/components/ui/popover";
+import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
 import { cn } from "@/lib/utils";
 import { UserData } from "@/src/components/providers/AuthProvider";
 
@@ -24,6 +20,15 @@ export interface NavigationLink {
   external?: boolean;
 }
 
+export interface UserMenuItem {
+  label: string;
+  href?: string;
+  onClick?: () => void;
+  icon?: React.ReactNode;
+  separator?: boolean;
+  destructive?: boolean;
+}
+
 export interface NavbarProps {
   logo?: React.ReactNode;
   navigationLinks?: NavigationLink[];
@@ -32,6 +37,7 @@ export interface NavbarProps {
     onClick: () => void;
   };
   userdata: UserData | null;
+  userMenuItems?: UserMenuItem[]; // User menu items for mobile drawer
   ctaButton?: {
     label: string;
     onClick: () => void;
@@ -100,41 +106,9 @@ export function Navbar({
   themeToggle,
   className,
   userdata,
+  userMenuItems = [],
 }: NavbarProps) {
   const [isOpen, setIsOpen] = useState(false);
-  const popoverRef = useRef<HTMLDivElement>(null);
-
-  // Close mobile menu on route change or outside click
-  useEffect(() => {
-    const handleClickOutside = (event: MouseEvent) => {
-      if (
-        popoverRef.current &&
-        !popoverRef.current.contains(event.target as Node)
-      ) {
-        setIsOpen(false);
-      }
-    };
-
-    if (isOpen) {
-      document.addEventListener("mousedown", handleClickOutside);
-      return () =>
-        document.removeEventListener("mousedown", handleClickOutside);
-    }
-  }, [isOpen]);
-
-  // Close on escape key
-  useEffect(() => {
-    const handleEscape = (event: KeyboardEvent) => {
-      if (event.key === "Escape") {
-        setIsOpen(false);
-      }
-    };
-
-    if (isOpen) {
-      document.addEventListener("keydown", handleEscape);
-      return () => document.removeEventListener("keydown", handleEscape);
-    }
-  }, [isOpen]);
 
   return (
     <nav
@@ -202,9 +176,9 @@ export function Navbar({
         </div>
 
         {/* Mobile Menu */}
-        <div className="md:hidden" ref={popoverRef}>
-          <Popover open={isOpen} onOpenChange={setIsOpen}>
-            <PopoverTrigger asChild>
+        <div className="md:hidden">
+          <Sheet open={isOpen} onOpenChange={setIsOpen}>
+            <SheetTrigger asChild>
               <Button
                 variant="ghost"
                 size="icon-sm"
@@ -213,13 +187,9 @@ export function Navbar({
               >
                 <HamburgerIcon isOpen={isOpen} />
               </Button>
-            </PopoverTrigger>
-            <PopoverContent
-              align="end"
-              className="w-[200px] p-2"
-              sideOffset={8}
-            >
-              <div className="flex flex-col gap-1">
+            </SheetTrigger>
+            <SheetContent side="right" className="w-3/4 sm:max-w-sm">
+              <div className="flex flex-col gap-1 mt-8">
                 {navigationLinks.map((link) => (
                   <Link
                     key={link.href}
@@ -240,26 +210,54 @@ export function Navbar({
                 {/* Theme toggle - always visible in mobile menu */}
                 {themeToggle && <div className="px-3 py-2">{themeToggle}</div>}
 
-                {rightContent ? (
-                  <div className="flex flex-col space-y-2">
-                    <Link
-                      href="/dashboard"
-                      className="px-3 py-2 text-sm font-medium rounded-md hover:bg-accent hover:text-accent-foreground transition-colors"
-                    >
-                      Dashboard
-                    </Link>
-                    <Link
-                      href="/settings"
-                      className="px-3 py-2 text-sm font-medium rounded-md hover:bg-accent hover:text-accent-foreground transition-colors"
-                    >
-                      Settings
-                    </Link>
-                    <Link
-                      href={`/users/${userdata?.username_slug}`}
-                      className="px-3 py-2 text-sm font-medium rounded-md hover:bg-accent hover:text-accent-foreground transition-colors"
-                    >
-                      Profile
-                    </Link>
+                {userMenuItems.length > 0 ? (
+                  <div className="flex flex-col gap-1">
+                    {userMenuItems.map((item, index) => {
+                      if (item.separator) {
+                        return (
+                          <div
+                            key={`separator-${index}`}
+                            className="my-1 border-t"
+                          />
+                        );
+                      }
+
+                      if (item.href) {
+                        return (
+                          <Link
+                            key={item.href}
+                            href={item.href}
+                            onClick={() => setIsOpen(false)}
+                            className={cn(
+                              "flex items-center gap-2 px-3 py-2 text-sm font-medium rounded-md hover:bg-accent hover:text-accent-foreground transition-colors",
+                              item.destructive &&
+                                "text-destructive hover:text-destructive",
+                            )}
+                          >
+                            {item.icon}
+                            {item.label}
+                          </Link>
+                        );
+                      }
+
+                      return (
+                        <button
+                          key={item.label}
+                          onClick={() => {
+                            item.onClick?.();
+                            setIsOpen(false);
+                          }}
+                          className={cn(
+                            "flex items-center gap-2 px-3 py-2 text-sm font-medium rounded-md hover:bg-accent hover:text-accent-foreground transition-colors text-left",
+                            item.destructive &&
+                              "text-destructive hover:text-destructive",
+                          )}
+                        >
+                          {item.icon}
+                          {item.label}
+                        </button>
+                      );
+                    })}
                   </div>
                 ) : (
                   <>
@@ -293,8 +291,8 @@ export function Navbar({
                   </>
                 )}
               </div>
-            </PopoverContent>
-          </Popover>
+            </SheetContent>
+          </Sheet>
         </div>
       </div>
     </nav>
