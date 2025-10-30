@@ -1,10 +1,10 @@
 "use client";
 
 import { useRouter } from "next/navigation";
-import { useEffect, useState } from "react";
+import { useEffect, useState, useMemo, useCallback } from "react";
 import { useTheme } from "next-themes";
 import Link from "next/link";
-import { Navbar } from "@/components/ui/navbar";
+import { Navbar, UserMenuItem } from "@/components/ui/navbar";
 import { Button } from "@/components/ui/button";
 import {
   DropdownMenu,
@@ -41,7 +41,7 @@ export function AppNavbar() {
     setMounted(true);
   }, []);
 
-  const handleLogout = async () => {
+  const handleLogout = useCallback(async () => {
     try {
       await signOut();
       toast.success("Logged out successfully");
@@ -50,7 +50,7 @@ export function AppNavbar() {
       console.error("Error signing out:", error);
       toast.error("Failed to sign out");
     }
-  };
+  }, [signOut, router]);
 
   const getUserInitials = (user: UserData) => {
     if (user.display_name) {
@@ -66,115 +66,171 @@ export function AppNavbar() {
 
   const isAdmin = user?.role === "admin" || user?.role === "moderator";
 
-  // Custom rendering for auth buttons with theme toggle (desktop)
-  const renderRightContent = () => {
-    if (!mounted || loading) {
-      // Return placeholder during SSR or loading to avoid hydration mismatch
-      return null;
+  // Build user menu items for mobile drawer
+  const userMenuItems = useMemo<UserMenuItem[]>(() => {
+    if (!user) return [];
+
+    const items: UserMenuItem[] = [
+      {
+        label: "Dashboard",
+        href: "/dashboard",
+        icon: <LayoutDashboard className="h-4 w-4" />,
+      },
+    ];
+
+    // Only show profile link if username_slug exists
+    if (user.username_slug) {
+      items.push({
+        label: "Profile",
+        href: `/users/${user.username_slug}`,
+        icon: <User className="h-4 w-4" />,
+      });
     }
 
+    items.push({
+      label: "Settings",
+      href: "/settings",
+      icon: <Settings className="h-4 w-4" />,
+    });
+
+    if (isAdmin) {
+      items.push({ separator: true });
+      items.push({
+        label: "Admin Dashboard",
+        href: "/admin",
+        icon: <LayoutDashboard className="h-4 w-4" />,
+      });
+    }
+
+    items.push({ separator: true });
+    items.push({
+      label: "Logout",
+      onClick: handleLogout,
+      icon: <LogOut className="h-4 w-4" />,
+      destructive: true,
+    });
+
+    return items;
+  }, [user, isAdmin, handleLogout]);
+
+  // Theme toggle - always visible, separate from auth state
+  const renderThemeToggle = () => {
+    if (!mounted) return null; // Prevent hydration mismatch
+
     return (
-      <div className="flex items-center gap-2">
-        {/* Theme toggle */}
-        <Button
-          variant="ghost"
-          size="icon"
-          onClick={(e) => {
-            setTheme(theme === "dark" ? "light" : "dark");
-            e.currentTarget.blur(); // Remove focus after click to prevent yellow highlight
-          }}
-          title={`Switch to ${theme === "dark" ? "light" : "dark"} mode`}
-        >
-          {theme === "dark" ? (
-            <Sun className="h-5 w-5" />
-          ) : (
-            <Moon className="h-5 w-5" />
+      <Button
+        variant="ghost"
+        size="icon"
+        onClick={(e) => {
+          setTheme(theme === "dark" ? "light" : "dark");
+          e.currentTarget.blur();
+        }}
+        title={`Switch to ${theme === "dark" ? "light" : "dark"} mode`}
+      >
+        {theme === "dark" ? (
+          <Sun className="h-5 w-5" />
+        ) : (
+          <Moon className="h-5 w-5" />
+        )}
+      </Button>
+    );
+  };
+
+  // User menu or sign in button
+  const renderAuthContent = () => {
+    if (!mounted || loading) {
+      return null; // Placeholder during SSR/loading
+    }
+
+    return user ? (
+      /* Authenticated user menu */
+      <DropdownMenu>
+        <DropdownMenuTrigger asChild>
+          <Button variant="ghost" className="flex items-center gap-2 px-2">
+            <Avatar className="h-8 w-8">
+              <AvatarFallback className="bg-primary text-primary-foreground">
+                {getUserInitials(user)}
+              </AvatarFallback>
+            </Avatar>
+          </Button>
+        </DropdownMenuTrigger>
+
+        <DropdownMenuContent align="end" className="w-48">
+          <DropdownMenuLabel>Account</DropdownMenuLabel>
+          <DropdownMenuItem asChild>
+            <Link
+              href="/dashboard"
+              className="flex items-center gap-2 cursor-pointer"
+            >
+              <LayoutDashboard className="h-4 w-4" />
+              Dashboard
+            </Link>
+          </DropdownMenuItem>
+          {user.username_slug && (
+            <DropdownMenuItem asChild>
+              <Link
+                href={`/users/${user.username_slug}`}
+                className="flex items-center gap-2 cursor-pointer"
+              >
+                <User className="h-4 w-4" />
+                Profile
+              </Link>
+            </DropdownMenuItem>
           )}
-        </Button>
+          <DropdownMenuItem asChild>
+            <Link
+              href="/settings"
+              className="flex items-center gap-2 cursor-pointer"
+            >
+              <Settings className="h-4 w-4" />
+              Settings
+            </Link>
+          </DropdownMenuItem>
 
-        {user ? (
-          /* Authenticated user menu */
-          <DropdownMenu>
-            <DropdownMenuTrigger asChild>
-              <Button variant="ghost" className="flex items-center gap-2 px-2">
-                <Avatar className="h-8 w-8">
-                  <AvatarFallback className="bg-primary text-primary-foreground">
-                    {getUserInitials(user)}
-                  </AvatarFallback>
-                </Avatar>
-              </Button>
-            </DropdownMenuTrigger>
-
-            <DropdownMenuContent align="end" className="w-48">
-              <DropdownMenuLabel>Account</DropdownMenuLabel>
+          {isAdmin && (
+            <>
+              <DropdownMenuSeparator />
+              <DropdownMenuLabel>Administration</DropdownMenuLabel>
               <DropdownMenuItem asChild>
                 <Link
-                  href="/dashboard"
+                  href="/admin"
                   className="flex items-center gap-2 cursor-pointer"
                 >
                   <LayoutDashboard className="h-4 w-4" />
-                  Dashboard
+                  Admin Dashboard
                 </Link>
               </DropdownMenuItem>
-              <DropdownMenuItem asChild>
-                <Link
-                  href={
-                    user.username_slug
-                      ? `/users/${user.username_slug}`
-                      : "/settings"
-                  }
-                  className="flex items-center gap-2 cursor-pointer"
-                >
-                  <User className="h-4 w-4" />
-                  Profile
-                </Link>
-              </DropdownMenuItem>
-              <DropdownMenuItem asChild>
-                <Link
-                  href="/settings"
-                  className="flex items-center gap-2 cursor-pointer"
-                >
-                  <Settings className="h-4 w-4" />
-                  Settings
-                </Link>
-              </DropdownMenuItem>
+            </>
+          )}
 
-              {isAdmin && (
-                <>
-                  <DropdownMenuSeparator />
-                  <DropdownMenuLabel>Administration</DropdownMenuLabel>
-                  <DropdownMenuItem asChild>
-                    <Link
-                      href="/admin"
-                      className="flex items-center gap-2 cursor-pointer"
-                    >
-                      <LayoutDashboard className="h-4 w-4" />
-                      Admin Dashboard
-                    </Link>
-                  </DropdownMenuItem>
-                </>
-              )}
-
-              <DropdownMenuSeparator />
-              <DropdownMenuItem
-                onClick={handleLogout}
-                className="flex items-center gap-2 text-destructive focus:text-destructive cursor-pointer"
-              >
-                <LogOut className="h-4 w-4" />
-                Logout
-              </DropdownMenuItem>
-            </DropdownMenuContent>
-          </DropdownMenu>
-        ) : (
-          /* Guest user - Sign In button only */
-          <Button
-            variant="ghost"
-            size="sm"
-            onClick={() => router.push("/auth/login")}
+          <DropdownMenuSeparator />
+          <DropdownMenuItem
+            onClick={handleLogout}
+            className="flex items-center gap-2 text-destructive focus:text-destructive cursor-pointer"
           >
-            Sign In
-          </Button>
-        )}
+            <LogOut className="h-4 w-4" />
+            Logout
+          </DropdownMenuItem>
+        </DropdownMenuContent>
+      </DropdownMenu>
+    ) : (
+      /* Guest user - Sign In button */
+      <Button
+        variant="ghost"
+        size="sm"
+        onClick={() => router.push("/auth/login")}
+      >
+        Sign In
+      </Button>
+    );
+  };
+
+  // Combine theme toggle + auth content
+  const renderRightContent = () => {
+    return (
+      <div className="flex items-center gap-2">
+        {renderThemeToggle()}
+        {renderAuthContent()}
       </div>
     );
   };
@@ -188,6 +244,16 @@ export function AppNavbar() {
         { href: "/encounter-tables", label: "Encounter Tables" },
       ]}
       userdata={user}
+      userMenuItems={userMenuItems}
+      signInButton={
+        !user
+          ? {
+              label: "Sign In",
+              onClick: () => router.push("/auth/login"),
+            }
+          : undefined
+      }
+      themeToggle={renderThemeToggle()}
       rightContent={renderRightContent()}
     />
   );
