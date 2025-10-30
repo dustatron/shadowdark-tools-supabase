@@ -56,33 +56,40 @@ _GATE: Must pass before Phase 0 research. Re-check after Phase 1 design._
 ### Core Principles Alignment
 
 **I. Component-First** ✅
+
 - Feature implemented as modification to existing reusable `Navbar` component
 - Clear responsibility: Mobile menu rendering logic
 - Self-contained with props-based configuration
 
 **II. API-First** ✅
+
 - N/A - Frontend-only feature, no new API endpoints
 - Uses existing Supabase auth state
 
 **III. Test-First (NON-NEGOTIABLE)** ✅
+
 - Component tests will be written for mobile menu rendering states
 - E2E tests for mobile navigation flows
 - Tests written before implementation
 
 **IV. Integration Testing** ✅
+
 - E2E tests will cover authenticated/guest user mobile navigation
 - Auth state integration tested with existing flows
 
 **V. Simplicity** ✅
+
 - MVP approach: Single component modification
 - No new dependencies required
 - Reuses existing shadcn/ui components and patterns
 
 **VI. Data Integrity** ✅
+
 - N/A - No data validation required
 - Uses existing auth state without modification
 
 **VII. Community Safety** ✅
+
 - N/A - UI-only feature, no user-generated content
 
 ### Development Standards Compliance
@@ -155,6 +162,7 @@ ios/ or android/
 **Structure Decision**: Next.js App Router structure (existing)
 
 This project follows Next.js 15 App Router conventions:
+
 ```
 app/                    # Next.js pages and layouts
 components/             # React components (modification target)
@@ -291,6 +299,7 @@ This is a frontend-only feature with no API endpoints or database changes. Tasks
 **Estimated Output**: 12-15 numbered, ordered tasks in tasks.md
 
 **Task Complexity**:
+
 - Component tests: ~2-3 hours (TDD setup, mock auth state)
 - E2E tests: ~2-3 hours (Playwright scenarios, auth setup)
 - Component implementation: ~3-4 hours (refactoring existing components)

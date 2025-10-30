@@ -19,11 +19,7 @@ import {
   EncounterTableCreateSchema,
   type EncounterTableCreateInput,
 } from "@/lib/encounter-tables/schemas";
-import type {
-  MonsterSource,
-  Alignment,
-  MovementType,
-} from "@/lib/encounter-tables/types";
+import type { MonsterSource, MovementType } from "@/lib/encounter-tables/types";
 import { useState } from "react";
 
 interface EncounterTableFormProps {
@@ -40,12 +36,7 @@ const MONSTER_SOURCES: { value: MonsterSource; label: string }[] = [
   { value: "official", label: "Official Monsters" },
   { value: "user", label: "My Custom Monsters" },
   { value: "public", label: "Community Monsters" },
-];
-
-const ALIGNMENTS: { value: Alignment; label: string }[] = [
-  { value: "Lawful", label: "Lawful" },
-  { value: "Neutral", label: "Neutral" },
-  { value: "Chaotic", label: "Chaotic" },
+  { value: "favorites", label: "My Favorites" },
 ];
 
 const MOVEMENT_TYPES: { value: MovementType; label: string }[] = [
@@ -79,7 +70,6 @@ export function EncounterTableForm({
         sources: initialData?.filters?.sources || ["official"],
         level_min: initialData?.filters?.level_min || 1,
         level_max: initialData?.filters?.level_max || 20,
-        alignments: initialData?.filters?.alignments || [],
         movement_types: initialData?.filters?.movement_types || [],
         search_query: initialData?.filters?.search_query || "",
       },
@@ -296,48 +286,6 @@ export function EncounterTableForm({
               form.formState.errors.filters?.level_max?.message}
           </p>
         )}
-      </div>
-
-      {/* Alignments (Optional) */}
-      <div className="space-y-3">
-        <Label>Alignments (Optional)</Label>
-        <p className="text-sm text-muted-foreground">
-          Filter by alignment, or leave unchecked for all alignments
-        </p>
-        <div className="space-y-2">
-          {ALIGNMENTS.map((alignment) => (
-            <div key={alignment.value} className="flex items-center space-x-2">
-              <Controller
-                control={form.control}
-                name="filters.alignments"
-                render={({ field }) => (
-                  <Checkbox
-                    id={`alignment-${alignment.value}`}
-                    checked={field.value?.includes(alignment.value)}
-                    onCheckedChange={(checked) => {
-                      const currentAlignments = field.value || [];
-                      if (checked) {
-                        field.onChange([...currentAlignments, alignment.value]);
-                      } else {
-                        field.onChange(
-                          currentAlignments.filter(
-                            (a) => a !== alignment.value,
-                          ),
-                        );
-                      }
-                    }}
-                  />
-                )}
-              />
-              <Label
-                htmlFor={`alignment-${alignment.value}`}
-                className="font-normal cursor-pointer"
-              >
-                {alignment.label}
-              </Label>
-            </div>
-          ))}
-        </div>
       </div>
 
       {/* Movement Types (Optional) */}

@@ -14,6 +14,7 @@ This feature is primarily UI-focused and does not introduce new data entities. I
 **Source**: Supabase Auth (via `@supabase/ssr`)
 
 **Properties Used**:
+
 - `user.id` (string): User identifier
 - `user.email` (string): User email address
 - `user.user_metadata.display_name` (string, optional): User display name
@@ -28,6 +29,7 @@ This feature is primarily UI-focused and does not introduce new data entities. I
 **Source**: `user_profiles` table (Supabase)
 
 **Properties Used**:
+
 - `username_slug` (string, optional): URL-friendly username for profile links
 
 **Relationships**: One-to-one with User (via `id` foreign key)
@@ -43,6 +45,7 @@ This feature is primarily UI-focused and does not introduce new data entities. I
 **Managed By**: `navbar.tsx` component
 
 **Properties**:
+
 ```typescript
 interface MobileMenuState {
   isOpen: boolean; // Menu open/closed state
@@ -50,6 +53,7 @@ interface MobileMenuState {
 ```
 
 **State Transitions**:
+
 - `closed → open`: User clicks hamburger icon
 - `open → closed`: User clicks menu item, clicks outside, or presses ESC key
 
@@ -60,14 +64,16 @@ interface MobileMenuState {
 **Managed By**: `next-themes` library
 
 **Properties**:
+
 ```typescript
 interface ThemeState {
-  theme: 'light' | 'dark' | 'system';
+  theme: "light" | "dark" | "system";
   setTheme: (theme: string) => void;
 }
 ```
 
 **State Transitions**:
+
 - `light → dark`: User clicks theme toggle (when in light mode)
 - `dark → light`: User clicks theme toggle (when in dark mode)
 
@@ -80,40 +86,55 @@ interface ThemeState {
 **Purpose**: Represents a single item in the mobile menu
 
 **Structure**:
+
 ```typescript
 interface MobileMenuItem {
-  type: 'link' | 'button' | 'separator';
+  type: "link" | "button" | "separator";
   label?: string;
   href?: string;
   icon?: React.ComponentType;
   onClick?: () => void;
-  variant?: 'default' | 'destructive'; // For styling (e.g., logout button)
+  variant?: "default" | "destructive"; // For styling (e.g., logout button)
   adminOnly?: boolean; // Show only if user is admin/moderator
 }
 ```
 
 **Validation Rules**:
+
 - If `type === 'link'`: `href` is required, `onClick` is optional
 - If `type === 'button'`: `onClick` is required, `href` is optional
 - If `type === 'separator'`: `label`, `href`, `onClick` are ignored
 - `icon` is always optional (menu item can be text-only)
 
 **Example Usage**:
+
 ```typescript
 const menuItems: MobileMenuItem[] = [
-  { type: 'link', label: 'Dashboard', href: '/dashboard', icon: LayoutDashboard },
-  { type: 'link', label: 'Profile', href: '/users/username', icon: User },
-  { type: 'link', label: 'Settings', href: '/settings', icon: Settings },
-  { type: 'separator' },
-  { type: 'button', label: 'Light Mode', icon: Sun, onClick: toggleTheme },
-  { type: 'separator' },
-  { type: 'button', label: 'Logout', icon: LogOut, onClick: handleLogout, variant: 'destructive' },
+  {
+    type: "link",
+    label: "Dashboard",
+    href: "/dashboard",
+    icon: LayoutDashboard,
+  },
+  { type: "link", label: "Profile", href: "/users/username", icon: User },
+  { type: "link", label: "Settings", href: "/settings", icon: Settings },
+  { type: "separator" },
+  { type: "button", label: "Light Mode", icon: Sun, onClick: toggleTheme },
+  { type: "separator" },
+  {
+    type: "button",
+    label: "Logout",
+    icon: LogOut,
+    onClick: handleLogout,
+    variant: "destructive",
+  },
 ];
 ```
 
 ### Navbar Component Props
 
 **Existing Props** (unchanged):
+
 ```typescript
 interface NavbarProps {
   logo?: React.ReactNode;
@@ -126,6 +147,7 @@ interface NavbarProps {
 ```
 
 **New Props** (to be added):
+
 ```typescript
 interface NavbarProps {
   // ... existing props
@@ -134,6 +156,7 @@ interface NavbarProps {
 ```
 
 **Behavior**:
+
 - If `mobileMenuItems` is provided: Render custom mobile menu content
 - If `mobileMenuItems` is undefined: Render default mobile menu (navigation links + rightContent)
 - Desktop behavior: Always uses `rightContent` prop (unchanged)
@@ -145,13 +168,14 @@ interface NavbarProps {
 **Source**: Computed from user authentication state
 
 **Logic**:
+
 ```typescript
 function getUserInitials(user: UserData): string {
   if (user.display_name) {
     // "John Doe" → "JD"
     return user.display_name
       .split(" ")
-      .map(n => n[0])
+      .map((n) => n[0])
       .join("")
       .toUpperCase()
       .slice(0, 2);
@@ -168,9 +192,10 @@ function getUserInitials(user: UserData): string {
 **Source**: Computed from theme state
 
 **Logic**:
+
 ```typescript
 function getThemeToggleLabel(theme: string): string {
-  return theme === 'dark' ? 'Light Mode' : 'Dark Mode';
+  return theme === "dark" ? "Light Mode" : "Dark Mode";
 }
 ```
 
@@ -181,31 +206,53 @@ function getThemeToggleLabel(theme: string): string {
 **Source**: Computed from user state
 
 **Logic**:
+
 ```typescript
 function getAuthenticatedMenuItems(user: UserData): MobileMenuItem[] {
   const items: MobileMenuItem[] = [
-    { type: 'link', label: 'Dashboard', href: '/dashboard', icon: LayoutDashboard },
     {
-      type: 'link',
-      label: 'Profile',
-      href: user.username_slug ? `/users/${user.username_slug}` : '/settings',
-      icon: User
+      type: "link",
+      label: "Dashboard",
+      href: "/dashboard",
+      icon: LayoutDashboard,
     },
-    { type: 'link', label: 'Settings', href: '/settings', icon: Settings },
+    {
+      type: "link",
+      label: "Profile",
+      href: user.username_slug ? `/users/${user.username_slug}` : "/settings",
+      icon: User,
+    },
+    { type: "link", label: "Settings", href: "/settings", icon: Settings },
   ];
 
-  if (user.role === 'admin' || user.role === 'moderator') {
+  if (user.role === "admin" || user.role === "moderator") {
     items.push(
-      { type: 'separator' },
-      { type: 'link', label: 'Admin Dashboard', href: '/admin', icon: LayoutDashboard }
+      { type: "separator" },
+      {
+        type: "link",
+        label: "Admin Dashboard",
+        href: "/admin",
+        icon: LayoutDashboard,
+      },
     );
   }
 
   items.push(
-    { type: 'separator' },
-    { type: 'button', label: getThemeToggleLabel(theme), icon: themeIcon, onClick: toggleTheme },
-    { type: 'separator' },
-    { type: 'button', label: 'Logout', icon: LogOut, onClick: handleLogout, variant: 'destructive' }
+    { type: "separator" },
+    {
+      type: "button",
+      label: getThemeToggleLabel(theme),
+      icon: themeIcon,
+      onClick: toggleTheme,
+    },
+    { type: "separator" },
+    {
+      type: "button",
+      label: "Logout",
+      icon: LogOut,
+      onClick: handleLogout,
+      variant: "destructive",
+    },
   );
 
   return items;
@@ -217,12 +264,22 @@ function getAuthenticatedMenuItems(user: UserData): MobileMenuItem[] {
 **Source**: Computed from authentication state
 
 **Logic**:
+
 ```typescript
 function getGuestMenuItems(): MobileMenuItem[] {
   return [
-    { type: 'button', label: getThemeToggleLabel(theme), icon: themeIcon, onClick: toggleTheme },
-    { type: 'separator' },
-    { type: 'button', label: 'Sign In', onClick: () => router.push('/auth/login') },
+    {
+      type: "button",
+      label: getThemeToggleLabel(theme),
+      icon: themeIcon,
+      onClick: toggleTheme,
+    },
+    { type: "separator" },
+    {
+      type: "button",
+      label: "Sign In",
+      onClick: () => router.push("/auth/login"),
+    },
   ];
 }
 ```
@@ -246,16 +303,19 @@ Action (navigation or function call) + Menu Close
 ## Validation & Error Handling
 
 ### Missing username_slug
+
 - **Scenario**: User profile doesn't have `username_slug` set
 - **Handling**: Profile link redirects to `/settings` instead of `/users/[slug]`
 - **User Impact**: Graceful degradation, user can still access profile settings
 
 ### Auth State Unavailable
+
 - **Scenario**: Supabase auth state not yet loaded or error fetching user
 - **Handling**: Show guest menu items (theme toggle + Sign In)
 - **User Impact**: User sees login option, can still navigate main pages
 
 ### Theme State Unavailable
+
 - **Scenario**: `next-themes` not initialized (SSR hydration)
 - **Handling**: `mounted` state prevents rendering until client-side hydration complete
 - **User Impact**: No flash of wrong theme, consistent rendering
@@ -263,6 +323,7 @@ Action (navigation or function call) + Menu Close
 ## No Database Changes Required
 
 This feature does not introduce:
+
 - New tables
 - New columns
 - Schema migrations

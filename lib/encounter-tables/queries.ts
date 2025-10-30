@@ -79,21 +79,34 @@ export function selectTableWithEntries(
  * @param query - Base Supabase query on all_monsters view
  * @param filters - Filter criteria from EncounterTableFilters
  * @param excludeIds - Optional array of monster IDs to exclude (for uniqueness)
+ * @param userId - Optional user ID for filtering user's own monsters
  * @returns Modified query with filters applied
  */
 export function buildMonsterFilterQuery(
   query: any, // ReturnType<SupabaseClient['from']>
   filters: EncounterTableFilters,
   excludeIds?: string[],
+  userId?: string,
 ) {
+  console.log(
+    "[buildMonsterFilterQuery] Input filters:",
+    filters,
+    "userId:",
+    userId,
+  );
+
   // Level range filter
   if (filters.level_min !== undefined && filters.level_max !== undefined) {
     query = query
       .gte("challenge_level", filters.level_min)
       .lte("challenge_level", filters.level_max);
+    console.log(
+      `[buildMonsterFilterQuery] Applied level filter: ${filters.level_min}-${filters.level_max}`,
+    );
   }
 
   // Source filter - handle official, user, and public monsters
+  // Note: Favorites is handled separately in filter-monsters.ts
   // Note: The all_monsters view uses 'monster_type' field
   // with values 'official' for official_monsters and 'custom' for user_monsters
   // and an 'is_public' field for user monsters
@@ -101,48 +114,77 @@ export function buildMonsterFilterQuery(
     const hasOfficial = filters.sources.includes("official");
     const hasUser = filters.sources.includes("user");
     const hasPublic = filters.sources.includes("public");
+    const hasFavorites = filters.sources.includes("favorites");
+
+    console.log(
+      `[buildMonsterFilterQuery] Source flags: official=${hasOfficial}, user=${hasUser}, public=${hasPublic}, favorites=${hasFavorites}`,
+    );
+
+    // Skip source filtering if favorites is selected (handled elsewhere)
+    if (hasFavorites) {
+      console.log(
+        "[buildMonsterFilterQuery] Skipping source filter (favorites selected)",
+      );
+      return query;
+    }
 
     // Build source filter logic
     // If all three are selected, no filter needed
     if (!(hasOfficial && hasUser && hasPublic)) {
       if (hasOfficial && !hasUser && !hasPublic) {
         // Only official monsters
+        console.log(
+          "[buildMonsterFilterQuery] Applying filter: monster_type=official",
+        );
         query = query.eq("monster_type", "official");
       } else if (hasUser && !hasOfficial && !hasPublic) {
-        // Only user's own monsters (not public)
-        // Note: This will need user_id from context to work properly
-        query = query.eq("monster_type", "custom").eq("is_public", false);
-      } else if (hasPublic && !hasOfficial && !hasPublic) {
+        // Only user's own monsters (both public and private)
+        console.log(
+          "[buildMonsterFilterQuery] Applying filter: monster_type=custom AND user_id=" +
+            userId,
+        );
+        query = query.eq("monster_type", "custom");
+        if (userId) {
+          query = query.eq("user_id", userId);
+        }
+      } else if (hasPublic && !hasOfficial && !hasUser) {
         // Only public user monsters
+        console.log(
+          "[buildMonsterFilterQuery] Applying filter: monster_type=custom AND is_public=true",
+        );
         query = query.eq("monster_type", "custom").eq("is_public", true);
       } else {
         // Mixed sources - use OR logic
         // This is more complex and may need custom SQL
         // For now, we'll allow all and filter in application if needed
         // TODO: Implement more sophisticated source filtering
+        console.log(
+          "[buildMonsterFilterQuery] Mixed sources - allowing all (TODO: implement OR logic)",
+        );
       }
+    } else {
+      console.log(
+        "[buildMonsterFilterQuery] All three sources selected - no source filter",
+      );
     }
   }
 
-  // Alignment filter (optional)
-  if (filters.alignments && filters.alignments.length > 0) {
-    query = query.in("alignment", filters.alignments);
-  }
-
   // Movement types filter (optional)
-  // Assumes movement_types is a JSONB array field
+  // Movement types are stored in the speed field as text (e.g., "near (fly)", "near (swim)")
   if (filters.movement_types && filters.movement_types.length > 0) {
-    // PostgreSQL array overlap operator: &&
-    // Check if any of the requested movement types exist in the monster's movement_types
-    query = query.overlaps("movement_types", filters.movement_types);
+    // Build OR conditions for each movement type
+    const movementConditions = filters.movement_types.map(
+      (type) => `speed.ilike.%${type}%`,
+    );
+    query = query.or(movementConditions.join(","));
   }
 
   // Search query filter (optional)
-  // Search in name and description fields
+  // Search in name and author_notes fields (no description field in monsters table)
   if (filters.search_query && filters.search_query.trim().length > 0) {
     const searchTerm = `%${filters.search_query.trim()}%`;
     query = query.or(
-      `name.ilike.${searchTerm},description.ilike.${searchTerm}`,
+      `name.ilike.${searchTerm},author_notes.ilike.${searchTerm}`,
     );
   }
 
@@ -202,18 +244,20 @@ export async function getRandomMonsters(
  * @param supabase - Supabase client instance
  * @param filters - Filter criteria
  * @param excludeIds - Optional monster IDs to exclude
+ * @param userId - Optional user ID for filtering user's own monsters
  * @returns Promise with count
  */
 export async function countMatchingMonsters(
   supabase: SupabaseClient,
   filters: EncounterTableFilters,
   excludeIds?: string[],
+  userId?: string,
 ): Promise<number> {
   let query = supabase
     .from("all_monsters")
     .select("id", { count: "exact", head: true });
 
-  query = buildMonsterFilterQuery(query, filters, excludeIds);
+  query = buildMonsterFilterQuery(query, filters, excludeIds, userId);
 
   const { count, error } = await query;
 

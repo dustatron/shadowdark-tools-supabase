@@ -14,14 +14,15 @@ This feature is UI-only and does not introduce REST API endpoints. Instead, it d
 **Purpose**: Base navigation bar component with responsive mobile menu
 
 **Props Contract**:
+
 ```typescript
 interface MobileMenuItem {
-  type: 'link' | 'button' | 'separator';
+  type: "link" | "button" | "separator";
   label?: string;
   href?: string;
   icon?: React.ComponentType<{ className?: string }>;
   onClick?: () => void;
-  variant?: 'default' | 'destructive';
+  variant?: "default" | "destructive";
   adminOnly?: boolean;
 }
 
@@ -41,7 +42,13 @@ interface NavbarProps {
   ctaButton?: {
     label: string;
     onClick: () => void;
-    variant?: 'default' | 'destructive' | 'outline' | 'secondary' | 'ghost' | 'link';
+    variant?:
+      | "default"
+      | "destructive"
+      | "outline"
+      | "secondary"
+      | "ghost"
+      | "link";
   };
   rightContent?: React.ReactNode;
   mobileMenuItems?: MobileMenuItem[]; // NEW: Custom mobile menu items
@@ -83,66 +90,67 @@ interface NavbarProps {
    - Focus MUST return to hamburger button on close
 
 **Testing Contract**:
+
 ```typescript
-describe('Navbar Component', () => {
-  describe('Mobile Menu with Custom Items', () => {
-    it('renders custom mobile menu items when provided', () => {
+describe("Navbar Component", () => {
+  describe("Mobile Menu with Custom Items", () => {
+    it("renders custom mobile menu items when provided", () => {
       // Given: Custom mobileMenuItems prop
       // When: Rendering in mobile viewport
       // Then: Custom items rendered, default items not rendered
     });
 
-    it('renders link items as Next.js Link', () => {
+    it("renders link items as Next.js Link", () => {
       // Given: MobileMenuItem with type: 'link'
       // When: Item is clicked
       // Then: Navigation occurs, menu closes
     });
 
-    it('renders button items with onClick handler', () => {
+    it("renders button items with onClick handler", () => {
       // Given: MobileMenuItem with type: 'button'
       // When: Item is clicked
       // Then: onClick called, menu closes
     });
 
-    it('renders separator items as visual dividers', () => {
+    it("renders separator items as visual dividers", () => {
       // Given: MobileMenuItem with type: 'separator'
       // When: Rendering menu
       // Then: Separator component rendered with proper styling
     });
 
-    it('applies destructive styling to logout button', () => {
+    it("applies destructive styling to logout button", () => {
       // Given: MobileMenuItem with variant: 'destructive'
       // When: Rendering menu
       // Then: Text color is destructive (red)
     });
 
-    it('closes menu on item click', () => {
+    it("closes menu on item click", () => {
       // Given: Open mobile menu
       // When: User clicks any menu item
       // Then: Menu closes, isOpen state becomes false
     });
 
-    it('closes menu on outside click', () => {
+    it("closes menu on outside click", () => {
       // Given: Open mobile menu
       // When: User clicks outside menu
       // Then: Menu closes
     });
 
-    it('closes menu on ESC key press', () => {
+    it("closes menu on ESC key press", () => {
       // Given: Open mobile menu
       // When: User presses ESC key
       // Then: Menu closes
     });
   });
 
-  describe('Backward Compatibility', () => {
-    it('renders default mobile menu when mobileMenuItems not provided', () => {
+  describe("Backward Compatibility", () => {
+    it("renders default mobile menu when mobileMenuItems not provided", () => {
       // Given: No mobileMenuItems prop
       // When: Rendering in mobile viewport
       // Then: navigationLinks and rightContent rendered
     });
 
-    it('desktop behavior unchanged', () => {
+    it("desktop behavior unchanged", () => {
       // Given: Any prop configuration
       // When: Rendering in desktop viewport (>= 768px)
       // Then: Desktop navigation rendered, mobile menu not visible
@@ -158,6 +166,7 @@ describe('Navbar Component', () => {
 **Purpose**: Authentication-aware navbar wrapper that provides user-specific menu items
 
 **Props Contract**:
+
 ```typescript
 // No props - component is self-contained
 interface AppNavbarProps {}
@@ -206,76 +215,77 @@ interface AppNavbarProps {}
    - MUST show error toast on failure
 
 **Testing Contract**:
+
 ```typescript
-describe('AppNavbar Component', () => {
-  describe('Menu Items Generation', () => {
-    it('generates authenticated user menu items', () => {
+describe("AppNavbar Component", () => {
+  describe("Menu Items Generation", () => {
+    it("generates authenticated user menu items", () => {
       // Given: User is authenticated
       // When: Component renders
       // Then: mobileMenuItems includes Dashboard, Profile, Settings, Theme, Logout
     });
 
-    it('generates guest user menu items', () => {
+    it("generates guest user menu items", () => {
       // Given: User is not authenticated
       // When: Component renders
       // Then: mobileMenuItems includes Theme Toggle, Sign In only
     });
 
-    it('includes Admin Dashboard for admin users', () => {
+    it("includes Admin Dashboard for admin users", () => {
       // Given: User has role 'admin' or 'moderator'
       // When: Component renders
       // Then: mobileMenuItems includes Admin Dashboard link
     });
 
-    it('uses username_slug for profile link when available', () => {
+    it("uses username_slug for profile link when available", () => {
       // Given: User has username_slug set
       // When: Component renders
       // Then: Profile link href is /users/{username_slug}
     });
 
-    it('falls back to /settings for profile link when no username_slug', () => {
+    it("falls back to /settings for profile link when no username_slug", () => {
       // Given: User does not have username_slug
       // When: Component renders
       // Then: Profile link href is /settings
     });
   });
 
-  describe('Theme Toggle', () => {
-    it('toggles from light to dark theme', () => {
+  describe("Theme Toggle", () => {
+    it("toggles from light to dark theme", () => {
       // Given: Theme is 'light'
       // When: User clicks theme toggle in mobile menu
       // Then: setTheme('dark') is called
     });
 
-    it('toggles from dark to light theme', () => {
+    it("toggles from dark to light theme", () => {
       // Given: Theme is 'dark'
       // When: User clicks theme toggle in mobile menu
       // Then: setTheme('light') is called
     });
 
-    it('shows correct label based on theme', () => {
+    it("shows correct label based on theme", () => {
       // Given: Theme is 'dark'
       // When: Component renders
       // Then: Theme toggle label is 'Light Mode' (opposite of current)
     });
   });
 
-  describe('Logout Handler', () => {
-    it('logs out user successfully', async () => {
+  describe("Logout Handler", () => {
+    it("logs out user successfully", async () => {
       // Given: User is authenticated
       // When: User clicks Logout in mobile menu
       // Then: supabase.auth.signOut() called, toast shown, redirect to /
     });
 
-    it('handles logout errors', async () => {
+    it("handles logout errors", async () => {
       // Given: signOut returns an error
       // When: User clicks Logout
       // Then: Error toast shown, user state remains
     });
   });
 
-  describe('Desktop Behavior', () => {
-    it('renders desktop dropdown menu unchanged', () => {
+  describe("Desktop Behavior", () => {
+    it("renders desktop dropdown menu unchanged", () => {
       // Given: Viewport >= 768px
       // When: Component renders
       // Then: User avatar dropdown with existing options rendered
@@ -293,6 +303,7 @@ describe('AppNavbar Component', () => {
 **Contract**: AppNavbar provides auth-aware menu items to Navbar
 
 **Data Flow**:
+
 ```
 User Auth State (Supabase)
   ↓
@@ -306,6 +317,7 @@ AppNavbar handlers (logout, theme toggle) OR Next.js navigation
 ```
 
 **Guarantees**:
+
 1. AppNavbar MUST always provide valid MobileMenuItem[] or undefined
 2. Navbar MUST handle both custom items and default fallback
 3. Menu item clicks MUST trigger handlers before menu closes
@@ -316,6 +328,7 @@ AppNavbar handlers (logout, theme toggle) OR Next.js navigation
 **Contract**: Theme state managed by next-themes, consumed by both components
 
 **Data Flow**:
+
 ```
 next-themes Provider (app layout)
   ↓
@@ -329,6 +342,7 @@ UI updates (theme classes applied)
 ```
 
 **Guarantees**:
+
 1. Theme state MUST be initialized before first render (mounted check)
 2. Theme toggle MUST persist to localStorage via next-themes
 3. Theme icon/label MUST reflect current theme
@@ -339,6 +353,7 @@ UI updates (theme classes applied)
 **Contract**: Auth state managed by Supabase, consumed via onAuthStateChange
 
 **Data Flow**:
+
 ```
 Supabase Auth
   ↓
@@ -352,6 +367,7 @@ Navbar re-renders with new menu items
 ```
 
 **Guarantees**:
+
 1. Auth state changes MUST trigger menu item regeneration
 2. Logout MUST clear user state and redirect
 3. Profile data fetch errors MUST be handled gracefully
