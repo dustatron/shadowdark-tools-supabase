@@ -44,6 +44,7 @@ export interface NavbarProps {
       | "link";
   };
   rightContent?: React.ReactNode;
+  themeToggle?: React.ReactNode; // Theme toggle separate from auth content
   className?: string;
 }
 
@@ -96,6 +97,7 @@ export function Navbar({
   signInButton,
   ctaButton,
   rightContent,
+  themeToggle,
   className,
   userdata,
 }: NavbarProps) {
@@ -230,10 +232,14 @@ export function Navbar({
                     {link.label}
                   </Link>
                 ))}
-                {(rightContent || signInButton || ctaButton) &&
+                {(themeToggle || rightContent || signInButton || ctaButton) &&
                   navigationLinks.length > 0 && (
                     <div className="my-1 border-t" />
                   )}
+
+                {/* Theme toggle - always visible in mobile menu */}
+                {themeToggle && <div className="px-3 py-2">{themeToggle}</div>}
+
                 {rightContent ? (
                   <div className="flex flex-col space-y-2">
                     <Link

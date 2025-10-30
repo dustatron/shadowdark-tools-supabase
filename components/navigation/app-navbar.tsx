@@ -66,115 +66,126 @@ export function AppNavbar() {
 
   const isAdmin = user?.role === "admin" || user?.role === "moderator";
 
-  // Custom rendering for auth buttons with theme toggle (desktop)
-  const renderRightContent = () => {
-    if (!mounted || loading) {
-      // Return placeholder during SSR or loading to avoid hydration mismatch
-      return null;
-    }
+  // Theme toggle - always visible, separate from auth state
+  const renderThemeToggle = () => {
+    if (!mounted) return null; // Prevent hydration mismatch
 
     return (
-      <div className="flex items-center gap-2">
-        {/* Theme toggle */}
-        <Button
-          variant="ghost"
-          size="icon"
-          onClick={(e) => {
-            setTheme(theme === "dark" ? "light" : "dark");
-            e.currentTarget.blur(); // Remove focus after click to prevent yellow highlight
-          }}
-          title={`Switch to ${theme === "dark" ? "light" : "dark"} mode`}
-        >
-          {theme === "dark" ? (
-            <Sun className="h-5 w-5" />
-          ) : (
-            <Moon className="h-5 w-5" />
-          )}
-        </Button>
+      <Button
+        variant="ghost"
+        size="icon"
+        onClick={(e) => {
+          setTheme(theme === "dark" ? "light" : "dark");
+          e.currentTarget.blur();
+        }}
+        title={`Switch to ${theme === "dark" ? "light" : "dark"} mode`}
+      >
+        {theme === "dark" ? (
+          <Sun className="h-5 w-5" />
+        ) : (
+          <Moon className="h-5 w-5" />
+        )}
+      </Button>
+    );
+  };
 
-        {user ? (
-          /* Authenticated user menu */
-          <DropdownMenu>
-            <DropdownMenuTrigger asChild>
-              <Button variant="ghost" className="flex items-center gap-2 px-2">
-                <Avatar className="h-8 w-8">
-                  <AvatarFallback className="bg-primary text-primary-foreground">
-                    {getUserInitials(user)}
-                  </AvatarFallback>
-                </Avatar>
-              </Button>
-            </DropdownMenuTrigger>
+  // User menu or sign in button
+  const renderAuthContent = () => {
+    if (!mounted || loading) {
+      return null; // Placeholder during SSR/loading
+    }
 
-            <DropdownMenuContent align="end" className="w-48">
-              <DropdownMenuLabel>Account</DropdownMenuLabel>
+    return user ? (
+      /* Authenticated user menu */
+      <DropdownMenu>
+        <DropdownMenuTrigger asChild>
+          <Button variant="ghost" className="flex items-center gap-2 px-2">
+            <Avatar className="h-8 w-8">
+              <AvatarFallback className="bg-primary text-primary-foreground">
+                {getUserInitials(user)}
+              </AvatarFallback>
+            </Avatar>
+          </Button>
+        </DropdownMenuTrigger>
+
+        <DropdownMenuContent align="end" className="w-48">
+          <DropdownMenuLabel>Account</DropdownMenuLabel>
+          <DropdownMenuItem asChild>
+            <Link
+              href="/dashboard"
+              className="flex items-center gap-2 cursor-pointer"
+            >
+              <LayoutDashboard className="h-4 w-4" />
+              Dashboard
+            </Link>
+          </DropdownMenuItem>
+          <DropdownMenuItem asChild>
+            <Link
+              href={
+                user.username_slug
+                  ? `/users/${user.username_slug}`
+                  : "/settings"
+              }
+              className="flex items-center gap-2 cursor-pointer"
+            >
+              <User className="h-4 w-4" />
+              Profile
+            </Link>
+          </DropdownMenuItem>
+          <DropdownMenuItem asChild>
+            <Link
+              href="/settings"
+              className="flex items-center gap-2 cursor-pointer"
+            >
+              <Settings className="h-4 w-4" />
+              Settings
+            </Link>
+          </DropdownMenuItem>
+
+          {isAdmin && (
+            <>
+              <DropdownMenuSeparator />
+              <DropdownMenuLabel>Administration</DropdownMenuLabel>
               <DropdownMenuItem asChild>
                 <Link
-                  href="/dashboard"
+                  href="/admin"
                   className="flex items-center gap-2 cursor-pointer"
                 >
                   <LayoutDashboard className="h-4 w-4" />
-                  Dashboard
+                  Admin Dashboard
                 </Link>
               </DropdownMenuItem>
-              <DropdownMenuItem asChild>
-                <Link
-                  href={
-                    user.username_slug
-                      ? `/users/${user.username_slug}`
-                      : "/settings"
-                  }
-                  className="flex items-center gap-2 cursor-pointer"
-                >
-                  <User className="h-4 w-4" />
-                  Profile
-                </Link>
-              </DropdownMenuItem>
-              <DropdownMenuItem asChild>
-                <Link
-                  href="/settings"
-                  className="flex items-center gap-2 cursor-pointer"
-                >
-                  <Settings className="h-4 w-4" />
-                  Settings
-                </Link>
-              </DropdownMenuItem>
+            </>
+          )}
 
-              {isAdmin && (
-                <>
-                  <DropdownMenuSeparator />
-                  <DropdownMenuLabel>Administration</DropdownMenuLabel>
-                  <DropdownMenuItem asChild>
-                    <Link
-                      href="/admin"
-                      className="flex items-center gap-2 cursor-pointer"
-                    >
-                      <LayoutDashboard className="h-4 w-4" />
-                      Admin Dashboard
-                    </Link>
-                  </DropdownMenuItem>
-                </>
-              )}
-
-              <DropdownMenuSeparator />
-              <DropdownMenuItem
-                onClick={handleLogout}
-                className="flex items-center gap-2 text-destructive focus:text-destructive cursor-pointer"
-              >
-                <LogOut className="h-4 w-4" />
-                Logout
-              </DropdownMenuItem>
-            </DropdownMenuContent>
-          </DropdownMenu>
-        ) : (
-          /* Guest user - Sign In button only */
-          <Button
-            variant="ghost"
-            size="sm"
-            onClick={() => router.push("/auth/login")}
+          <DropdownMenuSeparator />
+          <DropdownMenuItem
+            onClick={handleLogout}
+            className="flex items-center gap-2 text-destructive focus:text-destructive cursor-pointer"
           >
-            Sign In
-          </Button>
-        )}
+            <LogOut className="h-4 w-4" />
+            Logout
+          </DropdownMenuItem>
+        </DropdownMenuContent>
+      </DropdownMenu>
+    ) : (
+      /* Guest user - Sign In button */
+      <Button
+        variant="ghost"
+        size="sm"
+        onClick={() => router.push("/auth/login")}
+      >
+        Sign In
+      </Button>
+    );
+  };
+
+  // Combine theme toggle + auth content
+  const renderRightContent = () => {
+    return (
+      <div className="flex items-center gap-2">
+        {renderThemeToggle()}
+        {renderAuthContent()}
       </div>
     );
   };
@@ -188,6 +199,7 @@ export function AppNavbar() {
         { href: "/encounter-tables", label: "Encounter Tables" },
       ]}
       userdata={user}
+      themeToggle={renderThemeToggle()}
       rightContent={renderRightContent()}
     />
   );
