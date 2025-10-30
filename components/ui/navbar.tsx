@@ -21,7 +21,7 @@ export interface NavigationLink {
 }
 
 export interface UserMenuItem {
-  label: string;
+  label?: string;
   href?: string;
   onClick?: () => void;
   icon?: React.ReactNode;
