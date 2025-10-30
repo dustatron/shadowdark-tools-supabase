@@ -32,12 +32,8 @@ export function LoginForm({
   // Redirect if user is already authenticated
   useEffect(() => {
     if (user) {
-      // User is already logged in, redirect to profile page
-      if (user.username_slug) {
-        router.replace(`/users/${user.username_slug}`);
-      } else {
-        router.replace("/settings");
-      }
+      // User is already logged in, redirect to dashboard
+      router.replace("/dashboard");
     }
   }, [user, router]);
 
