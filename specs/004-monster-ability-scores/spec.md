@@ -76,6 +76,7 @@ As a GM viewing monster details, I want to see all six ability score modifiers (
 ### Key Entities
 
 **Monster Ability Modifiers**
+
 - Properties: strength, dexterity, constitution, intelligence, wisdom, charisma
 - Type: Integer (-5 to +5)
 - Default: 0
@@ -85,12 +86,14 @@ As a GM viewing monster details, I want to see all six ability score modifiers (
 ## Review Checklist
 
 ### Content Quality
+
 - [x] No implementation details
 - [x] Focused on user value
 - [x] Written for non-technical stakeholders
 - [x] All sections completed
 
 ### Requirements
+
 - [x] No clarifications needed
 - [x] Requirements testable
 - [x] Success criteria measurable

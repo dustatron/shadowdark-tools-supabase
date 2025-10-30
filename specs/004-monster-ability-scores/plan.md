@@ -72,6 +72,7 @@ WHERE strength_mod = 0; -- Only update defaults
 ### 3. TypeScript Types (10 min)
 
 **File**: `app/monsters/[id]/MonsterDetailClient.tsx`
+
 ```typescript
 interface Monster {
   // ... existing fields
@@ -85,6 +86,7 @@ interface Monster {
 ```
 
 **File**: `lib/validations/monster.ts`
+
 ```typescript
 export const monsterSchema = z.object({
   // ... existing fields
@@ -165,6 +167,7 @@ export function AbilityScoresCard({
 ```
 
 **File**: `app/monsters/[id]/MonsterDetailClient.tsx`
+
 ```tsx
 // Add import
 import { AbilityScoresCard } from "@/src/components/monsters/AbilityScoresCard";
@@ -177,17 +180,19 @@ import { AbilityScoresCard } from "@/src/components/monsters/AbilityScoresCard";
   intelligence={monster.intelligence_mod}
   wisdom={monster.wisdom_mod}
   charisma={monster.charisma_mod}
-/>
+/>;
 ```
 
 ### 5. API Updates (10 min)
 
 **File**: `app/monsters/[id]/page.tsx`
+
 ```typescript
 // Update SELECT query (line 30-48)
 const { data: monster, error } = await supabase
   .from("all_monsters")
-  .select(`
+  .select(
+    `
     id,
     name,
     // ... existing fields
@@ -197,18 +202,21 @@ const { data: monster, error } = await supabase
     intelligence_mod,
     wisdom_mod,
     charisma_mod
-  `)
+  `,
+  )
   .eq("id", monsterId)
   .single();
 ```
 
 **File**: `app/api/monsters/route.ts` (POST)
+
 - Add ability modifiers to insert payload
 - Validate with updated schema
 
 ### 6. Forms (Optional - 20 min)
 
 **File**: `app/monsters/create/page.tsx` & `app/monsters/[id]/edit/page.tsx`
+
 - Add 6 number inputs for ability modifiers
 - Range: -5 to +5
 - Default: 0
@@ -254,6 +262,7 @@ const { data: monster, error } = await supabase
 ---
 
 **Time Breakdown**
+
 - Database: 25 min
 - Types: 10 min
 - UI: 30 min
