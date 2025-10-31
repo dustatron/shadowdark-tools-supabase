@@ -118,7 +118,9 @@ export function MonsterCard({
           ? "bg-orange-100 text-orange-800 dark:bg-orange-900 dark:text-orange-200"
           : "bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-200";
 
-  const isOwner = currentUserId && monster.creator_id === currentUserId;
+  const isOwner =
+    currentUserId &&
+    (monster.creator_id === currentUserId || monster.user_id === currentUserId);
 
   const cardContent = (
     <Card
