@@ -7,6 +7,7 @@ import {
   Shield,
   Footprints,
   Heart,
+  Edit,
 } from "lucide-react";
 import { useState } from "react";
 import Link from "next/link";
@@ -44,6 +45,7 @@ interface Monster {
   author_notes?: string;
   monster_type?: "official" | "user";
   creator_id?: string;
+  user_id?: string;
 }
 
 interface MonsterCardProps {
@@ -116,11 +118,28 @@ export function MonsterCard({
           ? "bg-orange-100 text-orange-800 dark:bg-orange-900 dark:text-orange-200"
           : "bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-200";
 
+  const isOwner =
+    currentUserId &&
+    (monster.creator_id === currentUserId || monster.user_id === currentUserId);
+
   const cardContent = (
     <Card
       className={`shadow-sm ${!showActions ? "hover:shadow-md transition-shadow cursor-pointer" : ""} `}
     >
-      <div className="float-end">
+      <div className="float-end flex gap-1">
+        {showActions && isOwner && (
+          <Button
+            asChild
+            variant="ghost"
+            size="icon"
+            className="h-8 w-8"
+            title="Edit monster"
+          >
+            <Link href={`/monsters/${monster.id}/edit`}>
+              <Edit className="h-4 w-4" />
+            </Link>
+          </Button>
+        )}
         {currentUserId && (
           <FavoriteButton
             itemId={monster.id}
@@ -199,55 +218,57 @@ export function MonsterCard({
               {expanded && (
                 <div className="flex flex-col gap-4">
                   {/* Attacks */}
-                  {monster.attacks.length > 0 && (
-                    <div>
-                      <div className="flex items-center gap-2 mb-2">
-                        <Sword size={16} />
-                        <h4 className="text-sm font-medium">Attacks</h4>
-                      </div>
-                      <div className="flex flex-col gap-2">
-                        {monster.attacks?.map((attack, index) => (
-                          <div key={index} className="pl-4">
-                            <div className="flex items-center gap-2">
-                              <span className="text-sm font-medium">
-                                {attack.name}
-                              </span>
-                              <Badge variant="outline" className="text-xs">
-                                {attack.type}
-                              </Badge>
-                              <span className="text-sm text-muted-foreground">
-                                {attack.damage} ({attack.range})
-                              </span>
+                  {Array.isArray(monster.attacks) &&
+                    monster.attacks.length > 0 && (
+                      <div>
+                        <div className="flex items-center gap-2 mb-2">
+                          <Sword size={16} />
+                          <h4 className="text-sm font-medium">Attacks</h4>
+                        </div>
+                        <div className="flex flex-col gap-2">
+                          {monster.attacks.map((attack, index) => (
+                            <div key={index} className="pl-4">
+                              <div className="flex items-center gap-2">
+                                <span className="text-sm font-medium">
+                                  {attack.name}
+                                </span>
+                                <Badge variant="outline" className="text-xs">
+                                  {attack.type}
+                                </Badge>
+                                <span className="text-sm text-muted-foreground">
+                                  {attack.damage} ({attack.range})
+                                </span>
+                              </div>
+                              {attack.description && (
+                                <p className="text-xs text-muted-foreground pl-2">
+                                  {attack.description}
+                                </p>
+                              )}
                             </div>
-                            {attack.description && (
-                              <p className="text-xs text-muted-foreground pl-2">
-                                {attack.description}
-                              </p>
-                            )}
-                          </div>
-                        ))}
+                          ))}
+                        </div>
                       </div>
-                    </div>
-                  )}
+                    )}
 
                   {/* Abilities */}
-                  {monster.abilities.length > 0 && (
-                    <div>
-                      <h4 className="text-sm font-medium mb-2">Abilities</h4>
-                      <div className="flex flex-col gap-2">
-                        {monster.abilities?.map((ability, index) => (
-                          <div key={index} className="pl-4">
-                            <p className="text-sm font-medium">
-                              {ability.name}
-                            </p>
-                            <p className="text-xs text-muted-foreground">
-                              {ability.description}
-                            </p>
-                          </div>
-                        ))}
+                  {Array.isArray(monster.abilities) &&
+                    monster.abilities.length > 0 && (
+                      <div>
+                        <h4 className="text-sm font-medium mb-2">Abilities</h4>
+                        <div className="flex flex-col gap-2">
+                          {monster.abilities.map((ability, index) => (
+                            <div key={index} className="pl-4">
+                              <p className="text-sm font-medium">
+                                {ability.name}
+                              </p>
+                              <p className="text-xs text-muted-foreground">
+                                {ability.description}
+                              </p>
+                            </div>
+                          ))}
+                        </div>
                       </div>
-                    </div>
-                  )}
+                    )}
 
                   {/* Author Notes */}
                   {monster.author_notes && (

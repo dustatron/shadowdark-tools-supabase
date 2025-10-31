@@ -25,7 +25,7 @@ export async function getUserSpells(userId: string) {
 export async function getUserEncounterTables(userId: string) {
   const supabase = await createClient();
   const { data } = await supabase
-    .from("user_encounter_tables")
+    .from("encounter_tables")
     .select("*")
     .eq("user_id", userId)
     .order("created_at", { ascending: false });

@@ -202,13 +202,14 @@ export function Navbar({
                     {link.label}
                   </Link>
                 ))}
-                {(themeToggle || rightContent || signInButton || ctaButton) &&
-                  navigationLinks.length > 0 && (
-                    <div className="my-1 border-t" />
-                  )}
 
                 {/* Theme toggle - always visible in mobile menu */}
                 {themeToggle && <div className="px-3 py-2">{themeToggle}</div>}
+
+                {(userMenuItems.length > 0 || signInButton || ctaButton) &&
+                  navigationLinks.length > 0 && (
+                    <div className="my-1 border-t" />
+                  )}
 
                 {userMenuItems.length > 0 ? (
                   <div className="flex flex-col gap-1">
