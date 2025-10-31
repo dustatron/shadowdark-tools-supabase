@@ -218,55 +218,57 @@ export function MonsterCard({
               {expanded && (
                 <div className="flex flex-col gap-4">
                   {/* Attacks */}
-                  {monster.attacks.length > 0 && (
-                    <div>
-                      <div className="flex items-center gap-2 mb-2">
-                        <Sword size={16} />
-                        <h4 className="text-sm font-medium">Attacks</h4>
-                      </div>
-                      <div className="flex flex-col gap-2">
-                        {monster.attacks?.map((attack, index) => (
-                          <div key={index} className="pl-4">
-                            <div className="flex items-center gap-2">
-                              <span className="text-sm font-medium">
-                                {attack.name}
-                              </span>
-                              <Badge variant="outline" className="text-xs">
-                                {attack.type}
-                              </Badge>
-                              <span className="text-sm text-muted-foreground">
-                                {attack.damage} ({attack.range})
-                              </span>
+                  {Array.isArray(monster.attacks) &&
+                    monster.attacks.length > 0 && (
+                      <div>
+                        <div className="flex items-center gap-2 mb-2">
+                          <Sword size={16} />
+                          <h4 className="text-sm font-medium">Attacks</h4>
+                        </div>
+                        <div className="flex flex-col gap-2">
+                          {monster.attacks.map((attack, index) => (
+                            <div key={index} className="pl-4">
+                              <div className="flex items-center gap-2">
+                                <span className="text-sm font-medium">
+                                  {attack.name}
+                                </span>
+                                <Badge variant="outline" className="text-xs">
+                                  {attack.type}
+                                </Badge>
+                                <span className="text-sm text-muted-foreground">
+                                  {attack.damage} ({attack.range})
+                                </span>
+                              </div>
+                              {attack.description && (
+                                <p className="text-xs text-muted-foreground pl-2">
+                                  {attack.description}
+                                </p>
+                              )}
                             </div>
-                            {attack.description && (
-                              <p className="text-xs text-muted-foreground pl-2">
-                                {attack.description}
-                              </p>
-                            )}
-                          </div>
-                        ))}
+                          ))}
+                        </div>
                       </div>
-                    </div>
-                  )}
+                    )}
 
                   {/* Abilities */}
-                  {monster.abilities.length > 0 && (
-                    <div>
-                      <h4 className="text-sm font-medium mb-2">Abilities</h4>
-                      <div className="flex flex-col gap-2">
-                        {monster.abilities?.map((ability, index) => (
-                          <div key={index} className="pl-4">
-                            <p className="text-sm font-medium">
-                              {ability.name}
-                            </p>
-                            <p className="text-xs text-muted-foreground">
-                              {ability.description}
-                            </p>
-                          </div>
-                        ))}
+                  {Array.isArray(monster.abilities) &&
+                    monster.abilities.length > 0 && (
+                      <div>
+                        <h4 className="text-sm font-medium mb-2">Abilities</h4>
+                        <div className="flex flex-col gap-2">
+                          {monster.abilities.map((ability, index) => (
+                            <div key={index} className="pl-4">
+                              <p className="text-sm font-medium">
+                                {ability.name}
+                              </p>
+                              <p className="text-xs text-muted-foreground">
+                                {ability.description}
+                              </p>
+                            </div>
+                          ))}
+                        </div>
                       </div>
-                    </div>
-                  )}
+                    )}
 
                   {/* Author Notes */}
                   {monster.author_notes && (
