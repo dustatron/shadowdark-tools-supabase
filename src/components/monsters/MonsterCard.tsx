@@ -7,6 +7,7 @@ import {
   Shield,
   Footprints,
   Heart,
+  Edit,
 } from "lucide-react";
 import { useState } from "react";
 import Link from "next/link";
@@ -44,6 +45,7 @@ interface Monster {
   author_notes?: string;
   monster_type?: "official" | "user";
   creator_id?: string;
+  user_id?: string;
 }
 
 interface MonsterCardProps {
@@ -116,11 +118,26 @@ export function MonsterCard({
           ? "bg-orange-100 text-orange-800 dark:bg-orange-900 dark:text-orange-200"
           : "bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-200";
 
+  const isOwner = currentUserId && monster.creator_id === currentUserId;
+
   const cardContent = (
     <Card
       className={`shadow-sm ${!showActions ? "hover:shadow-md transition-shadow cursor-pointer" : ""} `}
     >
-      <div className="float-end">
+      <div className="float-end flex gap-1">
+        {showActions && isOwner && (
+          <Button
+            asChild
+            variant="ghost"
+            size="icon"
+            className="h-8 w-8"
+            title="Edit monster"
+          >
+            <Link href={`/monsters/${monster.id}/edit`}>
+              <Edit className="h-4 w-4" />
+            </Link>
+          </Button>
+        )}
         {currentUserId && (
           <FavoriteButton
             itemId={monster.id}

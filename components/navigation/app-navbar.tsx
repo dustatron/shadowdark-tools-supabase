@@ -23,6 +23,10 @@ import {
   Settings,
   LogOut,
   LayoutDashboard,
+  Swords,
+  Sparkles,
+  Dice6,
+  Heart,
 } from "lucide-react";
 import { useAuth, UserData } from "@/src/components/providers/AuthProvider";
 
@@ -72,9 +76,29 @@ export function AppNavbar() {
 
     const items: UserMenuItem[] = [
       {
-        label: "Dashboard",
-        href: "/dashboard",
-        icon: <LayoutDashboard className="h-4 w-4" />,
+        label: "My Monsters",
+        href: "/dashboard/monsters",
+        icon: <Swords className="h-4 w-4" />,
+      },
+      {
+        label: "My Spells",
+        href: "/dashboard/spells",
+        icon: <Sparkles className="h-4 w-4" />,
+      },
+      {
+        label: "Encounters",
+        href: "/dashboard/encounters",
+        icon: <Dice6 className="h-4 w-4" />,
+      },
+      {
+        label: "Fav Monsters",
+        href: "/dashboard/favorites/monsters",
+        icon: <Heart className="h-4 w-4" />,
+      },
+      {
+        label: "Fav Spells",
+        href: "/dashboard/favorites/spells",
+        icon: <Heart className="h-4 w-4" />,
       },
     ];
 
@@ -156,16 +180,54 @@ export function AppNavbar() {
         </DropdownMenuTrigger>
 
         <DropdownMenuContent align="end" className="w-48">
-          <DropdownMenuLabel>Account</DropdownMenuLabel>
+          <DropdownMenuLabel>Dashboard</DropdownMenuLabel>
           <DropdownMenuItem asChild>
             <Link
-              href="/dashboard"
+              href="/dashboard/monsters"
               className="flex items-center gap-2 cursor-pointer"
             >
-              <LayoutDashboard className="h-4 w-4" />
-              Dashboard
+              <Swords className="h-4 w-4" />
+              My Monsters
             </Link>
           </DropdownMenuItem>
+          <DropdownMenuItem asChild>
+            <Link
+              href="/dashboard/spells"
+              className="flex items-center gap-2 cursor-pointer"
+            >
+              <Sparkles className="h-4 w-4" />
+              My Spells
+            </Link>
+          </DropdownMenuItem>
+          <DropdownMenuItem asChild>
+            <Link
+              href="/dashboard/encounters"
+              className="flex items-center gap-2 cursor-pointer"
+            >
+              <Dice6 className="h-4 w-4" />
+              Encounters
+            </Link>
+          </DropdownMenuItem>
+          <DropdownMenuItem asChild>
+            <Link
+              href="/dashboard/favorites/monsters"
+              className="flex items-center gap-2 cursor-pointer"
+            >
+              <Heart className="h-4 w-4" />
+              Fav Monsters
+            </Link>
+          </DropdownMenuItem>
+          <DropdownMenuItem asChild>
+            <Link
+              href="/dashboard/favorites/spells"
+              className="flex items-center gap-2 cursor-pointer"
+            >
+              <Heart className="h-4 w-4" />
+              Fav Spells
+            </Link>
+          </DropdownMenuItem>
+          <DropdownMenuSeparator />
+          <DropdownMenuLabel>Account</DropdownMenuLabel>
           {user.username_slug && (
             <DropdownMenuItem asChild>
               <Link
