@@ -1,93 +1,78 @@
 import { createClient } from "@/lib/supabase/server";
+import { redirect } from "next/navigation";
 import Link from "next/link";
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
-import { Button } from "@/components/ui/button";
 import { Plus } from "lucide-react";
-import { getUserEncounterTables } from "@/lib/api/dashboard";
+import { Button } from "@/components/ui/button";
 import type { EncounterTable } from "@/lib/encounter-tables/types";
+import { EncounterTablesView } from "@/components/encounters/EncounterTablesView";
 
-export default async function EncountersPage() {
+export const metadata = {
+  title: "Encounter Tables - Dashboard",
+  description: "Manage your random encounter tables for Shadowdark",
+};
+
+export default async function DashboardEncountersPage() {
   const supabase = await createClient();
+
+  // Check authentication
   const {
     data: { user },
+    error: authError,
   } = await supabase.auth.getUser();
 
-  if (!user) return null;
+  if (authError || !user) {
+    redirect("/auth/login?redirect=/dashboard/encounters");
+  }
 
-  const encounters = await getUserEncounterTables(user.id);
+  // Fetch user's encounter tables
+  const { data: tables, error } = await supabase
+    .from("encounter_tables")
+    .select(
+      `
+      id,
+      name,
+      description,
+      die_size,
+      is_public,
+      public_slug,
+      filters,
+      created_at,
+      updated_at
+    `,
+    )
+    .eq("user_id", user.id)
+    .order("created_at", { ascending: false });
+
+  if (error) {
+    console.error("Error fetching encounter tables:", error);
+  }
+
+  const encounterTables = (tables as unknown as EncounterTable[]) || [];
 
   return (
-    <div>
-      <div className="flex items-center justify-between mb-6">
-        <h2 className="text-2xl font-bold">My Encounter Tables</h2>
+    <div className="space-y-6">
+      <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+        <div>
+          <h1 className="text-3xl font-bold tracking-tight">
+            Encounter Tables
+          </h1>
+          <p className="text-muted-foreground mt-2">
+            Generate and manage random encounter tables for your Shadowdark
+            games
+          </p>
+        </div>
         <Button asChild>
           <Link href="/encounter-tables/new">
             <Plus className="mr-2 h-4 w-4" />
-            Create Encounter
+            Create New Table
           </Link>
         </Button>
       </div>
-      {encounters.length > 0 ? (
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-          {encounters.map((table: EncounterTable) => (
-            <Link
-              key={table.id}
-              href={`/encounter-tables/${table.id}`}
-              className="block transition-all hover:scale-105"
-            >
-              <Card className="h-full hover:shadow-lg transition-shadow">
-                <CardHeader>
-                  <div className="flex items-start justify-between gap-2">
-                    <CardTitle className="line-clamp-1">{table.name}</CardTitle>
-                    <Badge variant={table.is_public ? "default" : "secondary"}>
-                      {table.is_public ? "Public" : "Private"}
-                    </Badge>
-                  </div>
-                  {table.description && (
-                    <CardDescription className="line-clamp-2">
-                      {table.description}
-                    </CardDescription>
-                  )}
-                </CardHeader>
-                <CardContent>
-                  <div className="space-y-2 text-sm">
-                    <div className="flex items-center justify-between">
-                      <span className="text-muted-foreground">Die Size:</span>
-                      <Badge variant="outline">d{table.die_size}</Badge>
-                    </div>
-                    <div className="flex items-center justify-between">
-                      <span className="text-muted-foreground">Levels:</span>
-                      <span className="font-medium">
-                        {table.filters.level_min} - {table.filters.level_max}
-                      </span>
-                    </div>
-                    <div className="flex items-center justify-between">
-                      <span className="text-muted-foreground">Sources:</span>
-                      <span className="font-medium">
-                        {table.filters.sources.length}
-                      </span>
-                    </div>
-                    <div className="text-xs text-muted-foreground pt-2 border-t">
-                      Created {new Date(table.created_at).toLocaleDateString()}
-                    </div>
-                  </div>
-                </CardContent>
-              </Card>
-            </Link>
-          ))}
-        </div>
-      ) : (
-        <div className="text-center py-8 text-muted-foreground">
-          No encounter tables yet. Create your first table to get started!
-        </div>
-      )}
+
+      <EncounterTablesView
+        tables={encounterTables}
+        basePath="/encounter-tables"
+      />
     </div>
   );
 }
