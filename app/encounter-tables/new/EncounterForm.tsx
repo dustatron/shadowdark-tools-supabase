@@ -66,7 +66,7 @@ export default function EncounterForm() {
     resolver: zodResolver(EncounterTableCreateSchema),
     defaultValues: {
       name: "",
-      die_size: 20,
+      die_size: 6,
       description: "",
       filters: {
         sources: ["official" as const],
@@ -164,9 +164,9 @@ export default function EncounterForm() {
   const LEVEL_MAX = form.watch("filters.level_max");
 
   return (
-    <div className="container mx-auto p-4 md:p-6 lg:p-8 max-w-7xl">
-      <div className="mb-6">
-        <h1 className="text-3xl font-bold tracking-tight">
+    <div className="container mx-auto px-4 py-6 md:p-6 lg:p-8 max-w-7xl">
+      <div className="mb-4 md:mb-6">
+        <h1 className="text-2xl md:text-3xl font-bold tracking-tight">
           Encounter Generate
         </h1>
       </div>
@@ -237,7 +237,7 @@ export default function EncounterForm() {
                     render={({ field }) => (
                       <FormItem>
                         <FormLabel>Table Size</FormLabel>
-                        <div className="flex space-x-2">
+                        <div className="flex flex-wrap gap-2">
                           {COMMON_DIE_SIZES.map((size) => (
                             <Button
                               type="button"
@@ -247,6 +247,7 @@ export default function EncounterForm() {
                               variant={
                                 field.value === size ? "destructive" : "outline"
                               }
+                              className="flex-1 min-w-[60px] sm:flex-initial"
                             >
                               d{size}
                             </Button>
@@ -458,16 +459,21 @@ export default function EncounterForm() {
                 </CardContent>
               </Card>
 
-              <div className="flex justify-end gap-4">
+              <div className="flex flex-col sm:flex-row justify-end gap-2 sm:gap-4">
                 <Button
                   type="button"
                   variant="outline"
                   onClick={() => router.back()}
                   disabled={isGenerating || isSaving}
+                  className="w-full sm:w-auto"
                 >
                   Cancel
                 </Button>
-                <Button type="submit" disabled={isGenerating || isSaving}>
+                <Button
+                  type="submit"
+                  disabled={isGenerating || isSaving}
+                  className="w-full sm:w-auto"
+                >
                   {isGenerating ? (
                     <>
                       <Loader2 className="mr-2 h-4 w-4 animate-spin" />

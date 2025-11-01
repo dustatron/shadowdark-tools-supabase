@@ -21,9 +21,7 @@ CREATE INDEX IF NOT EXISTS idx_user_lists_xp_budget ON public.user_lists(xp_budg
 CREATE INDEX IF NOT EXISTS idx_user_lists_cl_range ON public.user_lists(challenge_level_min, challenge_level_max)
     WHERE challenge_level_min IS NOT NULL AND challenge_level_max IS NOT NULL;
 
--- Indexes for encounter_tables
-CREATE INDEX IF NOT EXISTS idx_encounter_tables_die_tags ON public.encounter_tables(die_size)
-    WHERE tags IS NOT NULL;
+-- Indexes for encounter_tables (created in later migration)
 
 -- Indexes for flags
 CREATE INDEX IF NOT EXISTS idx_flags_item_status ON public.flags(flagged_item_type, flagged_item_id, status);
@@ -42,8 +40,7 @@ BEGIN
     ANALYZE public.user_groups;
     ANALYZE public.user_lists;
     ANALYZE public.list_items;
-    ANALYZE public.encounter_tables;
-    ANALYZE public.encounter_slots;
+    -- encounter_tables created in later migration
     ANALYZE public.user_favorites;
     ANALYZE public.flags;
     ANALYZE public.audit_logs;
