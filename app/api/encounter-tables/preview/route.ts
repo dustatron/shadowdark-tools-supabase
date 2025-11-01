@@ -1,10 +1,10 @@
 /**
  * API Route: /api/encounter-tables/preview
  * Generate preview of encounter table without saving
+ * Public endpoint - no authentication required
  */
 
 import { NextRequest, NextResponse } from "next/server";
-import { createClient } from "@/lib/supabase/server";
 import { z } from "zod";
 import { EncounterTableCreateSchema } from "@/lib/encounter-tables/schemas";
 import { generateTableEntries } from "@/lib/encounter-tables/utils/generate-table";
@@ -15,21 +15,6 @@ import { generateTableEntries } from "@/lib/encounter-tables/utils/generate-tabl
  */
 export async function POST(request: NextRequest) {
   try {
-    const supabase = await createClient();
-
-    // Check authentication
-    const {
-      data: { user },
-      error: authError,
-    } = await supabase.auth.getUser();
-
-    if (authError || !user) {
-      return NextResponse.json(
-        { error: "Authentication required" },
-        { status: 401 },
-      );
-    }
-
     // Parse and validate request body
     const body = await request.json();
     const validationResult = EncounterTableCreateSchema.safeParse(body);
