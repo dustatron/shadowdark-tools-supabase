@@ -7,6 +7,8 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { EncounterTableCreateSchema } from "@/lib/encounter-tables/schemas";
 import type { EncounterTableCreateInput } from "@/lib/encounter-tables/schemas";
 import { generateEncounterTableName } from "@/lib/encounter-tables/utils/generate-name";
+import { createClient } from "@/lib/supabase/client";
+import type { User } from "@supabase/supabase-js";
 import { Button } from "@/components/ui/button";
 import {
   Form,
@@ -61,6 +63,8 @@ export default function EncounterForm() {
   const [isSaving, setIsSaving] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [previewData, setPreviewData] = useState<PreviewData>(null);
+  const [user, setUser] = useState<User | null>(null);
+  const [isAuthenticated, setIsAuthenticated] = useState(false);
 
   const form = useForm({
     resolver: zodResolver(EncounterTableCreateSchema),
@@ -89,6 +93,37 @@ export default function EncounterForm() {
     }
   }, [form]);
 
+  // Check auth status
+  useEffect(() => {
+    const checkAuth = async () => {
+      const supabase = createClient();
+      const {
+        data: { user },
+      } = await supabase.auth.getUser();
+      setUser(user);
+      setIsAuthenticated(!!user);
+    };
+    checkAuth();
+  }, []);
+
+  // Restore from localStorage when authenticated
+  useEffect(() => {
+    if (isAuthenticated) {
+      const pending = localStorage.getItem("pending_encounter_table");
+      if (pending) {
+        try {
+          const data = JSON.parse(pending);
+          setPreviewData(data);
+          toast.info("Your generated table is ready to save!");
+          localStorage.removeItem("pending_encounter_table");
+        } catch (err) {
+          console.error("Error restoring table:", err);
+          localStorage.removeItem("pending_encounter_table");
+        }
+      }
+    }
+  }, [isAuthenticated]);
+
   const generatePreview = async (data: EncounterTableCreateInput) => {
     setIsGenerating(true);
     setError(null);
@@ -109,6 +144,18 @@ export default function EncounterForm() {
 
       const result = await response.json();
       setPreviewData(result.preview);
+
+      // Save to localStorage for unauthenticated users
+      if (!isAuthenticated) {
+        try {
+          localStorage.setItem(
+            "pending_encounter_table",
+            JSON.stringify(result.preview),
+          );
+        } catch (storageErr) {
+          console.error("Failed to save to localStorage:", storageErr);
+        }
+      }
     } catch (err) {
       console.error("Error generating preview:", err);
       const errorMessage =
@@ -162,6 +209,13 @@ export default function EncounterForm() {
 
   const LEVEL_MIN = form.watch("filters.level_min");
   const LEVEL_MAX = form.watch("filters.level_max");
+
+  // Filter monster sources based on authentication
+  const availableMonsterSources = isAuthenticated
+    ? MONSTER_SOURCES
+    : MONSTER_SOURCES.filter(
+        (source) => source.value !== "user" && source.value !== "favorites",
+      );
 
   return (
     <div className="container mx-auto px-4 py-6 md:p-6 lg:p-8 max-w-7xl">
@@ -293,7 +347,7 @@ export default function EncounterForm() {
                                 Select at least one monster source
                               </FormDescription>
                               <div className="space-y-2">
-                                {MONSTER_SOURCES.map((source) => (
+                                {availableMonsterSources.map((source) => (
                                   <FormField
                                     key={source.value}
                                     control={form.control}
@@ -494,6 +548,7 @@ export default function EncounterForm() {
             previewData={previewData}
             isGenerating={isGenerating}
             isSaving={isSaving}
+            isAuthenticated={isAuthenticated}
             onRegenerate={form.handleSubmit(generatePreview)}
             onSave={saveTable}
           />

@@ -37,6 +37,7 @@ interface EncounterTablePreviewProps {
   previewData: PreviewData;
   isGenerating: boolean;
   isSaving: boolean;
+  isAuthenticated: boolean;
   onRegenerate: () => void;
   onSave: () => void;
 }
@@ -45,6 +46,7 @@ export function EncounterTablePreview({
   previewData,
   isGenerating,
   isSaving,
+  isAuthenticated,
   onRegenerate,
   onSave,
 }: EncounterTablePreviewProps) {
@@ -110,32 +112,45 @@ export function EncounterTablePreview({
           </div>
         </div>
 
-        <div className="flex justify-end gap-4">
-          <Button
-            type="button"
-            variant="outline"
-            onClick={onRegenerate}
-            disabled={isSaving || isGenerating}
-          >
-            {isGenerating ? (
-              <>
-                <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                Regenerating...
-              </>
-            ) : (
-              "Regenerate"
-            )}
-          </Button>
-          <Button onClick={onSave} disabled={isSaving || isGenerating}>
-            {isSaving ? (
-              <>
-                <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                Saving...
-              </>
-            ) : (
-              "Save Table"
-            )}
-          </Button>
+        <div className="flex flex-col gap-4">
+          <div className="flex justify-end gap-4">
+            <Button
+              type="button"
+              variant="outline"
+              onClick={onRegenerate}
+              disabled={isSaving || isGenerating}
+            >
+              {isGenerating ? (
+                <>
+                  <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                  Regenerating...
+                </>
+              ) : (
+                "Regenerate"
+              )}
+            </Button>
+            <Button
+              onClick={onSave}
+              disabled={!isAuthenticated || isSaving || isGenerating}
+            >
+              {isSaving ? (
+                <>
+                  <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                  Saving...
+                </>
+              ) : (
+                "Save Table"
+              )}
+            </Button>
+          </div>
+          {!isAuthenticated && (
+            <p className="text-sm text-muted-foreground text-center">
+              <Link href="/auth/login" className="underline">
+                Sign in
+              </Link>{" "}
+              to save
+            </p>
+          )}
         </div>
       </CardContent>
     </Card>

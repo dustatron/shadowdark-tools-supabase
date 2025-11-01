@@ -14,14 +14,14 @@ export const metadata = {
 export default async function EncounterTablesPage() {
   const supabase = await createClient();
 
-  // Check authentication
+  // Check authentication - redirect to generator if not logged in
   const {
     data: { user },
     error: authError,
   } = await supabase.auth.getUser();
 
   if (authError || !user) {
-    redirect("/auth/login?redirect=/encounter-tables");
+    redirect("/encounter-tables/new");
   }
 
   // Fetch user's encounter tables
