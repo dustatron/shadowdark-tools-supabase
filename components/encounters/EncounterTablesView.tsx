@@ -27,9 +27,13 @@ type ViewMode = "table" | "cards";
 
 interface EncounterTablesViewProps {
   tables: EncounterTable[];
+  basePath?: string; // Base path for links (default: "/encounter-tables")
 }
 
-export function EncounterTablesView({ tables }: EncounterTablesViewProps) {
+export function EncounterTablesView({
+  tables,
+  basePath = "/encounter-tables",
+}: EncounterTablesViewProps) {
   const [viewMode, setViewMode] = useState<ViewMode>("table");
   const [isMobile, setIsMobile] = useState(false);
 
@@ -85,7 +89,7 @@ export function EncounterTablesView({ tables }: EncounterTablesViewProps) {
               </p>
             </div>
             <Button asChild>
-              <Link href="/encounter-tables/new">
+              <Link href={`${basePath}/new`}>
                 <Plus className="mr-2 h-4 w-4" />
                 Create Your First Table
               </Link>
@@ -143,7 +147,7 @@ export function EncounterTablesView({ tables }: EncounterTablesViewProps) {
                   <TableRow key={table.id}>
                     <TableCell className="font-medium">
                       <Link
-                        href={`/encounter-tables/${table.id}`}
+                        href={`${basePath}/${table.id}`}
                         className="hover:underline"
                       >
                         {table.name}
@@ -175,7 +179,7 @@ export function EncounterTablesView({ tables }: EncounterTablesViewProps) {
                     </TableCell>
                     <TableCell className="text-right">
                       <Button variant="ghost" size="sm" asChild>
-                        <Link href={`/encounter-tables/${table.id}/settings`}>
+                        <Link href={`${basePath}/${table.id}/settings`}>
                           <Edit className="h-4 w-4" />
                         </Link>
                       </Button>
@@ -194,7 +198,7 @@ export function EncounterTablesView({ tables }: EncounterTablesViewProps) {
           {tables.map((table) => (
             <Link
               key={table.id}
-              href={`/encounter-tables/${table.id}`}
+              href={`${basePath}/${table.id}`}
               className="block transition-all hover:scale-105"
             >
               <Card className="h-full hover:shadow-lg transition-shadow">
