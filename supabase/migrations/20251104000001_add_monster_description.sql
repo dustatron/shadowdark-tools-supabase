@@ -8,7 +8,8 @@ ALTER TABLE public.user_monsters
 ADD COLUMN IF NOT EXISTS description TEXT;
 
 -- Update the all_monsters view to include description
-CREATE OR REPLACE VIEW public.all_monsters AS
+DROP VIEW IF EXISTS public.all_monsters;
+CREATE VIEW public.all_monsters AS
 SELECT
     id,
     name,
