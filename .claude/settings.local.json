@@ -124,7 +124,9 @@
       "Bash('https://ifuxawrpwuwddysrhahr.supabase.co/rest/v1/rpc/exec_sql' )",
       "mcp__supabase__get_project",
       "WebSearch",
-      "WebFetch(domain:react-pdf.org)"
+      "WebFetch(domain:react-pdf.org)",
+      "Bash(tasks.md)",
+      "Bash(npm view:*)"
     ],
     "deny": [],
     "ask": []
