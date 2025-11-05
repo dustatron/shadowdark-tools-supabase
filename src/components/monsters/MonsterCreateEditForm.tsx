@@ -1,10 +1,18 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useForm, useFieldArray } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { toast } from "sonner";
-import { Plus, Trash2, AlertCircle, Check } from "lucide-react";
+import {
+  Plus,
+  Trash2,
+  AlertCircle,
+  Check,
+  Wand2,
+  ChevronDown,
+  ChevronUp,
+} from "lucide-react";
 import { useRouter } from "next/navigation";
 import { z } from "zod";
 
@@ -32,16 +40,24 @@ import {
   FormMessage,
 } from "@/components/ui/form";
 import { Alert, AlertDescription } from "@/components/ui/alert";
+import {
+  Collapsible,
+  CollapsibleContent,
+  CollapsibleTrigger,
+} from "@/components/ui/collapsible";
 import { IconSelector } from "../ui/IconSelector";
 import { createMonsterSchema } from "@/lib/validations/monster";
+import {
+  getRecommendedStats,
+  calculateXP,
+  getHPGuidance,
+  getACGuidance,
+  ATTACK_TEMPLATES,
+  DISTANCE_BANDS,
+} from "@/lib/utils/shadowdarkMonsterHelper";
 
 // Shadowdark-specific constants
-const MOVEMENT_SPEEDS = [
-  { value: "near", label: "Near (30ft)" },
-  { value: "close", label: "Close (60ft)" },
-  { value: "far", label: "Far (120ft+)" },
-  { value: "custom", label: "Custom" },
-];
+const MOVEMENT_SPEEDS = Object.values(DISTANCE_BANDS);
 
 const ATTACK_TYPES = [
   { value: "melee", label: "Melee" },
@@ -81,30 +97,9 @@ const COMMON_TAGS = {
 };
 
 // Extended schema with customSpeed field for form state
-// We need to override attacks and abilities to make them required arrays
-const formSchema = createMonsterSchema
-  .extend({
-    customSpeed: z.string().optional(),
-  })
-  .merge(
-    z.object({
-      attacks: z.array(
-        z.object({
-          name: z.string(),
-          type: z.enum(["melee", "ranged", "spell"]),
-          damage: z.string(),
-          range: z.string().optional(),
-          description: z.string().optional(),
-        }),
-      ),
-      abilities: z.array(
-        z.object({
-          name: z.string(),
-          description: z.string(),
-        }),
-      ),
-    }),
-  );
+const formSchema = createMonsterSchema.extend({
+  customSpeed: z.string().optional(),
+});
 
 type FormData = z.infer<typeof formSchema>;
 
@@ -124,14 +119,21 @@ export function MonsterCreateEditForm({
   const router = useRouter();
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [customSpeed, setCustomSpeed] = useState(false);
+  const [sectionsOpen, setSectionsOpen] = useState({
+    abilityScores: false,
+    attacks: true,
+    abilities: false,
+    details: false,
+  });
 
   const form = useForm<FormData>({
     resolver: zodResolver(formSchema) as any,
     defaultValues: {
       name: initialData?.name || "",
+      description: initialData?.description || "",
       challenge_level: initialData?.challenge_level || 1,
-      hit_points: initialData?.hit_points || 10,
-      armor_class: initialData?.armor_class || 10,
+      hit_points: initialData?.hit_points || 4,
+      armor_class: initialData?.armor_class || 12,
       speed: initialData?.speed || "near",
       customSpeed: "",
       attacks: initialData?.attacks || [],
@@ -141,9 +143,28 @@ export function MonsterCreateEditForm({
       source: initialData?.source || "Custom",
       author_notes: initialData?.author_notes || "",
       icon_url: initialData?.icon_url || "",
+      strength_mod: initialData?.strength_mod || 0,
+      dexterity_mod: initialData?.dexterity_mod || 0,
+      constitution_mod: initialData?.constitution_mod || 0,
+      intelligence_mod: initialData?.intelligence_mod || 0,
+      wisdom_mod: initialData?.wisdom_mod || 0,
+      charisma_mod: initialData?.charisma_mod || 0,
       is_public: initialData?.is_public ?? false,
     },
   });
+
+  // Auto-fill stats based on challenge level
+  const handleAutoFill = () => {
+    const cl = form.getValues("challenge_level");
+    const recommended = getRecommendedStats(cl);
+
+    form.setValue("hit_points", recommended.hp);
+    form.setValue("armor_class", recommended.ac);
+
+    toast.success(`Auto-filled stats for CL ${cl}`, {
+      description: `HP: ${recommended.hp}, AC: ${recommended.ac}`,
+    });
+  };
 
   const {
     fields: attackFields,
@@ -227,14 +248,18 @@ export function MonsterCreateEditForm({
     }
   };
 
-  const addAttack = () => {
-    appendAttack({
-      name: "",
-      type: "melee",
-      damage: "",
-      range: "",
-      description: "",
-    });
+  const addAttack = (template?: keyof typeof ATTACK_TEMPLATES) => {
+    if (template && ATTACK_TEMPLATES[template]) {
+      appendAttack(ATTACK_TEMPLATES[template]);
+    } else {
+      appendAttack({
+        name: "",
+        type: "melee",
+        damage: "",
+        range: "close",
+        description: "",
+      });
+    }
   };
 
   const addAbility = () => {
@@ -269,12 +294,33 @@ export function MonsterCreateEditForm({
               )}
             />
 
-            <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+            <FormField
+              control={form.control as any}
+              name="description"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Description</FormLabel>
+                  <FormControl>
+                    <Textarea
+                      placeholder="Brief visual description (e.g., 'A green, sunken-faced woman. Seaweed hair and oozing flesh.')"
+                      rows={2}
+                      {...field}
+                    />
+                  </FormControl>
+                  <FormDescription>
+                    1-2 sentence visual description of the monster
+                  </FormDescription>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+
+            <div className="flex items-end gap-2 mb-4">
               <FormField
                 control={form.control as any}
                 name="challenge_level"
                 render={({ field }) => (
-                  <FormItem>
+                  <FormItem className="flex-1">
                     <FormLabel>Challenge Level</FormLabel>
                     <FormControl>
                       <Input
@@ -288,31 +334,52 @@ export function MonsterCreateEditForm({
                         }
                       />
                     </FormControl>
+                    <FormDescription>
+                      XP: {calculateXP(field.value || 1)}
+                    </FormDescription>
                     <FormMessage />
                   </FormItem>
                 )}
               />
+              <Button
+                type="button"
+                variant="outline"
+                size="icon"
+                onClick={handleAutoFill}
+                title="Auto-fill recommended stats"
+                className="min-h-[44px] min-w-[44px]"
+              >
+                <Wand2 className="h-4 w-4" />
+              </Button>
+            </div>
 
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <FormField
                 control={form.control as any}
                 name="hit_points"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Hit Points</FormLabel>
-                    <FormControl>
-                      <Input
-                        type="number"
-                        placeholder="Minimum 1"
-                        min={1}
-                        {...field}
-                        onChange={(e) =>
-                          field.onChange(parseInt(e.target.value, 10))
-                        }
-                      />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
+                render={({ field }) => {
+                  const cl = form.watch("challenge_level") || 1;
+                  return (
+                    <FormItem>
+                      <FormLabel>Hit Points</FormLabel>
+                      <FormControl>
+                        <Input
+                          type="number"
+                          placeholder="Minimum 1"
+                          min={1}
+                          {...field}
+                          onChange={(e) =>
+                            field.onChange(parseInt(e.target.value, 10))
+                          }
+                        />
+                      </FormControl>
+                      <FormDescription className="text-xs">
+                        {getHPGuidance(cl)}
+                      </FormDescription>
+                      <FormMessage />
+                    </FormItem>
+                  );
+                }}
               />
 
               <FormField
@@ -333,6 +400,9 @@ export function MonsterCreateEditForm({
                         }
                       />
                     </FormControl>
+                    <FormDescription className="text-xs">
+                      {getACGuidance(field.value || 10)}
+                    </FormDescription>
                     <FormMessage />
                   </FormItem>
                 )}
@@ -414,358 +484,645 @@ export function MonsterCreateEditForm({
           </CardContent>
         </Card>
 
-        <Card>
-          <CardHeader>
-            <div className="flex items-center justify-between">
-              <CardTitle>Attacks</CardTitle>
-              <Button
-                type="button"
-                size="sm"
-                variant="outline"
-                onClick={addAttack}
-              >
-                <Plus className="mr-2 h-4 w-4" />
-                Add Attack
-              </Button>
-            </div>
-          </CardHeader>
-          <CardContent className="space-y-4">
-            {attackFields.length === 0 && (
-              <Alert>
-                <AlertDescription>
-                  No attacks added yet. Click &quot;Add Attack&quot; to create
-                  one.
-                </AlertDescription>
-              </Alert>
-            )}
+        {/* Ability Modifiers - Collapsible */}
+        <Collapsible
+          open={sectionsOpen.abilityScores}
+          onOpenChange={(open) =>
+            setSectionsOpen((prev) => ({ ...prev, abilityScores: open }))
+          }
+        >
+          <Card>
+            <CardHeader>
+              <CollapsibleTrigger asChild>
+                <div className="flex items-center justify-between cursor-pointer">
+                  <CardTitle>Ability Score Modifiers</CardTitle>
+                  {sectionsOpen.abilityScores ? (
+                    <ChevronUp className="h-4 w-4" />
+                  ) : (
+                    <ChevronDown className="h-4 w-4" />
+                  )}
+                </div>
+              </CollapsibleTrigger>
+            </CardHeader>
+            <CollapsibleContent>
+              <CardContent className="space-y-4">
+                <FormDescription>
+                  Ability modifiers range from -5 to +5 and affect attacks,
+                  saves, and abilities
+                </FormDescription>
 
-            {attackFields.map((field, index) => (
-              <Card key={field.id}>
-                <CardContent className="pt-6 space-y-4">
-                  <div className="flex items-center justify-between mb-2">
-                    <p className="text-sm font-medium">Attack #{index + 1}</p>
-                    <Button
-                      type="button"
-                      size="icon"
-                      variant="ghost"
-                      onClick={() => removeAttack(index)}
-                    >
-                      <Trash2 className="h-4 w-4 text-destructive" />
-                    </Button>
-                  </div>
+                {/* Top row: STR, DEX, CON */}
+                <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                  <FormField
+                    control={form.control as any}
+                    name="strength_mod"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>STR</FormLabel>
+                        <FormControl>
+                          <Input
+                            type="number"
+                            placeholder="0"
+                            min={-5}
+                            max={5}
+                            {...field}
+                            onChange={(e) =>
+                              field.onChange(parseInt(e.target.value, 10))
+                            }
+                          />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                  <FormField
+                    control={form.control as any}
+                    name="dexterity_mod"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>DEX</FormLabel>
+                        <FormControl>
+                          <Input
+                            type="number"
+                            placeholder="0"
+                            min={-5}
+                            max={5}
+                            {...field}
+                            onChange={(e) =>
+                              field.onChange(parseInt(e.target.value, 10))
+                            }
+                          />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                  <FormField
+                    control={form.control as any}
+                    name="constitution_mod"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>CON</FormLabel>
+                        <FormControl>
+                          <Input
+                            type="number"
+                            placeholder="0"
+                            min={-5}
+                            max={5}
+                            {...field}
+                            onChange={(e) =>
+                              field.onChange(parseInt(e.target.value, 10))
+                            }
+                          />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                </div>
 
-                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                    <FormField
-                      control={form.control as any}
-                      name={`attacks.${index}.name`}
-                      render={({ field }) => (
-                        <FormItem>
-                          <FormControl>
-                            <Input placeholder="Attack name" {...field} />
-                          </FormControl>
-                          <FormMessage />
-                        </FormItem>
-                      )}
-                    />
+                {/* Bottom row: INT, WIS, CHA */}
+                <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                  <FormField
+                    control={form.control as any}
+                    name="intelligence_mod"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>INT</FormLabel>
+                        <FormControl>
+                          <Input
+                            type="number"
+                            placeholder="0"
+                            min={-5}
+                            max={5}
+                            {...field}
+                            onChange={(e) =>
+                              field.onChange(parseInt(e.target.value, 10))
+                            }
+                          />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                  <FormField
+                    control={form.control as any}
+                    name="wisdom_mod"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>WIS</FormLabel>
+                        <FormControl>
+                          <Input
+                            type="number"
+                            placeholder="0"
+                            min={-5}
+                            max={5}
+                            {...field}
+                            onChange={(e) =>
+                              field.onChange(parseInt(e.target.value, 10))
+                            }
+                          />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                  <FormField
+                    control={form.control as any}
+                    name="charisma_mod"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>CHA</FormLabel>
+                        <FormControl>
+                          <Input
+                            type="number"
+                            placeholder="0"
+                            min={-5}
+                            max={5}
+                            {...field}
+                            onChange={(e) =>
+                              field.onChange(parseInt(e.target.value, 10))
+                            }
+                          />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                </div>
+              </CardContent>
+            </CollapsibleContent>
+          </Card>
+        </Collapsible>
 
-                    <FormField
-                      control={form.control as any}
-                      name={`attacks.${index}.type`}
-                      render={({ field }) => (
-                        <FormItem>
-                          <Select
-                            value={field.value}
-                            onValueChange={field.onChange}
-                          >
+        <Collapsible
+          open={sectionsOpen.attacks}
+          onOpenChange={(open) =>
+            setSectionsOpen((prev) => ({ ...prev, attacks: open }))
+          }
+        >
+          <Card>
+            <CardHeader>
+              <CollapsibleTrigger asChild>
+                <div className="flex items-center justify-between cursor-pointer">
+                  <CardTitle>Attacks</CardTitle>
+                  {sectionsOpen.attacks ? (
+                    <ChevronUp className="h-4 w-4" />
+                  ) : (
+                    <ChevronDown className="h-4 w-4" />
+                  )}
+                </div>
+              </CollapsibleTrigger>
+              <div className="flex flex-wrap gap-2 mt-4">
+                <Button
+                  type="button"
+                  size="sm"
+                  variant="outline"
+                  onClick={() => addAttack("melee_basic")}
+                  className="min-h-[44px]"
+                >
+                  <Plus className="mr-2 h-4 w-4" />
+                  Melee Attack
+                </Button>
+                <Button
+                  type="button"
+                  size="sm"
+                  variant="outline"
+                  onClick={() => addAttack("ranged_basic")}
+                  className="min-h-[44px]"
+                >
+                  <Plus className="mr-2 h-4 w-4" />
+                  Ranged Attack
+                </Button>
+                <Button
+                  type="button"
+                  size="sm"
+                  variant="outline"
+                  onClick={() => addAttack("spell_basic")}
+                  className="min-h-[44px]"
+                >
+                  <Plus className="mr-2 h-4 w-4" />
+                  Spell Attack
+                </Button>
+                <Button
+                  type="button"
+                  size="sm"
+                  variant="outline"
+                  onClick={() => addAttack()}
+                  className="min-h-[44px]"
+                >
+                  <Plus className="mr-2 h-4 w-4" />
+                  Custom
+                </Button>
+              </div>
+            </CardHeader>
+            <CollapsibleContent>
+              <CardContent className="space-y-4">
+                {attackFields.length === 0 && (
+                  <Alert>
+                    <AlertDescription>
+                      No attacks added yet. Click &quot;Add Attack&quot; to
+                      create one.
+                    </AlertDescription>
+                  </Alert>
+                )}
+
+                {attackFields.map((field, index) => (
+                  <Card key={field.id}>
+                    <CardContent className="pt-6 space-y-4">
+                      <div className="flex items-center justify-between mb-2">
+                        <p className="text-sm font-medium">
+                          Attack #{index + 1}
+                        </p>
+                        <Button
+                          type="button"
+                          size="icon"
+                          variant="ghost"
+                          onClick={() => removeAttack(index)}
+                        >
+                          <Trash2 className="h-4 w-4 text-destructive" />
+                        </Button>
+                      </div>
+
+                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                        <FormField
+                          control={form.control as any}
+                          name={`attacks.${index}.name`}
+                          render={({ field }) => (
+                            <FormItem>
+                              <FormControl>
+                                <Input placeholder="Attack name" {...field} />
+                              </FormControl>
+                              <FormMessage />
+                            </FormItem>
+                          )}
+                        />
+
+                        <FormField
+                          control={form.control as any}
+                          name={`attacks.${index}.type`}
+                          render={({ field }) => (
+                            <FormItem>
+                              <Select
+                                value={field.value}
+                                onValueChange={field.onChange}
+                              >
+                                <FormControl>
+                                  <SelectTrigger>
+                                    <SelectValue placeholder="Attack type" />
+                                  </SelectTrigger>
+                                </FormControl>
+                                <SelectContent>
+                                  {ATTACK_TYPES.map((type) => (
+                                    <SelectItem
+                                      key={type.value}
+                                      value={type.value}
+                                    >
+                                      {type.label}
+                                    </SelectItem>
+                                  ))}
+                                </SelectContent>
+                              </Select>
+                              <FormMessage />
+                            </FormItem>
+                          )}
+                        />
+
+                        <FormField
+                          control={form.control as any}
+                          name={`attacks.${index}.damage`}
+                          render={({ field }) => (
+                            <FormItem>
+                              <FormControl>
+                                <Input
+                                  placeholder="Damage (e.g., 1d6+2)"
+                                  {...field}
+                                />
+                              </FormControl>
+                              <FormMessage />
+                            </FormItem>
+                          )}
+                        />
+
+                        <FormField
+                          control={form.control as any}
+                          name={`attacks.${index}.range`}
+                          render={({ field }) => (
+                            <FormItem>
+                              <Select
+                                value={field.value || "close"}
+                                onValueChange={field.onChange}
+                              >
+                                <FormControl>
+                                  <SelectTrigger>
+                                    <SelectValue placeholder="Range" />
+                                  </SelectTrigger>
+                                </FormControl>
+                                <SelectContent>
+                                  <SelectItem value="close">
+                                    Close (5 ft / melee)
+                                  </SelectItem>
+                                  <SelectItem value="near">
+                                    Near (30 ft)
+                                  </SelectItem>
+                                  <SelectItem value="far">
+                                    Far (120+ ft / longbow)
+                                  </SelectItem>
+                                </SelectContent>
+                              </Select>
+                              <FormMessage />
+                            </FormItem>
+                          )}
+                        />
+                      </div>
+
+                      <FormField
+                        control={form.control as any}
+                        name={`attacks.${index}.description`}
+                        render={({ field }) => (
+                          <FormItem>
                             <FormControl>
-                              <SelectTrigger>
-                                <SelectValue placeholder="Attack type" />
-                              </SelectTrigger>
+                              <Textarea
+                                placeholder="Additional description (optional)"
+                                {...field}
+                              />
                             </FormControl>
-                            <SelectContent>
-                              {ATTACK_TYPES.map((type) => (
-                                <SelectItem key={type.value} value={type.value}>
-                                  {type.label}
-                                </SelectItem>
-                              ))}
-                            </SelectContent>
-                          </Select>
-                          <FormMessage />
-                        </FormItem>
-                      )}
-                    />
+                            <FormMessage />
+                          </FormItem>
+                        )}
+                      />
+                    </CardContent>
+                  </Card>
+                ))}
+              </CardContent>
+            </CollapsibleContent>
+          </Card>
+        </Collapsible>
 
-                    <FormField
-                      control={form.control as any}
-                      name={`attacks.${index}.damage`}
-                      render={({ field }) => (
-                        <FormItem>
-                          <FormControl>
-                            <Input
-                              placeholder="Damage (e.g., 1d6+2)"
-                              {...field}
-                            />
-                          </FormControl>
-                          <FormMessage />
-                        </FormItem>
-                      )}
-                    />
+        <Collapsible
+          open={sectionsOpen.abilities}
+          onOpenChange={(open) =>
+            setSectionsOpen((prev) => ({ ...prev, abilities: open }))
+          }
+        >
+          <Card>
+            <CardHeader>
+              <CollapsibleTrigger asChild>
+                <div className="flex items-center justify-between cursor-pointer">
+                  <CardTitle>Abilities</CardTitle>
+                  {sectionsOpen.abilities ? (
+                    <ChevronUp className="h-4 w-4" />
+                  ) : (
+                    <ChevronDown className="h-4 w-4" />
+                  )}
+                </div>
+              </CollapsibleTrigger>
+              <div className="flex gap-2 mt-4">
+                <Button
+                  type="button"
+                  size="sm"
+                  variant="outline"
+                  onClick={addAbility}
+                  className="min-h-[44px]"
+                >
+                  <Plus className="mr-2 h-4 w-4" />
+                  Add Ability
+                </Button>
+              </div>
+            </CardHeader>
+            <CollapsibleContent>
+              <CardContent className="space-y-4">
+                {abilityFields.length === 0 && (
+                  <Alert>
+                    <AlertDescription>
+                      No abilities added yet. Click &quot;Add Ability&quot; to
+                      create one.
+                    </AlertDescription>
+                  </Alert>
+                )}
 
-                    <FormField
-                      control={form.control as any}
-                      name={`attacks.${index}.range`}
-                      render={({ field }) => (
-                        <FormItem>
-                          <FormControl>
-                            <Input
-                              placeholder="Range (e.g., reach 5ft)"
-                              {...field}
-                            />
-                          </FormControl>
-                          <FormMessage />
-                        </FormItem>
-                      )}
-                    />
-                  </div>
+                {abilityFields.map((field, index) => (
+                  <Card key={field.id}>
+                    <CardContent className="pt-6 space-y-4">
+                      <div className="flex items-center justify-between mb-2">
+                        <p className="text-sm font-medium">
+                          Ability #{index + 1}
+                        </p>
+                        <Button
+                          type="button"
+                          size="icon"
+                          variant="ghost"
+                          onClick={() => removeAbility(index)}
+                        >
+                          <Trash2 className="h-4 w-4 text-destructive" />
+                        </Button>
+                      </div>
 
-                  <FormField
-                    control={form.control as any}
-                    name={`attacks.${index}.description`}
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormControl>
-                          <Textarea
-                            placeholder="Additional description (optional)"
-                            {...field}
-                          />
-                        </FormControl>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
-                </CardContent>
-              </Card>
-            ))}
-          </CardContent>
-        </Card>
+                      <FormField
+                        control={form.control as any}
+                        name={`abilities.${index}.name`}
+                        render={({ field }) => (
+                          <FormItem>
+                            <FormControl>
+                              <Input placeholder="Ability name" {...field} />
+                            </FormControl>
+                            <FormMessage />
+                          </FormItem>
+                        )}
+                      />
 
-        <Card>
-          <CardHeader>
-            <div className="flex items-center justify-between">
-              <CardTitle>Abilities</CardTitle>
-              <Button
-                type="button"
-                size="sm"
-                variant="outline"
-                onClick={addAbility}
-              >
-                <Plus className="mr-2 h-4 w-4" />
-                Add Ability
-              </Button>
-            </div>
-          </CardHeader>
-          <CardContent className="space-y-4">
-            {abilityFields.length === 0 && (
-              <Alert>
-                <AlertDescription>
-                  No abilities added yet. Click &quot;Add Ability&quot; to
-                  create one.
-                </AlertDescription>
-              </Alert>
-            )}
+                      <FormField
+                        control={form.control as any}
+                        name={`abilities.${index}.description`}
+                        render={({ field }) => (
+                          <FormItem>
+                            <FormControl>
+                              <Textarea
+                                placeholder="Ability description"
+                                {...field}
+                              />
+                            </FormControl>
+                            <FormMessage />
+                          </FormItem>
+                        )}
+                      />
+                    </CardContent>
+                  </Card>
+                ))}
+              </CardContent>
+            </CollapsibleContent>
+          </Card>
+        </Collapsible>
 
-            {abilityFields.map((field, index) => (
-              <Card key={field.id}>
-                <CardContent className="pt-6 space-y-4">
-                  <div className="flex items-center justify-between mb-2">
-                    <p className="text-sm font-medium">Ability #{index + 1}</p>
-                    <Button
-                      type="button"
-                      size="icon"
-                      variant="ghost"
-                      onClick={() => removeAbility(index)}
-                    >
-                      <Trash2 className="h-4 w-4 text-destructive" />
-                    </Button>
-                  </div>
+        <Collapsible
+          open={sectionsOpen.details}
+          onOpenChange={(open) =>
+            setSectionsOpen((prev) => ({ ...prev, details: open }))
+          }
+        >
+          <Card>
+            <CardHeader>
+              <CollapsibleTrigger asChild>
+                <div className="flex items-center justify-between cursor-pointer">
+                  <CardTitle>Additional Details</CardTitle>
+                  {sectionsOpen.details ? (
+                    <ChevronUp className="h-4 w-4" />
+                  ) : (
+                    <ChevronDown className="h-4 w-4" />
+                  )}
+                </div>
+              </CollapsibleTrigger>
+            </CardHeader>
+            <CollapsibleContent>
+              <CardContent className="space-y-4">
+                <FormField
+                  control={form.control as any}
+                  name="treasure"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Treasure</FormLabel>
+                      <FormControl>
+                        <Textarea
+                          placeholder="Treasure description (optional)"
+                          {...field}
+                          value={
+                            typeof field.value === "string"
+                              ? field.value
+                              : field.value
+                                ? JSON.stringify(field.value)
+                                : ""
+                          }
+                          onChange={(e) =>
+                            field.onChange(e.target.value || null)
+                          }
+                        />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
 
-                  <FormField
-                    control={form.control as any}
-                    name={`abilities.${index}.name`}
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormControl>
-                          <Input placeholder="Ability name" {...field} />
-                        </FormControl>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
+                <FormField
+                  control={form.control as any}
+                  name="tags.type"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Type Tags</FormLabel>
+                      <FormControl>
+                        <MultiSelect
+                          options={COMMON_TAGS.type.map((tag) => ({
+                            value: tag,
+                            label: tag,
+                          }))}
+                          selected={field.value || []}
+                          onChange={field.onChange}
+                          placeholder="Select or type monster types"
+                        />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
 
-                  <FormField
-                    control={form.control as any}
-                    name={`abilities.${index}.description`}
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormControl>
-                          <Textarea
-                            placeholder="Ability description"
-                            {...field}
-                          />
-                        </FormControl>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
-                </CardContent>
-              </Card>
-            ))}
-          </CardContent>
-        </Card>
+                <FormField
+                  control={form.control as any}
+                  name="tags.location"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Location Tags</FormLabel>
+                      <FormControl>
+                        <MultiSelect
+                          options={COMMON_TAGS.location.map((tag) => ({
+                            value: tag,
+                            label: tag,
+                          }))}
+                          selected={field.value || []}
+                          onChange={field.onChange}
+                          placeholder="Select or type locations"
+                        />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
 
-        <Card>
-          <CardHeader>
-            <CardTitle>Additional Details</CardTitle>
-          </CardHeader>
-          <CardContent className="space-y-4">
-            <FormField
-              control={form.control as any}
-              name="treasure"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Treasure</FormLabel>
-                  <FormControl>
-                    <Textarea
-                      placeholder="Treasure description (optional)"
-                      {...field}
-                      value={
-                        typeof field.value === "string"
-                          ? field.value
-                          : field.value
-                            ? JSON.stringify(field.value)
-                            : ""
-                      }
-                      onChange={(e) => field.onChange(e.target.value || null)}
-                    />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
+                <FormField
+                  control={form.control as any}
+                  name="source"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Source</FormLabel>
+                      <FormControl>
+                        <Input
+                          placeholder="e.g., Homebrew, Campaign Name"
+                          {...field}
+                        />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
 
-            <FormField
-              control={form.control as any}
-              name="tags.type"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Type Tags</FormLabel>
-                  <FormControl>
-                    <MultiSelect
-                      options={COMMON_TAGS.type.map((tag) => ({
-                        value: tag,
-                        label: tag,
-                      }))}
-                      selected={field.value || []}
-                      onChange={field.onChange}
-                      placeholder="Select or type monster types"
-                    />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
+                <FormField
+                  control={form.control as any}
+                  name="author_notes"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Author Notes</FormLabel>
+                      <FormControl>
+                        <Textarea
+                          placeholder="Additional notes or context (optional)"
+                          {...field}
+                        />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
 
-            <FormField
-              control={form.control as any}
-              name="tags.location"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Location Tags</FormLabel>
-                  <FormControl>
-                    <MultiSelect
-                      options={COMMON_TAGS.location.map((tag) => ({
-                        value: tag,
-                        label: tag,
-                      }))}
-                      selected={field.value || []}
-                      onChange={field.onChange}
-                      placeholder="Select or type locations"
-                    />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
+                <FormField
+                  control={form.control as any}
+                  name="is_public"
+                  render={({ field }) => (
+                    <FormItem className="flex flex-row items-center justify-between rounded-lg border p-4">
+                      <div className="space-y-0.5">
+                        <FormLabel className="text-base">
+                          Make this monster public
+                        </FormLabel>
+                        <FormDescription>
+                          Allow other users to view and use this monster
+                        </FormDescription>
+                      </div>
+                      <FormControl>
+                        <Switch
+                          checked={field.value}
+                          onCheckedChange={field.onChange}
+                        />
+                      </FormControl>
+                    </FormItem>
+                  )}
+                />
+              </CardContent>
+            </CollapsibleContent>
+          </Card>
+        </Collapsible>
 
-            <FormField
-              control={form.control as any}
-              name="source"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Source</FormLabel>
-                  <FormControl>
-                    <Input
-                      placeholder="e.g., Homebrew, Campaign Name"
-                      {...field}
-                    />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-
-            <FormField
-              control={form.control as any}
-              name="author_notes"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Author Notes</FormLabel>
-                  <FormControl>
-                    <Textarea
-                      placeholder="Additional notes or context (optional)"
-                      {...field}
-                    />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-
-            <FormField
-              control={form.control as any}
-              name="is_public"
-              render={({ field }) => (
-                <FormItem className="flex flex-row items-center justify-between rounded-lg border p-4">
-                  <div className="space-y-0.5">
-                    <FormLabel className="text-base">
-                      Make this monster public
-                    </FormLabel>
-                    <FormDescription>
-                      Allow other users to view and use this monster
-                    </FormDescription>
-                  </div>
-                  <FormControl>
-                    <Switch
-                      checked={field.value}
-                      onCheckedChange={field.onChange}
-                    />
-                  </FormControl>
-                </FormItem>
-              )}
-            />
-          </CardContent>
-        </Card>
-
-        <div className="flex justify-end gap-2">
+        {/* Action buttons - sticky on mobile */}
+        <div className="sticky bottom-4 md:static flex justify-end gap-2 bg-background p-4 md:p-0 rounded-lg shadow-lg md:shadow-none border md:border-0 -mx-4 md:mx-0">
           <Button
             type="button"
             variant="ghost"
             onClick={onCancel || (() => router.back())}
             disabled={isSubmitting}
+            className="min-h-[44px]"
           >
             Cancel
           </Button>
-          <Button type="submit" disabled={isSubmitting}>
+          <Button
+            type="submit"
+            disabled={isSubmitting}
+            className="min-h-[44px]"
+          >
             {isSubmitting
               ? "Saving..."
               : mode === "create"

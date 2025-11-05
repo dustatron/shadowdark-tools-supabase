@@ -43,6 +43,7 @@ export const tagsSchema = z.object({
 export const monsterSchema = z.object({
   id: uuidSchema,
   name: z.string().min(1, "Monster name is required"),
+  description: z.string().optional(),
   challenge_level: z
     .number()
     .int()
@@ -83,6 +84,10 @@ export const createMonsterSchema = z.object({
     .string()
     .min(1, "Monster name is required")
     .max(100, "Monster name must be at most 100 characters"),
+  description: z
+    .string()
+    .max(500, "Description must be at most 500 characters")
+    .optional(),
   challenge_level: z
     .number()
     .int()

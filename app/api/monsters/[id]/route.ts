@@ -107,14 +107,12 @@ export async function GET(
           error = null;
         }
       }
-    } else {
-      // Add official monster metadata
+    }
+    // all_monsters view already includes correct metadata (monster_type, user_id, is_official, is_public)
+    // No need to override - just ensure author is null for official monsters
+    else if (monster.monster_type === "official") {
       monster = {
         ...monster,
-        monster_type: "official",
-        is_official: true,
-        is_public: true,
-        user_id: null,
         author: null,
       };
     }
