@@ -55,12 +55,20 @@ interface Monster {
     name: string;
     description: string;
   }>;
-  tags: {
-    type: string[];
-    location: string[];
+  tags?: {
+    type?: string[];
+    location?: string[];
   };
   source: string;
   author_notes?: string;
+  description?: string;
+  treasure?: string | null;
+  tactics?: string;
+  wants?: string;
+  gm_notes?: string;
+  icon_url?: string | null;
+  art_url?: string | null;
+  xp?: number;
   // Ability score modifiers
   strength_mod?: number;
   dexterity_mod?: number;
@@ -278,6 +286,11 @@ export function MonsterDetailClient({
                   >
                     Challenge Level {monster.challenge_level}
                   </Badge>
+                  {monster.xp && (
+                    <Badge variant="outline" className="text-base px-3 py-1">
+                      {monster.xp} XP
+                    </Badge>
+                  )}
                   <Badge variant="outline" className="text-base px-3 py-1">
                     {monster.source}
                   </Badge>
@@ -312,20 +325,28 @@ export function MonsterDetailClient({
             </div>
 
             {/* Description */}
-            {monster.author_notes && (
+            {monster.description && (
               <p className="text-base text-muted-foreground mb-4">
-                {monster.author_notes}
+                {monster.description}
               </p>
             )}
 
+            {/* Author Notes */}
+            {monster.author_notes &&
+              monster.author_notes !== monster.description && (
+                <p className="text-base text-muted-foreground mb-4 italic">
+                  {monster.author_notes}
+                </p>
+              )}
+
             {/* Tags */}
             <div className="flex flex-wrap gap-2">
-              {monster.tags.type.map((type, index) => (
+              {monster.tags?.type?.map((type, index) => (
                 <Badge key={`type-${index}`} variant="secondary">
                   {type}
                 </Badge>
               ))}
-              {monster.tags.location.map((location, index) => (
+              {monster.tags?.location?.map((location, index) => (
                 <Badge
                   key={`location-${index}`}
                   variant="outline"
@@ -337,6 +358,36 @@ export function MonsterDetailClient({
             </div>
           </CardContent>
         </Card>
+
+        {/* Art/Icon */}
+        {(monster.art_url || monster.icon_url) && (
+          <Card className="shadow-sm">
+            <CardContent className="p-6">
+              <div className="flex flex-wrap gap-4">
+                {monster.art_url && (
+                  <div>
+                    <h3 className="text-sm font-semibold mb-2">Art</h3>
+                    <img
+                      src={monster.art_url}
+                      alt={`${monster.name} art`}
+                      className="max-w-md w-full rounded-lg border"
+                    />
+                  </div>
+                )}
+                {monster.icon_url && (
+                  <div>
+                    <h3 className="text-sm font-semibold mb-2">Icon</h3>
+                    <img
+                      src={monster.icon_url}
+                      alt={`${monster.name} icon`}
+                      className="w-24 h-24 rounded-lg border"
+                    />
+                  </div>
+                )}
+              </div>
+            </CardContent>
+          </Card>
+        )}
 
         {/* Stats */}
         <MonsterStatBlock
@@ -360,6 +411,46 @@ export function MonsterDetailClient({
 
         {/* Abilities */}
         <MonsterAbilitiesDisplay abilities={monster.abilities} />
+
+        {/* Treasure */}
+        {monster.treasure && (
+          <Card className="shadow-sm">
+            <CardContent className="p-6">
+              <h3 className="text-lg font-semibold mb-2">Treasure</h3>
+              <p className="text-sm">{monster.treasure}</p>
+            </CardContent>
+          </Card>
+        )}
+
+        {/* Tactics */}
+        {monster.tactics && (
+          <Card className="shadow-sm">
+            <CardContent className="p-6">
+              <h3 className="text-lg font-semibold mb-2">Tactics</h3>
+              <p className="text-sm">{monster.tactics}</p>
+            </CardContent>
+          </Card>
+        )}
+
+        {/* Wants */}
+        {monster.wants && (
+          <Card className="shadow-sm">
+            <CardContent className="p-6">
+              <h3 className="text-lg font-semibold mb-2">Wants</h3>
+              <p className="text-sm">{monster.wants}</p>
+            </CardContent>
+          </Card>
+        )}
+
+        {/* GM Notes */}
+        {monster.gm_notes && (
+          <Card className="shadow-sm">
+            <CardContent className="p-6">
+              <h3 className="text-lg font-semibold mb-2">GM Notes</h3>
+              <p className="text-sm">{monster.gm_notes}</p>
+            </CardContent>
+          </Card>
+        )}
 
         {/* Ownership/Author Card */}
         <MonsterOwnershipCard

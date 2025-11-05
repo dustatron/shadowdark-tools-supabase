@@ -43,6 +43,7 @@ export const tagsSchema = z.object({
 export const monsterSchema = z.object({
   id: uuidSchema,
   name: z.string().min(1, "Monster name is required"),
+  description: z.string().optional(),
   challenge_level: z
     .number()
     .int()
@@ -61,15 +62,18 @@ export const monsterSchema = z.object({
   tags: tagsSchema.default({ type: [], location: [] }),
   source: z.string().min(1, "Source is required"),
   author_notes: z.string().optional(),
+  tactics: z.string().optional(),
+  wants: z.string().optional(),
+  gm_notes: z.string().optional(),
   icon_url: z.string().url().optional().or(z.literal("")),
   art_url: z.string().url().optional().or(z.literal("")),
-  // Ability score modifiers (-5 to +5)
-  strength_mod: z.number().int().min(-5).max(5).default(0),
-  dexterity_mod: z.number().int().min(-5).max(5).default(0),
-  constitution_mod: z.number().int().min(-5).max(5).default(0),
-  intelligence_mod: z.number().int().min(-5).max(5).default(0),
-  wisdom_mod: z.number().int().min(-5).max(5).default(0),
-  charisma_mod: z.number().int().min(-5).max(5).default(0),
+  // Ability score modifiers (-4 to +4)
+  strength_mod: z.number().int().min(-4).max(4).default(0),
+  dexterity_mod: z.number().int().min(-4).max(4).default(0),
+  constitution_mod: z.number().int().min(-4).max(4).default(0),
+  intelligence_mod: z.number().int().min(-4).max(4).default(0),
+  wisdom_mod: z.number().int().min(-4).max(4).default(0),
+  charisma_mod: z.number().int().min(-4).max(4).default(0),
   is_official: z.boolean().default(false),
   is_public: z.boolean().default(false),
   user_id: uuidSchema.optional(),
@@ -83,6 +87,10 @@ export const createMonsterSchema = z.object({
     .string()
     .min(1, "Monster name is required")
     .max(100, "Monster name must be at most 100 characters"),
+  description: z
+    .string()
+    .max(500, "Description must be at most 500 characters")
+    .optional(),
   challenge_level: z
     .number()
     .int()
@@ -101,15 +109,18 @@ export const createMonsterSchema = z.object({
   tags: tagsSchema.default({ type: [], location: [] }),
   source: z.string().min(1, "Source is required"),
   author_notes: z.string().optional(),
+  tactics: z.string().optional(),
+  wants: z.string().optional(),
+  gm_notes: z.string().optional(),
   icon_url: z.string().url().optional().or(z.literal("")),
   art_url: z.string().url().optional().or(z.literal("")),
-  // Ability score modifiers (-5 to +5)
-  strength_mod: z.number().int().min(-5).max(5).default(0),
-  dexterity_mod: z.number().int().min(-5).max(5).default(0),
-  constitution_mod: z.number().int().min(-5).max(5).default(0),
-  intelligence_mod: z.number().int().min(-5).max(5).default(0),
-  wisdom_mod: z.number().int().min(-5).max(5).default(0),
-  charisma_mod: z.number().int().min(-5).max(5).default(0),
+  // Ability score modifiers (-4 to +4)
+  strength_mod: z.number().int().min(-4).max(4).default(0),
+  dexterity_mod: z.number().int().min(-4).max(4).default(0),
+  constitution_mod: z.number().int().min(-4).max(4).default(0),
+  intelligence_mod: z.number().int().min(-4).max(4).default(0),
+  wisdom_mod: z.number().int().min(-4).max(4).default(0),
+  charisma_mod: z.number().int().min(-4).max(4).default(0),
   is_public: z.boolean().default(false),
 });
 

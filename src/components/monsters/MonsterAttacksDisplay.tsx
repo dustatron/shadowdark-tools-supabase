@@ -18,7 +18,7 @@ interface MonsterAttacksDisplayProps {
 }
 
 export function MonsterAttacksDisplay({ attacks }: MonsterAttacksDisplayProps) {
-  if (attacks.length === 0) {
+  if (!attacks || !Array.isArray(attacks) || attacks.length === 0) {
     return null;
   }
 

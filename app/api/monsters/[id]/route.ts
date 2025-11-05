@@ -38,6 +38,18 @@ const MonsterUpdateSchema = z
       .optional(),
     author_notes: z.string().nullable().optional(),
     is_public: z.boolean().optional(),
+    // Additional fields
+    description: z.string().optional(),
+    tactics: z.string().optional(),
+    wants: z.string().optional(),
+    gm_notes: z.string().optional(),
+    // Ability modifiers
+    strength_mod: z.number().int().min(-4).max(4).optional(),
+    dexterity_mod: z.number().int().min(-4).max(4).optional(),
+    constitution_mod: z.number().int().min(-4).max(4).optional(),
+    intelligence_mod: z.number().int().min(-4).max(4).optional(),
+    wisdom_mod: z.number().int().min(-4).max(4).optional(),
+    charisma_mod: z.number().int().min(-4).max(4).optional(),
   })
   .refine((data) => Object.keys(data).length > 0, {
     message: "At least one field must be provided for update",
@@ -107,14 +119,12 @@ export async function GET(
           error = null;
         }
       }
-    } else {
-      // Add official monster metadata
+    }
+    // all_monsters view already includes correct metadata (monster_type, user_id, is_official, is_public)
+    // No need to override - just ensure author is null for official monsters
+    else if (monster.monster_type === "official") {
       monster = {
         ...monster,
-        monster_type: "official",
-        is_official: true,
-        is_public: true,
-        user_id: null,
         author: null,
       };
     }
