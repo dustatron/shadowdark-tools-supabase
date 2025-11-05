@@ -122,7 +122,9 @@
       "Bash(git diff:*)",
       "WebFetch(domain:www.thearcanelibrary.com)",
       "Bash('https://ifuxawrpwuwddysrhahr.supabase.co/rest/v1/rpc/exec_sql' )",
-      "mcp__supabase__get_project"
+      "mcp__supabase__get_project",
+      "WebSearch",
+      "WebFetch(domain:react-pdf.org)"
     ],
     "deny": [],
     "ask": []
