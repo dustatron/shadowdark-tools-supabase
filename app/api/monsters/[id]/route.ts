@@ -38,6 +38,18 @@ const MonsterUpdateSchema = z
       .optional(),
     author_notes: z.string().nullable().optional(),
     is_public: z.boolean().optional(),
+    // Additional fields
+    description: z.string().optional(),
+    tactics: z.string().optional(),
+    wants: z.string().optional(),
+    gm_notes: z.string().optional(),
+    // Ability modifiers
+    strength_mod: z.number().int().min(-4).max(4).optional(),
+    dexterity_mod: z.number().int().min(-4).max(4).optional(),
+    constitution_mod: z.number().int().min(-4).max(4).optional(),
+    intelligence_mod: z.number().int().min(-4).max(4).optional(),
+    wisdom_mod: z.number().int().min(-4).max(4).optional(),
+    charisma_mod: z.number().int().min(-4).max(4).optional(),
   })
   .refine((data) => Object.keys(data).length > 0, {
     message: "At least one field must be provided for update",

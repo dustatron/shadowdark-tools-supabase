@@ -27,32 +27,7 @@ export default async function MonsterDetailPage({
   // First try to find the monster in all_monsters view (includes official and public custom monsters)
   let { data: monster, error } = await supabase
     .from("all_monsters")
-    .select(
-      `
-      id,
-      name,
-      challenge_level,
-      hit_points,
-      armor_class,
-      speed,
-      attacks,
-      abilities,
-      tags,
-      source,
-      author_notes,
-      strength_mod,
-      dexterity_mod,
-      constitution_mod,
-      intelligence_mod,
-      wisdom_mod,
-      charisma_mod,
-      monster_type,
-      user_id,
-      is_public,
-      created_at,
-      updated_at
-    `,
-    )
+    .select("*")
     .eq("id", monsterId)
     .single();
 
@@ -60,31 +35,7 @@ export default async function MonsterDetailPage({
   if (!monster || error) {
     const { data: userMonster, error: userError } = await supabase
       .from("user_monsters")
-      .select(
-        `
-        id,
-        name,
-        challenge_level,
-        hit_points,
-        armor_class,
-        speed,
-        attacks,
-        abilities,
-        tags,
-        source,
-        author_notes,
-        strength_mod,
-        dexterity_mod,
-        constitution_mod,
-        intelligence_mod,
-        wisdom_mod,
-        charisma_mod,
-        user_id,
-        is_public,
-        created_at,
-        updated_at
-        `,
-      )
+      .select("*")
       .eq("id", monsterId)
       .single();
 
@@ -122,6 +73,23 @@ export default async function MonsterDetailPage({
     );
   }
 
+  // Parse JSON fields if they're strings
+  const parsedMonster = {
+    ...monster,
+    attacks:
+      typeof monster.attacks === "string"
+        ? JSON.parse(monster.attacks)
+        : monster.attacks,
+    abilities:
+      typeof monster.abilities === "string"
+        ? JSON.parse(monster.abilities)
+        : monster.abilities,
+    tags:
+      typeof monster.tags === "string"
+        ? JSON.parse(monster.tags)
+        : monster.tags,
+  };
+
   // Fetch favorite status if user is logged in
   let favoriteId: string | null = null;
   if (user) {
@@ -138,7 +106,7 @@ export default async function MonsterDetailPage({
 
   return (
     <MonsterDetailClient
-      monster={monster}
+      monster={parsedMonster}
       currentUserId={user?.id || null}
       favoriteId={favoriteId}
     />

@@ -17,7 +17,7 @@ export function MonsterAbilitiesDisplay({
   abilities,
   title = "Special Abilities",
 }: MonsterAbilitiesDisplayProps) {
-  if (abilities.length === 0) {
+  if (!abilities || !Array.isArray(abilities) || abilities.length === 0) {
     return null;
   }
 

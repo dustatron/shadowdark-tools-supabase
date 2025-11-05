@@ -12,6 +12,8 @@ import {
   Wand2,
   ChevronDown,
   ChevronUp,
+  Search,
+  BookOpen,
 } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { z } from "zod";
@@ -45,6 +47,20 @@ import {
   CollapsibleContent,
   CollapsibleTrigger,
 } from "@/components/ui/collapsible";
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from "@/components/ui/popover";
+import {
+  Command,
+  CommandEmpty,
+  CommandGroup,
+  CommandInput,
+  CommandItem,
+  CommandList,
+  CommandSeparator,
+} from "@/components/ui/command";
 import { IconSelector } from "../ui/IconSelector";
 import { createMonsterSchema } from "@/lib/validations/monster";
 import {
@@ -55,6 +71,12 @@ import {
   ATTACK_TEMPLATES,
   DISTANCE_BANDS,
 } from "@/lib/utils/shadowdarkMonsterHelper";
+import {
+  SHADOWDARK_TALENTS,
+  getTalentsByCategory,
+  searchTalents,
+  type TalentTemplate,
+} from "@/lib/constants/shadowdarkTalents";
 
 // Shadowdark-specific constants
 const MOVEMENT_SPEEDS = Object.values(DISTANCE_BANDS);
@@ -119,11 +141,13 @@ export function MonsterCreateEditForm({
   const router = useRouter();
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [customSpeed, setCustomSpeed] = useState(false);
+  const [talentPopoverOpen, setTalentPopoverOpen] = useState(false);
+  const [talentSearch, setTalentSearch] = useState("");
   const [sectionsOpen, setSectionsOpen] = useState({
-    abilityScores: false,
+    abilityScores: true,
     attacks: true,
-    abilities: false,
-    details: false,
+    abilities: true,
+    details: true,
   });
 
   const form = useForm<FormData>({
@@ -267,6 +291,16 @@ export function MonsterCreateEditForm({
       name: "",
       description: "",
     });
+  };
+
+  const addTalentFromLibrary = (talent: TalentTemplate) => {
+    appendAbility({
+      name: talent.name,
+      description: talent.description,
+    });
+    setTalentPopoverOpen(false);
+    setTalentSearch("");
+    toast.success(`Added: ${talent.name}`);
   };
 
   return (
@@ -507,7 +541,7 @@ export function MonsterCreateEditForm({
             <CollapsibleContent>
               <CardContent className="space-y-4">
                 <FormDescription>
-                  Ability modifiers range from -5 to +5 and affect attacks,
+                  Ability modifiers range from -4 to +4 and affect attacks,
                   saves, and abilities
                 </FormDescription>
 
@@ -877,7 +911,88 @@ export function MonsterCreateEditForm({
                   )}
                 </div>
               </CollapsibleTrigger>
-              <div className="flex gap-2 mt-4">
+              <div className="flex flex-wrap gap-2 mt-4">
+                <Popover
+                  open={talentPopoverOpen}
+                  onOpenChange={setTalentPopoverOpen}
+                >
+                  <PopoverTrigger asChild>
+                    <Button
+                      type="button"
+                      size="sm"
+                      variant="outline"
+                      className="min-h-[44px]"
+                    >
+                      <BookOpen className="mr-2 h-4 w-4" />
+                      Browse Talents ({SHADOWDARK_TALENTS.length})
+                    </Button>
+                  </PopoverTrigger>
+                  <PopoverContent className="w-[400px] p-0" align="start">
+                    <Command shouldFilter={false}>
+                      <CommandInput
+                        placeholder="Search talents..."
+                        value={talentSearch}
+                        onValueChange={setTalentSearch}
+                      />
+                      <CommandList>
+                        <CommandEmpty>No talents found.</CommandEmpty>
+                        {["innate", "ride-along", "thematic", "spell"].map(
+                          (category) => {
+                            const categoryTalents = talentSearch
+                              ? searchTalents(talentSearch).filter(
+                                  (t) => t.category === category,
+                                )
+                              : getTalentsByCategory(
+                                  category as TalentTemplate["category"],
+                                );
+
+                            if (categoryTalents.length === 0) return null;
+
+                            return (
+                              <div key={category}>
+                                <CommandGroup
+                                  heading={
+                                    category.charAt(0).toUpperCase() +
+                                    category.slice(1)
+                                  }
+                                >
+                                  {categoryTalents
+                                    .slice(0, 50)
+                                    .map((talent, idx) => (
+                                      <CommandItem
+                                        key={`${category}-${idx}`}
+                                        value={talent.name}
+                                        onSelect={() =>
+                                          addTalentFromLibrary(talent)
+                                        }
+                                        className="cursor-pointer"
+                                      >
+                                        <div className="flex flex-col gap-1">
+                                          <span className="font-medium">
+                                            {talent.name}
+                                          </span>
+                                          <span className="text-xs text-muted-foreground line-clamp-2">
+                                            {talent.description}
+                                          </span>
+                                        </div>
+                                      </CommandItem>
+                                    ))}
+                                  {categoryTalents.length > 50 && (
+                                    <div className="px-2 py-1 text-xs text-muted-foreground">
+                                      +{categoryTalents.length - 50} more...
+                                      (refine search)
+                                    </div>
+                                  )}
+                                </CommandGroup>
+                                <CommandSeparator />
+                              </div>
+                            );
+                          },
+                        )}
+                      </CommandList>
+                    </Command>
+                  </PopoverContent>
+                </Popover>
                 <Button
                   type="button"
                   size="sm"
@@ -886,7 +1001,7 @@ export function MonsterCreateEditForm({
                   className="min-h-[44px]"
                 >
                   <Plus className="mr-2 h-4 w-4" />
-                  Add Ability
+                  Add Custom
                 </Button>
               </div>
             </CardHeader>
@@ -1075,6 +1190,66 @@ export function MonsterCreateEditForm({
                           {...field}
                         />
                       </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+
+                <FormField
+                  control={form.control as any}
+                  name="tactics"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Tactics</FormLabel>
+                      <FormControl>
+                        <Textarea
+                          placeholder="How does this monster fight? (optional)"
+                          {...field}
+                        />
+                      </FormControl>
+                      <FormDescription>
+                        Combat strategies, preferred targets, retreat conditions
+                      </FormDescription>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+
+                <FormField
+                  control={form.control as any}
+                  name="wants"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Wants</FormLabel>
+                      <FormControl>
+                        <Textarea
+                          placeholder="What does this monster desire? (optional)"
+                          {...field}
+                        />
+                      </FormControl>
+                      <FormDescription>
+                        Goals, motivations, treasures, or needs
+                      </FormDescription>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+
+                <FormField
+                  control={form.control as any}
+                  name="gm_notes"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>GM Notes</FormLabel>
+                      <FormControl>
+                        <Textarea
+                          placeholder="Private notes for the GM (optional)"
+                          {...field}
+                        />
+                      </FormControl>
+                      <FormDescription>
+                        Plot hooks, encounter ideas, role-playing tips
+                      </FormDescription>
                       <FormMessage />
                     </FormItem>
                   )}

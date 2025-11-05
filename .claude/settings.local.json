@@ -120,7 +120,9 @@
       "SlashCommand(/playwright-local)",
       "Bash(supabase db reset:*)",
       "Bash(git diff:*)",
-      "WebFetch(domain:www.thearcanelibrary.com)"
+      "WebFetch(domain:www.thearcanelibrary.com)",
+      "Bash('https://ifuxawrpwuwddysrhahr.supabase.co/rest/v1/rpc/exec_sql' )",
+      "mcp__supabase__get_project"
     ],
     "deny": [],
     "ask": []
