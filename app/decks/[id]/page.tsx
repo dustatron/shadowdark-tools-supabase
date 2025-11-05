@@ -62,6 +62,7 @@ export default function DeckDetailPage() {
 
   const [showSpellSelector, setShowSpellSelector] = useState(false);
   const [showDeleteDialog, setShowDeleteDialog] = useState(false);
+  const [showExportDialog, setShowExportDialog] = useState(false);
 
   const {
     data: deck,
@@ -163,7 +164,11 @@ export default function DeckDetailPage() {
               <Plus className="w-4 h-4 mr-2" />
               Add Spells
             </Button>
-            <Button variant="outline" disabled>
+            <Button
+              variant="outline"
+              onClick={() => setShowExportDialog(true)}
+              disabled={deck.spell_count === 0}
+            >
               <Download className="w-4 h-4 mr-2" />
               Export PDF
             </Button>
@@ -228,6 +233,22 @@ export default function DeckDetailPage() {
             >
               Delete Deck
             </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
+
+      {/* Export Dialog */}
+      <AlertDialog open={showExportDialog} onOpenChange={setShowExportDialog}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Export Deck as PDF</AlertDialogTitle>
+            <AlertDialogDescription>
+              This feature is coming soon! PDF export with customizable layouts
+              will be available in the next release.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Close</AlertDialogCancel>
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>

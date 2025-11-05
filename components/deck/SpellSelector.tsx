@@ -27,8 +27,8 @@ interface SpellSelectorProps {
 
 async function fetchSpells(search: string): Promise<SpellForDeck[]> {
   const url = search
-    ? `/api/search?type=spell&q=${encodeURIComponent(search)}`
-    : "/api/search?type=spell&limit=50";
+    ? `/api/search/spells?q=${encodeURIComponent(search)}`
+    : "/api/search/spells?limit=50";
 
   const response = await fetch(url);
 
