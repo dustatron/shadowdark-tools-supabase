@@ -28,6 +28,11 @@ export function SpellCardPreview({ spell }: SpellCardPreviewProps) {
           <div className="text-xs font-bold text-blue-600 mb-1">
             Tier {spell.tier}
           </div>
+          {spell.classes && spell.classes.length > 0 && (
+            <div className="text-[10px] text-gray-600">
+              {spell.classes.join(", ")}
+            </div>
+          )}
         </div>
 
         {/* Metadata Section */}

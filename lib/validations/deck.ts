@@ -80,6 +80,7 @@ export const SpellForDeckSchema = z.object({
   duration: z.string(),
   range: z.string(),
   description: z.string(),
+  classes: z.array(z.string()).default([]),
 });
 
 export type SpellForDeck = z.infer<typeof SpellForDeckSchema>;

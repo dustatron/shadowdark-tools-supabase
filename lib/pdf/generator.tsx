@@ -20,15 +20,16 @@ const styles = StyleSheet.create({
   gridPage: {
     flexDirection: "row",
     flexWrap: "wrap",
-    padding: 20,
-    gap: 10,
+    justifyContent: "center",
+    alignItems: "center",
+    padding: 10,
+    gap: 1,
   },
   gridCard: {
-    width: "48%",
-    border: "2pt solid #000",
-    borderRadius: 0,
-    padding: 2,
-    marginBottom: 10,
+    width: "2.5in",
+    height: "3.5in",
+    border: "4pt solid #000",
+    padding: 4,
   },
 
   // Single Layout Styles (one card per page - 2.5" x 3.5")
@@ -38,12 +39,17 @@ const styles = StyleSheet.create({
     flexDirection: "column",
   },
   singleCard: {
-    border: "5pt solid #1a1a1a",
+    border: "3pt solid #1a1a1a",
     borderRadius: 1,
     padding: 2,
     display: "flex",
     flexDirection: "column",
     height: "100%",
+    width: "100%",
+  },
+
+  metadata: {
+    display: "flex",
   },
 
   // Shared Card Styles
@@ -59,7 +65,7 @@ const styles = StyleSheet.create({
     textTransform: "uppercase",
     marginBottom: 6,
     textAlign: "center",
-    color: "#1a1a1a",
+    color: "#333",
   },
   spellMeta: {
     fontSize: 8,
@@ -121,6 +127,9 @@ const SpellCardGrid = ({ spell }: { spell: SpellForDeck }) => (
   <View style={styles.gridCard}>
     <View style={styles.cardHeader}>
       <Text style={styles.spellName}>{spell.name}</Text>
+      {spell.classes && spell.classes.length > 0 && (
+        <Text style={styles.spellMeta}>{spell.classes.join(", ")}</Text>
+      )}
       <Text style={styles.tier}>Tier {spell.tier}</Text>
     </View>
     <View>
@@ -140,6 +149,9 @@ const SpellCardSingle = ({ spell }: { spell: SpellForDeck }) => (
     <View style={styles.cardHeader}>
       <Text style={styles.spellName}>{spell.name}</Text>
       <Text style={styles.tier}>Tier {spell.tier}</Text>
+      {spell.classes && spell.classes.length > 0 && (
+        <Text style={styles.spellMeta}>{spell.classes.join(", ")}</Text>
+      )}
     </View>
 
     {/* Metadata Section */}
@@ -170,14 +182,6 @@ const DeckPDFDocument: React.FC<PDFDocumentProps> = ({
     // Single layout: one card per page
     return (
       <Document>
-        {/* Title page */}
-        <Page size="A4" style={styles.titlePage}>
-          <Text style={styles.deckTitle}>{deckName}</Text>
-          <Text style={styles.deckSubtitle}>
-            {spells.length} {spells.length === 1 ? "Spell" : "Spells"}
-          </Text>
-        </Page>
-
         {/* One page per spell - 2.5" x 3.5" playing card size */}
         {spells.map((spell) => (
           <Page
@@ -203,14 +207,6 @@ const DeckPDFDocument: React.FC<PDFDocumentProps> = ({
 
   return (
     <Document>
-      {/* Title page */}
-      <Page size="A4" style={styles.titlePage}>
-        <Text style={styles.deckTitle}>{deckName}</Text>
-        <Text style={styles.deckSubtitle}>
-          {spells.length} {spells.length === 1 ? "Spell" : "Spells"}
-        </Text>
-      </Page>
-
       {/* Grid pages */}
       {pages.map((pageSpells, pageIndex) => (
         <Page key={pageIndex} size="A4" style={styles.gridPage}>

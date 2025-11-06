@@ -67,13 +67,13 @@ export async function GET(
       // Fetch from official_spells
       const { data: officialSpells } = await supabase
         .from("official_spells")
-        .select("id, name, tier, duration, range, description")
+        .select("id, name, tier, duration, range, description, classes")
         .in("id", spellIds);
 
       // Fetch from user_spells
       const { data: userSpells } = await supabase
         .from("user_spells")
-        .select("id, name, tier, duration, range, description")
+        .select("id, name, tier, duration, range, description, classes")
         .in("id", spellIds);
 
       // Combine spells maintaining order from deck_items
