@@ -16,8 +16,15 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
-import { SpellCard, SpellSelector } from "@/components/deck";
-import { ArrowLeft, Plus, Download, Trash2 } from "lucide-react";
+import { SpellCard, SpellSelector, SpellCardPreview } from "@/components/deck";
+import { ArrowLeft, Plus, Download, Trash2, Eye } from "lucide-react";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
 import Link from "next/link";
 import { toast } from "sonner";
 import type { DeckWithSpells } from "@/lib/validations/deck";
@@ -63,6 +70,8 @@ export default function DeckDetailPage() {
   const [showSpellSelector, setShowSpellSelector] = useState(false);
   const [showDeleteDialog, setShowDeleteDialog] = useState(false);
   const [showExportDialog, setShowExportDialog] = useState(false);
+  const [showPreviewDialog, setShowPreviewDialog] = useState(false);
+  const [exportLayout, setExportLayout] = useState<"grid" | "single">("grid");
 
   const {
     data: deck,
@@ -94,6 +103,37 @@ export default function DeckDetailPage() {
     },
     onError: () => {
       toast.error("Failed to remove spell");
+    },
+  });
+
+  const exportMutation = useMutation({
+    mutationFn: async (layout: "grid" | "single") => {
+      const response = await fetch(`/api/decks/${deckId}/export`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ layout }),
+      });
+
+      if (!response.ok) {
+        throw new Error("Failed to export PDF");
+      }
+
+      const blob = await response.blob();
+      const url = window.URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = `${deck?.name || "deck"}.pdf`;
+      document.body.appendChild(a);
+      a.click();
+      window.URL.revokeObjectURL(url);
+      document.body.removeChild(a);
+    },
+    onSuccess: () => {
+      toast.success("PDF downloaded");
+      setShowExportDialog(false);
+    },
+    onError: () => {
+      toast.error("Failed to export PDF");
     },
   });
 
@@ -163,6 +203,14 @@ export default function DeckDetailPage() {
             >
               <Plus className="w-4 h-4 mr-2" />
               Add Spells
+            </Button>
+            <Button
+              variant="outline"
+              onClick={() => setShowPreviewDialog(true)}
+              disabled={deck.spell_count === 0}
+            >
+              <Eye className="w-4 h-4 mr-2" />
+              Preview Cards
             </Button>
             <Button
               variant="outline"
@@ -243,15 +291,75 @@ export default function DeckDetailPage() {
           <AlertDialogHeader>
             <AlertDialogTitle>Export Deck as PDF</AlertDialogTitle>
             <AlertDialogDescription>
-              This feature is coming soon! PDF export with customizable layouts
-              will be available in the next release.
+              Choose a layout for your PDF export:
             </AlertDialogDescription>
           </AlertDialogHeader>
+          <div className="py-4 space-y-4">
+            <div className="space-y-2">
+              <label className="flex items-center gap-2 cursor-pointer">
+                <input
+                  type="radio"
+                  name="layout"
+                  value="grid"
+                  checked={exportLayout === "grid"}
+                  onChange={(e) => setExportLayout(e.target.value as "grid")}
+                  className="w-4 h-4"
+                />
+                <div>
+                  <div className="font-medium">Grid Layout (9 per page)</div>
+                  <div className="text-sm text-muted-foreground">
+                    3x3 grid on 8.5&quot; x 11&quot; pages - efficient for
+                    printing
+                  </div>
+                </div>
+              </label>
+              <label className="flex items-center gap-2 cursor-pointer">
+                <input
+                  type="radio"
+                  name="layout"
+                  value="single"
+                  checked={exportLayout === "single"}
+                  onChange={(e) => setExportLayout(e.target.value as "single")}
+                  className="w-4 h-4"
+                />
+                <div>
+                  <div className="font-medium">Single Card Layout</div>
+                  <div className="text-sm text-muted-foreground">
+                    One 2.5&quot; x 3.5&quot; card per page - easy to cut
+                  </div>
+                </div>
+              </label>
+            </div>
+          </div>
           <AlertDialogFooter>
-            <AlertDialogCancel>Close</AlertDialogCancel>
+            <AlertDialogCancel>Cancel</AlertDialogCancel>
+            <AlertDialogAction
+              onClick={() => exportMutation.mutate(exportLayout)}
+              disabled={exportMutation.isPending}
+            >
+              {exportMutation.isPending ? "Generating..." : "Export PDF"}
+            </AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>
+
+      {/* Preview Dialog */}
+      <Dialog open={showPreviewDialog} onOpenChange={setShowPreviewDialog}>
+        <DialogContent className="max-w-7xl max-h-[90vh] overflow-y-auto">
+          <DialogHeader>
+            <DialogTitle>Card Preview</DialogTitle>
+            <DialogDescription>
+              Preview how your spell cards will look when printed (2.5&quot; x
+              3.5&quot;)
+            </DialogDescription>
+          </DialogHeader>
+          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6 py-4 justify-items-center">
+            {deck.spells.map((spell) => (
+              <SpellCardPreview key={spell.id} spell={spell} />
+            ))}
+          </div>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }

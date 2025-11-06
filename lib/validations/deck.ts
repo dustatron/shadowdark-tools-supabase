@@ -94,9 +94,7 @@ export type DeckWithSpells = z.infer<typeof DeckWithSpellsSchema>;
 
 // Export PDF Schema (for POST /api/decks/[id]/export)
 export const ExportPDFSchema = z.object({
-  layout: z.enum(["grid", "single"], {
-    errorMap: () => ({ message: "Layout must be 'grid' or 'single'" }),
-  }),
+  layout: z.enum(["grid", "single"]),
 });
 
 export type ExportPDFInput = z.infer<typeof ExportPDFSchema>;

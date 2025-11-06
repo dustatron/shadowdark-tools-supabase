@@ -1,13 +1,13 @@
 import { NextRequest, NextResponse } from "next/server";
 import { createClient } from "@/lib/supabase/server";
-import { ExportPDFSchema } from "@/lib/validations/deck";
+import { ExportPDFSchema, type SpellForDeck } from "@/lib/validations/deck";
+import * as PDFGenerator from "@/lib/pdf/generator";
 import { z } from "zod";
 
 /**
  * POST /api/decks/[id]/export - Generate PDF for deck
  * Authentication: Required (must be deck owner)
  * Body: { layout: "grid" | "single" }
- * TODO: Implement actual PDF generation with @react-pdf/renderer
  */
 export async function POST(
   request: NextRequest,
@@ -57,41 +57,80 @@ export async function POST(
 
     const { layout } = validationResult.data;
 
-    // Check if deck has spells
-    const { count: spellCount } = await supabase
+    // Get deck items with spell IDs
+    const { data: items, error: itemsError } = await supabase
       .from("deck_items")
-      .select("*", { count: "exact", head: true })
-      .eq("deck_id", id);
+      .select("spell_id, added_at")
+      .eq("deck_id", id)
+      .order("added_at");
 
-    if (!spellCount || spellCount === 0) {
+    if (itemsError) {
+      console.error("Error fetching deck items:", itemsError);
+      return NextResponse.json(
+        { error: "Failed to fetch deck items" },
+        { status: 500 },
+      );
+    }
+
+    if (!items || items.length === 0) {
       return NextResponse.json(
         { error: "Cannot export empty deck" },
         { status: 400 },
       );
     }
 
-    // TODO: Implement PDF generation
-    // For now, return error indicating feature not yet implemented
-    return NextResponse.json(
-      {
-        error: "Feature not yet implemented",
-        message: "PDF export will be implemented in next phase",
-        debug: {
-          deck_id: id,
-          deck_name: deck.name,
-          spell_count: spellCount,
-          layout,
-        },
-      },
-      { status: 501 }, // 501 Not Implemented
+    // Fetch spell data from both official_spells and user_spells
+    const spellIds = items.map((item) => item.spell_id);
+    const spells: SpellForDeck[] = [];
+
+    // Fetch from official_spells
+    const { data: officialSpells } = await supabase
+      .from("official_spells")
+      .select("id, name, tier, duration, range, description")
+      .in("id", spellIds);
+
+    // Fetch from user_spells
+    const { data: userSpells } = await supabase
+      .from("user_spells")
+      .select("id, name, tier, duration, range, description")
+      .in("id", spellIds);
+
+    // Combine spells maintaining order from deck_items
+    for (const item of items) {
+      const spell =
+        officialSpells?.find((s) => s.id === item.spell_id) ||
+        userSpells?.find((s) => s.id === item.spell_id);
+
+      if (spell) {
+        spells.push(spell as SpellForDeck);
+      }
+    }
+
+    // Generate PDF
+    const pdfBuffer = await PDFGenerator.generateDeckPDF(
+      deck.name,
+      spells,
+      layout,
     );
 
-    // Future implementation will:
-    // 1. Fetch all spells for deck
-    // 2. Generate PDF using @react-pdf/renderer
-    // 3. Return PDF with appropriate headers:
-    //    Content-Type: application/pdf
-    //    Content-Disposition: attachment; filename="deck-name.pdf"
+    // Sanitize filename (remove special chars, limit length)
+    const sanitizedName = deck.name
+      .replace(/[^a-z0-9-_]/gi, "-")
+      .substring(0, 50);
+    const filename = `${sanitizedName}.pdf`;
+
+    // Convert Buffer to Uint8Array for NextResponse
+    const uint8Array = new Uint8Array(pdfBuffer);
+
+    // Return PDF with appropriate headers
+    return new NextResponse(uint8Array, {
+      status: 200,
+      headers: {
+        "Content-Type": "application/pdf",
+        "Content-Disposition": `attachment; filename="${filename}"`,
+        "Content-Length": pdfBuffer.length.toString(),
+      },
+    });
   } catch (error) {
     if (error instanceof z.ZodError) {
       return NextResponse.json(
