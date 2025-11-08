@@ -16,15 +16,8 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
-import { SpellCard, SpellSelector, SpellCardPreview } from "@/components/deck";
+import { SpellCard, SpellSelector } from "@/components/deck";
 import { ArrowLeft, Plus, Download, Trash2, Eye } from "lucide-react";
-import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogHeader,
-  DialogTitle,
-} from "@/components/ui/dialog";
 import Link from "next/link";
 import { toast } from "sonner";
 import type { DeckWithSpells } from "@/lib/validations/deck";
@@ -70,7 +63,6 @@ export default function DeckDetailPage() {
   const [showSpellSelector, setShowSpellSelector] = useState(false);
   const [showDeleteDialog, setShowDeleteDialog] = useState(false);
   const [showExportDialog, setShowExportDialog] = useState(false);
-  const [showPreviewDialog, setShowPreviewDialog] = useState(false);
   const [exportLayout, setExportLayout] = useState<"grid" | "single">("grid");
 
   const {
@@ -87,7 +79,7 @@ export default function DeckDetailPage() {
     mutationFn: () => deleteDeck(deckId),
     onSuccess: () => {
       toast.success("Deck deleted");
-      router.push("/decks");
+      router.push("/dashboard/decks");
     },
     onError: () => {
       toast.error("Failed to delete deck");
@@ -161,7 +153,7 @@ export default function DeckDetailPage() {
             don&apos;t have access to it.
           </p>
           <Button asChild>
-            <Link href="/decks">
+            <Link href="/dashboard/decks">
               <ArrowLeft className="w-4 h-4 mr-2" />
               Back to Decks
             </Link>
@@ -178,7 +170,7 @@ export default function DeckDetailPage() {
       {/* Header */}
       <div className="mb-8">
         <Button variant="ghost" size="sm" asChild className="mb-4">
-          <Link href="/decks">
+          <Link href="/dashboard/decks">
             <ArrowLeft className="w-4 h-4 mr-2" />
             Back to Decks
           </Link>
@@ -204,13 +196,11 @@ export default function DeckDetailPage() {
               <Plus className="w-4 h-4 mr-2" />
               Add Spells
             </Button>
-            <Button
-              variant="outline"
-              onClick={() => setShowPreviewDialog(true)}
-              disabled={deck.spell_count === 0}
-            >
-              <Eye className="w-4 h-4 mr-2" />
-              Preview Cards
+            <Button variant="outline" asChild disabled={deck.spell_count === 0}>
+              <Link href={`/dashboard/decks/${deckId}/preview`}>
+                <Eye className="w-4 h-4 mr-2" />
+                Preview Cards
+              </Link>
             </Button>
             <Button
               variant="outline"
@@ -342,24 +332,6 @@ export default function DeckDetailPage() {
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>
-
-      {/* Preview Dialog */}
-      <Dialog open={showPreviewDialog} onOpenChange={setShowPreviewDialog}>
-        <DialogContent className="max-w-7xl max-h-[90vh] overflow-y-auto">
-          <DialogHeader>
-            <DialogTitle>Card Preview</DialogTitle>
-            <DialogDescription>
-              Preview how your spell cards will look when printed (2.5&quot; x
-              3.5&quot;)
-            </DialogDescription>
-          </DialogHeader>
-          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6 py-4 justify-items-center">
-            {deck.spells.map((spell) => (
-              <SpellCardPreview key={spell.id} spell={spell} />
-            ))}
-          </div>
-        </DialogContent>
-      </Dialog>
     </div>
   );
 }

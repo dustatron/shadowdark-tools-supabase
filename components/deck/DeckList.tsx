@@ -115,7 +115,7 @@ export function DeckList({ onCreateClick }: DeckListProps) {
 
       <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
         {decks.map((deck) => (
-          <Link key={deck.id} href={`/decks/${deck.id}`}>
+          <Link key={deck.id} href={`/dashboard/decks/${deck.id}`}>
             <Card className="hover:shadow-lg transition-shadow cursor-pointer h-full">
               <CardHeader>
                 <div className="flex items-start justify-between gap-2">
