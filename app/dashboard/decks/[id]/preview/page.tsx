@@ -106,7 +106,7 @@ export default function DeckPreviewPage() {
           <p className="text-muted-foreground">No spells in this deck yet</p>
         </div>
       ) : (
-        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-6 justify-items-center">
+        <div className="flex flex-wrap">
           {deck.spells.map((spell) => (
             <SpellCardPreview key={spell.id} spell={spell} />
           ))}

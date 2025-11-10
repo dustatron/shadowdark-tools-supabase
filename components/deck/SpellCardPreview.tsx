@@ -1,4 +1,7 @@
-import { Card } from "@/components/ui/card";
+"use client";
+
+import { useEffect, useState } from "react";
+import { SpellCardPDF, SPELL_CARD_DESIGN } from "@/components/pdf/SpellCard";
 import type { SpellForDeck } from "@/lib/validations/deck";
 
 interface SpellCardPreviewProps {
@@ -6,55 +9,61 @@ interface SpellCardPreviewProps {
 }
 
 /**
- * Visual preview of spell card matching PDF export design
- * Mimics the 2.5" x 3.5" card layout
+ * Live PDF preview of spell card
+ * Shows the actual PDF that will be exported - WYSIWYG
  */
 export function SpellCardPreview({ spell }: SpellCardPreviewProps) {
-  return (
-    <Card
-      className="relative overflow-hidden bg-white text-black"
-      style={{
-        width: "2.5in",
-        height: "3.5in",
-        aspectRatio: "2.5 / 3.5",
-      }}
-    >
-      <div className="h-full flex flex-col p-3 border-2 border-gray-800 rounded-lg">
-        {/* Header Section */}
-        <div className="border-b-2 border-gray-800 pb-2 mb-3 text-center">
-          <h3 className="text-base font-bold uppercase mb-1.5 text-gray-900">
-            {spell.name}
-          </h3>
-          <div className="text-xs font-bold text-blue-600 mb-1">
-            Tier {spell.tier}
-          </div>
-          {spell.classes && spell.classes.length > 0 && (
-            <div className="text-[10px] text-gray-600">
-              {spell.classes.join(", ")}
-            </div>
-          )}
-        </div>
+  const [mounted, setMounted] = useState(false);
+  const [PDFComponents, setPDFComponents] = useState<any>(null);
+  const { width, height } = SPELL_CARD_DESIGN.dimensions;
 
-        {/* Metadata Section */}
-        <div className="text-center space-y-1 mb-2">
-          <p className="text-[10px] text-gray-600">
-            Duration: {spell.duration}
-          </p>
-          <p className="text-[10px] text-gray-600">Range: {spell.range}</p>
-        </div>
+  useEffect(() => {
+    setMounted(true);
+    // Dynamically import PDF components to avoid SSR issues
+    import("@react-pdf/renderer").then((module) => {
+      setPDFComponents({
+        PDFViewer: module.PDFViewer,
+        Document: module.Document,
+        Page: module.Page,
+      });
+    });
+  }, []);
 
-        {/* Description Section */}
-        <div className="flex-1 overflow-auto">
-          <p className="text-[11px] leading-relaxed text-justify text-gray-800">
-            {spell.description}
-          </p>
-        </div>
-
-        {/* Footer */}
-        <div className="border-t border-gray-300 pt-1.5 mt-2 text-center">
-          <p className="text-[9px] text-gray-400">Shadowdark RPG</p>
+  if (!mounted || !PDFComponents) {
+    // Loading skeleton matching card dimensions
+    return (
+      <div
+        style={{
+          width: width.inches,
+          height: height.inches,
+          border: "1px solid #e5e7eb",
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "center",
+          backgroundColor: "#f9fafb",
+        }}
+      >
+        <div style={{ textAlign: "center", color: "#9ca3af" }}>
+          Loading preview...
         </div>
       </div>
-    </Card>
+    );
+  }
+
+  const { PDFViewer, Document, Page } = PDFComponents;
+
+  return (
+    <PDFViewer
+      width={width.px}
+      height={height.px}
+      showToolbar={true}
+      style={{ border: "none" }}
+    >
+      <Document>
+        <Page size={{ width: width.pt, height: height.pt }}>
+          <SpellCardPDF spell={spell} isPreview={true} />
+        </Page>
+      </Document>
+    </PDFViewer>
   );
 }

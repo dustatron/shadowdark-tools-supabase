@@ -2,13 +2,12 @@ import React from "react";
 import {
   Document,
   Page,
-  Text,
   View,
   StyleSheet,
   renderToBuffer,
-  type DocumentProps,
 } from "@react-pdf/renderer";
 import type { SpellForDeck } from "@/lib/validations/deck";
+import { SpellCardPDF } from "@/components/pdf/SpellCard";
 
 /**
  * PDF Generator for Spell Card Decks
@@ -20,97 +19,18 @@ const styles = StyleSheet.create({
   gridPage: {
     flexDirection: "row",
     flexWrap: "wrap",
-    justifyContent: "center",
-    alignItems: "center",
+    justifyContent: "flex-start",
     padding: 10,
     gap: 1,
   },
   gridCard: {
     width: "2.5in",
     height: "3.5in",
-    border: "4pt solid #000",
-    padding: 4,
   },
 
   // Single Layout Styles (one card per page - 2.5" x 3.5")
   singlePage: {
-    padding: 1,
-    display: "flex",
-    flexDirection: "column",
-  },
-  singleCard: {
-    border: "3pt solid #1a1a1a",
-    borderRadius: 1,
-    padding: 2,
-    display: "flex",
-    flexDirection: "column",
-    height: "100%",
-    width: "100%",
-  },
-
-  metadata: {
-    display: "flex",
-  },
-
-  // Shared Card Styles
-  cardHeader: {
-    borderBottom: "1.5pt solid #333",
-    paddingBottom: 8,
-    marginBottom: 10,
-    textAlign: "center",
-  },
-  spellName: {
-    fontSize: 16,
-    fontWeight: "bold",
-    textTransform: "uppercase",
-    marginBottom: 6,
-    textAlign: "center",
-    color: "#333",
-  },
-  spellMeta: {
-    fontSize: 8,
-    color: "#666",
-    marginBottom: 3,
-    textAlign: "center",
-  },
-  spellDescription: {
-    fontSize: 9,
-    lineHeight: 1.5,
-    marginTop: 8,
-    flex: 1,
-    textAlign: "justify",
-    color: "#2a2a2a",
-  },
-  tier: {
-    fontSize: 11,
-    fontWeight: "bold",
-    color: "#2563eb",
-    textAlign: "center",
-    marginBottom: 4,
-  },
-  footer: {
-    borderTop: "1pt solid #ddd",
-    paddingTop: 6,
-    marginTop: 8,
-    textAlign: "center",
-    fontSize: 7,
-    color: "#999",
-  },
-
-  // Title Page
-  titlePage: {
-    padding: 40,
-    justifyContent: "center",
-    alignItems: "center",
-  },
-  deckTitle: {
-    fontSize: 24,
-    fontWeight: "bold",
-    marginBottom: 10,
-  },
-  deckSubtitle: {
-    fontSize: 12,
-    color: "#666",
+    padding: 0,
   },
 });
 
@@ -120,55 +40,8 @@ interface PDFDocumentProps {
   layout: "grid" | "single";
 }
 
-/**
- * Spell Card Component (for grid layout)
- */
-const SpellCardGrid = ({ spell }: { spell: SpellForDeck }) => (
-  <View style={styles.gridCard}>
-    <View style={styles.cardHeader}>
-      <Text style={styles.spellName}>{spell.name}</Text>
-      {spell.classes && spell.classes.length > 0 && (
-        <Text style={styles.spellMeta}>{spell.classes.join(", ")}</Text>
-      )}
-      <Text style={styles.tier}>Tier {spell.tier}</Text>
-    </View>
-    <View>
-      <Text style={styles.spellMeta}>Duration: {spell.duration}</Text>
-      <Text style={styles.spellMeta}>Range: {spell.range}</Text>
-      <Text style={styles.spellDescription}>{spell.description}</Text>
-    </View>
-  </View>
-);
-
-/**
- * Spell Card Component (for single layout)
- */
-const SpellCardSingle = ({ spell }: { spell: SpellForDeck }) => (
-  <View style={styles.singleCard}>
-    {/* Header Section */}
-    <View style={styles.cardHeader}>
-      <Text style={styles.spellName}>{spell.name}</Text>
-      <Text style={styles.tier}>Tier {spell.tier}</Text>
-      {spell.classes && spell.classes.length > 0 && (
-        <Text style={styles.spellMeta}>{spell.classes.join(", ")}</Text>
-      )}
-    </View>
-
-    {/* Metadata Section */}
-    <View>
-      <Text style={styles.spellMeta}>Duration: {spell.duration}</Text>
-      <Text style={styles.spellMeta}>Range: {spell.range}</Text>
-    </View>
-
-    {/* Description Section */}
-    <Text style={styles.spellDescription}>{spell.description}</Text>
-
-    {/* Footer */}
-    <View style={styles.footer}>
-      <Text>Shadowdark RPG</Text>
-    </View>
-  </View>
-);
+// SpellCardPDF component imported from @/components/pdf/SpellCard
+// Used for both grid and single layouts
 
 /**
  * Main PDF Document Component
@@ -189,7 +62,7 @@ const DeckPDFDocument: React.FC<PDFDocumentProps> = ({
             size={{ width: 180, height: 252 }}
             style={styles.singlePage}
           >
-            <SpellCardSingle spell={spell} />
+            <SpellCardPDF spell={spell} />
           </Page>
         ))}
       </Document>
@@ -211,7 +84,9 @@ const DeckPDFDocument: React.FC<PDFDocumentProps> = ({
       {pages.map((pageSpells, pageIndex) => (
         <Page key={pageIndex} size="A4" style={styles.gridPage}>
           {pageSpells.map((spell) => (
-            <SpellCardGrid key={spell.id} spell={spell} />
+            <View key={spell.id} style={styles.gridCard}>
+              <SpellCardPDF spell={spell} />
+            </View>
           ))}
         </Page>
       ))}

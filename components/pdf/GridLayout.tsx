@@ -22,7 +22,7 @@ const styles = StyleSheet.create({
   },
   grid: {
     display: "flex",
-    flexDirection: "row",
+    flexDirection: "column",
     flexWrap: "wrap",
     gap: "0.1in",
   },
