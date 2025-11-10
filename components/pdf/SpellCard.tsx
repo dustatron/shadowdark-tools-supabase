@@ -202,11 +202,24 @@ export const SpellCardPDF = ({
   spell: SpellForDeck;
   isPreview?: boolean;
 }) => {
-  // Use absolute URL for image - required for server-side PDF generation
-  const imageUrl =
-    typeof window !== "undefined"
-      ? "/blank-card.png" // Browser: relative path works
-      : `${process.env.NEXT_PUBLIC_SITE_URL || "http://localhost:3002"}/blank-card.png`; // Server: absolute URL required
+  // Determine base URL for image
+  const getBaseUrl = () => {
+    // Browser: use relative path
+    if (typeof window !== "undefined") {
+      return "/blank-card.png";
+    }
+
+    // Server: use environment-specific URL
+    // Vercel automatically sets VERCEL_URL
+    if (process.env.VERCEL_URL) {
+      return `https://${process.env.VERCEL_URL}/blank-card.png`;
+    }
+
+    // Custom domain or local
+    return `${process.env.NEXT_PUBLIC_SITE_URL || "http://localhost:3002"}/blank-card.png`;
+  };
+
+  const imageUrl = getBaseUrl();
 
   // Use different margins for preview vs export
   const margins = isPreview ? MARGINS.preview : MARGINS.export;
