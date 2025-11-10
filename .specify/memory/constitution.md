@@ -1,14 +1,18 @@
 <!--
 Sync Impact Report:
-Version change: 1.2.0 → 1.3.0
+Version change: 1.3.0 → 1.4.0
 Modified sections:
-- Development Standards (updated to reflect Mantine UI instead of shadcn/ui)
-- Technology stack corrected: Mantine UI with Emotion for styling, @tabler/icons-react for icons
-- Component library changed from shadcn/ui to Mantine for better accessibility and documentation
+- Development Standards (corrected tech stack from Mantine UI back to shadcn/ui + Tailwind CSS)
+- Technology stack updated: shadcn/ui (Radix UI primitives), Tailwind CSS, Lucide React icons
+- Component library corrected to reflect actual implementation using shadcn/ui with Radix UI
+- Styling approach corrected from Emotion CSS-in-JS to Tailwind CSS utility classes
+Added sections: None
+Removed sections: None
 Templates requiring updates:
 - ✅ .specify/templates/plan-template.md (Constitution Check references this document)
 - ✅ .specify/templates/spec-template.md (Review checklist aligns with principles)
 - ✅ .specify/templates/tasks-template.md (TDD workflow enforced by Test-First principle)
+Follow-up TODOs: None
 -->
 
 # SD GM Tools Constitution
@@ -59,13 +63,13 @@ Public content sharing requires moderation capabilities. Flagging system with ad
 
 ## Development Standards
 
-Web application MUST follow Next.js App Router conventions with TypeScript. Component library uses Mantine UI with Emotion for CSS-in-JS styling and theming. Database operations use Supabase with Row Level Security (RLS) and @supabase/ssr for cookie-based authentication. All gaming data schemas use Zod validation and MUST be version-controlled and backward-compatible.
+Web application MUST follow Next.js App Router conventions with TypeScript. Component library uses shadcn/ui (built on Radix UI primitives) with Tailwind CSS for styling. Database operations use Supabase with Row Level Security (RLS) and @supabase/ssr for cookie-based authentication. All gaming data schemas use Zod validation and MUST be version-controlled and backward-compatible.
 
 **Technology Stack**:
 
-- **Frontend**: Next.js 15+ (App Router), TypeScript, React 19, Mantine UI, Emotion CSS-in-JS, @tabler/icons-react
+- **Frontend**: Next.js 15+ (App Router), TypeScript, React 19, shadcn/ui (Radix UI), Tailwind CSS 3.4+, Lucide React icons
 - **Backend**: Supabase (Postgres + Auth + RLS), @supabase/ssr for server-side auth
-- **Development**: ESLint, Prettier, Mantine built-in dark mode
+- **Development**: ESLint 9, Prettier 3.6+, next-themes for dark mode
 - **Deployment**: Vercel with automatic GitHub integration
 
 **Project Structure Requirements**:
@@ -108,4 +112,4 @@ This Constitution supersedes all other development practices. Amendments require
 
 All pull requests and reviews MUST verify compliance with constitutional principles. Complexity that violates principles must be justified with specific game master needs. Development guidance is maintained in agent-specific files (e.g., CLAUDE.md, GEMINI.md) for runtime development support.
 
-**Version**: 1.3.0 | **Ratified**: 2025-09-21 | **Last Amended**: 2025-09-21
+**Version**: 1.4.0 | **Ratified**: 2025-09-21 | **Last Amended**: 2025-11-04

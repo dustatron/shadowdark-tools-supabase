@@ -1,11 +1,21 @@
 import "@testing-library/jest-dom";
 import { cleanup } from "@testing-library/react";
 import { afterEach, beforeAll, vi } from "vitest";
+import { config } from "dotenv";
+import { resolve } from "path";
 
-// Mock Next.js environment variables
+// Load .env.local for integration tests
+config({ path: resolve(process.cwd(), ".env.local") });
+
+// Mock Next.js environment variables for unit tests
+// Integration tests will use actual env vars from .env.local
 beforeAll(() => {
-  process.env.NEXT_PUBLIC_SUPABASE_URL = "http://localhost:54321";
-  process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_OR_ANON_KEY = "test-key";
+  if (!process.env.NEXT_PUBLIC_SUPABASE_URL) {
+    process.env.NEXT_PUBLIC_SUPABASE_URL = "http://localhost:54321";
+  }
+  if (!process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_OR_ANON_KEY) {
+    process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_OR_ANON_KEY = "test-key";
+  }
 });
 
 // Cleanup after each test
