@@ -216,7 +216,7 @@ export const SpellCardPDF = ({
     }
 
     // Custom domain or local
-    return `${process.env.NEXT_PUBLIC_SITE_URL || "http://localhost:3002"}/blank-card.png`;
+    return `${process.env.NEXT_PUBLIC_SITE_URL || "http://localhost:3000"}/blank-card.png`;
   };
 
   const imageUrl = getBaseUrl();

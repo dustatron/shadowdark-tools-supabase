@@ -33,17 +33,14 @@ export default async function DashboardLayout({
       </div>
 
       {/* Desktop Layout - Resizable Panels */}
-      <div className="hidden md:block h-[calc(100vh-5rem)] px-4 py-4">
-        <ResizablePanelGroup
-          direction="horizontal"
-          className="h-full rounded-lg border"
-        >
+      <div className="hidden md:block h-[calc(100vh-5rem)]">
+        <ResizablePanelGroup direction="horizontal" className="h-full border">
           <ResizablePanel defaultSize={20} minSize={15} maxSize={30}>
             <DashboardNav />
           </ResizablePanel>
           <ResizableHandle withHandle />
           <ResizablePanel defaultSize={80}>
-            <div className="p-6 h-full overflow-auto">{children}</div>
+            <div className="h-full overflow-auto">{children}</div>
           </ResizablePanel>
         </ResizablePanelGroup>
       </div>

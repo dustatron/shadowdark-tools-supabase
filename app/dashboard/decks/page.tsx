@@ -2,17 +2,24 @@
 
 import { useState } from "react";
 import { DeckList, DeckForm } from "@/components/deck";
+import { Button } from "@/components/ui/button";
+import { Plus } from "lucide-react";
 
 export default function DecksPage() {
   const [showCreateDialog, setShowCreateDialog] = useState(false);
 
   return (
-    <div className="container mx-auto px-4 py-8">
-      <div className="mb-8">
-        <h1 className="text-4xl font-bold tracking-tight mb-2">Spell Decks</h1>
-        <p className="text-muted-foreground">
-          Create and manage your custom spell card decks
-        </p>
+    <div className="container mx-auto ">
+      <div className="flex items-start justify-between mb-8">
+        <div>
+          <h1 className="text-4xl font-bold tracking-tight mb-1">
+            Spell Decks
+          </h1>
+        </div>
+        <Button onClick={() => setShowCreateDialog(true)}>
+          <Plus className="w-4 h-4 mr-2" />
+          New Deck
+        </Button>
       </div>
 
       <DeckList onCreateClick={() => setShowCreateDialog(true)} />

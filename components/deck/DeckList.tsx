@@ -10,9 +10,17 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/ui/table";
 import { Badge } from "@/components/ui/badge";
 import { Skeleton } from "@/components/ui/skeleton";
-import { Plus, BookOpen, Calendar, Layers } from "lucide-react";
+import { Plus, BookOpen, ExternalLink } from "lucide-react";
 import Link from "next/link";
 import { formatDistanceToNow } from "date-fns";
 import type { DeckWithCount } from "@/lib/validations/deck";
@@ -44,18 +52,35 @@ export function DeckList({ onCreateClick }: DeckListProps) {
 
   if (isLoading) {
     return (
-      <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
-        {[...Array(3)].map((_, i) => (
-          <Card key={i}>
-            <CardHeader>
-              <Skeleton className="h-6 w-3/4 mb-2" />
-              <Skeleton className="h-4 w-1/2" />
-            </CardHeader>
-            <CardContent>
-              <Skeleton className="h-4 w-full" />
-            </CardContent>
-          </Card>
-        ))}
+      <div className="rounded-md border">
+        <Table>
+          <TableHeader>
+            <TableRow>
+              <TableHead>Name</TableHead>
+              <TableHead>Spells</TableHead>
+              <TableHead>Last Updated</TableHead>
+              <TableHead className="text-right">Actions</TableHead>
+            </TableRow>
+          </TableHeader>
+          <TableBody>
+            {[...Array(3)].map((_, i) => (
+              <TableRow key={i}>
+                <TableCell>
+                  <Skeleton className="h-4 w-48" />
+                </TableCell>
+                <TableCell>
+                  <Skeleton className="h-4 w-16" />
+                </TableCell>
+                <TableCell>
+                  <Skeleton className="h-4 w-32" />
+                </TableCell>
+                <TableCell>
+                  <Skeleton className="h-8 w-20 ml-auto" />
+                </TableCell>
+              </TableRow>
+            ))}
+          </TableBody>
+        </Table>
       </div>
     );
   }
@@ -99,64 +124,51 @@ export function DeckList({ onCreateClick }: DeckListProps) {
   }
 
   return (
-    <div className="space-y-4">
-      <div className="flex items-center justify-between">
-        <div>
-          <h2 className="text-2xl font-bold tracking-tight">Your Decks</h2>
-          <p className="text-muted-foreground">
-            {decks.length} {decks.length === 1 ? "deck" : "decks"}
-          </p>
-        </div>
-        <Button onClick={onCreateClick}>
-          <Plus className="w-4 h-4 mr-2" />
-          New Deck
-        </Button>
-      </div>
-
-      <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
-        {decks.map((deck) => (
-          <Link key={deck.id} href={`/dashboard/decks/${deck.id}`}>
-            <Card className="hover:shadow-lg transition-shadow cursor-pointer h-full">
-              <CardHeader>
-                <div className="flex items-start justify-between gap-2">
-                  <CardTitle className="truncate">{deck.name}</CardTitle>
-                  <Badge
-                    variant={deck.spell_count >= 52 ? "default" : "secondary"}
-                  >
-                    <Layers className="w-3 h-3 mr-1" />
-                    {deck.spell_count}/52
-                  </Badge>
-                </div>
-                <CardDescription className="flex items-center gap-1 text-xs">
-                  <Calendar className="w-3 h-3" />
-                  Updated{" "}
-                  {formatDistanceToNow(new Date(deck.updated_at), {
-                    addSuffix: true,
-                  })}
-                </CardDescription>
-              </CardHeader>
-              <CardContent>
-                <div className="flex items-center gap-2 text-sm text-muted-foreground">
-                  {deck.spell_count === 0 && (
-                    <p className="text-muted-foreground italic">Empty deck</p>
-                  )}
-                  {deck.spell_count > 0 && (
-                    <p>
-                      {deck.spell_count}{" "}
-                      {deck.spell_count === 1 ? "spell" : "spells"}
-                    </p>
-                  )}
-                </div>
-              </CardContent>
-              <CardFooter>
-                <Button variant="outline" size="sm" className="w-full" asChild>
-                  <span>View Deck</span>
+    <div className="rounded-md border">
+      <Table>
+        <TableHeader>
+          <TableRow>
+            <TableHead>Name</TableHead>
+            <TableHead>Spells</TableHead>
+            <TableHead>Last Updated</TableHead>
+            <TableHead className="text-right">Actions</TableHead>
+          </TableRow>
+        </TableHeader>
+        <TableBody>
+          {decks.map((deck) => (
+            <TableRow key={deck.id} className="hover:bg-muted/50">
+              <TableCell className="font-medium">
+                <Link
+                  href={`/dashboard/decks/${deck.id}`}
+                  className="hover:underline"
+                >
+                  {deck.name}
+                </Link>
+              </TableCell>
+              <TableCell>
+                <Badge
+                  variant={deck.spell_count >= 52 ? "default" : "secondary"}
+                >
+                  {deck.spell_count}/52
+                </Badge>
+              </TableCell>
+              <TableCell className="text-muted-foreground">
+                {formatDistanceToNow(new Date(deck.updated_at), {
+                  addSuffix: true,
+                })}
+              </TableCell>
+              <TableCell className="text-right">
+                <Button variant="ghost" size="sm" asChild>
+                  <Link href={`/dashboard/decks/${deck.id}`}>
+                    <ExternalLink className="w-4 h-4 mr-2" />
+                    View
+                  </Link>
                 </Button>
-              </CardFooter>
-            </Card>
-          </Link>
-        ))}
-      </div>
+              </TableCell>
+            </TableRow>
+          ))}
+        </TableBody>
+      </Table>
     </div>
   );
 }
