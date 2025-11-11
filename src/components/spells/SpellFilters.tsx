@@ -7,7 +7,6 @@ import { Card, CardContent } from "../../../components/ui/card";
 import { Input } from "../../../components/ui/input";
 import { Button } from "../../../components/ui/button";
 import { MultiSelect } from "../../../components/ui/multi-select";
-import { Slider } from "../../../components/ui/slider";
 import {
   Collapsible,
   CollapsibleContent,
@@ -17,6 +16,7 @@ import {
 interface FilterValues {
   search: string;
   tierRange: [number, number];
+  tiers: number[];
   classes: string[];
   durations: string[];
   ranges: string[];
@@ -36,6 +36,7 @@ interface SpellFiltersProps {
 const DEFAULT_FILTERS: FilterValues = {
   search: "",
   tierRange: [1, 5],
+  tiers: [],
   classes: [],
   durations: [],
   ranges: [],
@@ -79,8 +80,7 @@ export function SpellFilters({
 
   const hasActiveFilters =
     filters.search !== "" ||
-    filters.tierRange[0] !== 1 ||
-    filters.tierRange[1] !== 5 ||
+    filters.tiers.length > 0 ||
     filters.classes.length > 0 ||
     filters.durations.length > 0 ||
     filters.ranges.length > 0 ||
@@ -88,7 +88,7 @@ export function SpellFilters({
 
   const activeFilterCount = [
     filters.search !== "",
-    filters.tierRange[0] !== 1 || filters.tierRange[1] !== 5,
+    filters.tiers.length > 0,
     filters.classes.length > 0,
     filters.durations.length > 0,
     filters.ranges.length > 0,
@@ -152,29 +152,24 @@ export function SpellFilters({
           <CollapsibleContent>
             <div className="space-y-4 pt-4">
               <div className="grid grid-cols-1 gap-4">
-                <div className="space-y-2">
-                  <label className="text-sm font-medium">
-                    Tier: {filters.tierRange[0]} - {filters.tierRange[1]}
-                  </label>
-                  <Slider
-                    min={1}
-                    max={5}
-                    step={1}
-                    value={filters.tierRange}
-                    onValueChange={(value) =>
-                      handleFilterChange("tierRange", value as [number, number])
-                    }
-                    disabled={loading}
-                    className="w-full"
-                  />
-                  <div className="flex justify-between text-xs text-muted-foreground">
-                    {[1, 2, 3, 4, 5].map((tier) => (
-                      <span key={tier}>{tier}</span>
-                    ))}
-                  </div>
-                </div>
-
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                  <MultiSelect
+                    label="Tiers"
+                    placeholder="Select tiers"
+                    options={[1, 2, 3, 4, 5].map((tier) => ({
+                      value: tier.toString(),
+                      label: `Tier ${tier}`,
+                    }))}
+                    selected={filters.tiers.map((t) => t.toString())}
+                    onChange={(value) =>
+                      handleFilterChange(
+                        "tiers",
+                        value.map((v) => parseInt(v)),
+                      )
+                    }
+                    clearable
+                    disabled={loading}
+                  />
                   <MultiSelect
                     label="Classes"
                     placeholder="Select classes"

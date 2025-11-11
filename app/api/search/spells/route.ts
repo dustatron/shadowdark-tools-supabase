@@ -5,12 +5,13 @@ import { z } from "zod";
 // Schema for search parameters
 const SearchParamsSchema = z.object({
   q: z.string().min(1).max(200).optional(),
-  minTier: z.number().int().min(1).max(5).optional(),
-  maxTier: z.number().int().min(1).max(5).optional(),
+  tiers: z.array(z.number().int().min(1).max(5)).optional(),
   classes: z.array(z.string()).optional(),
   durations: z.array(z.string()).optional(),
   ranges: z.array(z.string()).optional(),
   sources: z.array(z.string()).optional(),
+  spellTypes: z.array(z.enum(["official", "user"])).optional(),
+  favorites: z.boolean().optional(),
   page: z.number().int().min(1).default(1),
   limit: z.number().int().min(1).max(100).default(20),
 });
@@ -24,16 +25,22 @@ export async function GET(request: NextRequest) {
     // Parse and validate query parameters
     const rawParams = {
       q: searchParams.get("q") || undefined,
-      minTier: searchParams.get("minTier")
-        ? parseInt(searchParams.get("minTier")!)
-        : undefined,
-      maxTier: searchParams.get("maxTier")
-        ? parseInt(searchParams.get("maxTier")!)
-        : undefined,
+      tiers: searchParams
+        .get("tiers")
+        ?.split(",")
+        .map((t) => parseInt(t))
+        .filter((t) => !isNaN(t)),
       classes: searchParams.get("classes")?.split(",").filter(Boolean),
       durations: searchParams.get("durations")?.split(",").filter(Boolean),
       ranges: searchParams.get("ranges")?.split(",").filter(Boolean),
       sources: searchParams.get("sources")?.split(",").filter(Boolean),
+      spellTypes: searchParams
+        .get("spellTypes")
+        ?.split(",")
+        .filter((t) => t === "official" || t === "user") as
+        | ("official" | "user")[]
+        | undefined,
+      favorites: searchParams.get("favorites") === "true",
       page: searchParams.get("page") ? parseInt(searchParams.get("page")!) : 1,
       limit: searchParams.get("limit")
         ? parseInt(searchParams.get("limit")!)
@@ -43,30 +50,56 @@ export async function GET(request: NextRequest) {
     const validatedParams = SearchParamsSchema.parse(rawParams);
     const {
       q,
-      minTier,
-      maxTier,
+      tiers,
       classes,
       durations,
       ranges,
       sources,
+      spellTypes,
+      favorites,
       page,
       limit,
     } = validatedParams;
     const offset = (page - 1) * limit;
+
+    // Get current user if favorites filter is requested
+    let userId: string | null = null;
+    if (favorites) {
+      const {
+        data: { user },
+      } = await supabase.auth.getUser();
+      userId = user?.id || null;
+
+      // If favorites requested but no user, return empty results
+      if (!userId) {
+        return NextResponse.json({
+          results: [],
+          total: 0,
+          pagination: {
+            page,
+            limit,
+            total: 0,
+            totalPages: 0,
+          },
+          query: validatedParams,
+        });
+      }
+    }
 
     let query = supabase.from("all_spells").select("*", { count: "exact" });
 
     if (q) {
       query = query.or(`name.ilike.%${q}%,description.ilike.%${q}%`);
     }
-    if (minTier) {
-      query = query.gte("tier", minTier);
-    }
-    if (maxTier) {
-      query = query.lte("tier", maxTier);
+    if (tiers && tiers.length > 0) {
+      query = query.in("tier", tiers);
     }
     if (classes && classes.length > 0) {
-      query = query.contains("classes", classes);
+      // Build OR filters for each class - spell matches if classes array contains ANY selected class
+      const orConditions = classes
+        .map((className) => `classes.cs.["${className}"]`)
+        .join(",");
+      query = query.or(orConditions);
     }
     if (durations && durations.length > 0) {
       query = query.in("duration", durations);
@@ -76,6 +109,38 @@ export async function GET(request: NextRequest) {
     }
     if (sources && sources.length > 0) {
       query = query.in("source", sources);
+    }
+    if (spellTypes && spellTypes.length > 0) {
+      query = query.in("spell_type", spellTypes);
+    }
+
+    // Filter by favorites if requested
+    if (favorites && userId) {
+      // Get user's favorite spell IDs
+      const { data: favoriteSpells } = await supabase
+        .from("favorites")
+        .select("item_id")
+        .eq("user_id", userId)
+        .eq("item_type", "spell");
+
+      const favoriteIds = favoriteSpells?.map((f) => f.item_id) || [];
+
+      // If user has no favorites, return empty
+      if (favoriteIds.length === 0) {
+        return NextResponse.json({
+          results: [],
+          total: 0,
+          pagination: {
+            page,
+            limit,
+            total: 0,
+            totalPages: 0,
+          },
+          query: validatedParams,
+        });
+      }
+
+      query = query.in("id", favoriteIds);
     }
 
     query = query

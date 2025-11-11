@@ -15,8 +15,6 @@ interface GridLayoutProps {
 
 const styles = StyleSheet.create({
   page: {
-    width: "8.5in",
-    height: "11in",
     padding: "0.5in",
     backgroundColor: "#ffffff",
   },
@@ -41,7 +39,7 @@ export function GridLayout({ spells }: GridLayoutProps) {
   return (
     <>
       {pages.map((pageSpells, pageIndex) => (
-        <Page key={pageIndex} size="LETTER" style={styles.page}>
+        <Page key={pageIndex} size={[612, 792]} style={styles.page}>
           <View style={styles.grid}>
             {pageSpells.map((spell) => (
               <View key={spell.id} style={styles.cardWrapper}>

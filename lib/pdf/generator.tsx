@@ -82,7 +82,7 @@ const DeckPDFDocument: React.FC<PDFDocumentProps> = ({
     <Document>
       {/* Grid pages */}
       {pages.map((pageSpells, pageIndex) => (
-        <Page key={pageIndex} size="A4" style={styles.gridPage}>
+        <Page key={pageIndex} size="LETTER" style={styles.gridPage}>
           {pageSpells.map((spell) => (
             <View key={spell.id} style={styles.gridCard}>
               <SpellCardPDF spell={spell} />
