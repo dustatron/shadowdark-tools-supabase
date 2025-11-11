@@ -27,6 +27,7 @@ interface Spell {
 interface FilterValues {
   search: string;
   tierRange: [number, number];
+  tiers: number[];
   classes: string[];
   durations: string[];
   ranges: string[];
@@ -36,6 +37,7 @@ interface FilterValues {
 const DEFAULT_FILTERS: FilterValues = {
   search: "",
   tierRange: [1, 5],
+  tiers: [],
   classes: [],
   durations: [],
   ranges: [],
@@ -68,6 +70,39 @@ export default function SpellsPage() {
   useEffect(() => {
     fetchSpells();
   }, [filters, pagination.page, pagination.limit]);
+
+  useEffect(() => {
+    // Fetch all filter options on mount
+    const fetchFilterOptions = async () => {
+      try {
+        const response = await fetch("/api/search/spells?limit=100");
+        if (response.ok) {
+          const data = await response.json();
+          if (data.results && data.results.length > 0) {
+            const classes = new Set<string>();
+            const durations = new Set<string>();
+            const ranges = new Set<string>();
+            const sources = new Set<string>();
+
+            data.results.forEach((spell: Spell) => {
+              spell.classes.forEach((c) => classes.add(c));
+              durations.add(spell.duration);
+              ranges.add(spell.range);
+              sources.add(spell.source);
+            });
+
+            setAvailableClasses(Array.from(classes).sort());
+            setAvailableDurations(Array.from(durations).sort());
+            setAvailableRanges(Array.from(ranges).sort());
+            setAvailableSources(Array.from(sources).sort());
+          }
+        }
+      } catch (err) {
+        console.error("Error fetching filter options:", err);
+      }
+    };
+    fetchFilterOptions();
+  }, []);
 
   useEffect(() => {
     const checkAuthAndFavorites = async () => {
@@ -114,11 +149,8 @@ export default function SpellsPage() {
       if (filters.search) {
         params.append("q", filters.search);
       }
-      if (filters.tierRange[0] > 1) {
-        params.append("minTier", filters.tierRange[0].toString());
-      }
-      if (filters.tierRange[1] < 5) {
-        params.append("maxTier", filters.tierRange[1].toString());
+      if (filters.tiers.length > 0) {
+        params.append("tiers", filters.tiers.join(","));
       }
       if (filters.classes.length > 0) {
         params.append("classes", filters.classes.join(","));
@@ -147,26 +179,6 @@ export default function SpellsPage() {
         total: data.total || 0,
         totalPages: data.pagination.totalPages || 0,
       }));
-
-      // Extract unique filter options from results
-      if (data.results && data.results.length > 0) {
-        const classes = new Set<string>();
-        const durations = new Set<string>();
-        const ranges = new Set<string>();
-        const sources = new Set<string>();
-
-        data.results.forEach((spell: Spell) => {
-          spell.classes.forEach((c) => classes.add(c));
-          durations.add(spell.duration);
-          ranges.add(spell.range);
-          sources.add(spell.source);
-        });
-
-        setAvailableClasses(Array.from(classes).sort());
-        setAvailableDurations(Array.from(durations).sort());
-        setAvailableRanges(Array.from(ranges).sort());
-        setAvailableSources(Array.from(sources).sort());
-      }
     } catch (err) {
       console.error("Error fetching spells:", err);
       setError(err instanceof Error ? err.message : "An error occurred");

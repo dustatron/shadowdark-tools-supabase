@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useParams, useRouter } from "next/navigation";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { Button } from "@/components/ui/button";
@@ -16,11 +16,21 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
-import { SpellCard, SpellSelector } from "@/components/deck";
+import {
+  Drawer,
+  DrawerClose,
+  DrawerContent,
+  DrawerDescription,
+  DrawerFooter,
+  DrawerHeader,
+  DrawerTitle,
+} from "@/components/ui/drawer";
+import { SpellSelector, SpellCardPreview } from "@/components/deck";
 import { ArrowLeft, Plus, Download, Trash2, Eye } from "lucide-react";
 import Link from "next/link";
 import { toast } from "sonner";
 import type { DeckWithSpells } from "@/lib/validations/deck";
+import { SpellTable } from "./SpellTable";
 
 async function fetchDeck(id: string): Promise<DeckWithSpells> {
   const response = await fetch(`/api/decks/${id}`);
@@ -64,6 +74,7 @@ export default function DeckDetailPage() {
   const [showDeleteDialog, setShowDeleteDialog] = useState(false);
   const [showExportDialog, setShowExportDialog] = useState(false);
   const [exportLayout, setExportLayout] = useState<"grid" | "single">("grid");
+  const [selectedSpellId, setSelectedSpellId] = useState<string | null>(null);
 
   const {
     data: deck,
@@ -89,7 +100,11 @@ export default function DeckDetailPage() {
   const removeMutation = useMutation({
     mutationFn: ({ spellId }: { spellId: string }) =>
       removeSpell(deckId, spellId),
-    onSuccess: () => {
+    onSuccess: (_, { spellId }) => {
+      // Clear selection if removed spell was selected
+      if (selectedSpellId === spellId) {
+        setSelectedSpellId(null);
+      }
       queryClient.invalidateQueries({ queryKey: ["deck", deckId] });
       toast.success("Spell removed from deck");
     },
@@ -97,6 +112,13 @@ export default function DeckDetailPage() {
       toast.error("Failed to remove spell");
     },
   });
+
+  // Default to first spell when deck loads
+  useEffect(() => {
+    if (deck?.spells && deck.spells.length > 0 && !selectedSpellId) {
+      setSelectedSpellId(deck.spells[0].id);
+    }
+  }, [deck, selectedSpellId]);
 
   const exportMutation = useMutation({
     mutationFn: async (layout: "grid" | "single") => {
@@ -145,8 +167,8 @@ export default function DeckDetailPage() {
 
   if (error || !deck) {
     return (
-      <div className="container mx-auto px-4 py-8">
-        <div className="text-center py-12">
+      <div className="container mx-auto">
+        <div className="text-center">
           <h2 className="text-2xl font-bold mb-2">Deck Not Found</h2>
           <p className="text-muted-foreground mb-4">
             The deck you&apos;re looking for doesn&apos;t exist or you
@@ -166,35 +188,21 @@ export default function DeckDetailPage() {
   const existingSpellIds = deck.spells.map((s) => s.id);
 
   return (
-    <div className="container mx-auto px-4 py-8">
+    <div className="container mx-auto">
       {/* Header */}
-      <div className="mb-8">
-        <Button variant="ghost" size="sm" asChild className="mb-4">
-          <Link href="/dashboard/decks">
-            <ArrowLeft className="w-4 h-4 mr-2" />
-            Back to Decks
-          </Link>
-        </Button>
-
-        <div className="flex items-start justify-between gap-4 flex-wrap">
-          <div>
-            <h1 className="text-4xl font-bold tracking-tight mb-2">
-              {deck.name}
-            </h1>
-            <div className="flex items-center gap-2">
-              <Badge variant={deck.spell_count >= 52 ? "default" : "secondary"}>
-                {deck.spell_count}/52 Cards
-              </Badge>
-            </div>
-          </div>
+      <div className="mb-2">
+        <div className="flex justify-between p-2">
+          <h1 className="text-4xl font-bold tracking-tight mb-2">
+            {deck.name}
+          </h1>
 
           <div className="flex items-center gap-2">
             <Button
-              onClick={() => setShowSpellSelector(true)}
-              disabled={deck.spell_count >= 52}
+              variant="destructive"
+              size="icon"
+              onClick={() => setShowDeleteDialog(true)}
             >
-              <Plus className="w-4 h-4 mr-2" />
-              Add Spells
+              <Trash2 className="w-4 h-4" />
             </Button>
             <Button variant="outline" asChild disabled={deck.spell_count === 0}>
               <Link href={`/dashboard/decks/${deckId}/preview`}>
@@ -203,47 +211,73 @@ export default function DeckDetailPage() {
               </Link>
             </Button>
             <Button
-              variant="outline"
+              variant="secondary"
               onClick={() => setShowExportDialog(true)}
               disabled={deck.spell_count === 0}
             >
               <Download className="w-4 h-4 mr-2" />
               Export PDF
             </Button>
+
             <Button
-              variant="destructive"
-              size="icon"
-              onClick={() => setShowDeleteDialog(true)}
+              onClick={() => setShowSpellSelector(true)}
+              disabled={deck.spell_count >= 52}
+              variant="default"
             >
-              <Trash2 className="w-4 h-4" />
+              <Plus className="w-4 h-4 mr-2" />
+              Add Spells
             </Button>
+          </div>
+        </div>
+
+        <div className="flex items-start justify-between  flex-wrap mt-2">
+          <Button variant="ghost" size="sm" asChild className="mb-2">
+            <Link href="/dashboard/decks">
+              <ArrowLeft className="w-4 h-4 mr-2" />
+              Back to Decks
+            </Link>
+          </Button>
+          <div className="p-2">
+            <Badge variant="destructive">{deck.spell_count} Cards</Badge>
           </div>
         </div>
       </div>
 
-      {/* Spells */}
-      {deck.spell_count === 0 ? (
-        <div className="text-center py-12 border-2 border-dashed rounded-lg">
-          <p className="text-muted-foreground mb-4">
-            No spells in this deck yet
-          </p>
-          <Button onClick={() => setShowSpellSelector(true)}>
-            <Plus className="w-4 h-4 mr-2" />
-            Add Your First Spell
-          </Button>
+      {/* Two Column Layout */}
+      <div className="grid grid-cols-1 lg:grid-cols-[2fr_1fr] gap-1">
+        {/* Left: Table */}
+        <div>
+          <SpellTable
+            deck={deck}
+            removeMutation={removeMutation}
+            setShowSpellSelector={setShowSpellSelector}
+            selectedSpellId={selectedSpellId || undefined}
+            onSelectSpell={setSelectedSpellId}
+          />
         </div>
-      ) : (
-        <div className="space-y-2">
-          {deck.spells.map((spell) => (
-            <SpellCard
-              key={spell.id}
-              spell={spell}
-              onRemove={() => removeMutation.mutate({ spellId: spell.id })}
-              compact
-            />
-          ))}
+
+        {/* Right: Preview */}
+        <div className="sticky top-4 h-fit">
+          {deck.spell_count === 0 ? (
+            <div className="border-2 border-dashed  p-12 text-center">
+              <p className="text-muted-foreground">
+                Add spells to preview cards
+              </p>
+            </div>
+          ) : selectedSpellId ? (
+            <div className="border p-2">
+              <h3 className="text-sm font-medium mb-4">Card Preview</h3>
+              <SpellCardPreview
+                spell={deck.spells.find((s) => s.id === selectedSpellId)!}
+              />
+            </div>
+          ) : (
+            <div className="border-2 border-dashed  p-12 text-center">
+              <p className="text-muted-foreground">Select a spell to preview</p>
+            </div>
+          )}
         </div>
-      )}
+      </div>
 
       {/* Spell Selector Dialog */}
       <SpellSelector
@@ -275,27 +309,31 @@ export default function DeckDetailPage() {
         </AlertDialogContent>
       </AlertDialog>
 
-      {/* Export Dialog */}
-      <AlertDialog open={showExportDialog} onOpenChange={setShowExportDialog}>
-        <AlertDialogContent>
-          <AlertDialogHeader>
-            <AlertDialogTitle>Export Deck as PDF</AlertDialogTitle>
-            <AlertDialogDescription>
-              Choose a layout for your PDF export:
-            </AlertDialogDescription>
-          </AlertDialogHeader>
-          <div className="py-4 space-y-4">
-            <div className="space-y-2">
-              <label className="flex items-center gap-2 cursor-pointer">
+      {/* Export Drawer */}
+      <Drawer
+        open={showExportDialog}
+        onOpenChange={setShowExportDialog}
+        direction="right"
+      >
+        <DrawerContent>
+          <DrawerHeader>
+            <DrawerTitle>Export Deck as PDF</DrawerTitle>
+            <DrawerDescription>
+              Choose a layout for your PDF export
+            </DrawerDescription>
+          </DrawerHeader>
+          <div className="px-4 pb-4 space-y-4">
+            <div className="space-y-4">
+              <label className="flex items-start gap-3 cursor-pointer p-4 border rounded-lg hover:bg-accent transition-colors">
                 <input
                   type="radio"
                   name="layout"
                   value="grid"
                   checked={exportLayout === "grid"}
                   onChange={(e) => setExportLayout(e.target.value as "grid")}
-                  className="w-4 h-4"
+                  className="w-4 h-4 mt-0.5"
                 />
-                <div>
+                <div className="flex-1">
                   <div className="font-medium">Grid Layout (9 per page)</div>
                   <div className="text-sm text-muted-foreground">
                     3x3 grid on 8.5&quot; x 11&quot; pages - efficient for
@@ -303,16 +341,16 @@ export default function DeckDetailPage() {
                   </div>
                 </div>
               </label>
-              <label className="flex items-center gap-2 cursor-pointer">
+              <label className="flex items-start gap-3 cursor-pointer p-4 border rounded-lg hover:bg-accent transition-colors">
                 <input
                   type="radio"
                   name="layout"
                   value="single"
                   checked={exportLayout === "single"}
                   onChange={(e) => setExportLayout(e.target.value as "single")}
-                  className="w-4 h-4"
+                  className="w-4 h-4 mt-0.5"
                 />
-                <div>
+                <div className="flex-1">
                   <div className="font-medium">Single Card Layout</div>
                   <div className="text-sm text-muted-foreground">
                     One 2.5&quot; x 3.5&quot; card per page - easy to cut
@@ -321,17 +359,19 @@ export default function DeckDetailPage() {
               </label>
             </div>
           </div>
-          <AlertDialogFooter>
-            <AlertDialogCancel>Cancel</AlertDialogCancel>
-            <AlertDialogAction
+          <DrawerFooter>
+            <Button
               onClick={() => exportMutation.mutate(exportLayout)}
               disabled={exportMutation.isPending}
             >
               {exportMutation.isPending ? "Generating..." : "Export PDF"}
-            </AlertDialogAction>
-          </AlertDialogFooter>
-        </AlertDialogContent>
-      </AlertDialog>
+            </Button>
+            <DrawerClose asChild>
+              <Button variant="outline">Cancel</Button>
+            </DrawerClose>
+          </DrawerFooter>
+        </DrawerContent>
+      </Drawer>
     </div>
   );
 }

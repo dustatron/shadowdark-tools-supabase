@@ -129,7 +129,12 @@
       "Bash(npm view:*)",
       "mcp__chrome-devtools__list_network_requests",
       "mcp__chrome-devtools__get_network_request",
-      "Bash(git pull:*)"
+      "Bash(git pull:*)",
+      "Bash(/tmp/witch-spells.sql)",
+      "Bash(/tmp/witch-spells-correct.sql)",
+      "mcp__chrome-devtools__press_key",
+      "Bash(base64:*)",
+      "Bash(.env.local)"
     ],
     "deny": [],
     "ask": []

@@ -68,7 +68,7 @@ export default function DeckPreviewPage() {
   }
 
   return (
-    <div className="container mx-auto px-4 py-8">
+    <div className="container mx-auto">
       {/* Header */}
       <div className="mb-8">
         <Button variant="ghost" size="sm" asChild className="mb-4">
@@ -80,7 +80,7 @@ export default function DeckPreviewPage() {
 
         <div className="flex items-start justify-between gap-4 flex-wrap">
           <div>
-            <h1 className="text-4xl font-bold tracking-tight mb-2">
+            <h1 className="text-4xl font-bold tracking-tight p-2 ">
               Card Preview
             </h1>
             <p className="text-muted-foreground">
