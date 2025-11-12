@@ -31,7 +31,7 @@ export function PDFDocument({ spells, layout, deckName }: PDFDocumentProps) {
     return (
       <Document
         title={`${deckName} - Spell Deck`}
-        author="Shadowdark GM Tools"
+        author="Shadowdark Guild"
         subject="Spell Cards"
         keywords="shadowdark, spells, cards, deck"
       >
@@ -44,7 +44,7 @@ export function PDFDocument({ spells, layout, deckName }: PDFDocumentProps) {
   return (
     <Document
       title={`${deckName} - Spell Deck`}
-      author="Shadowdark GM Tools"
+      author="Shadowdark Guild"
       subject="Spell Cards"
       keywords="shadowdark, spells, cards, deck"
     >

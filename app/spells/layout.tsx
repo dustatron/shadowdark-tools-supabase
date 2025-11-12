@@ -5,7 +5,7 @@ export const metadata: Metadata = {
   description:
     "Browse the complete Shadowdark spell database. Search official spells, filter by tier and class, and reference spells for your adventures.",
   openGraph: {
-    title: "Spells | Shadowdark GM Tools",
+    title: "Spells | Shadowdark Guild",
     description:
       "Browse and search official Shadowdark spells. Filter by tier, class, duration, and range. Complete spell reference for GMs and players.",
   },

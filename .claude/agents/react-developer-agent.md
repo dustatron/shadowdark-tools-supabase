@@ -614,7 +614,7 @@ const MemoizedComponent = memo(ExpensiveComponent);
 import { Metadata } from "next";
 
 export const metadata: Metadata = {
-  title: "Monsters | Shadowdark GM Tools",
+  title: "Monsters | Shadowdark Guild",
   description: "Browse and manage monsters for your Shadowdark campaigns",
   openGraph: {
     title: "Shadowdark Monsters",

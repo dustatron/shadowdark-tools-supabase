@@ -5,7 +5,7 @@ export const metadata: Metadata = {
   description:
     "Create your own custom monster for Shadowdark RPG. Define stats, attacks, abilities, and more. Share your creations with the community.",
   openGraph: {
-    title: "Create Custom Monster | Shadowdark GM Tools",
+    title: "Create Custom Monster | Shadowdark Guild",
     description:
       "Build your own custom Shadowdark monsters with our intuitive monster creation tool.",
   },

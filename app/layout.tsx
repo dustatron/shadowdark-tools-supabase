@@ -16,13 +16,14 @@ const defaultUrl = process.env.VERCEL_URL
 export const metadata: Metadata = {
   metadataBase: new URL(defaultUrl),
   title: {
-    default: "Shadowdark GM Tools",
-    template: "%s | Shadowdark GM Tools",
+    default: "Shadowdark Guild",
+    template: "%s | Shadowdark Guild",
   },
   description:
-    "Comprehensive tools for Shadowdark RPG Game Masters. Browse official monsters and spells, create custom content, build balanced encounters, and manage your campaigns.",
+    "A community-driven guild for Shadowdark RPG Game Masters. Share custom monsters, spells, and magic items, build encounter tables, create card decks, and collaborate with thousands of GMs.",
   keywords: [
     "Shadowdark",
+    "Shadowdark Guild",
     "RPG",
     "TTRPG",
     "Game Master",
@@ -30,33 +31,38 @@ export const metadata: Metadata = {
     "Monster Database",
     "Spell Database",
     "Encounter Builder",
+    "community",
+    "sharing",
+    "homebrew",
+    "custom content",
+    "collaboration",
     "D&D",
     "OSR",
   ],
-  authors: [{ name: "Shadowdark GM Tools" }],
-  creator: "Shadowdark GM Tools",
+  authors: [{ name: "Shadowdark Guild" }],
+  creator: "Shadowdark Guild",
   openGraph: {
     type: "website",
     locale: "en_US",
     url: defaultUrl,
-    siteName: "Shadowdark GM Tools",
-    title: "Shadowdark GM Tools",
+    siteName: "Shadowdark Guild",
+    title: "Shadowdark Guild",
     description:
-      "Comprehensive tools for Shadowdark RPG Game Masters. Browse official monsters and spells, create custom content, and build encounters.",
+      "A community-driven guild for Shadowdark RPG Game Masters. Share custom monsters, spells, and magic items, build encounter tables, create card decks, and collaborate with thousands of GMs.",
     images: [
       {
         url: "/og-image.png",
         width: 1200,
         height: 630,
-        alt: "Shadowdark GM Tools",
+        alt: "Shadowdark Guild",
       },
     ],
   },
   twitter: {
     card: "summary_large_image",
-    title: "Shadowdark GM Tools",
+    title: "Shadowdark Guild",
     description:
-      "Comprehensive tools for Shadowdark RPG Game Masters. Browse monsters, spells, and build encounters.",
+      "A community-driven guild for Shadowdark RPG Game Masters. Share custom monsters, spells, and magic items, build encounter tables, create card decks, and collaborate with thousands of GMs.",
     images: ["/og-image.png"],
   },
   robots: {

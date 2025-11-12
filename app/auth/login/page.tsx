@@ -7,7 +7,7 @@ import { redirect } from "next/navigation";
 export const metadata: Metadata = {
   title: "Login",
   description:
-    "Sign in to your Shadowdark GM Tools account to manage your monsters, spells, and encounters.",
+    "Sign in to your Shadowdark Guild account to manage your monsters, spells, and encounters.",
   robots: {
     index: false,
     follow: false,

@@ -1,5 +1,6 @@
 {
   "private": true,
+  "name": "shadowdark-guild",
   "scripts": {
     "dev": "next dev --turbopack",
     "build": "next build",
