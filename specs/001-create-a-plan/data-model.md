@@ -1,4 +1,4 @@
-# Data Model: Shadowdark Monster Manager
+# Data Model: Dungeon Exchange
 
 ## Core Entities
 

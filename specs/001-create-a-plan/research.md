@@ -1,4 +1,4 @@
-# Research: Shadowdark Monster Manager Technical Decisions
+# Research: Dungeon Exchange Technical Decisions
 
 ## Technology Stack Research
 

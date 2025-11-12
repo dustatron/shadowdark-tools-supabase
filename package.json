@@ -1,6 +1,6 @@
 {
   "private": true,
-  "name": "shadowdark-guild",
+  "name": "dungeon-exchange",
   "scripts": {
     "dev": "next dev --turbopack",
     "build": "next build",

@@ -5,7 +5,7 @@ export const metadata: Metadata = {
   description:
     "Browse the complete Shadowdark monster database. Search official monsters, filter by challenge level, create custom monsters, and build your bestiary.",
   openGraph: {
-    title: "Monsters | Shadowdark Guild",
+    title: "Monsters | Dungeon Exchange",
     description:
       "Browse and search official Shadowdark monsters. Filter by challenge level, type, and location. Create your own custom monsters.",
   },

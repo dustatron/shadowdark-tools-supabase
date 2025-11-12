@@ -1,4 +1,4 @@
-# UI/UX Improvement Plan - Shadowdark Monster Manager
+# UI/UX Improvement Plan - Dungeon Exchange
 
 **Date**: October 17, 2025
 **Status**: Proposed
@@ -7,7 +7,7 @@
 
 ## Executive Summary
 
-This plan addresses critical UI/UX issues in the Shadowdark Monster Manager application, focusing on:
+This plan addresses critical UI/UX issues in the Dungeon Exchange application, focusing on:
 
 1. Fixing broken light/dark theme synchronization
 2. Implementing responsive, mobile-friendly navigation

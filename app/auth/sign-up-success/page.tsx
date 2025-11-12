@@ -10,7 +10,7 @@ import type { Metadata } from "next";
 export const metadata: Metadata = {
   title: "Sign Up Success",
   description:
-    "Thank you for signing up for Shadowdark Guild. Check your email to confirm your account.",
+    "Thank you for signing up for Dungeon Exchange. Check your email to confirm your account.",
   robots: {
     index: false,
     follow: false,

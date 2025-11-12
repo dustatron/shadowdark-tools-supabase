@@ -1,4 +1,4 @@
-# Tasks: Shadowdark Monster Manager Web Application
+# Tasks: Dungeon Exchange Web Application
 
 **Input**: Design documents from `/specs/001-create-a-plan/`
 **Prerequisites**: plan.md (required), research.md, data-model.md, contracts/, quickstart.md

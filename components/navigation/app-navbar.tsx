@@ -304,12 +304,12 @@ export function AppNavbar() {
       <div className="flex items-center gap-2">
         <Image
           src="/legend.png"
-          alt="Shadowdark Guild"
+          alt="Dungeon Exchange"
           width={32}
           height={32}
           className="h-8 w-8"
         />
-        <span className="font-bold hidden sm:inline">Shadowdark Guild</span>
+        <span className="font-bold hidden sm:inline">Dungeon Exchange</span>
       </div>
     );
   };

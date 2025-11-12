@@ -1,14 +1,14 @@
-# Shadowdark Guild
+# Dungeon Exchange
 
-A community-driven reference resource and toolkit for running Shadowdark RPG sessions. Browse official content, create custom monsters, spells, and magic items, build encounter tables, generate print-and-play card decks, and share your creations with the guild.
+A community-driven marketplace and toolkit for Shadowdark RPG content. Browse official resources, create custom monsters, spells, and magic items, build encounter tables, generate print-and-play card decks, and exchange your creations with the community.
 
 ## Overview
 
-Shadowdark Guild serves two core purposes:
+Dungeon Exchange serves two core purposes:
 
 1. **Reference Resource**: Complete databases of official Shadowdark core rules for monsters, spells, and magic items with fast search and smart filtering.
 
-2. **Guild Hub**: Create and share custom content with fellow guild members. Build your own monsters, spells, and items, then publish them for others to use in their games.
+2. **Community Marketplace**: Create and exchange custom content with the community. Build your own monsters, spells, and items, then share them for others to use in their games.
 
 Beyond the reference library, the toolkit includes:
 
@@ -53,8 +53,8 @@ Beyond the reference library, the toolkit includes:
 1. Clone the repository:
 
    ```bash
-   git clone https://github.com/your-username/shadowdark-guild.git
-   cd shadowdark-guild
+   git clone https://github.com/your-username/dungeon-exchange.git
+   cd dungeon-exchange
    ```
 
 2. Install dependencies:

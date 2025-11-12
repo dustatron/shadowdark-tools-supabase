@@ -685,7 +685,7 @@ components/ui/
 **Author**: Claude Code Agent  
 **Migration Plan Reference**: `/specs/plans/shadcn-migration-plan.md`  
 **Current Branch**: `shadcd-migration`  
-**Project**: Shadowdark Monster Manager  
+**Project**: Dungeon Exchange  
 **Phase**: 0 of 5 (Setup and Foundation)  
 **Status**: ✅ COMPLETED
 
@@ -945,7 +945,7 @@ components/ui/
 **Author**: Claude Code Agent
 **Migration Plan**: `/specs/plans/shadcn-migration-plan.md`
 **Current Branch**: `shadcd-migration`
-**Project**: Shadowdark Monster Manager
+**Project**: Dungeon Exchange
 **Phase**: 1 of 5 (Core Infrastructure)
 **Status**: 🔄 READY TO START
 
@@ -1298,7 +1298,7 @@ components/ui/
 **Author**: Claude Code Agent
 **Migration Plan**: `/specs/plans/shadcn-migration-plan.md`
 **Current Branch**: `shadcd-migration`
-**Project**: Shadowdark Monster Manager
+**Project**: Dungeon Exchange
 **Phase**: 1.3 of 5 (Utility Components Migration)
 **Status**: ✅ COMPLETED
 
@@ -1895,7 +1895,7 @@ const [debouncedSearch] = useDebounce(localSearch, 300);
 **Author**: Claude Code Agent
 **Migration Plan**: `/specs/plans/shadcn-migration-plan.md`
 **Current Branch**: `shadcd-migration`
-**Project**: Shadowdark Monster Manager
+**Project**: Dungeon Exchange
 **Phase**: 2 of 5 (Data Display Components)
 **Status**: ⏳ BLOCKED (awaiting Phase 1 completion)
 
@@ -2835,7 +2835,7 @@ After Phase 3 completion:
 **Author**: Claude Code Agent
 **Migration Plan Reference**: `/specs/plans/shadcn-migration-plan.md`
 **Current Branch**: `shadcd-migration`
-**Project**: Shadowdark Monster Manager
+**Project**: Dungeon Exchange
 **Phase**: 3 of 5 (Page-Level Components)
 **Status**: 📊 DOCUMENTATION READY - Awaiting Phase 2 completion
 

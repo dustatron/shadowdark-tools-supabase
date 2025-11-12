@@ -1,4 +1,4 @@
-# Shadowdark Monster Manager - Project Context
+# Dungeon Exchange - Project Context
 
 - In all interactions and commit messages, be extremely concise and sacrifice grammar for the sake of concision.
 
@@ -22,7 +22,7 @@
 
 ## Project Overview
 
-**Shadowdark Monster Manager** is a comprehensive web application designed to assist Game Masters (GMs) in managing monsters and generating encounters for the Shadowdark TTRPG (tabletop role-playing game). The application provides tools for searching official monsters, creating custom content, building encounter lists, and generating random encounter tables.
+**Dungeon Exchange** is a comprehensive web application and community marketplace designed to assist Game Masters (GMs) in discovering, sharing, and managing monsters and spells for the Shadowdark TTRPG (tabletop role-playing game). The platform serves as an exchange where GMs can browse official content, create and publish custom content, and build encounter lists and random encounter tables. Think of it as a creative commons for Shadowdark homebrew content.
 
 ### Current Status
 
@@ -645,7 +645,7 @@ USING (
 
 ## Known Issues & Technical Debt
 
-1. **README.md** - Contains template content from Next.js starter, needs updating for Shadowdark project
+1. **README.md** - Contains template content from Next.js starter, needs updating for Dungeon Exchange project
 2. **Migration Ordering** - Some migrations have been fixed/updated (see 20250921000013_fix_armor_class_constraint.sql)
 3. **Type Generation** - Supabase types need to be generated and imported for better type safety
 4. **Error Handling** - Need comprehensive error boundaries and toast notifications
@@ -678,6 +678,7 @@ When working on this project:
 
 ## Last Updated
 
+- **November 12, 2025** - Rebranded from "Shadowdark Monster Manager" to "Dungeon Exchange"
 - **October 22, 2025** - Migrated from Mantine UI to shadcn/ui
 - **October 17, 2025** - Added Next.js 15 API route patterns and async params documentation
 - **October 16, 2025** - Initial claude.md creation

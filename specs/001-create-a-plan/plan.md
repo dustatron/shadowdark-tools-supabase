@@ -1,4 +1,4 @@
-# Implementation Plan: Shadowdark Monster Manager Web Application
+# Implementation Plan: Dungeon Exchange Web Application
 
 **Branch**: `001-create-a-plan` | **Date**: 2025-09-21 | **Spec**: [spec.md](./spec.md)
 **Input**: Feature specification from `/specs/001-create-a-plan/spec.md`

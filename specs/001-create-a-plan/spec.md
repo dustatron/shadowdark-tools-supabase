@@ -1,4 +1,4 @@
-# Feature Specification: Shadowdark Monster Manager Web Application
+# Feature Specification: Dungeon Exchange Web Application
 
 **Feature Branch**: `001-create-a-plan`
 **Created**: 2025-09-21
@@ -9,7 +9,7 @@
 
 ```
 1. Parse user description from Input
-   �  COMPLETE: Comprehensive PRD analyzed for Shadowdark Monster Manager
+   �  COMPLETE: Comprehensive PRD analyzed for Dungeon Exchange
 2. Extract key concepts from description
    �  COMPLETE: Identified actors (GMs, Community Creators, Admins, Guests), actions (search, create, manage, share), data (monsters, groups, lists, encounters), constraints (Shadowdark licensing, performance targets)
 3. For each unclear aspect:

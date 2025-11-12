@@ -13,9 +13,9 @@ import {
 } from "lucide-react";
 
 export const metadata: Metadata = {
-  title: "About | Shadowdark Guild",
+  title: "About | Dungeon Exchange",
   description:
-    "Learn about Shadowdark Guild - a community-driven reference and toolkit for Shadowdark RPG. Browse official content, create custom monsters and spells, and share with the community.",
+    "Learn about Dungeon Exchange - a community-driven reference and toolkit for Shadowdark RPG. Browse official content, create custom monsters and spells, and share with the community.",
 };
 
 export default function AboutPage() {
@@ -24,9 +24,12 @@ export default function AboutPage() {
       <div className="flex flex-col gap-12 max-w-4xl mx-auto">
         {/* Header */}
         <div className="flex flex-col gap-4 text-center">
-          <h1 className="text-4xl font-extrabold">About Shadowdark Guild</h1>
+          <h1 className="text-4xl font-extrabold">About Dungeon Exchange</h1>
           <p className="text-xl text-muted-foreground">
             Your community-powered toolkit for running epic Shadowdark sessions
+          </p>
+          <p className="text-sm text-muted-foreground">
+            Compatible with Shadowdark RPG
           </p>
         </div>
 
@@ -35,10 +38,14 @@ export default function AboutPage() {
           <h2 className="text-3xl font-bold">What is this?</h2>
           <div className="flex flex-col gap-4 text-muted-foreground">
             <p>
-              Shadowdark Guild is a community-driven toolkit for GMs running the
-              Shadowdark RPG. We provide reference databases for monsters,
-              spells, and magic items from the core rules, plus powerful tools
-              to create and share your own homebrew content.
+              Dungeon Exchange is a free community resource and toolkit designed
+              for Shadowdark RPG Game Masters. We provide comprehensive
+              reference databases for monsters, spells, and magic items from the
+              core rules, plus powerful tools to create and share your own
+              homebrew content with the community.
+            </p>
+            <p className="text-sm font-medium">
+              ✨ Fully compatible with Shadowdark RPG | 100% Free
             </p>
             <p>
               This isn&apos;t a replacement for the{" "}
@@ -172,7 +179,7 @@ export default function AboutPage() {
           <h2 className="text-3xl font-bold">Community</h2>
           <div className="flex flex-col gap-4 text-muted-foreground">
             <p>
-              The heart of Shadowdark Guild is sharing creative ideas. When you
+              The heart of Dungeon Exchange is sharing creative ideas. When you
               create a monster, spell, or magic item, you can publish it for
               other GMs to discover, use, and save to their favorites. Every
               contribution helps fellow GMs get to the table quicker with

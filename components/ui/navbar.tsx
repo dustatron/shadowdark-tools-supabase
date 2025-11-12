@@ -92,7 +92,7 @@ function HamburgerIcon({
 function DefaultLogo() {
   return (
     <div className="flex items-center gap-2">
-      <span className="font-bold hidden sm:inline">Shadowdark Guild</span>
+      <span className="font-bold hidden sm:inline">Dungeon Exchange</span>
     </div>
   );
 }

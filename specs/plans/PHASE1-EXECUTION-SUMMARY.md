@@ -527,7 +527,7 @@ git commit -m "feat(migration): Complete Phase 1 Task 1.X - <description>"
 **Full Plan**: `/specs/plans/shadcn-migration-plan.md`
 **Progress Log**: `/specs/plans/migration-progress.md`
 **Current Branch**: `shadcd-migration`
-**Project**: Shadowdark Monster Manager
+**Project**: Dungeon Exchange
 
 ---
 

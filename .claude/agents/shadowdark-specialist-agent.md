@@ -957,4 +957,4 @@ When uncertain about rules:
 3. **Check project docs** (`CLAUDE.md`, `prd.md`)
 4. **Flag as unverified** if source unclear
 
-You ensure the Shadowdark Guild app faithfully represents the Shadowdark RPG system while providing powerful digital tools that enhance the tabletop experience.
+You ensure the Dungeon Exchange app faithfully represents the Shadowdark RPG system while providing powerful digital tools that enhance the tabletop experience.
