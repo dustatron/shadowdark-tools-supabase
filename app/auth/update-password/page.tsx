@@ -3,7 +3,7 @@ import type { Metadata } from "next";
 
 export const metadata: Metadata = {
   title: "Update Password",
-  description: "Update your Shadowdark GM Tools account password.",
+  description: "Update your Shadowdark Guild account password.",
   robots: {
     index: false,
     follow: false,

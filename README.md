@@ -1,14 +1,31 @@
-# Shadowdark GM Tools
+# Shadowdark Guild
 
-Comprehensive tools for Shadowdark RPG Game Masters. Browse official monsters and spells, create custom content, build balanced encounters, and manage your campaigns.
+A community-driven reference resource and toolkit for running Shadowdark RPG sessions. Browse official content, create custom monsters, spells, and magic items, build encounter tables, generate print-and-play card decks, and share your creations with the guild.
+
+## Overview
+
+Shadowdark Guild serves two core purposes:
+
+1. **Reference Resource**: Complete databases of official Shadowdark core rules for monsters, spells, and magic items with fast search and smart filtering.
+
+2. **Guild Hub**: Create and share custom content with fellow guild members. Build your own monsters, spells, and items, then publish them for others to use in their games.
+
+Beyond the reference library, the toolkit includes:
+
+- **Random Encounter Tables**: Generate balanced encounter tables filtered by challenge level, monster type, and environment
+- **Print & Play Card Decks**: Build custom card decks from any monster, spell, or item for use at your table
+- **Favorites & Collections**: Save and organize content from both official sources and the community library
 
 ## Features
 
-- **Monster Database**: Browse official Shadowdark monsters with detailed stat blocks
-- **Spell Database**: Complete collection of Shadowdark spells with descriptions
-- **Custom Content Creation**: Create and manage your own monsters and spells
-- **Encounter Builder**: Build balanced encounters for your party (coming soon)
-- **Search & Filtering**: Advanced search and filtering capabilities
+- **Official Content Database**: Browse complete Shadowdark core rules for monsters, spells, and magic items
+- **Custom Content Creation**: Create your own monsters, spells, and magic items with detailed stat blocks
+- **Community Sharing**: Publish your creations for the community or keep them private
+- **Encounter Tables**: Generate random encounter tables with monster filtering and dice rolling
+- **Card Deck Builder**: Create print-and-play card decks for monsters, spells, and items
+- **Advanced Search & Filtering**: Fast search with filtering by challenge level, tier, type, and more
+- **User Profiles**: Share your content library and track your contributions
+- **Favorites System**: Save and organize your favorite content
 - **Dark Mode**: Full dark mode support with Shadowdark-themed styling
 - **Mobile Responsive**: Works seamlessly on desktop, tablet, and mobile devices
 
@@ -36,8 +53,8 @@ Comprehensive tools for Shadowdark RPG Game Masters. Browse official monsters an
 1. Clone the repository:
 
    ```bash
-   git clone https://github.com/your-username/shadowdark-gm-tools.git
-   cd shadowdark-gm-tools
+   git clone https://github.com/your-username/shadowdark-guild.git
+   cd shadowdark-guild
    ```
 
 2. Install dependencies:

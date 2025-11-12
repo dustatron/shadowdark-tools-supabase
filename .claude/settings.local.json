@@ -134,7 +134,8 @@
       "Bash(/tmp/witch-spells-correct.sql)",
       "mcp__chrome-devtools__press_key",
       "Bash(base64:*)",
-      "Bash(.env.local)"
+      "Bash(.env.local)",
+      "Bash(do sed -i '' 's/Shadowdark GM Tools/Shadowdark Guild/g' \"$file\")"
     ],
     "deny": [],
     "ask": []

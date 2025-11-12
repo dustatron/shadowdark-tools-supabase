@@ -7,11 +7,11 @@ import { Sword, Wand2, Dice6 } from "lucide-react";
 import { createClient } from "@/lib/supabase/server";
 
 export const metadata: Metadata = {
-  title: "Home | Shadowdark GM Tools",
+  title: "Home | Shadowdark Guild",
   description:
-    "Shadowdark GM Tools - Your complete toolkit for running Shadowdark RPG sessions. Browse monsters, search spells, and create balanced encounters for your campaigns.",
+    "Shadowdark Guild - Your complete toolkit for running Shadowdark RPG sessions. Browse monsters, search spells, and create balanced encounters for your campaigns.",
   openGraph: {
-    title: "Shadowdark GM Tools - Complete GM Toolkit for Shadowdark RPG",
+    title: "Shadowdark Guild - Complete GM Toolkit for Shadowdark RPG",
     description:
       "Browse official monsters and spells, create custom content, and build balanced encounters for your Shadowdark RPG campaigns.",
   },
@@ -33,7 +33,7 @@ export default async function Home() {
         {/* Hero Section */}
         <div className="flex flex-col gap-4 items-center text-center">
           <h1 className="text-5xl font-extrabold leading-tight">
-            Shadowdark GM Tools
+            Shadowdark Guild
           </h1>
           <p className="text-xl text-muted-foreground max-w-2xl">
             Manage your monsters, create encounters, and organize your campaigns

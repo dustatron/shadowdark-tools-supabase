@@ -4,6 +4,7 @@ import { useRouter } from "next/navigation";
 import { useEffect, useState, useMemo, useCallback } from "react";
 import { useTheme } from "next-themes";
 import Link from "next/link";
+import Image from "next/image";
 import { Navbar, UserMenuItem } from "@/components/ui/navbar";
 import { Button } from "@/components/ui/button";
 import {
@@ -297,13 +298,31 @@ export function AppNavbar() {
     );
   };
 
+  // Logo with image and text
+  const renderLogo = () => {
+    return (
+      <div className="flex items-center gap-2">
+        <Image
+          src="/legend.png"
+          alt="Shadowdark Guild"
+          width={32}
+          height={32}
+          className="h-8 w-8"
+        />
+        <span className="font-bold hidden sm:inline">Shadowdark Guild</span>
+      </div>
+    );
+  };
+
   return (
     <Navbar
+      logo={renderLogo()}
       navigationLinks={[
         { href: "/", label: "Home" },
         { href: "/monsters", label: "Monsters" },
         { href: "/spells", label: "Spells" },
         { href: "/encounter-tables", label: "Encounter Tables" },
+        { href: "/about", label: "About" },
       ]}
       userdata={user}
       userMenuItems={userMenuItems}
