@@ -7,5 +7,5 @@ test("homepage loads successfully", async ({ page }) => {
   await page.waitForLoadState("networkidle");
 
   // Check that the page title contains our app name
-  await expect(page).toHaveTitle(/Shadowdark Monster Manager/);
+  await expect(page).toHaveTitle(/Dungeon Exchange/);
 });

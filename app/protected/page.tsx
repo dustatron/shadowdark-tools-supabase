@@ -15,7 +15,7 @@ import { Sparkles, BookOpen, Skull, Layers, ArrowRight } from "lucide-react";
 
 export const metadata: Metadata = {
   title: "Dashboard",
-  description: "Shadowdark Guild - Manage your campaigns",
+  description: "Dungeon Exchange - Manage your campaigns",
   robots: {
     index: false,
     follow: false,

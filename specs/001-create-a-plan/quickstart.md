@@ -1,6 +1,6 @@
-# Quickstart: Shadowdark Monster Manager
+# Quickstart: Dungeon Exchange
 
-This document provides step-by-step testing scenarios to validate the core functionality of the Shadowdark Monster Manager application.
+This document provides step-by-step testing scenarios to validate the core functionality of the Dungeon Exchange application.
 
 ## Prerequisites
 

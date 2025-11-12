@@ -73,7 +73,7 @@ export SUPABASE_ACCESS_TOKEN="your_token_here"
 
 ## What These Migrations Include
 
-- **Complete database schema** for the Shadowdark Monster Manager
+- **Complete database schema** for the Dungeon Exchange
 - **243 official Shadowdark monsters** from the core rulebook
 - **Row Level Security (RLS)** policies for data protection
 - **Performance indexes** for fast search and filtering

@@ -1,10 +1,10 @@
-# Product Requirements Document (PRD): Shadowdark Monster Manager Web App
+# Product Requirements Document (PRD): Dungeon Exchange Web App
 
 ## 1. Document Overview
 
 ### 1.1 Purpose
 
-This PRD defines the requirements for "Shadowdark Monster Manager," a web application to assist Game Masters (GMs) in managing monsters and generating encounters for the _Shadowdark_ TTRPG. Built with Next.js (App Router) and Supabase, the app enables looking up monster stats, creating/saving monster lists and groups, generating random roll tables for encounters, fuzzy searching, random selections, and custom monster/group creation. It includes user authentication, public sharing of custom content with flagging, guest access, and admin tools for the MVP.
+This PRD defines the requirements for "Dungeon Exchange," a web application to assist Game Masters (GMs) in managing monsters and generating encounters for the _Shadowdark_ TTRPG. Built with Next.js (App Router) and Supabase, the app enables looking up monster stats, creating/saving monster lists and groups, generating random roll tables for encounters, fuzzy searching, random selections, and custom monster/group creation. It includes user authentication, public sharing of custom content with flagging, guest access, and admin tools for the MVP.
 
 This document captures decisions from iterative clarifying questions to ensure alignment on MVP scope. Post-MVP expansions (e.g., advanced sharing, real-time collab) are noted but not detailed.
 

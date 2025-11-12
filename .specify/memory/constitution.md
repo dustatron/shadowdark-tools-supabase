@@ -21,7 +21,7 @@ Follow-up TODOs: None
 
 ### I. Component-First
 
-Every feature starts as a reusable React component with clear responsibilities. Components MUST be self-contained, independently testable, and thoroughly documented. Each component serves a specific functional purpose for the Shadowdark Monster Manager web application.
+Every feature starts as a reusable React component with clear responsibilities. Components MUST be self-contained, independently testable, and thoroughly documented. Each component serves a specific functional purpose for the Dungeon Exchange web application.
 
 **Rationale**: Modular component architecture enables easier testing, reuse across different UI contexts, and cleaner separation of concerns for complex gaming features.
 

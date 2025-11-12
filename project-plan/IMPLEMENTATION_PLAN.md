@@ -1,8 +1,8 @@
-# Shadowdark Monster Manager - Implementation Plan
+# Dungeon Exchange - Implementation Plan
 
 ## Overview
 
-This document outlines the comprehensive implementation plan to transform the current Next.js + Supabase starter into the full Shadowdark Monster Manager web application as specified in the PRD.
+This document outlines the comprehensive implementation plan to transform the current Next.js + Supabase starter into the full Dungeon Exchange web application as specified in the PRD.
 
 ## Current State Assessment
 
@@ -1028,4 +1028,4 @@ ADMIN_EMAIL=admin@yourdomain.com
    - Performance optimizations
    - Community growth features
 
-This implementation plan provides a comprehensive roadmap from the current Next.js starter to a production-ready Shadowdark Monster Manager that meets all PRD requirements while maintaining high code quality and performance standards.
+This implementation plan provides a comprehensive roadmap from the current Next.js starter to a production-ready Dungeon Exchange that meets all PRD requirements while maintaining high code quality and performance standards.

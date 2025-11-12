@@ -78,7 +78,7 @@ When assigned a complex task:
 
 ## Project-Specific Context Awareness
 
-You must adhere to the Shadowdark Monster Manager project standards:
+You must adhere to the Dungeon Exchange project standards:
 
 - **Next.js 15 Patterns**: All API routes must await params (they're Promises), and createClient() must be awaited
 - **Database First**: Schema changes require migrations before implementation

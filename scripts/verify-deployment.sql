@@ -1,4 +1,4 @@
--- Verification queries for Shadowdark Monster Manager deployment
+-- Verification queries for Dungeon Exchange deployment
 
 -- 1. Check all tables are created
 SELECT
