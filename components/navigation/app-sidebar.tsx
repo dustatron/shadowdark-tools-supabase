@@ -18,6 +18,9 @@ import {
   Sun,
   Moon,
   Library,
+  Search,
+  ChevronDown,
+  Skull,
 } from "lucide-react";
 import {
   Sidebar,
@@ -29,9 +32,18 @@ import {
   SidebarMenu,
   SidebarMenuButton,
   SidebarMenuItem,
+  SidebarMenuSub,
+  SidebarMenuSubItem,
+  SidebarMenuSubButton,
   SidebarRail,
   SidebarTrigger,
+  useSidebar,
 } from "@/components/ui/sidebar";
+import {
+  Collapsible,
+  CollapsibleContent,
+  CollapsibleTrigger,
+} from "@/components/ui/collapsible";
 import { Button } from "@/components/ui/button";
 import { useAuth } from "@/src/components/providers/AuthProvider";
 import { useTheme } from "next-themes";
@@ -39,39 +51,29 @@ import { useRouter } from "next/navigation";
 import { toast } from "sonner";
 import Image from "next/image";
 
-// Navigation link type
-interface NavigationLink {
+// Sub-menu item type
+interface SubMenuItem {
   href: string;
   label: string;
   icon: React.ComponentType<{ className?: string }>;
-  external?: boolean;
+  requiresAuth?: boolean;
 }
 
-// User menu item type
-interface UserMenuItem {
+// Category group type
+interface CategoryGroup {
   label: string;
-  href?: string;
-  onClick?: () => void;
   icon: React.ComponentType<{ className?: string }>;
-  groupLabel?: string;
-  requiresRole?: "admin" | "moderator";
-  condition?: (user: any) => boolean;
+  items: SubMenuItem[];
+  defaultOpen?: boolean;
+  defaultLink: string; // Link to navigate when collapsed
 }
-
-// Public navigation links (always visible)
-const publicLinks: NavigationLink[] = [
-  { href: "/", label: "Home", icon: Home },
-  { href: "/monsters", label: "Monsters", icon: Swords },
-  { href: "/spells", label: "Spells", icon: Sparkles },
-  { href: "/encounter-tables", label: "Encounter Tables", icon: Dice6 },
-  { href: "/about", label: "About", icon: Info },
-];
 
 export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
   const { user, loading, signOut } = useAuth();
   const pathname = usePathname();
   const router = useRouter();
   const { theme, setTheme } = useTheme();
+  const { state } = useSidebar();
   const [mounted, setMounted] = React.useState(false);
 
   // Prevent hydration mismatch
@@ -91,105 +93,114 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
     }
   }, [signOut, router]);
 
-  // Dashboard menu items (authenticated users only)
-  const dashboardItems: UserMenuItem[] = React.useMemo(() => {
-    if (!user) return [];
-    return [
+  // Category groups
+  const categories: CategoryGroup[] = React.useMemo(
+    () => [
       {
-        label: "My Monsters",
-        href: "/dashboard/monsters",
-        icon: Swords,
-        groupLabel: "Dashboard",
+        label: "Monsters",
+        icon: Skull,
+        defaultLink: "/monsters",
+        defaultOpen:
+          pathname.startsWith("/monsters") ||
+          pathname.includes("/dashboard/monsters") ||
+          pathname.includes("/favorites/monsters"),
+        items: [
+          { href: "/monsters", label: "Search", icon: Search },
+          {
+            href: "/dashboard/monsters",
+            label: "Your Monsters",
+            icon: Swords,
+            requiresAuth: true,
+          },
+          {
+            href: "/dashboard/favorites/monsters",
+            label: "Favorites",
+            icon: Heart,
+            requiresAuth: true,
+          },
+        ],
       },
       {
-        label: "My Spells",
-        href: "/dashboard/spells",
+        label: "Spells",
         icon: Sparkles,
-        groupLabel: "Dashboard",
-      },
-      {
-        label: "Decks",
-        href: "/dashboard/decks",
-        icon: Library,
-        groupLabel: "Dashboard",
+        defaultLink: "/spells",
+        defaultOpen:
+          pathname.startsWith("/spells") ||
+          pathname.includes("/dashboard/spells") ||
+          pathname.includes("/favorites/spells"),
+        items: [
+          { href: "/spells", label: "Search", icon: Search },
+          {
+            href: "/dashboard/spells",
+            label: "Your Spells",
+            icon: Sparkles,
+            requiresAuth: true,
+          },
+          {
+            href: "/dashboard/favorites/spells",
+            label: "Favorites",
+            icon: Heart,
+            requiresAuth: true,
+          },
+        ],
       },
       {
         label: "Encounters",
-        href: "/dashboard/encounters",
         icon: Dice6,
-        groupLabel: "Dashboard",
+        defaultLink: "/encounter-tables",
+        defaultOpen:
+          pathname.startsWith("/encounter-tables") ||
+          pathname.includes("/dashboard/encounters"),
+        items: [
+          { href: "/encounter-tables", label: "Browse Tables", icon: Search },
+          {
+            href: "/dashboard/encounters",
+            label: "Your Encounters",
+            icon: Dice6,
+            requiresAuth: true,
+          },
+        ],
       },
       {
-        label: "Fav Monsters",
-        href: "/dashboard/favorites/monsters",
-        icon: Heart,
-        groupLabel: "Dashboard",
+        label: "Decks",
+        icon: Library,
+        defaultLink: "/dashboard/decks",
+        defaultOpen: pathname.includes("/dashboard/decks"),
+        items: [
+          {
+            href: "/dashboard/decks",
+            label: "Your Decks",
+            icon: Library,
+            requiresAuth: true,
+          },
+        ],
       },
       {
-        label: "Fav Spells",
-        href: "/dashboard/favorites/spells",
-        icon: Heart,
-        groupLabel: "Dashboard",
-      },
-    ];
-  }, [user]);
-
-  // Account menu items (authenticated users only)
-  const accountItems: UserMenuItem[] = React.useMemo(() => {
-    if (!user) return [];
-    return [
-      {
-        label: "Profile",
-        href: user.username_slug ? `/users/${user.username_slug}` : "/settings",
+        label: "Account",
         icon: User,
-        groupLabel: "Account",
+        defaultLink: "/settings",
+        defaultOpen:
+          pathname.startsWith("/settings") || pathname.startsWith("/users/"),
+        items: [
+          {
+            href: user?.username_slug
+              ? `/users/${user.username_slug}`
+              : "/settings",
+            label: "Profile",
+            icon: User,
+            requiresAuth: true,
+          },
+          {
+            href: "/settings",
+            label: "Settings",
+            icon: Settings,
+            requiresAuth: true,
+          },
+        ],
       },
-      {
-        label: "Settings",
-        href: "/settings",
-        icon: Settings,
-        groupLabel: "Account",
-      },
-      {
-        label: "Logout",
-        onClick: handleLogout,
-        icon: LogOut,
-        groupLabel: "Account",
-      },
-    ];
-  }, [user, handleLogout]);
-
-  // Admin menu items (admin/moderator only)
-  const adminItems: UserMenuItem[] = React.useMemo(() => {
-    if (!user || (user.role !== "admin" && user.role !== "moderator"))
-      return [];
-    return [
-      {
-        label: "Admin Dashboard",
-        href: "/admin",
-        icon: Shield,
-        groupLabel: "Administration",
-        requiresRole: "admin",
-      },
-    ];
-  }, [user]);
-
-  // Filter menu items based on conditions
-  const filterMenuItems = (items: UserMenuItem[]) => {
-    return items.filter((item) => {
-      if (
-        item.requiresRole &&
-        user?.role !== item.requiresRole &&
-        user?.role !== "moderator"
-      ) {
-        return false;
-      }
-      if (item.condition && !item.condition(user)) {
-        return false;
-      }
-      return true;
-    });
-  };
+    ],
+    [pathname, user],
+  );
 
   // Check if link is active
   const isLinkActive = (href: string) => {
@@ -199,43 +210,67 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
     return pathname.startsWith(href);
   };
 
-  // Render menu group
-  const renderMenuGroup = (items: UserMenuItem[], label: string) => {
-    const filteredItems = filterMenuItems(items);
+  // Filter category items based on auth
+  const filterCategoryItems = (category: CategoryGroup): SubMenuItem[] => {
+    return category.items.filter((item) => {
+      if (item.requiresAuth && !user) return false;
+      return true;
+    });
+  };
+
+  // Handle category click - navigate if collapsed, toggle if expanded
+  const handleCategoryClick = (e: React.MouseEvent, defaultLink: string) => {
+    if (state === "collapsed") {
+      router.push(defaultLink);
+    }
+    // If expanded, let CollapsibleTrigger handle the toggle
+  };
+
+  // Render collapsible category group
+  const renderCategoryGroup = (category: CategoryGroup) => {
+    const filteredItems = filterCategoryItems(category);
     if (filteredItems.length === 0) return null;
 
     return (
-      <SidebarGroup>
-        <SidebarGroupLabel>{label}</SidebarGroupLabel>
-        <SidebarMenu>
-          {filteredItems.map((item) => (
-            <SidebarMenuItem key={item.label}>
-              {item.href ? (
-                <SidebarMenuButton
-                  asChild
-                  isActive={isLinkActive(item.href)}
-                  aria-current={isLinkActive(item.href) ? "page" : undefined}
-                  tooltip={item.label}
-                >
-                  <Link href={item.href}>
-                    <item.icon />
-                    <span className="group-data-[collapsible=icon]:hidden">
-                      {item.label}
-                    </span>
-                  </Link>
-                </SidebarMenuButton>
-              ) : (
-                <SidebarMenuButton onClick={item.onClick} tooltip={item.label}>
-                  <item.icon />
-                  <span className="group-data-[collapsible=icon]:hidden">
-                    {item.label}
-                  </span>
-                </SidebarMenuButton>
-              )}
-            </SidebarMenuItem>
-          ))}
-        </SidebarMenu>
-      </SidebarGroup>
+      <Collapsible
+        key={category.label}
+        defaultOpen={category.defaultOpen}
+        className="group/collapsible"
+      >
+        <SidebarGroup>
+          <SidebarMenuItem>
+            <CollapsibleTrigger asChild>
+              <SidebarMenuButton
+                tooltip={category.label}
+                onClick={(e) => handleCategoryClick(e, category.defaultLink)}
+              >
+                <category.icon />
+                <span className="group-data-[collapsible=icon]:hidden">
+                  {category.label}
+                </span>
+                <ChevronDown className="ml-auto transition-transform group-data-[collapsible=icon]:hidden group-data-[state=open]/collapsible:rotate-180" />
+              </SidebarMenuButton>
+            </CollapsibleTrigger>
+            <CollapsibleContent>
+              <SidebarMenuSub>
+                {filteredItems.map((item) => (
+                  <SidebarMenuSubItem key={item.href}>
+                    <SidebarMenuSubButton
+                      asChild
+                      isActive={isLinkActive(item.href)}
+                    >
+                      <Link href={item.href}>
+                        <item.icon />
+                        <span>{item.label}</span>
+                      </Link>
+                    </SidebarMenuSubButton>
+                  </SidebarMenuSubItem>
+                ))}
+              </SidebarMenuSub>
+            </CollapsibleContent>
+          </SidebarMenuItem>
+        </SidebarGroup>
+      </Collapsible>
     );
   };
 
@@ -259,41 +294,79 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
         </div>
       </SidebarHeader>
       <SidebarContent>
-        {/* Public Navigation */}
+        {/* Home & About */}
         <SidebarGroup>
-          <SidebarGroupLabel>Navigation</SidebarGroupLabel>
           <SidebarMenu>
-            {publicLinks.map((link) => (
-              <SidebarMenuItem key={link.href}>
+            <SidebarMenuItem>
+              <SidebarMenuButton
+                asChild
+                isActive={isLinkActive("/")}
+                tooltip="Home"
+              >
+                <Link href="/">
+                  <Home />
+                  <span className="group-data-[collapsible=icon]:hidden">
+                    Home
+                  </span>
+                </Link>
+              </SidebarMenuButton>
+            </SidebarMenuItem>
+            <SidebarMenuItem>
+              <SidebarMenuButton
+                asChild
+                isActive={isLinkActive("/about")}
+                tooltip="About"
+              >
+                <Link href="/about">
+                  <Info />
+                  <span className="group-data-[collapsible=icon]:hidden">
+                    About
+                  </span>
+                </Link>
+              </SidebarMenuButton>
+            </SidebarMenuItem>
+          </SidebarMenu>
+        </SidebarGroup>
+
+        {/* Category Groups */}
+        <SidebarMenu>{categories.map(renderCategoryGroup)}</SidebarMenu>
+
+        {/* Admin Section */}
+        {user && (user.role === "admin" || user.role === "moderator") && (
+          <SidebarGroup>
+            <SidebarMenu>
+              <SidebarMenuItem>
                 <SidebarMenuButton
                   asChild
-                  isActive={isLinkActive(link.href)}
-                  aria-current={isLinkActive(link.href) ? "page" : undefined}
-                  tooltip={link.label}
+                  isActive={isLinkActive("/admin")}
+                  tooltip="Admin"
                 >
-                  <Link
-                    href={link.href}
-                    target={link.external ? "_blank" : undefined}
-                    rel={link.external ? "noopener noreferrer" : undefined}
-                  >
-                    <link.icon />
+                  <Link href="/admin">
+                    <Shield />
                     <span className="group-data-[collapsible=icon]:hidden">
-                      {link.label}
+                      Admin
                     </span>
                   </Link>
                 </SidebarMenuButton>
               </SidebarMenuItem>
-            ))}
-          </SidebarMenu>
-        </SidebarGroup>
+            </SidebarMenu>
+          </SidebarGroup>
+        )}
 
-        {/* Authenticated User Sections */}
+        {/* Logout (visible when logged in) */}
         {user && (
-          <>
-            {renderMenuGroup(dashboardItems, "Dashboard")}
-            {renderMenuGroup(accountItems, "Account")}
-            {renderMenuGroup(adminItems, "Administration")}
-          </>
+          <SidebarGroup>
+            <SidebarMenu>
+              <SidebarMenuItem>
+                <SidebarMenuButton onClick={handleLogout} tooltip="Logout">
+                  <LogOut />
+                  <span className="group-data-[collapsible=icon]:hidden">
+                    Logout
+                  </span>
+                </SidebarMenuButton>
+              </SidebarMenuItem>
+            </SidebarMenu>
+          </SidebarGroup>
         )}
 
         {/* Guest Sign In */}
