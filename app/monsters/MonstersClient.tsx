@@ -243,7 +243,6 @@ export function MonstersClient({
   return (
     <div>
       <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between mb-6">
-        <PageTitle title="Monsters" />
         {currentUserId && (
           <Button asChild>
             <Link href="/monsters/create">

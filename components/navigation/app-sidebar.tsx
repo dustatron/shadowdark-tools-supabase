@@ -185,14 +185,14 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
       {
         label: "Account",
         icon: User,
-        defaultLink: "/settings",
+        defaultLink: user?.username_slug
+          ? `/users/${user.username_slug}`
+          : "/settings",
         defaultOpen:
           pathname.startsWith("/settings") || pathname.startsWith("/users/"),
         items: [
           {
-            href: user?.username_slug
-              ? `/users/${user.username_slug}`
-              : "/settings",
+            href: user?.username_slug ? `/users/${user.username_slug}` : "#",
             label: "Profile",
             icon: User,
             requiresAuth: true,

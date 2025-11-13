@@ -11,11 +11,6 @@ export default function DecksPage() {
   return (
     <div>
       <div className="flex items-start justify-between mb-8">
-        <div>
-          <h1 className="text-4xl font-bold tracking-tight mb-1">
-            Spell Decks
-          </h1>
-        </div>
         <Button onClick={() => setShowCreateDialog(true)}>
           <Plus className="w-4 h-4 mr-2" />
           New Deck

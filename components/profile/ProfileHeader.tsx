@@ -25,9 +25,7 @@ export function ProfileHeader({ profile }: ProfileHeaderProps) {
       </Avatar>
 
       <div className="text-center">
-        <h1 className="text-2xl font-bold">
-          {profile.display_name || profile.username}
-        </h1>
+        <h1 className="text-2xl font-bold">{profile.username}</h1>
 
         <div className="flex items-center justify-center gap-2 mt-1">
           <Calendar size={14} />

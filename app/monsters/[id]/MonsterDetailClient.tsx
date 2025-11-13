@@ -9,6 +9,7 @@ import { MonsterOwnershipCard } from "@/src/components/monsters/MonsterOwnership
 import { AbilityScoresCard } from "@/src/components/monsters/AbilityScoresCard";
 import { ArrowLeft, Pencil, Trash2, MoreVertical, Copy } from "lucide-react";
 import Link from "next/link";
+import Image from "next/image";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -20,13 +21,6 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuSeparator,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
 import { toast } from "sonner";
 import { FavoriteButton } from "@/components/favorites/FavoriteButton";
 
@@ -363,28 +357,30 @@ export function MonsterDetailClient({
         {(monster.art_url || monster.icon_url) && (
           <Card className="shadow-sm">
             <CardContent className="p-6">
-              <div className="flex flex-wrap gap-4">
-                {monster.art_url && (
-                  <div>
-                    <h3 className="text-sm font-semibold mb-2">Art</h3>
-                    <img
-                      src={monster.art_url}
-                      alt={`${monster.name} art`}
-                      className="max-w-md w-full rounded-lg border"
-                    />
-                  </div>
-                )}
-                {monster.icon_url && (
-                  <div>
-                    <h3 className="text-sm font-semibold mb-2">Icon</h3>
-                    <img
-                      src={monster.icon_url}
-                      alt={`${monster.name} icon`}
-                      className="w-24 h-24 rounded-lg border"
-                    />
-                  </div>
-                )}
-              </div>
+              {monster.art_url && (
+                <div>
+                  <h3 className="text-sm font-semibold mb-2">Art</h3>
+                  <Image
+                    src={monster.art_url}
+                    alt={`${monster.name} art`}
+                    width={448}
+                    height={300}
+                    className="max-w-md w-full rounded-lg border"
+                  />
+                </div>
+              )}
+              {monster.icon_url && (
+                <div>
+                  <h3 className="text-sm font-semibold mb-2">Icon</h3>
+                  <Image
+                    src={monster.icon_url}
+                    alt={`${monster.name} icon`}
+                    width={96}
+                    height={96}
+                    className="w-24 h-24 rounded-lg border"
+                  />
+                </div>
+              )}
             </CardContent>
           </Card>
         )}
