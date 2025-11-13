@@ -2,7 +2,8 @@ import type { Metadata } from "next";
 import { RootProvider } from "@/src/components/providers/RootProvider";
 import { ThemeProvider } from "next-themes";
 import { Toaster } from "@/components/ui/sonner";
-import { AppNavbar } from "@/components/navigation/app-navbar";
+import { SidebarProvider, SidebarInset } from "@/components/ui/sidebar";
+import { AppSidebar } from "@/components/navigation/app-sidebar";
 import { getServerSession } from "@/lib/auth-helpers";
 import "./globals.css";
 
@@ -92,8 +93,12 @@ export default async function RootLayout({
       <body className="antialiased">
         <ThemeProvider attribute="class" defaultTheme="dark">
           <RootProvider initialSession={initialSession}>
-            <AppNavbar />
-            {children}
+            <SidebarProvider>
+              <AppSidebar />
+              <SidebarInset>
+                <div className="flex-1 overflow-auto p-4">{children}</div>
+              </SidebarInset>
+            </SidebarProvider>
           </RootProvider>
           <Toaster richColors position="top-right" closeButton />
         </ThemeProvider>

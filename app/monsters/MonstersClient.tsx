@@ -240,7 +240,7 @@ export function MonstersClient({
   };
 
   return (
-    <div className="container mx-auto p-4 md:p-6 lg:p-8">
+    <div>
       <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between mb-6">
         <h1 className="text-3xl font-bold tracking-tight">Monsters</h1>
         {currentUserId && (

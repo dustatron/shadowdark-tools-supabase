@@ -153,7 +153,7 @@ export default function DeckDetailPage() {
 
   if (isLoading) {
     return (
-      <div className="container mx-auto px-4 py-8">
+      <div>
         <Skeleton className="h-8 w-64 mb-4" />
         <Skeleton className="h-20 w-full mb-6" />
         <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
@@ -167,7 +167,7 @@ export default function DeckDetailPage() {
 
   if (error || !deck) {
     return (
-      <div className="container mx-auto">
+      <div>
         <div className="text-center">
           <h2 className="text-2xl font-bold mb-2">Deck Not Found</h2>
           <p className="text-muted-foreground mb-4">
@@ -188,7 +188,7 @@ export default function DeckDetailPage() {
   const existingSpellIds = deck.spells.map((s) => s.id);
 
   return (
-    <div className="container mx-auto">
+    <div>
       {/* Header */}
       <div className="mb-2">
         <div className="flex justify-between p-2">

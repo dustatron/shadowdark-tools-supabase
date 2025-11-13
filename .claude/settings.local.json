@@ -135,7 +135,11 @@
       "mcp__chrome-devtools__press_key",
       "Bash(base64:*)",
       "Bash(.env.local)",
-      "Bash(do sed -i '' 's/Shadowdark GM Tools/Shadowdark Guild/g' \"$file\")"
+      "Bash(do sed -i '' 's/Shadowdark GM Tools/Shadowdark Guild/g' \"$file\")",
+      "WebFetch(domain:ui.shadcn.com)",
+      "Bash(yes:*)",
+      "Bash(npm run test:*)",
+      "Bash(timeout 10 npm run dev:*)"
     ],
     "deny": [],
     "ask": []

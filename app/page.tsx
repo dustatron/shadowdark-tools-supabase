@@ -1,10 +1,8 @@
 import Link from "next/link";
 import type { Metadata } from "next";
-import { redirect } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Sword, Wand2, Dice6 } from "lucide-react";
-import { createClient } from "@/lib/supabase/server";
 
 export const metadata: Metadata = {
   title: "Home | Dungeon Exchange",
@@ -17,18 +15,9 @@ export const metadata: Metadata = {
   },
 };
 
-export default async function Home() {
-  // Check if user is authenticated and redirect to dashboard
-  const supabase = await createClient();
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
-
-  if (user) {
-    redirect("/dashboard");
-  }
+export default function Home() {
   return (
-    <div className="container mx-auto px-4 py-12">
+    <div>
       <div className="flex flex-col gap-12">
         {/* Hero Section */}
         <div className="flex flex-col gap-4 items-center text-center">

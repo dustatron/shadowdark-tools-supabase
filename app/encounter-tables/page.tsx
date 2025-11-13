@@ -50,7 +50,7 @@ export default async function EncounterTablesPage() {
   const encounterTables = (tables as unknown as EncounterTable[]) || [];
 
   return (
-    <div className="container mx-auto p-4 md:p-6 lg:p-8">
+    <div>
       <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between mb-6">
         <div>
           <h1 className="text-3xl font-bold tracking-tight">

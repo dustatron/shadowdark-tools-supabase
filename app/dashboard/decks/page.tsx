@@ -9,7 +9,7 @@ export default function DecksPage() {
   const [showCreateDialog, setShowCreateDialog] = useState(false);
 
   return (
-    <div className="container mx-auto ">
+    <div>
       <div className="flex items-start justify-between mb-8">
         <div>
           <h1 className="text-4xl font-bold tracking-tight mb-1">
