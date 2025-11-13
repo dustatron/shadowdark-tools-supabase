@@ -5,7 +5,19 @@ import { Toaster } from "@/components/ui/sonner";
 import { SidebarProvider, SidebarInset } from "@/components/ui/sidebar";
 import { AppSidebar } from "@/components/navigation/app-sidebar";
 import { getServerSession } from "@/lib/auth-helpers";
+import { Roboto, Source_Code_Pro } from "next/font/google";
 import "./globals.css";
+
+const roboto = Roboto({
+  weight: ["400", "500", "700"],
+  subsets: ["latin"],
+  variable: "--font-sans",
+});
+
+const sourceCodePro = Source_Code_Pro({
+  subsets: ["latin"],
+  variable: "--font-mono",
+});
 
 // Force dynamic rendering since we use server-side authentication
 export const dynamic = "force-dynamic";
@@ -90,7 +102,9 @@ export default async function RootLayout({
 
   return (
     <html lang="en" suppressHydrationWarning>
-      <body className="antialiased">
+      <body
+        className={`${roboto.variable} ${sourceCodePro.variable} antialiased`}
+      >
         <ThemeProvider attribute="class" defaultTheme="dark">
           <RootProvider initialSession={initialSession}>
             <SidebarProvider>

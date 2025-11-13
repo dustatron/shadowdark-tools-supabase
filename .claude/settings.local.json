@@ -139,7 +139,8 @@
       "WebFetch(domain:ui.shadcn.com)",
       "Bash(yes:*)",
       "Bash(npm run test:*)",
-      "Bash(timeout 10 npm run dev:*)"
+      "Bash(timeout 10 npm run dev:*)",
+      "WebFetch(domain:tweakcn.com)"
     ],
     "deny": [],
     "ask": []

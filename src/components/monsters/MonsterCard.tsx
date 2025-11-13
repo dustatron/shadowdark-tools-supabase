@@ -124,7 +124,7 @@ export function MonsterCard({
 
   const cardContent = (
     <Card
-      className={`shadow-sm ${!showActions ? "hover:shadow-md transition-shadow cursor-pointer" : ""} `}
+      className={`${!showActions ? "hover:shadow-md transition-shadow cursor-pointer" : ""} `}
     >
       <div className="float-end flex gap-1">
         {showActions && isOwner && (
@@ -167,7 +167,7 @@ export function MonsterCard({
           </div>
         </CardHeader>
       </Link>
-      <CardContent className="p-4 border-t-2">
+      <CardContent className="p-4 border-t-2 dark:border-border ">
         {/* Header */}
 
         {/* Stats */}

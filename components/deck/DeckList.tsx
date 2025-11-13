@@ -52,7 +52,7 @@ export function DeckList({ onCreateClick }: DeckListProps) {
 
   if (isLoading) {
     return (
-      <div className="rounded-md border">
+      <Card>
         <Table>
           <TableHeader>
             <TableRow>
@@ -81,7 +81,7 @@ export function DeckList({ onCreateClick }: DeckListProps) {
             ))}
           </TableBody>
         </Table>
-      </div>
+      </Card>
     );
   }
 
@@ -124,7 +124,7 @@ export function DeckList({ onCreateClick }: DeckListProps) {
   }
 
   return (
-    <div className="rounded-md border">
+    <Card>
       <Table>
         <TableHeader>
           <TableRow>
@@ -136,7 +136,7 @@ export function DeckList({ onCreateClick }: DeckListProps) {
         </TableHeader>
         <TableBody>
           {decks.map((deck) => (
-            <TableRow key={deck.id} className="hover:bg-muted/50">
+            <TableRow key={deck.id}>
               <TableCell className="font-medium">
                 <Link
                   href={`/dashboard/decks/${deck.id}`}
@@ -169,6 +169,6 @@ export function DeckList({ onCreateClick }: DeckListProps) {
           ))}
         </TableBody>
       </Table>
-    </div>
+    </Card>
   );
 }

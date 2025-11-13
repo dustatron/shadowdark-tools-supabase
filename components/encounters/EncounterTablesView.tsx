@@ -63,7 +63,7 @@ export function EncounterTablesView({
 
   if (tables.length === 0) {
     return (
-      <Card className="border-dashed">
+      <Card className="">
         <CardContent className="flex flex-col items-center justify-center py-16">
           <div className="text-center space-y-4">
             <div className="text-muted-foreground">
@@ -121,75 +121,67 @@ export function EncounterTablesView({
 
       {/* Table View */}
       {viewMode === "table" && (
-        <div className="border rounded-lg overflow-hidden">
-          <div className="overflow-x-auto">
-            <Table>
-              <TableHeader>
-                <TableRow>
-                  <TableHead>Name</TableHead>
-                  <TableHead className="hidden sm:table-cell">
-                    Description
-                  </TableHead>
-                  <TableHead>Die Size</TableHead>
-                  <TableHead className="hidden md:table-cell">Levels</TableHead>
-                  <TableHead className="hidden lg:table-cell">
-                    Sources
-                  </TableHead>
-                  <TableHead className="hidden md:table-cell">Status</TableHead>
-                  <TableHead className="hidden lg:table-cell">
-                    Created
-                  </TableHead>
-                  <TableHead className="text-right">Actions</TableHead>
-                </TableRow>
-              </TableHeader>
-              <TableBody>
-                {tables.map((table) => (
-                  <TableRow key={table.id}>
-                    <TableCell className="font-medium">
-                      <Link
-                        href={`${basePath}/${table.id}`}
-                        className="hover:underline"
-                      >
-                        {table.name}
+        <Card className="p-2">
+          <Table>
+            <TableHeader>
+              <TableRow>
+                <TableHead>Name</TableHead>
+                <TableHead className="hidden sm:table-cell">
+                  Description
+                </TableHead>
+                <TableHead>Die Size</TableHead>
+                <TableHead className="hidden md:table-cell">Levels</TableHead>
+                <TableHead className="hidden lg:table-cell">Sources</TableHead>
+                <TableHead className="hidden md:table-cell">Status</TableHead>
+                <TableHead className="hidden lg:table-cell">Created</TableHead>
+                <TableHead className="text-right">Actions</TableHead>
+              </TableRow>
+            </TableHeader>
+            <TableBody>
+              {tables.map((table) => (
+                <TableRow key={table.id}>
+                  <TableCell className="font-medium">
+                    <Link
+                      href={`${basePath}/${table.id}`}
+                      className="hover:underline"
+                    >
+                      {table.name}
+                    </Link>
+                  </TableCell>
+                  <TableCell className="hidden sm:table-cell max-w-xs">
+                    <div className="line-clamp-2 text-sm text-muted-foreground">
+                      {table.description || "—"}
+                    </div>
+                  </TableCell>
+                  <TableCell>
+                    <Badge variant="outline">d{table.die_size}</Badge>
+                  </TableCell>
+                  <TableCell className="hidden md:table-cell">
+                    {table.filters.level_min} - {table.filters.level_max}
+                  </TableCell>
+                  <TableCell className="hidden lg:table-cell">
+                    {table.filters.sources.length}
+                  </TableCell>
+                  <TableCell className="hidden md:table-cell">
+                    <Badge variant={table.is_public ? "default" : "secondary"}>
+                      {table.is_public ? "Public" : "Private"}
+                    </Badge>
+                  </TableCell>
+                  <TableCell className="hidden lg:table-cell text-sm text-muted-foreground">
+                    {new Date(table.created_at).toLocaleDateString()}
+                  </TableCell>
+                  <TableCell className="text-right">
+                    <Button variant="ghost" size="sm" asChild>
+                      <Link href={`${basePath}/${table.id}/settings`}>
+                        <Edit className="h-4 w-4" />
                       </Link>
-                    </TableCell>
-                    <TableCell className="hidden sm:table-cell max-w-xs">
-                      <div className="line-clamp-2 text-sm text-muted-foreground">
-                        {table.description || "—"}
-                      </div>
-                    </TableCell>
-                    <TableCell>
-                      <Badge variant="outline">d{table.die_size}</Badge>
-                    </TableCell>
-                    <TableCell className="hidden md:table-cell">
-                      {table.filters.level_min} - {table.filters.level_max}
-                    </TableCell>
-                    <TableCell className="hidden lg:table-cell">
-                      {table.filters.sources.length}
-                    </TableCell>
-                    <TableCell className="hidden md:table-cell">
-                      <Badge
-                        variant={table.is_public ? "default" : "secondary"}
-                      >
-                        {table.is_public ? "Public" : "Private"}
-                      </Badge>
-                    </TableCell>
-                    <TableCell className="hidden lg:table-cell text-sm text-muted-foreground">
-                      {new Date(table.created_at).toLocaleDateString()}
-                    </TableCell>
-                    <TableCell className="text-right">
-                      <Button variant="ghost" size="sm" asChild>
-                        <Link href={`${basePath}/${table.id}/settings`}>
-                          <Edit className="h-4 w-4" />
-                        </Link>
-                      </Button>
-                    </TableCell>
-                  </TableRow>
-                ))}
-              </TableBody>
-            </Table>
-          </div>
-        </div>
+                    </Button>
+                  </TableCell>
+                </TableRow>
+              ))}
+            </TableBody>
+          </Table>
+        </Card>
       )}
 
       {/* Card View */}

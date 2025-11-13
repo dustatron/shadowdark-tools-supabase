@@ -9,7 +9,6 @@ import {
   Settings,
   Share2,
   Trash2,
-  RefreshCw,
   ExternalLink,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -410,7 +409,7 @@ export function EncounterTableClient({
               </CardDescription>
             </CardHeader>
             <CardContent>
-              <div className="rounded-md border overflow-auto max-h-96">
+              <div className="rounded-sm border dark:border-neutral-600 overflow-auto max-h-96">
                 <Table>
                   <TableHeader>
                     <TableRow>
@@ -420,25 +419,31 @@ export function EncounterTableClient({
                     </TableRow>
                   </TableHeader>
                   <TableBody>
-                    {entries.map((entry) => (
-                      <TableRow
-                        key={entry.id}
-                        className={
-                          lastRoll === entry.roll_number
-                            ? "bg-accent"
-                            : "cursor-pointer hover:bg-muted/50"
-                        }
-                        onClick={() => setSelectedEntry(entry)}
-                      >
-                        <TableCell className="font-medium">
-                          {entry.roll_number}
-                        </TableCell>
-                        <TableCell>{entry.monster_snapshot.name}</TableCell>
-                        <TableCell className="text-right">
-                          {entry.monster_snapshot.challenge_level}
-                        </TableCell>
-                      </TableRow>
-                    ))}
+                    {entries.map((entry) => {
+                      const isRolled = lastRoll === entry.roll_number;
+                      const isSelected = selectedEntry?.id === entry.id;
+                      const isHighlighted = isRolled || isSelected;
+
+                      return (
+                        <TableRow
+                          key={entry.id}
+                          className={
+                            isHighlighted
+                              ? "bg-primary text-primary-foreground dark:bg-primary dark:text-primary-foreground cursor-pointer"
+                              : "cursor-pointer"
+                          }
+                          onClick={() => setSelectedEntry(entry)}
+                        >
+                          <TableCell className="font-medium">
+                            {entry.roll_number}
+                          </TableCell>
+                          <TableCell>{entry.monster_snapshot.name}</TableCell>
+                          <TableCell className="text-right">
+                            {entry.monster_snapshot.challenge_level}
+                          </TableCell>
+                        </TableRow>
+                      );
+                    })}
                   </TableBody>
                 </Table>
               </div>
