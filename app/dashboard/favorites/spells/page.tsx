@@ -18,7 +18,6 @@ export default async function FavoriteSpellsPage() {
   return (
     <div>
       <div className="flex items-center justify-between mb-6">
-        <h2 className="text-2xl font-bold">Favorite Spells</h2>
         <Button asChild variant="outline">
           <Link href="/spells">
             <Library className="mr-2 h-4 w-4" />

@@ -73,13 +73,20 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
   const pathname = usePathname();
   const router = useRouter();
   const { theme, setTheme } = useTheme();
-  const { state } = useSidebar();
+  const { state, isMobile, setOpenMobile } = useSidebar();
   const [mounted, setMounted] = React.useState(false);
 
   // Prevent hydration mismatch
   React.useEffect(() => {
     setMounted(true);
   }, []);
+
+  // Close mobile menu on route change
+  React.useEffect(() => {
+    if (isMobile) {
+      setOpenMobile(false);
+    }
+  }, [pathname, isMobile, setOpenMobile]);
 
   // Handle logout
   const handleLogout = React.useCallback(async () => {
@@ -178,14 +185,14 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
       {
         label: "Account",
         icon: User,
-        defaultLink: "/settings",
+        defaultLink: user?.username_slug
+          ? `/users/${user.username_slug}`
+          : "/settings",
         defaultOpen:
           pathname.startsWith("/settings") || pathname.startsWith("/users/"),
         items: [
           {
-            href: user?.username_slug
-              ? `/users/${user.username_slug}`
-              : "/settings",
+            href: user?.username_slug ? `/users/${user.username_slug}` : "#",
             label: "Profile",
             icon: User,
             requiresAuth: true,
@@ -275,22 +282,19 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
   };
 
   return (
-    <Sidebar collapsible="icon" variant="inset" {...props}>
+    <Sidebar collapsible="icon" variant="sidebar" {...props}>
       <SidebarHeader>
-        <div className="flex items-center justify-between gap-2 px-2 py-2">
-          <div className="flex items-center gap-2">
-            <Image
-              src="/legend.png"
-              alt="Dungeon Exchange"
-              width={32}
-              height={32}
-              className="h-8 w-8"
-            />
-            <span className="font-bold text-sm group-data-[collapsible=icon]:hidden">
-              Dungeon Exchange
-            </span>
-          </div>
-          <SidebarTrigger />
+        <div className="flex items-center gap-2 px-2 py-2">
+          <Image
+            src="/legend.png"
+            alt="Dungeon Exchange"
+            width={32}
+            height={32}
+            className="h-8 w-8 shrink-0 group-data-[collapsible=icon]:h-5 group-data-[collapsible=icon]:w-5"
+          />
+          <span className="font-bold text-sm group-data-[collapsible=icon]:hidden">
+            Dungeon Exchange
+          </span>
         </div>
       </SidebarHeader>
       <SidebarContent>

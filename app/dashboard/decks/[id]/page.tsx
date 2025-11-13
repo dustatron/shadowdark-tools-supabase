@@ -31,6 +31,7 @@ import Link from "next/link";
 import { toast } from "sonner";
 import type { DeckWithSpells } from "@/lib/validations/deck";
 import { SpellTable } from "./SpellTable";
+import { PageTitle } from "@/components/page-title";
 
 async function fetchDeck(id: string): Promise<DeckWithSpells> {
   const response = await fetch(`/api/decks/${id}`);
@@ -169,7 +170,7 @@ export default function DeckDetailPage() {
     return (
       <div>
         <div className="text-center">
-          <h2 className="text-2xl font-bold mb-2">Deck Not Found</h2>
+          <PageTitle title="Deck Not Found" />
           <p className="text-muted-foreground mb-4">
             The deck you&apos;re looking for doesn&apos;t exist or you
             don&apos;t have access to it.
@@ -192,9 +193,7 @@ export default function DeckDetailPage() {
       {/* Header */}
       <div className="mb-2">
         <div className="flex justify-between p-2">
-          <h1 className="text-4xl font-bold tracking-tight mb-2">
-            {deck.name}
-          </h1>
+          <PageTitle title={deck.name} />
 
           <div className="flex items-center gap-2">
             <Button

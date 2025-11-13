@@ -219,12 +219,6 @@ export default function EncounterForm() {
 
   return (
     <div className="container mx-auto px-4 py-6 md:p-6 lg:p-8 max-w-7xl">
-      <div className="mb-4 md:mb-6">
-        <h1 className="text-2xl md:text-3xl font-bold tracking-tight">
-          Encounter Generate
-        </h1>
-      </div>
-
       {error && (
         <Alert variant="destructive" className="mb-6">
           <AlertCircle className="h-4 w-4" />
