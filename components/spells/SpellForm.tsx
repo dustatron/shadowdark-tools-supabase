@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
+import { z } from "zod";
 import { toast } from "sonner";
 import { useRouter } from "next/navigation";
 import { Loader2, Sparkles } from "lucide-react";
@@ -55,7 +56,7 @@ export function SpellForm({
   const router = useRouter();
   const [isSubmitting, setIsSubmitting] = useState(false);
 
-  const form = useForm<SpellCreate>({
+  const form = useForm({
     resolver: zodResolver(spellCreateSchema),
     defaultValues: {
       name: initialData?.name || "",
