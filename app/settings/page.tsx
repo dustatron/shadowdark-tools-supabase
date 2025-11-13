@@ -64,7 +64,7 @@ export default async function SettingsPage() {
   }
 
   return (
-    <div className="container mx-auto max-w-2xl py-10">
+    <div className="max-w-2xl mx-auto">
       <div className="space-y-6">
         <div className="text-center">
           <h1 className="text-3xl font-bold tracking-tight">Settings</h1>
