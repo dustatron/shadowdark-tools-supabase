@@ -1,0 +1,186 @@
+{
+  "endpoint": "GET /api/spells",
+  "description": "List spells (user's own spells + public spells)",
+  "authentication": "optional",
+  "request": {
+    "queryParameters": {
+      "search": {
+        "type": "string",
+        "description": "Search spell names and descriptions",
+        "example": "fire"
+      },
+      "tier": {
+        "type": "integer",
+        "minimum": 1,
+        "maximum": 5,
+        "description": "Filter by spell tier",
+        "example": 3
+      },
+      "class": {
+        "type": "string",
+        "enum": ["wizard", "priest"],
+        "description": "Filter by spell class",
+        "example": "wizard"
+      },
+      "is_public": {
+        "type": "boolean",
+        "description": "Filter by public/private (only works for user's own spells)",
+        "example": true
+      },
+      "limit": {
+        "type": "integer",
+        "minimum": 1,
+        "maximum": 100,
+        "default": 50,
+        "description": "Maximum number of results",
+        "example": 20
+      },
+      "offset": {
+        "type": "integer",
+        "minimum": 0,
+        "default": 0,
+        "description": "Number of results to skip (pagination)",
+        "example": 0
+      }
+    }
+  },
+  "responses": {
+    "200": {
+      "description": "List of spells",
+      "body": {
+        "type": "object",
+        "properties": {
+          "data": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "id": {
+                  "type": "string",
+                  "format": "uuid"
+                },
+                "name": {
+                  "type": "string"
+                },
+                "slug": {
+                  "type": "string"
+                },
+                "tier": {
+                  "type": "integer"
+                },
+                "classes": {
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  }
+                },
+                "duration": {
+                  "type": "string"
+                },
+                "range": {
+                  "type": "string"
+                },
+                "description": {
+                  "type": "string"
+                },
+                "source": {
+                  "type": "string"
+                },
+                "is_public": {
+                  "type": "boolean"
+                },
+                "user_id": {
+                  "type": "string",
+                  "format": "uuid",
+                  "nullable": true,
+                  "description": "Null for official spells"
+                },
+                "created_at": {
+                  "type": "string",
+                  "format": "date-time"
+                }
+              }
+            }
+          },
+          "count": {
+            "type": "integer",
+            "description": "Total number of results (before pagination)"
+          }
+        }
+      }
+    },
+    "400": {
+      "description": "Invalid query parameters",
+      "body": {
+        "type": "object",
+        "properties": {
+          "error": {
+            "type": "string",
+            "example": "Invalid tier value"
+          }
+        }
+      }
+    }
+  },
+  "testScenarios": [
+    {
+      "name": "List all spells (authenticated user)",
+      "authenticated": true,
+      "expectedStatus": 200,
+      "assertions": [
+        "response.data is array",
+        "response.count >= 0",
+        "each spell has required fields",
+        "includes user's private spells",
+        "includes all public spells",
+        "excludes other users' private spells"
+      ]
+    },
+    {
+      "name": "List spells (unauthenticated)",
+      "authenticated": false,
+      "expectedStatus": 200,
+      "assertions": [
+        "response.data is array",
+        "only includes public spells",
+        "no private spells in results"
+      ]
+    },
+    {
+      "name": "Filter by tier",
+      "queryParams": {
+        "tier": 3
+      },
+      "expectedStatus": 200,
+      "assertions": ["all spells have tier === 3"]
+    },
+    {
+      "name": "Filter by class",
+      "queryParams": {
+        "class": "wizard"
+      },
+      "expectedStatus": 200,
+      "assertions": ["all spells include 'wizard' in classes array"]
+    },
+    {
+      "name": "Search by name",
+      "queryParams": {
+        "search": "fire"
+      },
+      "expectedStatus": 200,
+      "assertions": ["all spell names or descriptions include 'fire'"]
+    },
+    {
+      "name": "Pagination",
+      "queryParams": {
+        "limit": 10,
+        "offset": 0
+      },
+      "expectedStatus": 200,
+      "assertions": [
+        "response.data.length <= 10",
+        "response.count >= response.data.length"
+      ]
+    }
+  ]
+}

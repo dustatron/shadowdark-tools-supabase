@@ -1,0 +1,163 @@
+{
+  "endpoint": "GET /api/spells/:id",
+  "description": "Get a single spell by ID",
+  "authentication": "optional",
+  "request": {
+    "pathParameters": {
+      "id": {
+        "type": "string",
+        "format": "uuid",
+        "description": "Spell ID",
+        "example": "550e8400-e29b-41d4-a716-446655440000"
+      }
+    }
+  },
+  "responses": {
+    "200": {
+      "description": "Spell found",
+      "body": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "name": {
+            "type": "string"
+          },
+          "slug": {
+            "type": "string"
+          },
+          "tier": {
+            "type": "integer"
+          },
+          "classes": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "duration": {
+            "type": "string"
+          },
+          "range": {
+            "type": "string"
+          },
+          "description": {
+            "type": "string"
+          },
+          "author_notes": {
+            "type": "string",
+            "nullable": true
+          },
+          "source": {
+            "type": "string"
+          },
+          "is_public": {
+            "type": "boolean"
+          },
+          "user_id": {
+            "type": "string",
+            "format": "uuid",
+            "nullable": true
+          },
+          "creator_id": {
+            "type": "string",
+            "format": "uuid",
+            "nullable": true
+          },
+          "created_at": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "updated_at": {
+            "type": "string",
+            "format": "date-time"
+          }
+        }
+      }
+    },
+    "403": {
+      "description": "Forbidden - private spell owned by another user",
+      "body": {
+        "type": "object",
+        "properties": {
+          "error": {
+            "type": "string",
+            "example": "Forbidden"
+          }
+        }
+      }
+    },
+    "404": {
+      "description": "Spell not found",
+      "body": {
+        "type": "object",
+        "properties": {
+          "error": {
+            "type": "string",
+            "example": "Spell not found"
+          }
+        }
+      }
+    }
+  },
+  "testScenarios": [
+    {
+      "name": "Get public spell (authenticated)",
+      "authenticated": true,
+      "setup": "Create public spell",
+      "expectedStatus": 200,
+      "assertions": [
+        "response.id matches requested ID",
+        "response.is_public === true",
+        "all fields present"
+      ]
+    },
+    {
+      "name": "Get public spell (unauthenticated)",
+      "authenticated": false,
+      "setup": "Create public spell",
+      "expectedStatus": 200,
+      "assertions": [
+        "response.id matches requested ID",
+        "response.is_public === true"
+      ]
+    },
+    {
+      "name": "Get own private spell",
+      "authenticated": true,
+      "setup": "Create private spell owned by current user",
+      "expectedStatus": 200,
+      "assertions": [
+        "response.is_public === false",
+        "response.user_id === currentUser.id"
+      ]
+    },
+    {
+      "name": "Get other user's private spell (forbidden)",
+      "authenticated": true,
+      "setup": "Create private spell owned by different user",
+      "expectedStatus": 403,
+      "assertions": ["response.error === 'Forbidden'"]
+    },
+    {
+      "name": "Get non-existent spell",
+      "authenticated": true,
+      "pathParams": {
+        "id": "00000000-0000-0000-0000-000000000000"
+      },
+      "expectedStatus": 404,
+      "assertions": ["response.error includes 'not found'"]
+    },
+    {
+      "name": "Get spell with invalid UUID",
+      "authenticated": true,
+      "pathParams": {
+        "id": "not-a-uuid"
+      },
+      "expectedStatus": 400,
+      "assertions": ["response.error includes 'invalid'"]
+    }
+  ]
+}

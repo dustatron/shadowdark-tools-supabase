@@ -21,6 +21,7 @@ interface FilterValues {
   durations: string[];
   ranges: string[];
   sources: string[];
+  spellSource: "all" | "official" | "custom";
 }
 
 interface SpellFiltersProps {
@@ -41,6 +42,7 @@ const DEFAULT_FILTERS: FilterValues = {
   durations: [],
   ranges: [],
   sources: [],
+  spellSource: "all",
 };
 
 export function SpellFilters({
@@ -84,7 +86,8 @@ export function SpellFilters({
     filters.classes.length > 0 ||
     filters.durations.length > 0 ||
     filters.ranges.length > 0 ||
-    filters.sources.length > 0;
+    filters.sources.length > 0 ||
+    filters.spellSource !== "all";
 
   const activeFilterCount = [
     filters.search !== "",
@@ -93,11 +96,40 @@ export function SpellFilters({
     filters.durations.length > 0,
     filters.ranges.length > 0,
     filters.sources.length > 0,
+    filters.spellSource !== "all",
   ].filter(Boolean).length;
 
   return (
     <Card>
       <CardContent className="p-4 space-y-4">
+        {/* Spell Source Filter */}
+        <div className="grid grid-cols-3 gap-2">
+          <Button
+            variant={filters.spellSource === "all" ? "default" : "outline"}
+            onClick={() => handleFilterChange("spellSource", "all")}
+            disabled={loading}
+            className="text-xs sm:text-sm"
+          >
+            All Spells
+          </Button>
+          <Button
+            variant={filters.spellSource === "official" ? "default" : "outline"}
+            onClick={() => handleFilterChange("spellSource", "official")}
+            disabled={loading}
+            className="text-xs sm:text-sm"
+          >
+            Core Spells
+          </Button>
+          <Button
+            variant={filters.spellSource === "custom" ? "default" : "outline"}
+            onClick={() => handleFilterChange("spellSource", "custom")}
+            disabled={loading}
+            className="text-xs sm:text-sm"
+          >
+            Custom Spells
+          </Button>
+        </div>
+
         <div className="flex flex-col sm:flex-row gap-4">
           <div className="relative flex-1">
             <Search

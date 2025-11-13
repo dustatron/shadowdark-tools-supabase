@@ -3,9 +3,8 @@
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { createClient } from "@/lib/supabase/client";
-import { Info } from "lucide-react";
 import { LoadingSpinner } from "@/src/components/ui/LoadingSpinner";
-import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
+import { SpellForm } from "@/components/spells/SpellForm";
 
 export default function CreateSpellPage() {
   const router = useRouter();
@@ -47,18 +46,14 @@ export default function CreateSpellPage() {
   }
 
   return (
-    <div className="container mx-auto px-4 py-8">
-      <h1 className="text-3xl font-bold mb-6">Create Custom Spell</h1>
-      <Alert>
-        <Info className="h-4 w-4" />
-        <AlertTitle>Coming Soon</AlertTitle>
-        <AlertDescription>
-          The spell creation form is not yet implemented. This page is reserved
-          for future development.
-        </AlertDescription>
-      </Alert>
-      {/* TODO: Add SpellCreateEditForm component when available */}
-      {/* <SpellCreateEditForm mode="create" /> */}
+    <div className="container mx-auto px-4 py-8 max-w-3xl">
+      <div className="mb-6">
+        <h1 className="text-3xl font-bold">Create Custom Spell</h1>
+        <p className="text-muted-foreground mt-2">
+          Add a new spell to your Shadowdark campaign
+        </p>
+      </div>
+      <SpellForm mode="create" />
     </div>
   );
 }

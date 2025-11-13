@@ -32,6 +32,7 @@ interface FilterValues {
   durations: string[];
   ranges: string[];
   sources: string[];
+  spellSource: "all" | "official" | "custom";
 }
 
 const DEFAULT_FILTERS: FilterValues = {
@@ -42,6 +43,7 @@ const DEFAULT_FILTERS: FilterValues = {
   durations: [],
   ranges: [],
   sources: [],
+  spellSource: "all",
 };
 
 export default function SpellsPage() {
@@ -163,6 +165,12 @@ export default function SpellsPage() {
       }
       if (filters.sources.length > 0) {
         params.append("sources", filters.sources.join(","));
+      }
+      if (filters.spellSource !== "all") {
+        // Map "custom" to "user" for API
+        const apiType =
+          filters.spellSource === "custom" ? "user" : filters.spellSource;
+        params.append("spellTypes", apiType);
       }
 
       const response = await fetch(`/api/search/spells?${params.toString()}`);

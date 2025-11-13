@@ -1,0 +1,123 @@
+{
+  "endpoint": "DELETE /api/spells/:id",
+  "description": "Delete a spell (owner only)",
+  "authentication": "required",
+  "request": {
+    "pathParameters": {
+      "id": {
+        "type": "string",
+        "format": "uuid",
+        "description": "Spell ID",
+        "example": "550e8400-e29b-41d4-a716-446655440000"
+      }
+    }
+  },
+  "responses": {
+    "204": {
+      "description": "Spell deleted successfully (no content)",
+      "body": null
+    },
+    "401": {
+      "description": "Authentication required",
+      "body": {
+        "type": "object",
+        "properties": {
+          "error": {
+            "type": "string",
+            "example": "Authentication required"
+          }
+        }
+      }
+    },
+    "403": {
+      "description": "Forbidden - not spell owner",
+      "body": {
+        "type": "object",
+        "properties": {
+          "error": {
+            "type": "string",
+            "example": "Forbidden"
+          }
+        }
+      }
+    },
+    "404": {
+      "description": "Spell not found or already deleted",
+      "body": {
+        "type": "object",
+        "properties": {
+          "error": {
+            "type": "string",
+            "example": "Spell not found"
+          }
+        }
+      }
+    },
+    "500": {
+      "description": "Internal server error",
+      "body": {
+        "type": "object",
+        "properties": {
+          "error": {
+            "type": "string",
+            "example": "Delete failed"
+          }
+        }
+      }
+    }
+  },
+  "testScenarios": [
+    {
+      "name": "Delete own spell",
+      "authenticated": true,
+      "setup": "Create spell owned by current user",
+      "expectedStatus": 204,
+      "assertions": [
+        "response body is empty",
+        "spell no longer exists in database",
+        "subsequent GET returns 404"
+      ]
+    },
+    {
+      "name": "Delete non-owned spell (forbidden)",
+      "authenticated": true,
+      "setup": "Create spell owned by different user",
+      "expectedStatus": 403,
+      "assertions": [
+        "spell still exists in database",
+        "original owner can still access it"
+      ]
+    },
+    {
+      "name": "Delete without auth",
+      "authenticated": false,
+      "setup": "Create spell",
+      "expectedStatus": 401,
+      "assertions": ["spell unchanged in database"]
+    },
+    {
+      "name": "Delete non-existent spell",
+      "authenticated": true,
+      "pathParams": {
+        "id": "00000000-0000-0000-0000-000000000000"
+      },
+      "expectedStatus": 404
+    },
+    {
+      "name": "Delete with invalid UUID",
+      "authenticated": true,
+      "pathParams": {
+        "id": "not-a-uuid"
+      },
+      "expectedStatus": 400,
+      "assertions": ["response.error includes 'invalid'"]
+    },
+    {
+      "name": "Delete already deleted spell (idempotent)",
+      "authenticated": true,
+      "setup": "Create and delete spell",
+      "expectedStatus": 404,
+      "assertions": ["no error thrown", "graceful handling of missing resource"]
+    }
+  ]
+}

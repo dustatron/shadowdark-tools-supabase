@@ -14,10 +14,23 @@ import { Button } from "@/components/ui/button";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { Spinner } from "@/components/ui/spinner";
 import { SpellDetailBlock } from "@/src/components/spells/SpellDetailBlock";
-import { ArrowLeft, AlertCircle } from "lucide-react";
+import { ArrowLeft, AlertCircle, Edit, Trash2 } from "lucide-react";
 import Link from "next/link";
 import { createClient } from "@/lib/supabase/client";
 import { FavoriteButton } from "@/components/favorites/FavoriteButton";
+import { toast } from "sonner";
+import { useRouter } from "next/navigation";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from "@/components/ui/alert-dialog";
 
 interface Spell {
   id: string;
@@ -30,10 +43,12 @@ interface Spell {
   tier: number;
   source: string;
   author_notes?: string;
+  user_id?: string;
 }
 
 export default function SpellDetailPage() {
   const params = useParams();
+  const router = useRouter();
   const spellSlug = params?.slug as string;
 
   const [spell, setSpell] = useState<Spell | null>(null);
@@ -41,6 +56,7 @@ export default function SpellDetailPage() {
   const [error, setError] = useState<string | null>(null);
   const [currentUserId, setCurrentUserId] = useState<string | null>(null);
   const [favoriteId, setFavoriteId] = useState<string | null>(null);
+  const [isDeleting, setIsDeleting] = useState(false);
 
   useEffect(() => {
     if (spellSlug) {
@@ -65,18 +81,18 @@ export default function SpellDetailPage() {
       setLoading(true);
       setError(null);
 
-      const response = await fetch(`/api/spells/${spellSlug}`);
+      const supabase = createClient();
+      const { data, error: fetchError } = await supabase
+        .from("all_spells")
+        .select("*")
+        .eq("slug", spellSlug)
+        .single();
 
-      if (!response.ok) {
-        if (response.status === 404) {
-          setError("Spell not found");
-        } else {
-          setError("Failed to load spell");
-        }
+      if (fetchError || !data) {
+        setError("Spell not found");
         return;
       }
 
-      const data = await response.json();
       setSpell(data);
 
       // Fetch favorite status if user is logged in
@@ -108,6 +124,30 @@ export default function SpellDetailPage() {
     if (tier <= 3) return "outline";
     return "destructive";
   };
+
+  const handleDelete = async () => {
+    if (!spell) return;
+
+    setIsDeleting(true);
+    try {
+      const response = await fetch(`/api/spells/${spell.id}`, {
+        method: "DELETE",
+      });
+
+      if (!response.ok) {
+        throw new Error("Failed to delete spell");
+      }
+
+      toast.success("Spell deleted successfully");
+      router.push("/spells");
+    } catch (err) {
+      console.error("Error deleting spell:", err);
+      toast.error("Failed to delete spell");
+      setIsDeleting(false);
+    }
+  };
+
+  const isOwner = spell && currentUserId && spell.user_id === currentUserId;
 
   return (
     <div className="container max-w-4xl mx-auto px-4 py-8">
@@ -148,13 +188,55 @@ export default function SpellDetailPage() {
                     <Badge variant="outline">{spell.source}</Badge>
                   </div>
                 </div>
-                {currentUserId && spell && (
-                  <FavoriteButton
-                    itemId={spell.id}
-                    itemType="spell"
-                    initialFavoriteId={favoriteId || undefined}
-                  />
-                )}
+                <div className="flex gap-2">
+                  {currentUserId && spell && (
+                    <FavoriteButton
+                      itemId={spell.id}
+                      itemType="spell"
+                      initialFavoriteId={favoriteId || undefined}
+                    />
+                  )}
+                  {isOwner && (
+                    <>
+                      <Button variant="outline" size="sm" asChild>
+                        <Link href={`/spells/${spell.slug}/edit`}>
+                          <Edit className="h-4 w-4 mr-2" />
+                          Edit
+                        </Link>
+                      </Button>
+                      <AlertDialog>
+                        <AlertDialogTrigger asChild>
+                          <Button
+                            variant="outline"
+                            size="sm"
+                            disabled={isDeleting}
+                          >
+                            <Trash2 className="h-4 w-4 mr-2" />
+                            Delete
+                          </Button>
+                        </AlertDialogTrigger>
+                        <AlertDialogContent>
+                          <AlertDialogHeader>
+                            <AlertDialogTitle>Delete Spell</AlertDialogTitle>
+                            <AlertDialogDescription>
+                              Are you sure you want to delete &quot;{spell.name}
+                              &quot;? This action cannot be undone.
+                            </AlertDialogDescription>
+                          </AlertDialogHeader>
+                          <AlertDialogFooter>
+                            <AlertDialogCancel>Cancel</AlertDialogCancel>
+                            <AlertDialogAction
+                              onClick={handleDelete}
+                              className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+                            >
+                              Delete
+                            </AlertDialogAction>
+                          </AlertDialogFooter>
+                        </AlertDialogContent>
+                      </AlertDialog>
+                    </>
+                  )}
+                </div>
               </div>
             </CardHeader>
             <CardContent>

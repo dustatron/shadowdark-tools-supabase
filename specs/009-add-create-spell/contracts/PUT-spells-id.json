@@ -1,0 +1,291 @@
+{
+  "endpoint": "PUT /api/spells/:id",
+  "description": "Update an existing spell (owner only)",
+  "authentication": "required",
+  "request": {
+    "pathParameters": {
+      "id": {
+        "type": "string",
+        "format": "uuid",
+        "description": "Spell ID",
+        "example": "550e8400-e29b-41d4-a716-446655440000"
+      }
+    },
+    "headers": {
+      "Content-Type": "application/json"
+    },
+    "body": {
+      "type": "object",
+      "description": "All fields optional (partial update)",
+      "properties": {
+        "name": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 100,
+          "description": "Updated spell name (must remain globally unique)"
+        },
+        "tier": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 5,
+          "description": "Updated spell tier"
+        },
+        "classes": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "enum": ["wizard", "priest"]
+          },
+          "minItems": 1,
+          "description": "Updated spell classes"
+        },
+        "duration": {
+          "type": "string",
+          "minLength": 1,
+          "description": "Updated duration"
+        },
+        "range": {
+          "type": "string",
+          "minLength": 1,
+          "description": "Updated range"
+        },
+        "description": {
+          "type": "string",
+          "minLength": 1,
+          "description": "Updated spell effect"
+        },
+        "author_notes": {
+          "type": "string",
+          "description": "Updated notes/school"
+        },
+        "is_public": {
+          "type": "boolean",
+          "description": "Updated visibility"
+        }
+      }
+    }
+  },
+  "responses": {
+    "200": {
+      "description": "Spell updated successfully",
+      "body": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "name": {
+            "type": "string"
+          },
+          "slug": {
+            "type": "string",
+            "description": "Regenerated if name changed"
+          },
+          "tier": {
+            "type": "integer"
+          },
+          "classes": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "duration": {
+            "type": "string"
+          },
+          "range": {
+            "type": "string"
+          },
+          "description": {
+            "type": "string"
+          },
+          "author_notes": {
+            "type": "string",
+            "nullable": true
+          },
+          "source": {
+            "type": "string"
+          },
+          "is_public": {
+            "type": "boolean"
+          },
+          "user_id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "creator_id": {
+            "type": "string",
+            "format": "uuid",
+            "nullable": true
+          },
+          "created_at": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "updated_at": {
+            "type": "string",
+            "format": "date-time",
+            "description": "Updated to current timestamp"
+          }
+        }
+      }
+    },
+    "400": {
+      "description": "Validation error",
+      "body": {
+        "type": "object",
+        "properties": {
+          "error": {
+            "type": "string",
+            "example": "Validation error"
+          },
+          "details": {
+            "type": "array",
+            "items": {
+              "type": "object"
+            }
+          }
+        }
+      }
+    },
+    "401": {
+      "description": "Authentication required",
+      "body": {
+        "type": "object",
+        "properties": {
+          "error": {
+            "type": "string",
+            "example": "Authentication required"
+          }
+        }
+      }
+    },
+    "403": {
+      "description": "Forbidden - not spell owner",
+      "body": {
+        "type": "object",
+        "properties": {
+          "error": {
+            "type": "string",
+            "example": "Forbidden"
+          }
+        }
+      }
+    },
+    "404": {
+      "description": "Spell not found",
+      "body": {
+        "type": "object",
+        "properties": {
+          "error": {
+            "type": "string",
+            "example": "Spell not found"
+          }
+        }
+      }
+    },
+    "409": {
+      "description": "Updated name conflicts with existing spell",
+      "body": {
+        "type": "object",
+        "properties": {
+          "error": {
+            "type": "string",
+            "example": "Spell name already exists"
+          }
+        }
+      }
+    },
+    "500": {
+      "description": "Internal server error",
+      "body": {
+        "type": "object",
+        "properties": {
+          "error": {
+            "type": "string",
+            "example": "Update failed"
+          }
+        }
+      }
+    }
+  },
+  "testScenarios": [
+    {
+      "name": "Update spell name (owner)",
+      "authenticated": true,
+      "setup": "Create spell owned by current user",
+      "request": {
+        "name": "Updated Spell Name"
+      },
+      "expectedStatus": 200,
+      "assertions": [
+        "response.name === 'Updated Spell Name'",
+        "response.slug === 'updated-spell-name'",
+        "response.updated_at > original.updated_at"
+      ]
+    },
+    {
+      "name": "Update spell tier (owner)",
+      "authenticated": true,
+      "setup": "Create spell owned by current user",
+      "request": {
+        "tier": 5
+      },
+      "expectedStatus": 200,
+      "assertions": ["response.tier === 5", "other fields unchanged"]
+    },
+    {
+      "name": "Toggle is_public (owner)",
+      "authenticated": true,
+      "setup": "Create private spell owned by current user",
+      "request": {
+        "is_public": true
+      },
+      "expectedStatus": 200,
+      "assertions": ["response.is_public === true"]
+    },
+    {
+      "name": "Update with invalid tier",
+      "authenticated": true,
+      "setup": "Create spell owned by current user",
+      "request": {
+        "tier": 10
+      },
+      "expectedStatus": 400,
+      "assertions": [
+        "response.error === 'Validation error'",
+        "response.details includes tier error"
+      ]
+    },
+    {
+      "name": "Update non-owned spell (forbidden)",
+      "authenticated": true,
+      "setup": "Create spell owned by different user",
+      "request": {
+        "name": "Hacked Name"
+      },
+      "expectedStatus": 403,
+      "assertions": ["spell unchanged in database"]
+    },
+    {
+      "name": "Update without auth",
+      "authenticated": false,
+      "setup": "Create spell",
+      "request": {
+        "name": "New Name"
+      },
+      "expectedStatus": 401
+    },
+    {
+      "name": "Update to duplicate name",
+      "authenticated": true,
+      "setup": "Create two spells, one named 'Fireball'",
+      "request": {
+        "name": "Fireball"
+      },
+      "expectedStatus": 409,
+      "assertions": ["response.error includes 'already exists'"]
+    }
+  ]
+}
