@@ -4,6 +4,7 @@ import { Button } from "@/components/ui/button";
 import { Plus } from "lucide-react";
 import { SpellCard } from "@/src/components/spells/SpellCard";
 import { getUserSpells } from "@/lib/api/dashboard";
+import { PageTitle } from "@/components/page-title";
 
 export default async function SpellsPage() {
   const supabase = await createClient();
@@ -18,7 +19,7 @@ export default async function SpellsPage() {
   return (
     <div>
       <div className="flex items-center justify-between mb-6">
-        <h2 className="text-2xl font-bold">My Spells</h2>
+        <PageTitle title="My Spells" />
         <Button asChild>
           <Link href="/spells/create">
             <Plus className="mr-2 h-4 w-4" />

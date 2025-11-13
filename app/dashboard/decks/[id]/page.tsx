@@ -31,6 +31,7 @@ import Link from "next/link";
 import { toast } from "sonner";
 import type { DeckWithSpells } from "@/lib/validations/deck";
 import { SpellTable } from "./SpellTable";
+import { PageTitle } from "@/components/page-title";
 
 async function fetchDeck(id: string): Promise<DeckWithSpells> {
   const response = await fetch(`/api/decks/${id}`);
@@ -192,9 +193,7 @@ export default function DeckDetailPage() {
       {/* Header */}
       <div className="mb-2">
         <div className="flex justify-between p-2">
-          <h1 className="text-4xl font-bold tracking-tight mb-2">
-            {deck.name}
-          </h1>
+          <PageTitle title={deck.name} />
 
           <div className="flex items-center gap-2">
             <Button

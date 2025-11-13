@@ -4,6 +4,7 @@ import { ThemeProvider } from "next-themes";
 import { Toaster } from "@/components/ui/sonner";
 import { SidebarProvider, SidebarInset } from "@/components/ui/sidebar";
 import { AppSidebar } from "@/components/navigation/app-sidebar";
+import { MobileSidebarTrigger } from "@/components/navigation/mobile-sidebar-trigger";
 import { getServerSession } from "@/lib/auth-helpers";
 import { Roboto, Source_Code_Pro } from "next/font/google";
 import "./globals.css";
@@ -109,6 +110,7 @@ export default async function RootLayout({
           <RootProvider initialSession={initialSession}>
             <SidebarProvider>
               <AppSidebar />
+              <MobileSidebarTrigger />
               <SidebarInset>
                 <div className="flex-1 overflow-auto p-4">{children}</div>
               </SidebarInset>

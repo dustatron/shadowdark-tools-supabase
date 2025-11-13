@@ -5,6 +5,7 @@ import { Plus } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import type { EncounterTable } from "@/lib/encounter-tables/types";
 import { EncounterTablesView } from "@/components/encounters/EncounterTablesView";
+import { PageTitle } from "@/components/page-title";
 
 export const metadata = {
   title: "Random Encounter Tables",
@@ -53,9 +54,7 @@ export default async function EncounterTablesPage() {
     <div>
       <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between mb-6">
         <div>
-          <h1 className="text-3xl font-bold tracking-tight">
-            Random Encounter Tables
-          </h1>
+          <PageTitle title="Random Encounter Tables" />
           <p className="text-muted-foreground mt-2">
             Generate and manage random encounter tables for your Shadowdark
             games

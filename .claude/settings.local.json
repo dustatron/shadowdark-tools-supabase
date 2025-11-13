@@ -140,7 +140,8 @@
       "Bash(yes:*)",
       "Bash(npm run test:*)",
       "Bash(timeout 10 npm run dev:*)",
-      "WebFetch(domain:tweakcn.com)"
+      "WebFetch(domain:tweakcn.com)",
+      "mcp__chrome-devtools__emulate"
     ],
     "deny": [],
     "ask": []

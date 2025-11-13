@@ -8,6 +8,7 @@ import { Plus } from "lucide-react";
 import Link from "next/link";
 import { createClient } from "@/lib/supabase/client";
 import { createFavoritesMap } from "@/lib/utils/favorites";
+import { PageTitle } from "@/components/page-title";
 
 interface Spell {
   id: string;
@@ -211,7 +212,7 @@ export default function SpellsPage() {
   return (
     <div>
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-6">
-        <h1 className="text-3xl font-bold">Spells</h1>
+        <PageTitle title="Spells" />
         {isAuthenticated && (
           <Button asChild>
             <Link href="/spells/create">

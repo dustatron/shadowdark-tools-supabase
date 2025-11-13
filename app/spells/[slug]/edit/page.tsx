@@ -7,6 +7,7 @@ import { LoadingSpinner } from "@/src/components/ui/LoadingSpinner";
 import { SpellForm } from "@/components/spells/SpellForm";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { AlertCircle } from "lucide-react";
+import { PageTitle } from "@/components/page-title";
 
 interface EditSpellPageProps {
   params: Promise<{ slug: string }>;
@@ -116,7 +117,7 @@ export default function EditSpellPage({ params }: EditSpellPageProps) {
   return (
     <div className="container mx-auto px-4 py-8 max-w-3xl">
       <div className="mb-6">
-        <h1 className="text-3xl font-bold">Edit Spell</h1>
+        <PageTitle title="Edit Spell" />
         <p className="text-muted-foreground mt-2">
           Update {spell.name} for your Shadowdark campaign
         </p>

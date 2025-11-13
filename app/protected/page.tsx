@@ -12,6 +12,7 @@ import {
 } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Sparkles, BookOpen, Skull, Layers, ArrowRight } from "lucide-react";
+import { PageTitle } from "@/components/page-title";
 
 export const metadata: Metadata = {
   title: "Dashboard",
@@ -70,7 +71,7 @@ export default async function ProtectedPage() {
   return (
     <div className="flex-1 w-full flex flex-col gap-8">
       <div>
-        <h1 className="text-4xl font-bold mb-2">GM Dashboard</h1>
+        <PageTitle title="GM Dashboard" />
         <p className="text-muted-foreground">
           Welcome back! Choose a tool to get started.
         </p>

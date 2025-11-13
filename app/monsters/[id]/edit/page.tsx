@@ -7,6 +7,7 @@ import { AlertCircle } from "lucide-react";
 import { createClient } from "@/lib/supabase/client";
 import { LoadingSpinner } from "@/src/components/ui/LoadingSpinner";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
+import { PageTitle } from "@/components/page-title";
 
 export default function EditMonsterPage() {
   const params = useParams();
@@ -91,7 +92,7 @@ export default function EditMonsterPage() {
 
   return (
     <div className="container mx-auto px-4 py-8">
-      <h1 className="text-3xl font-bold mb-6">Edit Monster</h1>
+      <PageTitle title="Edit Monster" />
       {monster && (
         <MonsterCreateEditForm
           mode="edit"

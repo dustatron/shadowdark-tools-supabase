@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import { createClient } from "@/lib/supabase/client";
 import { LoadingSpinner } from "@/src/components/ui/LoadingSpinner";
 import { SpellForm } from "@/components/spells/SpellForm";
+import { PageTitle } from "@/components/page-title";
 
 export default function CreateSpellPage() {
   const router = useRouter();
@@ -48,7 +49,7 @@ export default function CreateSpellPage() {
   return (
     <div className="container mx-auto px-4 py-8 max-w-3xl">
       <div className="mb-6">
-        <h1 className="text-3xl font-bold">Create Custom Spell</h1>
+        <PageTitle title="Create Custom Spell" />
         <p className="text-muted-foreground mt-2">
           Add a new spell to your Shadowdark campaign
         </p>

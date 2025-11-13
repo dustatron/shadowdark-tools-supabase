@@ -4,6 +4,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
 import { AvatarUpload } from "@/components/settings/AvatarUpload";
 import { ProfileSettingsForm } from "@/components/settings/ProfileSettingsForm";
+import { PageTitle } from "@/components/page-title";
 
 export default async function SettingsPage() {
   const supabase = await createClient();
@@ -67,7 +68,7 @@ export default async function SettingsPage() {
     <div className="max-w-2xl mx-auto">
       <div className="space-y-6">
         <div className="text-center">
-          <h1 className="text-3xl font-bold tracking-tight">Settings</h1>
+          <PageTitle title="Settings" />
           <p className="text-muted-foreground">
             Manage your account settings and preferences
           </p>

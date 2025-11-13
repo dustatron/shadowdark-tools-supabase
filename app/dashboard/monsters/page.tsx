@@ -4,6 +4,7 @@ import { Button } from "@/components/ui/button";
 import { Plus } from "lucide-react";
 import { MonsterCard } from "@/src/components/monsters/MonsterCard";
 import { getUserMonsters } from "@/lib/api/dashboard";
+import { PageTitle } from "@/components/page-title";
 
 export default async function MonstersPage() {
   const supabase = await createClient();
@@ -18,7 +19,7 @@ export default async function MonstersPage() {
   return (
     <div>
       <div className="flex items-center justify-between mb-6">
-        <h2 className="text-2xl font-bold">My Monsters</h2>
+        <PageTitle title="My Monsters" />
         <Button asChild>
           <Link href="/monsters/create">
             <Plus className="mr-2 h-4 w-4" />

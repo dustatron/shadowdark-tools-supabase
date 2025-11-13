@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import { MonsterCreateEditForm } from "@/src/components/monsters/MonsterCreateEditForm";
 import { createClient } from "@/lib/supabase/client";
 import { LoadingSpinner } from "@/src/components/ui/LoadingSpinner";
+import { PageTitle } from "@/components/page-title";
 
 export default function CreateMonsterPage() {
   const router = useRouter();
@@ -47,7 +48,7 @@ export default function CreateMonsterPage() {
 
   return (
     <div className="container mx-auto px-4 py-8">
-      <h1 className="text-3xl font-bold mb-6">Create Custom Monster</h1>
+      <PageTitle title="Create Custom Monster" />
       <MonsterCreateEditForm mode="create" />
     </div>
   );

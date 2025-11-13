@@ -4,6 +4,7 @@ import { Button } from "@/components/ui/button";
 import { Library } from "lucide-react";
 import { MonsterCard } from "@/src/components/monsters/MonsterCard";
 import { getFavoriteMonsters } from "@/lib/api/dashboard";
+import { PageTitle } from "@/components/page-title";
 
 export default async function FavoriteMonstersPage() {
   const supabase = await createClient();
@@ -18,7 +19,7 @@ export default async function FavoriteMonstersPage() {
   return (
     <div>
       <div className="flex items-center justify-between mb-6">
-        <h2 className="text-2xl font-bold">Favorite Monsters</h2>
+        <PageTitle title="Favorite Monsters" />
         <Button asChild variant="outline">
           <Link href="/monsters">
             <Library className="mr-2 h-4 w-4" />

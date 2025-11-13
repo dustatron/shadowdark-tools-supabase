@@ -27,6 +27,7 @@ import { Loader2, RefreshCw, Trash2 } from "lucide-react";
 import type { EncounterTableCreateInput } from "@/lib/encounter-tables/schemas";
 import type { EncounterTable } from "@/lib/encounter-tables/types";
 import { toast } from "sonner";
+import { PageTitle } from "@/components/page-title";
 
 interface PageProps {
   params: Promise<{ id: string }>;
@@ -170,7 +171,7 @@ export default function EncounterTableSettingsPage({ params }: PageProps) {
   return (
     <div className="container mx-auto py-8 max-w-4xl">
       <div className="mb-8">
-        <h1 className="text-3xl font-bold">Encounter Table Settings</h1>
+        <PageTitle title="Encounter Table Settings" />
         <p className="text-muted-foreground mt-2">
           Update your encounter table settings and filters
         </p>

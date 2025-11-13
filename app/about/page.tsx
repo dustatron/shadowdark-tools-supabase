@@ -11,6 +11,7 @@ import {
   Dice6,
   Sparkles,
 } from "lucide-react";
+import { PageTitle } from "@/components/page-title";
 
 export const metadata: Metadata = {
   title: "About | Dungeon Exchange",
@@ -24,7 +25,7 @@ export default function AboutPage() {
       <div className="flex flex-col gap-12 max-w-4xl mx-auto">
         {/* Header */}
         <div className="flex flex-col gap-4 text-center">
-          <h1 className="text-4xl font-extrabold">About Dungeon Exchange</h1>
+          <PageTitle title="About Dungeon Exchange" />
           <p className="text-xl text-muted-foreground">
             Your community-powered toolkit for running epic Shadowdark sessions
           </p>

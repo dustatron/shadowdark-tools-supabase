@@ -52,6 +52,16 @@ export default {
           "4": "oklch(var(--chart-4))",
           "5": "oklch(var(--chart-5))",
         },
+        sidebar: {
+          DEFAULT: "oklch(var(--sidebar))",
+          foreground: "oklch(var(--sidebar-foreground))",
+          primary: "oklch(var(--sidebar-primary))",
+          "primary-foreground": "oklch(var(--sidebar-primary-foreground))",
+          accent: "oklch(var(--sidebar-accent))",
+          "accent-foreground": "oklch(var(--sidebar-accent-foreground))",
+          border: "oklch(var(--sidebar-border))",
+          ring: "oklch(var(--sidebar-ring))",
+        },
         // Shadowdark custom color palettes
         shadowdark: {
           50: "#f5f5f5",
