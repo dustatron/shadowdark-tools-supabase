@@ -36,36 +36,80 @@ export function MonsterStatBlock({
   }
 
   return (
-    <Card className="shadow-sm">
-      <CardContent className="p-6">
-        <div className="grid grid-cols-1 sm:grid-cols-3 gap-6">
-          <div className="flex items-center gap-4">
-            <Heart size={24} className="text-red-500" />
-            <div>
-              <p className="text-xs text-muted-foreground uppercase">
-                Hit Points
-              </p>
-              <p className="text-xl font-bold">{hitPoints}</p>
-            </div>
-          </div>
-          <div className="flex items-center gap-4">
-            <Shield size={24} className="text-blue-500" />
-            <div>
-              <p className="text-xs text-muted-foreground uppercase">
-                Armor Class
-              </p>
-              <p className="text-xl font-bold">{armorClass}</p>
-            </div>
-          </div>
-          <div className="flex items-center gap-4">
+    <div className="shadow-sm ">
+      <div className="grid grid-cols-1 sm:grid-cols-10 gap-0">
+        <div className="items-center  border-l-4 border-b-4 border-t-4 border-black px-2">
+          <p className="text-sm text-muted-foreground uppercase flex">
             <Footprints size={24} className="text-green-500" />
-            <div>
-              <p className="text-xs text-muted-foreground uppercase">Speed</p>
-              <p className="text-xl font-bold">{speed}</p>
-            </div>
+            Move
+          </p>
+          <p className="text-xl font-bold">{speed}</p>
+        </div>
+        <div className="flex flex-row  justify-center items-center gap-2 border-l-4 border-b-4 border-t-4 border-black ">
+          <div>
+            <Heart size={33} className="text-red-500" />
+          </div>
+          <div>
+            <p className="text-md text-muted-foreground uppercase flex justify-center">
+              HP
+            </p>
+            <p className="text-xl font-bold text-center">{hitPoints}</p>
           </div>
         </div>
-      </CardContent>
-    </Card>
+        <div className="flex flex-row justify-center items-center gap-2 border-l-4 border-b-4 border-t-4 border-black ">
+          <div>
+            <Shield size={33} className="text-blue-500" />
+          </div>
+          <div>
+            <p className="flex text-md text-muted-foreground uppercase justify-center">
+              AC
+            </p>
+            <p className="text-xl font-bold text-center">{armorClass}</p>
+          </div>
+        </div>
+        <div className="justify-center items-center gap-2 border-l-4 border-b-4 border-t-4 border-black ">
+          <p className="flex text-md font-bold text-muted-foreground uppercase justify-center bg-black text-gray-100">
+            STR
+          </p>
+          <p className="text-xl font-bold text-center">+1</p>
+        </div>
+        <div className="justify-center items-center gap-2 border-l-4 border-b-4 border-t-4 border-black ">
+          <p className="flex text-md font-bold text-muted-foreground uppercase justify-center bg-black text-gray-100">
+            DEX
+          </p>
+          <p className="text-xl font-bold text-center">+1</p>
+        </div>
+        <div className="justify-center items-center gap-2 border-l-4 border-b-4 border-t-4 border-black ">
+          <p className="flex text-md font-bold text-muted-foreground uppercase justify-center bg-black text-gray-100">
+            CON
+          </p>
+          <p className="text-xl font-bold text-center">+1</p>
+        </div>
+        <div className="justify-center items-center gap-2 border-l-4 border-b-4 border-t-4 border-black ">
+          <p className="flex text-md font-bold text-muted-foreground uppercase justify-center bg-black text-gray-100">
+            INT
+          </p>
+          <p className="text-xl font-bold text-center">+1</p>
+        </div>
+        <div className="justify-center items-center gap-2 border-l-4 border-b-4 border-t-4 border-black ">
+          <p className="flex text-md font-bold text-muted-foreground uppercase justify-center bg-black text-gray-100">
+            WIS
+          </p>
+          <p className="text-xl font-bold text-center">+1</p>
+        </div>
+        <div className="justify-center items-center gap-2 border-l-4 border-b-4 border-t-4 border-black ">
+          <p className="flex text-md font-bold text-muted-foreground uppercase justify-center bg-black text-gray-100">
+            CHA
+          </p>
+          <p className="text-xl font-bold text-center">+1</p>
+        </div>
+        <div className="justify-center items-center gap-2 border-l-4 border-b-4 border-t-4 border-r-4 border-black ">
+          <p className="flex text-md font-bold text-muted-foreground uppercase justify-center bg-black text-gray-100">
+            AL
+          </p>
+          <p className="text-xl font-bold text-center">+1</p>
+        </div>
+      </div>
+    </div>
   );
 }
