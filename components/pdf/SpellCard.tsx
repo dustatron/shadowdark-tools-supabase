@@ -7,27 +7,40 @@
  * This ensures WYSIWYG - what you see in preview is exactly what gets exported.
  */
 
-import React from "react";
 import { View, Text, Image, StyleSheet, Font } from "@react-pdf/renderer";
 import type { SpellForDeck } from "@/lib/validations/deck";
-import path from "path";
 
-// Register custom fonts using file system path for server-side rendering
-Font.register({
-  family: "Beaufort",
-  src: path.join(process.cwd(), "public", "fonts", "beaufort-w01-bold.ttf"),
-});
+// Register custom fonts - conditional for server vs browser
+if (typeof window === "undefined") {
+  // Server-side: use dynamic import for path module
+  import("path").then((path) => {
+    Font.register({
+      family: "Beaufort",
+      src: path.join(process.cwd(), "public", "fonts", "beaufort-w01-bold.ttf"),
+    });
 
-// Register Avenir Next Condensed
-Font.register({
-  family: "Avenir Next Condensed",
-  src: path.join(
-    process.cwd(),
-    "public",
-    "fonts",
-    "avenir-next-condensed-bold.ttf",
-  ),
-});
+    Font.register({
+      family: "Avenir Next Condensed",
+      src: path.join(
+        process.cwd(),
+        "public",
+        "fonts",
+        "avenir-next-condensed-bold.ttf",
+      ),
+    });
+  });
+} else {
+  // Browser-side: use relative URLs
+  Font.register({
+    family: "Beaufort",
+    src: "/fonts/beaufort-w01-bold.ttf",
+  });
+
+  Font.register({
+    family: "Avenir Next Condensed",
+    src: "/fonts/avenir-next-condensed-bold.ttf",
+  });
+}
 
 // ============================================================================
 // SHARED DESIGN CONSTANTS
@@ -112,8 +125,8 @@ const MARGINS = {
   },
   preview: {
     rowOne: "5pt", // Browser needs more spacing
-    rowTwo: "6pt",
-    rowThree: "5pt",
+    rowTwo: "4pt",
+    rowThree: "0pt",
   },
 };
 
