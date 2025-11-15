@@ -9,11 +9,27 @@
 
 import { View, Text, Image, StyleSheet, Font } from "@react-pdf/renderer";
 import type { SpellForDeck } from "@/lib/validations/deck";
+import path from "path";
 
-// Register custom fonts - conditional for server vs browser
+// Register custom fonts - different approach for local vs Vercel
 if (typeof window === "undefined") {
-  // Server-side: use dynamic import for path module
-  import("path").then((path) => {
+  const isVercel = process.env.VERCEL === "1";
+
+  if (isVercel) {
+    // Vercel: Use absolute URLs to deployed assets
+    const baseUrl =
+      process.env.NEXT_PUBLIC_SITE_URL || `https://${process.env.VERCEL_URL}`;
+    Font.register({
+      family: "Beaufort",
+      src: `${baseUrl}/fonts/beaufort-w01-bold.ttf`,
+    });
+
+    Font.register({
+      family: "Avenir Next Condensed",
+      src: `${baseUrl}/fonts/avenir-next-condensed-bold.ttf`,
+    });
+  } else {
+    // Local: Use filesystem paths (synchronous)
     Font.register({
       family: "Beaufort",
       src: path.join(process.cwd(), "public", "fonts", "beaufort-w01-bold.ttf"),
@@ -28,7 +44,7 @@ if (typeof window === "undefined") {
         "avenir-next-condensed-bold.ttf",
       ),
     });
-  });
+  }
 } else {
   // Browser-side: use relative URLs
   Font.register({

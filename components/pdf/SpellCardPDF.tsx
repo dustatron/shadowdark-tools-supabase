@@ -9,22 +9,57 @@ import path from "path";
  * 180 DPI: 450px x 630px
  */
 
-// Register custom fonts using file system path for server-side rendering
-Font.register({
-  family: "Beaufort",
-  src: path.join(process.cwd(), "public", "fonts", "beaufort-w01-regular.ttf"),
-});
+// Register custom fonts - different approach for local vs Vercel
+if (typeof window === "undefined") {
+  const isVercel = process.env.VERCEL === "1";
 
-// Register Avenir Next Condensed
-Font.register({
-  family: "Avenir Next Condensed",
-  src: path.join(
-    process.cwd(),
-    "public",
-    "fonts",
-    "avenir-next-condensed-regular.otf",
-  ),
-});
+  if (isVercel) {
+    // Vercel: Use absolute URLs to deployed assets
+    const baseUrl =
+      process.env.NEXT_PUBLIC_SITE_URL || `https://${process.env.VERCEL_URL}`;
+    Font.register({
+      family: "Beaufort",
+      src: `${baseUrl}/fonts/beaufort-w01-regular.ttf`,
+    });
+
+    Font.register({
+      family: "Avenir Next Condensed",
+      src: `${baseUrl}/fonts/avenir-next-condensed-bold.ttf`,
+    });
+  } else {
+    // Local: Use filesystem paths
+    Font.register({
+      family: "Beaufort",
+      src: path.join(
+        process.cwd(),
+        "public",
+        "fonts",
+        "beaufort-w01-regular.ttf",
+      ),
+    });
+
+    Font.register({
+      family: "Avenir Next Condensed",
+      src: path.join(
+        process.cwd(),
+        "public",
+        "fonts",
+        "avenir-next-condensed-bold.ttf",
+      ),
+    });
+  }
+} else {
+  // Browser-side: use relative URLs
+  Font.register({
+    family: "Beaufort",
+    src: "/fonts/beaufort-w01-regular.ttf",
+  });
+
+  Font.register({
+    family: "Avenir Next Condensed",
+    src: "/fonts/avenir-next-condensed-bold.ttf",
+  });
+}
 
 interface SpellCardPDFProps {
   spell: SpellForDeck;
