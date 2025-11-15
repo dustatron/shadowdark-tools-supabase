@@ -137,7 +137,7 @@ export default function DeckDetailPage() {
       toast.success(
         `Removed ${successCount} spell${successCount === 1 ? "" : "s"}`,
       );
-      setShowDeleteAllDialog(false);
+      setShowDeleteDrawer(false);
     },
     onError: () => {
       toast.error("Failed to remove all spells");
