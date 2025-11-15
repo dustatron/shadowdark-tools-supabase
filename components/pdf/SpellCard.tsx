@@ -8,8 +8,26 @@
  */
 
 import React from "react";
-import { View, Text, Image, StyleSheet } from "@react-pdf/renderer";
+import { View, Text, Image, StyleSheet, Font } from "@react-pdf/renderer";
 import type { SpellForDeck } from "@/lib/validations/deck";
+import path from "path";
+
+// Register custom fonts using file system path for server-side rendering
+Font.register({
+  family: "Beaufort",
+  src: path.join(process.cwd(), "public", "fonts", "beaufort-w01-bold.ttf"),
+});
+
+// Register Avenir Next Condensed
+Font.register({
+  family: "Avenir Next Condensed",
+  src: path.join(
+    process.cwd(),
+    "public",
+    "fonts",
+    "avenir-next-condensed-bold.ttf",
+  ),
+});
 
 // ============================================================================
 // SHARED DESIGN CONSTANTS
@@ -89,8 +107,8 @@ export const SPELL_CARD_DESIGN = {
 const MARGINS = {
   export: {
     rowOne: "3pt",
-    rowTwo: "4pt",
-    rowThree: "3pt",
+    rowTwo: "2pt",
+    rowThree: "0pt",
   },
   preview: {
     rowOne: "5pt", // Browser needs more spacing
@@ -131,15 +149,17 @@ export const pdfCardStyles = StyleSheet.create({
   },
 
   spellName: {
-    fontSize: "16pt",
-    fontWeight: "bold",
+    fontFamily: "Beaufort",
+    fontSize: "15pt",
+    fontWeight: "900",
     textTransform: "uppercase",
     textAlign: "center",
     color: "white",
-    marginBottom: "2pt",
+    marginTop: "3px",
   },
 
   tierRow: {
+    fontFamily: "Avenir Next Condensed",
     display: "flex",
     flexDirection: "row",
     justifyContent: "flex-start",
@@ -148,8 +168,9 @@ export const pdfCardStyles = StyleSheet.create({
   },
 
   tier: {
-    fontSize: "10pt",
-    fontWeight: "bold",
+    fontFamily: "Avenir Next Condensed",
+    fontSize: "12pt",
+    fontWeight: "900",
     width: "40%",
     color: "black",
     textAlign: "center",
@@ -157,6 +178,7 @@ export const pdfCardStyles = StyleSheet.create({
   },
 
   classes: {
+    fontFamily: "Avenir Next Condensed",
     fontSize: "12pt",
     color: "black",
     width: "58.5%",
@@ -166,6 +188,7 @@ export const pdfCardStyles = StyleSheet.create({
   },
 
   metadataSection: {
+    fontFamily: "Avenir Next Condensed",
     display: "flex",
     flexDirection: "row",
     justifyContent: "flex-start",
@@ -176,12 +199,14 @@ export const pdfCardStyles = StyleSheet.create({
   },
 
   metaLabel: {
+    fontFamily: "Avenir Next Condensed",
     fontWeight: "bold",
     width: "50%",
     textAlign: "center",
   },
 
   spellDescription: {
+    fontFamily: "Avenir Next Condensed",
     padding: "5px 10px",
     fontSize: "9.5pt",
     lineHeight: 1.4,

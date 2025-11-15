@@ -72,7 +72,7 @@ export default function DeckDetailPage() {
   const deckId = params?.id as string;
 
   const [showSpellSelector, setShowSpellSelector] = useState(false);
-  const [showDeleteDialog, setShowDeleteDialog] = useState(false);
+  const [showDeleteDrawer, setShowDeleteDrawer] = useState(false);
   const [showExportDialog, setShowExportDialog] = useState(false);
   const [exportLayout, setExportLayout] = useState<"grid" | "single">("grid");
   const [selectedSpellId, setSelectedSpellId] = useState<string | null>(null);
@@ -90,7 +90,9 @@ export default function DeckDetailPage() {
   const deleteMutation = useMutation({
     mutationFn: () => deleteDeck(deckId),
     onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["decks"] });
       toast.success("Deck deleted");
+      setShowDeleteDrawer(false);
       router.push("/dashboard/decks");
     },
     onError: () => {
@@ -111,6 +113,34 @@ export default function DeckDetailPage() {
     },
     onError: () => {
       toast.error("Failed to remove spell");
+    },
+  });
+
+  const removeAllMutation = useMutation({
+    mutationFn: async () => {
+      // Delete all spells sequentially
+      const results = [];
+      for (const spell of deck?.spells || []) {
+        try {
+          await removeSpell(deckId, spell.id);
+          results.push({ success: true });
+        } catch (error) {
+          results.push({ success: false });
+        }
+      }
+      return results;
+    },
+    onSuccess: (results) => {
+      setSelectedSpellId(null);
+      queryClient.invalidateQueries({ queryKey: ["deck", deckId] });
+      const successCount = results.filter((r) => r.success).length;
+      toast.success(
+        `Removed ${successCount} spell${successCount === 1 ? "" : "s"}`,
+      );
+      setShowDeleteAllDialog(false);
+    },
+    onError: () => {
+      toast.error("Failed to remove all spells");
     },
   });
 
@@ -199,7 +229,7 @@ export default function DeckDetailPage() {
             <Button
               variant="destructive"
               size="icon"
-              onClick={() => setShowDeleteDialog(true)}
+              onClick={() => setShowDeleteDrawer(true)}
             >
               <Trash2 className="w-4 h-4" />
             </Button>
@@ -286,27 +316,48 @@ export default function DeckDetailPage() {
         onOpenChange={setShowSpellSelector}
       />
 
-      {/* Delete Confirmation Dialog */}
-      <AlertDialog open={showDeleteDialog} onOpenChange={setShowDeleteDialog}>
-        <AlertDialogContent>
-          <AlertDialogHeader>
-            <AlertDialogTitle>Delete Deck?</AlertDialogTitle>
-            <AlertDialogDescription>
-              This will permanently delete &quot;{deck.name}&quot; and all its
-              spells. This action cannot be undone.
-            </AlertDialogDescription>
-          </AlertDialogHeader>
-          <AlertDialogFooter>
-            <AlertDialogCancel>Cancel</AlertDialogCancel>
-            <AlertDialogAction
-              onClick={() => deleteMutation.mutate()}
-              className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+      {/* Delete Options Drawer */}
+      <Drawer
+        open={showDeleteDrawer}
+        onOpenChange={setShowDeleteDrawer}
+        direction="right"
+      >
+        <DrawerContent className="bg-background">
+          <DrawerHeader>
+            <DrawerTitle>Delete Options</DrawerTitle>
+            <DrawerDescription>
+              Choose what you&apos;d like to delete
+            </DrawerDescription>
+          </DrawerHeader>
+          <div className="px-4 pb-4 space-y-3">
+            <Button
+              variant="destructive"
+              className="w-full justify-start"
+              onClick={() => removeAllMutation.mutate()}
+              disabled={deck.spell_count === 0 || removeAllMutation.isPending}
             >
-              Delete Deck
-            </AlertDialogAction>
-          </AlertDialogFooter>
-        </AlertDialogContent>
-      </AlertDialog>
+              <Trash2 className="w-4 h-4 mr-2" />
+              {removeAllMutation.isPending
+                ? "Deleting..."
+                : `Delete All Cards (${deck.spell_count})`}
+            </Button>
+            <Button
+              variant="destructive"
+              className="w-full justify-start"
+              onClick={() => deleteMutation.mutate()}
+              disabled={deleteMutation.isPending}
+            >
+              <Trash2 className="w-4 h-4 mr-2" />
+              {deleteMutation.isPending ? "Deleting..." : "Delete Entire Deck"}
+            </Button>
+          </div>
+          <DrawerFooter>
+            <DrawerClose asChild>
+              <Button variant="outline">Cancel</Button>
+            </DrawerClose>
+          </DrawerFooter>
+        </DrawerContent>
+      </Drawer>
 
       {/* Export Drawer */}
       <Drawer

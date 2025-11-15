@@ -292,7 +292,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
             height={32}
             className="h-8 w-8 shrink-0 group-data-[collapsible=icon]:h-5 group-data-[collapsible=icon]:w-5"
           />
-          <span className="font-bold text-sm group-data-[collapsible=icon]:hidden">
+          <span className="font-heading font-bold text-sm group-data-[collapsible=icon]:hidden">
             Dungeon Exchange
           </span>
         </div>

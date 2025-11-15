@@ -295,7 +295,7 @@ export function SpellSelector({
     <Sheet open={open} onOpenChange={onOpenChange}>
       <SheetContent
         side="right"
-        className="w-full sm:max-w-xl flex flex-col gap-0"
+        className="w-full sm:max-w-xl flex flex-col gap-0 bg-background"
       >
         <SheetHeader>
           <SheetTitle>Add Spell to Deck</SheetTitle>

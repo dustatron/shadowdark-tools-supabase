@@ -1,12 +1,30 @@
 import React from "react";
-import { View, Text, StyleSheet } from "@react-pdf/renderer";
+import { View, Text, StyleSheet, Font } from "@react-pdf/renderer";
 import type { SpellForDeck } from "@/lib/validations/deck";
+import path from "path";
 
 /**
  * Individual Spell Card PDF Component
  * Renders a single spell card at 2.5" x 3.5" (standard playing card size)
  * 180 DPI: 450px x 630px
  */
+
+// Register custom fonts using file system path for server-side rendering
+Font.register({
+  family: "Beaufort",
+  src: path.join(process.cwd(), "public", "fonts", "beaufort-w01-regular.ttf"),
+});
+
+// Register Avenir Next Condensed
+Font.register({
+  family: "Avenir Next Condensed",
+  src: path.join(
+    process.cwd(),
+    "public",
+    "fonts",
+    "avenir-next-condensed-regular.otf",
+  ),
+});
 
 interface SpellCardPDFProps {
   spell: SpellForDeck;
@@ -29,17 +47,20 @@ const styles = StyleSheet.create({
     marginBottom: 8,
   },
   name: {
-    fontSize: 14,
+    fontFamily: "Beaufort",
+    fontSize: 16,
     fontWeight: "bold",
     color: "#1f2937",
     marginBottom: 4,
   },
   tier: {
+    fontFamily: "Avenir Next Condensed",
     fontSize: 10,
     color: "#6b7280",
     marginBottom: 2,
   },
   metadata: {
+    fontFamily: "Avenir Next Condensed",
     fontSize: 8,
     color: "#9ca3af",
     marginBottom: 1,
@@ -49,6 +70,7 @@ const styles = StyleSheet.create({
     marginTop: 4,
   },
   description: {
+    fontFamily: "Avenir Next Condensed",
     fontSize: 9,
     lineHeight: 1.4,
     color: "#374151",
@@ -59,6 +81,7 @@ const styles = StyleSheet.create({
     borderTop: "1pt solid #e5e7eb",
   },
   footerText: {
+    fontFamily: "Avenir Next Condensed",
     fontSize: 7,
     color: "#9ca3af",
     textAlign: "center",

@@ -24,7 +24,9 @@ export default function AboutPage() {
       <div className="flex flex-col gap-12 max-w-4xl mx-auto">
         {/* Header */}
         <div className="flex flex-col gap-4 text-center">
-          <h1 className="text-4xl font-extrabold">About Dungeon Exchange</h1>
+          <h1 className="font-heading text-4xl font-extrabold">
+            About Dungeon Exchange
+          </h1>
           <p className="text-xl text-muted-foreground">
             Your community-powered toolkit for running epic Shadowdark sessions
           </p>
@@ -35,7 +37,7 @@ export default function AboutPage() {
 
         {/* What is this */}
         <section className="flex flex-col gap-4">
-          <h2 className="text-3xl font-bold">What is this?</h2>
+          <h2 className="font-heading text-3xl font-bold">What is this?</h2>
           <div className="flex flex-col gap-4 text-muted-foreground">
             <p>
               Dungeon Exchange is a free community resource and toolkit designed
@@ -74,7 +76,7 @@ export default function AboutPage() {
 
         {/* Features */}
         <section className="flex flex-col gap-6">
-          <h2 className="text-3xl font-bold">Features</h2>
+          <h2 className="font-heading text-3xl font-bold">Features</h2>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <Card>
               <CardHeader>
@@ -176,7 +178,7 @@ export default function AboutPage() {
 
         {/* Community */}
         <section className="flex flex-col gap-4">
-          <h2 className="text-3xl font-bold">Community</h2>
+          <h2 className="font-heading text-3xl font-bold">Community</h2>
           <div className="flex flex-col gap-4 text-muted-foreground">
             <p>
               The heart of Dungeon Exchange is sharing creative ideas. When you
@@ -202,7 +204,7 @@ export default function AboutPage() {
 
         {/* Getting Started */}
         <section className="flex flex-col gap-4">
-          <h2 className="text-3xl font-bold">Getting Started</h2>
+          <h2 className="font-heading text-3xl font-bold">Getting Started</h2>
           <div className="flex flex-col gap-4 text-muted-foreground">
             <p>
               New to Shadowdark? Grab the{" "}
@@ -240,7 +242,9 @@ export default function AboutPage() {
         {/* CTA */}
         <div className="flex flex-col gap-4 items-center text-center p-8 bg-muted rounded-lg">
           <Share2 className="h-12 w-12 text-primary" />
-          <h3 className="text-2xl font-bold">Ready to get started?</h3>
+          <h3 className="font-heading text-2xl font-bold">
+            Ready to get started?
+          </h3>
           <p className="text-muted-foreground max-w-2xl">
             Create an account to start building custom content and sharing with
             the Shadowdark community.

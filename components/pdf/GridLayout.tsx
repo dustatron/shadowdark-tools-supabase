@@ -15,17 +15,19 @@ interface GridLayoutProps {
 
 const styles = StyleSheet.create({
   page: {
-    padding: "0.5in",
+    padding: 0,
     backgroundColor: "#ffffff",
   },
   grid: {
     display: "flex",
-    flexDirection: "column",
+    flexDirection: "row",
     flexWrap: "wrap",
-    gap: "0.1in",
   },
   cardWrapper: {
-    marginBottom: "0.1in",
+    width: "2.5in",
+    height: "3.5in",
+    margin: 0,
+    padding: 0,
   },
 });
 
