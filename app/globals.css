@@ -4,6 +4,40 @@
 @tailwind components;
 @tailwind utilities;
 
+/* Beaufort Font for Headings */
+@font-face {
+  font-family: "Beaufort";
+  src: url("/fonts/beaufort-w01-regular.woff2") format("woff2");
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+}
+
+/* Avenir Next Condensed for Body */
+@font-face {
+  font-family: "Avenir Next Condensed";
+  src: url("/fonts/avenir-next-condensed-regular.woff2") format("woff2");
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "Avenir Next Condensed";
+  src: url("/fonts/avenir-next-condensed-medium.woff2") format("woff2");
+  font-weight: 500;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "Avenir Next Condensed";
+  src: url("/fonts/avenir-next-condensed-bold.woff2") format("woff2");
+  font-weight: 700;
+  font-style: normal;
+  font-display: swap;
+}
+
 @layer base {
   :root {
     --background: 1 0 0;

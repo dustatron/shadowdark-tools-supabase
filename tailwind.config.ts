@@ -116,6 +116,7 @@ export default {
         sans: ["Roboto", "system-ui", "sans-serif"],
         mono: ["Source Code Pro", "monospace"],
         serif: ["serif"],
+        heading: ["Beaufort", "serif"],
       },
       borderRadius: {
         lg: "var(--radius)",

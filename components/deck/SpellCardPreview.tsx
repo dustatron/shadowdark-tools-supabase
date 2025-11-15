@@ -54,10 +54,10 @@ export function SpellCardPreview({ spell }: SpellCardPreviewProps) {
 
   return (
     <PDFViewer
-      width={width.px}
-      height={height.px}
+      width="100%"
+      height="100%"
       showToolbar={true}
-      style={{ border: "none" }}
+      style={{ border: "none", minHeight: "33rem" }}
     >
       <Document>
         <Page size={{ width: width.pt, height: height.pt }}>

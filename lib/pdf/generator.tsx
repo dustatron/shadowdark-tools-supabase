@@ -19,13 +19,16 @@ const styles = StyleSheet.create({
   gridPage: {
     flexDirection: "row",
     flexWrap: "wrap",
-    justifyContent: "flex-start",
-    padding: 10,
-    gap: 1,
+    justifyContent: "center",
+    alignItems: "center",
+    padding: "0.2in",
+    gap: "0.01in",
   },
   gridCard: {
     width: "2.5in",
     height: "3.5in",
+    margin: 0,
+    padding: 0,
   },
 
   // Single Layout Styles (one card per page - 2.5" x 3.5")
@@ -69,8 +72,8 @@ const DeckPDFDocument: React.FC<PDFDocumentProps> = ({
     );
   }
 
-  // Grid layout: multiple cards per page (2 columns)
-  const cardsPerPage = 6; // 2 columns x 3 rows
+  // Grid layout: multiple cards per page (3 columns)
+  const cardsPerPage = 9; // 3 columns x 3 rows
   const pages: SpellForDeck[][] = [];
 
   // Split spells into pages
