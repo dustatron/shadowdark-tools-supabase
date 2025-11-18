@@ -259,195 +259,194 @@ export function MonsterDetailClient({
   const isOwner = currentUserId && monster.user_id === currentUserId;
 
   return (
-    <div className="container mx-auto py-6 px-4 lg:px-8 max-w-5xl">
-      <Button asChild variant="ghost" className="mb-6 -ml-2">
-        <Link href={backUrl} className="flex items-center gap-2">
-          <ArrowLeft className="h-4 w-4" />
-          Back to Monsters
-        </Link>
-      </Button>
+    <div className="container mx-auto px-1 max-w-5xl">
+      <div className="flex justify-between">
+        <Button asChild variant="ghost" className="mb-3 -ml-2">
+          <Link href={backUrl} className="flex items-center gap-2">
+            <ArrowLeft className="h-4 w-4" />
+            Back to Monsters
+          </Link>
+        </Button>
+        <div className="flex items-center gap-2">
+          {currentUserId && (
+            <FavoriteButton
+              itemId={monster.id}
+              itemType="monster"
+              initialFavoriteId={favoriteId || undefined}
+            />
+          )}
+        </div>
+      </div>
 
       <div className="flex flex-col gap-6">
         {/* Header */}
         <Card className="shadow-sm border">
-          <CardContent className="p-6">
-            <div className="flex justify-between items-start mb-4">
-              <div className="flex-1">
-                <h1 className="text-3xl font-bold mb-3">{monster.name}</h1>
-                <div className="flex flex-wrap gap-2">
-                  <Badge
-                    className={`${getChallengeColorClass(challengeLevelColor)} text-base px-3 py-1`}
-                  >
-                    Challenge Level {monster.challenge_level}
-                  </Badge>
-                  {monster.xp && (
-                    <Badge variant="outline" className="text-base px-3 py-1">
-                      {monster.xp} XP
-                    </Badge>
-                  )}
-                  <Badge variant="outline" className="text-base px-3 py-1">
-                    {monster.source}
-                  </Badge>
-                  {monster.monster_type === "user" && (
-                    <Badge
-                      variant="secondary"
-                      className="text-base px-3 py-1 bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-200"
-                    >
-                      Custom
-                    </Badge>
-                  )}
-                  {monster.is_public && (
-                    <Badge
-                      variant="secondary"
-                      className="text-base px-3 py-1 bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200"
-                    >
-                      Public
-                    </Badge>
-                  )}
-                </div>
-              </div>
-
-              <div className="flex items-center gap-2">
-                {currentUserId && (
-                  <FavoriteButton
-                    itemId={monster.id}
-                    itemType="monster"
-                    initialFavoriteId={favoriteId || undefined}
-                  />
-                )}
-              </div>
+          <CardContent className="p-1">
+            <div className="bg-black px-4 py-2 ">
+              <h1 className="text-3xl font-bold text-zinc-50 h-auto  align-middle ">
+                {monster.name}
+              </h1>
             </div>
-
-            {/* Description */}
-            {monster.description && (
-              <p className="text-base text-muted-foreground mb-4">
-                {monster.description}
-              </p>
-            )}
-
-            {/* Author Notes */}
-            {monster.author_notes &&
-              monster.author_notes !== monster.description && (
-                <p className="text-base text-muted-foreground mb-4 italic">
-                  {monster.author_notes}
-                </p>
+            <div className="p-2">
+              {/* Description */}
+              {monster.description && (
+                <p className="text-base mb-4">{monster.description}</p>
               )}
-
-            {/* Tags */}
-            <div className="flex flex-wrap gap-2">
-              {monster.tags?.type?.map((type, index) => (
-                <Badge key={`type-${index}`} variant="secondary">
-                  {type}
-                </Badge>
-              ))}
-              {monster.tags?.location?.map((location, index) => (
-                <Badge
-                  key={`location-${index}`}
-                  variant="outline"
-                  className="text-gray-600 dark:text-gray-400"
-                >
-                  {location}
-                </Badge>
-              ))}
+              {/* Author Notes */}
+              {monster.author_notes &&
+                monster.author_notes !== monster.description && (
+                  <p className="font-semibold mb-4 italic">
+                    {monster.author_notes}
+                  </p>
+                )}
+            </div>
+            <div className="flex justify-between">
+              <div className="flex flex-wrap gap-2"></div>
             </div>
           </CardContent>
+
+          {/* Art/Icon */}
+          {(monster.art_url || monster.icon_url) && (
+            <Card className="shadow-sm">
+              <CardContent className="p-6">
+                {monster.art_url && (
+                  <div>
+                    <h3 className="text-sm font-semibold mb-2">Art</h3>
+                    <Image
+                      src={monster.art_url}
+                      alt={`${monster.name} art`}
+                      width={448}
+                      height={300}
+                      className="max-w-md w-full rounded-lg border"
+                    />
+                  </div>
+                )}
+                {monster.icon_url && (
+                  <div>
+                    <h3 className="text-sm font-semibold mb-2">Icon</h3>
+                    <Image
+                      src={monster.icon_url}
+                      alt={`${monster.name} icon`}
+                      width={96}
+                      height={96}
+                      className="w-24 h-24 rounded-lg border"
+                    />
+                  </div>
+                )}
+              </CardContent>
+            </Card>
+          )}
+
+          {/* Stats */}
+          <MonsterStatBlock
+            hitPoints={monster.hit_points}
+            armorClass={monster.armor_class}
+            speed={monster.speed}
+          />
+
+          {/* Ability Scores */}
+          <AbilityScoresCard
+            strength={monster.strength_mod}
+            dexterity={monster.dexterity_mod}
+            constitution={monster.constitution_mod}
+            intelligence={monster.intelligence_mod}
+            wisdom={monster.wisdom_mod}
+            charisma={monster.charisma_mod}
+          />
+
+          {/* Attacks */}
+          <MonsterAttacksDisplay attacks={monster.attacks} />
+
+          {/* Abilities */}
+          <MonsterAbilitiesDisplay abilities={monster.abilities} />
+
+          {/* Treasure */}
+          {monster.treasure && (
+            <Card className="shadow-sm">
+              <CardContent className="p-6">
+                <h3 className="text-lg font-semibold mb-2">Treasure</h3>
+                <p className="text-sm">{monster.treasure}</p>
+              </CardContent>
+            </Card>
+          )}
+
+          {/* Tactics */}
+          {monster.tactics && (
+            <Card className="shadow-sm">
+              <CardContent className="p-6">
+                <h3 className="text-lg font-semibold mb-2">Tactics</h3>
+                <p className="text-sm">{monster.tactics}</p>
+              </CardContent>
+            </Card>
+          )}
+
+          {/* Wants */}
+          {monster.wants && (
+            <Card className="shadow-sm">
+              <CardContent className="p-6">
+                <h3 className="text-lg font-semibold mb-2">Wants</h3>
+                <p className="text-sm">{monster.wants}</p>
+              </CardContent>
+            </Card>
+          )}
+
+          {/* GM Notes */}
+          {monster.gm_notes && (
+            <Card className="shadow-sm">
+              <CardContent className="p-6">
+                <h3 className="text-lg font-semibold mb-2">GM Notes</h3>
+                <p className="text-sm">{monster.gm_notes}</p>
+              </CardContent>
+            </Card>
+          )}
+          {/* Tags */}
+          <div className="flex flex-wrap gap-2 p-2">
+            <Badge
+              className={`${getChallengeColorClass(challengeLevelColor)} text-base px-3 py-1`}
+            >
+              Challenge Level {monster.challenge_level}
+            </Badge>
+
+            <Badge variant="outline" className="text-base px-3 py-1">
+              {monster.source}
+            </Badge>
+            {monster.monster_type === "user" && (
+              <Badge
+                variant="secondary"
+                className="text-base px-3 py-1 bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-200"
+              >
+                Custom
+              </Badge>
+            )}
+            {monster.tags?.type?.map((type, index) => (
+              <Badge key={`type-${index}`} variant="secondary">
+                {type}
+              </Badge>
+            ))}
+            {monster.tags?.location?.map((location, index) => (
+              <Badge
+                key={`location-${index}`}
+                variant="outline"
+                className="text-gray-600 dark:text-gray-400"
+              >
+                {location}
+              </Badge>
+            ))}
+            {monster.xp && (
+              <Badge variant="outline" className="text-base py-1">
+                {monster.xp} XP
+              </Badge>
+            )}
+            {monster.is_public && (
+              <Badge
+                variant="secondary"
+                className="text-base px-3 py-1 bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200"
+              >
+                Public
+              </Badge>
+            )}
+          </div>
         </Card>
-
-        {/* Art/Icon */}
-        {(monster.art_url || monster.icon_url) && (
-          <Card className="shadow-sm">
-            <CardContent className="p-6">
-              {monster.art_url && (
-                <div>
-                  <h3 className="text-sm font-semibold mb-2">Art</h3>
-                  <Image
-                    src={monster.art_url}
-                    alt={`${monster.name} art`}
-                    width={448}
-                    height={300}
-                    className="max-w-md w-full rounded-lg border"
-                  />
-                </div>
-              )}
-              {monster.icon_url && (
-                <div>
-                  <h3 className="text-sm font-semibold mb-2">Icon</h3>
-                  <Image
-                    src={monster.icon_url}
-                    alt={`${monster.name} icon`}
-                    width={96}
-                    height={96}
-                    className="w-24 h-24 rounded-lg border"
-                  />
-                </div>
-              )}
-            </CardContent>
-          </Card>
-        )}
-
-        {/* Stats */}
-        <MonsterStatBlock
-          hitPoints={monster.hit_points}
-          armorClass={monster.armor_class}
-          speed={monster.speed}
-        />
-
-        {/* Ability Scores */}
-        <AbilityScoresCard
-          strength={monster.strength_mod}
-          dexterity={monster.dexterity_mod}
-          constitution={monster.constitution_mod}
-          intelligence={monster.intelligence_mod}
-          wisdom={monster.wisdom_mod}
-          charisma={monster.charisma_mod}
-        />
-
-        {/* Attacks */}
-        <MonsterAttacksDisplay attacks={monster.attacks} />
-
-        {/* Abilities */}
-        <MonsterAbilitiesDisplay abilities={monster.abilities} />
-
-        {/* Treasure */}
-        {monster.treasure && (
-          <Card className="shadow-sm">
-            <CardContent className="p-6">
-              <h3 className="text-lg font-semibold mb-2">Treasure</h3>
-              <p className="text-sm">{monster.treasure}</p>
-            </CardContent>
-          </Card>
-        )}
-
-        {/* Tactics */}
-        {monster.tactics && (
-          <Card className="shadow-sm">
-            <CardContent className="p-6">
-              <h3 className="text-lg font-semibold mb-2">Tactics</h3>
-              <p className="text-sm">{monster.tactics}</p>
-            </CardContent>
-          </Card>
-        )}
-
-        {/* Wants */}
-        {monster.wants && (
-          <Card className="shadow-sm">
-            <CardContent className="p-6">
-              <h3 className="text-lg font-semibold mb-2">Wants</h3>
-              <p className="text-sm">{monster.wants}</p>
-            </CardContent>
-          </Card>
-        )}
-
-        {/* GM Notes */}
-        {monster.gm_notes && (
-          <Card className="shadow-sm">
-            <CardContent className="p-6">
-              <h3 className="text-lg font-semibold mb-2">GM Notes</h3>
-              <p className="text-sm">{monster.gm_notes}</p>
-            </CardContent>
-          </Card>
-        )}
-
         {/* Ownership/Author Card */}
         <MonsterOwnershipCard
           monsterId={monster.id}
