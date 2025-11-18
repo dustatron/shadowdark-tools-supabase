@@ -1,8 +1,10 @@
-import { createClient } from "@/lib/supabase/server";
-import { MagicItemCard } from "@/components/magic-items/MagicItemCard";
-import { Input } from "@/components/ui/input";
-import { Button } from "@/components/ui/button";
-import { Search } from "lucide-react";
+"use client";
+
+import { useState, useEffect } from "react";
+import { MagicItemList } from "@/components/magic-items/MagicItemList";
+import { MagicItemFilters } from "@/components/magic-items/MagicItemFilters";
+import { createClient } from "@/lib/supabase/client";
+import { createFavoritesMap } from "@/lib/utils/favorites";
 
 interface MagicItem {
   id: string;
@@ -12,88 +14,162 @@ interface MagicItem {
   traits: { name: string; description: string }[];
 }
 
-interface PageProps {
-  searchParams: Promise<{
-    search?: string;
-  }>;
+interface FilterValues {
+  search: string;
+  traitTypes: string[];
 }
 
-export default async function MagicItemsPage({ searchParams }: PageProps) {
-  const params = await searchParams;
-  const searchTerm = params.search;
-  const supabase = await createClient();
+const DEFAULT_FILTERS: FilterValues = {
+  search: "",
+  traitTypes: [],
+};
 
-  // Build query
-  let query = supabase
-    .from("official_magic_items")
-    .select("*")
-    .order("name", { ascending: true });
+export default function MagicItemsPage() {
+  const [items, setItems] = useState<MagicItem[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+  const [filters, setFilters] = useState<FilterValues>(DEFAULT_FILTERS);
+  const [pagination, setPagination] = useState({
+    page: 1,
+    limit: 20,
+    total: 0,
+    totalPages: 0,
+  });
+  const [isAuthenticated, setIsAuthenticated] = useState(false);
+  const [currentUserId, setCurrentUserId] = useState<string | null>(null);
+  const [favoritesMap, setFavoritesMap] = useState<Map<string, string>>(
+    new Map(),
+  );
 
-  // Apply search filter if provided
-  if (searchTerm) {
-    query = query.or(
-      `name.ilike.%${searchTerm}%,description.ilike.%${searchTerm}%`,
-    );
-  }
+  // Available filter options
+  const [availableTraitTypes] = useState<string[]>([
+    "Benefit",
+    "Curse",
+    "Bonus",
+    "Personality",
+  ]);
 
-  const { data: items, error } = await query;
+  useEffect(() => {
+    fetchMagicItems();
+  }, [filters, pagination.page, pagination.limit]);
 
-  if (error) {
-    console.error("Error fetching magic items:", error);
-  }
+  useEffect(() => {
+    const checkAuthAndFavorites = async () => {
+      const supabase = createClient();
+      const {
+        data: { user },
+      } = await supabase.auth.getUser();
 
-  const magicItems = (items || []) as MagicItem[];
+      setIsAuthenticated(!!user);
+      setCurrentUserId(user?.id || null);
+
+      // Fetch user's favorite magic items if authenticated
+      if (user) {
+        const { data: favorites } = await supabase
+          .from("favorites")
+          .select("id, item_id")
+          .eq("user_id", user.id)
+          .eq("item_type", "magic_item");
+
+        if (favorites) {
+          const favMap = createFavoritesMap(
+            favorites.map((fav) => ({
+              item_id: fav.item_id,
+              favorite_id: fav.id,
+            })),
+          );
+          setFavoritesMap(favMap);
+        }
+      }
+    };
+    checkAuthAndFavorites();
+  }, []);
+
+  const fetchMagicItems = async () => {
+    try {
+      setLoading(true);
+      setError(null);
+
+      const params = new URLSearchParams({
+        page: pagination.page.toString(),
+        limit: pagination.limit.toString(),
+      });
+
+      if (filters.search) {
+        params.append("q", filters.search);
+      }
+      if (filters.traitTypes.length > 0) {
+        params.append("traitTypes", filters.traitTypes.join(","));
+      }
+
+      const response = await fetch(
+        `/api/search/magic-items?${params.toString()}`,
+      );
+
+      if (!response.ok) {
+        throw new Error("Failed to fetch magic items");
+      }
+
+      const data = await response.json();
+
+      setItems(data.results || []);
+      setPagination((prev) => ({
+        ...prev,
+        total: data.total || 0,
+        totalPages: data.pagination.totalPages || 0,
+      }));
+    } catch (err) {
+      console.error("Error fetching magic items:", err);
+      setError(err instanceof Error ? err.message : "An error occurred");
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleFiltersChange = (newFilters: FilterValues) => {
+    setFilters(newFilters);
+    setPagination((prev) => ({ ...prev, page: 1 }));
+  };
+
+  const handlePageChange = (page: number) => {
+    setPagination((prev) => ({ ...prev, page }));
+  };
+
+  const handlePageSizeChange = (pageSize: number) => {
+    setPagination((prev) => ({ ...prev, limit: pageSize, page: 1 }));
+  };
 
   return (
-    <div className="container mx-auto px-4 py-8">
-      <div className="flex flex-col gap-6">
+    <div>
+      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-6">
         <div>
-          <h1 className="text-3xl font-bold mb-2">Magic Items</h1>
-          <p className="text-muted-foreground">
+          <h1 className="text-3xl font-bold">Magic Items</h1>
+          <p className="text-muted-foreground mt-1">
             Browse official Shadowdark magic items
           </p>
         </div>
-
-        {/* Search Form */}
-        <form method="GET" className="flex gap-2">
-          <div className="relative flex-1 max-w-md">
-            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground h-4 w-4" />
-            <Input
-              name="search"
-              placeholder="Search by name or description..."
-              defaultValue={searchTerm}
-              className="pl-10"
-              data-testid="search-input"
-            />
-          </div>
-          <Button type="submit">Search</Button>
-        </form>
-
-        {/* Results Grid */}
-        {magicItems.length > 0 ? (
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-            {magicItems.map((item) => (
-              <MagicItemCard key={item.id} item={item} />
-            ))}
-          </div>
-        ) : (
-          <div className="text-center py-12">
-            <p className="text-muted-foreground">
-              {searchTerm
-                ? "No magic items found matching your search"
-                : "No magic items found"}
-            </p>
-          </div>
-        )}
-
-        {/* Results Count */}
-        {magicItems.length > 0 && (
-          <p className="text-sm text-muted-foreground">
-            Showing {magicItems.length} item{magicItems.length !== 1 ? "s" : ""}
-            {searchTerm && ` matching "${searchTerm}"`}
-          </p>
-        )}
       </div>
+
+      <div className="mb-6">
+        <MagicItemFilters
+          filters={filters}
+          onFiltersChange={handleFiltersChange}
+          availableTraitTypes={availableTraitTypes}
+          loading={loading}
+        />
+      </div>
+
+      <MagicItemList
+        items={items}
+        pagination={pagination}
+        loading={loading}
+        error={error || undefined}
+        currentUserId={currentUserId || undefined}
+        favoritesMap={favoritesMap}
+        onPageChange={handlePageChange}
+        onPageSizeChange={handlePageSizeChange}
+        onRetry={fetchMagicItems}
+      />
     </div>
   );
 }
