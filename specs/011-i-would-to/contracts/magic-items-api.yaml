@@ -1,0 +1,267 @@
+openapi: 3.0.3
+info:
+  title: Magic Items API
+  version: 1.0.0
+  description: RESTful API for browsing and viewing official Shadowdark magic items
+
+servers:
+  - url: http://localhost:3000
+    description: Development server
+
+paths:
+  /api/magic-items:
+    get:
+      summary: List magic items
+      description: Returns a list of all official magic items, optionally filtered by search term
+      operationId: listMagicItems
+      tags:
+        - Magic Items
+      parameters:
+        - name: search
+          in: query
+          description: Search term to filter items by name or description
+          required: false
+          schema:
+            type: string
+            minLength: 1
+            maxLength: 100
+            example: "invisibility"
+      responses:
+        '200':
+          description: Successful response with list of magic items
+          content:
+            application/json:
+              schema:
+                type: object
+                required:
+                  - data
+                  - count
+                properties:
+                  data:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/MagicItem'
+                  count:
+                    type: integer
+                    description: Total number of items matching criteria
+                    example: 150
+              examples:
+                withoutSearch:
+                  summary: All items (alphabetical)
+                  value:
+                    data:
+                      - id: "550e8400-e29b-41d4-a716-446655440001"
+                        name: "Alabaster Destrier"
+                        slug: "alabaster_destrier"
+                        description: "A smooth, pearly statuette of a running horse."
+                        traits:
+                          - name: "Benefit"
+                            description: "Once per day, the wielder can speak the command word to turn the statuette into a pegasus that accepts neutral or lawful riders. The statuette remains in this form for 1 hour."
+                        created_at: "2025-11-17T12:00:00Z"
+                        updated_at: "2025-11-17T12:00:00Z"
+                      - id: "550e8400-e29b-41d4-a716-446655440002"
+                        name: "Amulet Of Secrecy"
+                        slug: "amulet_of_secrecy"
+                        description: "A heavy, flat pendant carved with a lidded eye."
+                        traits:
+                          - name: "Benefit"
+                            description: "You can't be detected by divination magic such as the scrying spell or a Crystal Ball while wearing this amulet."
+                          - name: "Curse"
+                            description: "You constantly have the sensation of being watched."
+                        created_at: "2025-11-17T12:00:00Z"
+                        updated_at: "2025-11-17T12:00:00Z"
+                withSearch:
+                  summary: Filtered by search term
+                  value:
+                    data:
+                      - id: "550e8400-e29b-41d4-a716-446655440003"
+                        name: "Ring of Invisibility"
+                        slug: "ring_of_invisibility"
+                        description: "A simple, gold band polished to a warm shine."
+                        traits:
+                          - name: "Benefit"
+                            description: "Once per day, the ring can cast the invisibility spell (pg. 63) on you."
+                          - name: "Curse"
+                            description: "There is a cumulative 1% chance each time you rest that your sleep is ruined by apocalyptic nightmares."
+                        created_at: "2025-11-17T12:00:00Z"
+                        updated_at: "2025-11-17T12:00:00Z"
+        '400':
+          description: Bad request (invalid search parameter)
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+              example:
+                error: "Search term too long (max 100 characters)"
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+              example:
+                error: "Database query failed"
+
+  /api/magic-items/{slug}:
+    get:
+      summary: Get magic item by slug
+      description: Returns detailed information for a single magic item
+      operationId: getMagicItemBySlug
+      tags:
+        - Magic Items
+      parameters:
+        - name: slug
+          in: path
+          description: URL-friendly identifier for the magic item
+          required: true
+          schema:
+            type: string
+            pattern: "^[a-z0-9_-]+$"
+            example: "ring_of_invisibility"
+      responses:
+        '200':
+          description: Successful response with magic item details
+          content:
+            application/json:
+              schema:
+                type: object
+                required:
+                  - data
+                properties:
+                  data:
+                    $ref: '#/components/schemas/MagicItem'
+              example:
+                data:
+                  id: "550e8400-e29b-41d4-a716-446655440003"
+                  name: "Ring of Invisibility"
+                  slug: "ring_of_invisibility"
+                  description: "A simple, gold band polished to a warm shine."
+                  traits:
+                    - name: "Benefit"
+                      description: "Once per day, the ring can cast the invisibility spell (pg. 63) on you."
+                    - name: "Curse"
+                      description: "There is a cumulative 1% chance each time you rest that your sleep is ruined by apocalyptic nightmares, and you gain no benefit from resting. This resets to a 1% chance each time it triggers."
+                  created_at: "2025-11-17T12:00:00Z"
+                  updated_at: "2025-11-17T12:00:00Z"
+        '400':
+          description: Bad request (invalid slug format)
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+              example:
+                error: "Invalid slug format"
+        '404':
+          description: Magic item not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+              example:
+                error: "Magic item not found"
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+              example:
+                error: "Database query failed"
+
+components:
+  schemas:
+    MagicItem:
+      type: object
+      required:
+        - id
+        - name
+        - slug
+        - description
+        - traits
+        - created_at
+        - updated_at
+      properties:
+        id:
+          type: string
+          format: uuid
+          description: Unique identifier
+          example: "550e8400-e29b-41d4-a716-446655440000"
+        name:
+          type: string
+          minLength: 1
+          maxLength: 200
+          description: Display name of the magic item
+          example: "Ring of Invisibility"
+        slug:
+          type: string
+          pattern: "^[a-z0-9_-]+$"
+          description: URL-friendly identifier
+          example: "ring_of_invisibility"
+        description:
+          type: string
+          minLength: 1
+          maxLength: 2000
+          description: Flavor text describing the item's appearance
+          example: "A simple, gold band polished to a warm shine."
+        traits:
+          type: array
+          description: Array of special properties and effects
+          items:
+            $ref: '#/components/schemas/Trait'
+          default: []
+        created_at:
+          type: string
+          format: date-time
+          description: Record creation timestamp
+          example: "2025-11-17T12:00:00Z"
+        updated_at:
+          type: string
+          format: date-time
+          description: Record update timestamp
+          example: "2025-11-17T12:00:00Z"
+
+    Trait:
+      type: object
+      required:
+        - name
+        - description
+      properties:
+        name:
+          type: string
+          minLength: 1
+          maxLength: 50
+          description: Trait type (Benefit, Curse, Bonus, Personality)
+          enum:
+            - Benefit
+            - Curse
+            - Bonus
+            - Personality
+          example: "Benefit"
+        description:
+          type: string
+          minLength: 1
+          maxLength: 1000
+          description: Detailed explanation of the trait's effect
+          example: "Once per day, the ring can cast the invisibility spell (pg. 63) on you."
+
+    Error:
+      type: object
+      required:
+        - error
+      properties:
+        error:
+          type: string
+          description: Human-readable error message
+          example: "Magic item not found"
+        details:
+          type: object
+          description: Additional error details (e.g., validation issues)
+          additionalProperties: true
+
+  securitySchemes:
+    # No authentication required for read-only endpoints in this phase
+    # Future: Add Supabase JWT for user-specific operations (favorites)
+
+tags:
+  - name: Magic Items
+    description: Official Shadowdark magic items

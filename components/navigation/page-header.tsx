@@ -13,6 +13,8 @@ export function PageHeader() {
     if (pathname.startsWith("/monsters/")) return "Monster Details";
     if (pathname === "/spells") return "Spell Search";
     if (pathname.startsWith("/spells/")) return "Spell Details";
+    if (pathname === "/magic-items") return "Magic Item Search";
+    if (pathname.startsWith("/magic-items/")) return "Magic Item Details";
     if (pathname === "/encounter-tables") return "Encounter Tables";
     if (pathname === "/dashboard/monsters") return "Your Monsters";
     if (pathname === "/dashboard/spells") return "Your Spells";

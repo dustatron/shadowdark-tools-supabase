@@ -21,6 +21,7 @@ import {
   Search,
   ChevronDown,
   Skull,
+  Wand2,
 } from "lucide-react";
 import {
   Sidebar,
@@ -150,6 +151,13 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
             requiresAuth: true,
           },
         ],
+      },
+      {
+        label: "Magic Items",
+        icon: Wand2,
+        defaultLink: "/magic-items",
+        defaultOpen: pathname.startsWith("/magic-items"),
+        items: [{ href: "/magic-items", label: "Search", icon: Search }],
       },
       {
         label: "Encounters",
