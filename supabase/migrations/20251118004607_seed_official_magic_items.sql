@@ -96,4 +96,7 @@ INSERT INTO official_magic_items (name, slug, description, traits) VALUES
   ('Warhammer Of The Dwarf Lords', 'warhammer_of_the_dwarf_lords', 'A boxy hammer with a stout handle and leather throwing strap. It hums with a baritone resonance when spun.', '[{"name":"Bonus","description":"+1 warhammer. +2 if wielded by a dwarf."},{"name":"Benefit","description":"This weapon has the thrown property (pg. 37) to a near distance. It always returns to your hand after being thrown. Your attacks with this weapon deal double damage against giants."}]'::jsonb),
   ('Well Of Many Worlds', 'well_of_many_worlds', 'A dark circle of cloth that seems to create a tunnel through the surface it lies upon.', '[{"name":"Benefit","description":"The Well of Many Worlds folds open on a flat surface into a 6-foot wide hole. Creatures can jump into the hole once per day each to be transported to a random plane of existence."}]'::jsonb),
   ('Wraith Chain', 'wraith_chain', 'A chainmail shirt of black, mithral links that trails a long cloak of writhing shadows.', '[{"name":"Bonus","description":"+1 mithral chainmail."},{"name":"Benefit","description":"Once per day, you may cause an attack that hits you to miss instead."}]'::jsonb)
-;
+ON CONFLICT (slug) DO UPDATE SET
+  name = EXCLUDED.name,
+  description = EXCLUDED.description,
+  traits = EXCLUDED.traits;

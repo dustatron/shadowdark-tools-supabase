@@ -23,17 +23,18 @@ CREATE TABLE IF NOT EXISTS public.official_magic_items (
 );
 
 -- Create updated_at trigger
+DROP TRIGGER IF EXISTS set_updated_at_official_magic_items ON public.official_magic_items;
 CREATE TRIGGER set_updated_at_official_magic_items
   BEFORE UPDATE ON public.official_magic_items
   FOR EACH ROW
   EXECUTE FUNCTION public.handle_updated_at();
 
 -- Indexes for performance
-CREATE UNIQUE INDEX idx_magic_items_slug ON public.official_magic_items(slug);
-CREATE INDEX idx_magic_items_name_trgm ON public.official_magic_items USING GIN (name gin_trgm_ops);
+CREATE UNIQUE INDEX IF NOT EXISTS idx_magic_items_slug ON public.official_magic_items(slug);
+CREATE INDEX IF NOT EXISTS idx_magic_items_name_trgm ON public.official_magic_items USING GIN (name gin_trgm_ops);
 
 -- Full-text search index
-CREATE INDEX idx_magic_items_search ON public.official_magic_items USING GIN (
+CREATE INDEX IF NOT EXISTS idx_magic_items_search ON public.official_magic_items USING GIN (
   to_tsvector('english',
     COALESCE(name, '') || ' ' ||
     COALESCE(description, '')
@@ -44,6 +45,7 @@ CREATE INDEX idx_magic_items_search ON public.official_magic_items USING GIN (
 ALTER TABLE public.official_magic_items ENABLE ROW LEVEL SECURITY;
 
 -- RLS Policy: Public read access
+DROP POLICY IF EXISTS "Public read access" ON public.official_magic_items;
 CREATE POLICY "Public read access" ON public.official_magic_items
   FOR SELECT
   USING (true);

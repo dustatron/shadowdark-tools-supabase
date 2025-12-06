@@ -27,7 +27,7 @@ paths:
             maxLength: 100
             example: "invisibility"
       responses:
-        '200':
+        "200":
           description: Successful response with list of magic items
           content:
             application/json:
@@ -40,7 +40,7 @@ paths:
                   data:
                     type: array
                     items:
-                      $ref: '#/components/schemas/MagicItem'
+                      $ref: "#/components/schemas/MagicItem"
                   count:
                     type: integer
                     description: Total number of items matching criteria
@@ -85,20 +85,20 @@ paths:
                             description: "There is a cumulative 1% chance each time you rest that your sleep is ruined by apocalyptic nightmares."
                         created_at: "2025-11-17T12:00:00Z"
                         updated_at: "2025-11-17T12:00:00Z"
-        '400':
+        "400":
           description: Bad request (invalid search parameter)
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/Error'
+                $ref: "#/components/schemas/Error"
               example:
                 error: "Search term too long (max 100 characters)"
-        '500':
+        "500":
           description: Internal server error
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/Error'
+                $ref: "#/components/schemas/Error"
               example:
                 error: "Database query failed"
 
@@ -119,7 +119,7 @@ paths:
             pattern: "^[a-z0-9_-]+$"
             example: "ring_of_invisibility"
       responses:
-        '200':
+        "200":
           description: Successful response with magic item details
           content:
             application/json:
@@ -129,7 +129,7 @@ paths:
                   - data
                 properties:
                   data:
-                    $ref: '#/components/schemas/MagicItem'
+                    $ref: "#/components/schemas/MagicItem"
               example:
                 data:
                   id: "550e8400-e29b-41d4-a716-446655440003"
@@ -143,28 +143,28 @@ paths:
                       description: "There is a cumulative 1% chance each time you rest that your sleep is ruined by apocalyptic nightmares, and you gain no benefit from resting. This resets to a 1% chance each time it triggers."
                   created_at: "2025-11-17T12:00:00Z"
                   updated_at: "2025-11-17T12:00:00Z"
-        '400':
+        "400":
           description: Bad request (invalid slug format)
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/Error'
+                $ref: "#/components/schemas/Error"
               example:
                 error: "Invalid slug format"
-        '404':
+        "404":
           description: Magic item not found
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/Error'
+                $ref: "#/components/schemas/Error"
               example:
                 error: "Magic item not found"
-        '500':
+        "500":
           description: Internal server error
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/Error'
+                $ref: "#/components/schemas/Error"
               example:
                 error: "Database query failed"
 
@@ -207,7 +207,7 @@ components:
           type: array
           description: Array of special properties and effects
           items:
-            $ref: '#/components/schemas/Trait'
+            $ref: "#/components/schemas/Trait"
           default: []
         created_at:
           type: string

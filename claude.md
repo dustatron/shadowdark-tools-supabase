@@ -14,7 +14,7 @@
 
 - Your primary method for interacting with the Supabase database should be through the Supabase MCP server
 - Use MCP tools for: querying tables, executing SQL, applying migrations, checking schemas, getting logs
-- Project ID: hvtkkugamifjglxkqsrc
+- Project ID: anradzoxmwjpzlldneac
 
 ## Plans
 

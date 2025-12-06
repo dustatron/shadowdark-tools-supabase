@@ -57,6 +57,7 @@ export async function updateSession(request: NextRequest) {
     "/auth",
     "/api",
     "/encounter-tables",
+    "/magic-items",
   ];
 
   const isPublicRoute = publicRoutes.some(
