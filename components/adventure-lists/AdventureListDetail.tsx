@@ -11,17 +11,6 @@ import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { toast } from "sonner";
 import {
-  AlertDialog,
-  AlertDialogAction,
-  AlertDialogCancel,
-  AlertDialogContent,
-  AlertDialogDescription,
-  AlertDialogFooter,
-  AlertDialogHeader,
-  AlertDialogTitle,
-  AlertDialogTrigger,
-} from "@/components/ui/alert-dialog";
-import {
   Sheet,
   SheetContent,
   SheetHeader,
@@ -29,6 +18,11 @@ import {
   SheetTrigger,
 } from "@/components/ui/sheet";
 import { ItemSelector } from "./ItemSelector";
+import { ExportButton } from "./ExportButton";
+import {
+  exportAdventureListAsJson,
+  exportAdventureListAsCsv,
+} from "@/lib/utils/export";
 
 interface AdventureListDetailProps {
   list: AdventureList;
@@ -80,6 +74,14 @@ export function AdventureListDetail({
   const openSheet = (type: "monster" | "spell" | "magic_item") => {
     setActiveSheetTab(type);
     setIsSheetOpen(true);
+  };
+
+  const handleExport = (format: "json" | "csv") => {
+    if (format === "json") {
+      exportAdventureListAsJson(list, items);
+    } else {
+      exportAdventureListAsCsv(list, items);
+    }
   };
 
   return (
@@ -276,6 +278,9 @@ export function AdventureListDetail({
               <div className="flex justify-between">
                 <span className="text-muted-foreground">Magic Items</span>
                 <span className="font-medium">{items.magic_items.length}</span>
+              </div>
+              <div className="pt-2 mt-2 border-t">
+                <ExportButton onExport={handleExport} className="w-full mt-2" />
               </div>
             </CardContent>
           </Card>
