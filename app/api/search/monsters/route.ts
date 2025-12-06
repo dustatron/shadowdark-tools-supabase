@@ -59,13 +59,13 @@ export async function GET(request: NextRequest) {
     // Use the search function
     const { data: results, error } = await supabase.rpc("search_monsters", {
       search_query: validatedParams.q || "",
-      min_level: validatedParams.minLevel || 1,
-      max_level: validatedParams.maxLevel || 20,
+      min_challenge_level: validatedParams.minLevel || 1,
+      max_challenge_level: validatedParams.maxLevel || 20,
       monster_types: validatedParams.types || null,
-      locations: validatedParams.locations || null,
-      sources: validatedParams.sources || null,
-      result_limit: validatedParams.limit,
-      result_offset: offset,
+      location_tags: validatedParams.locations || null,
+      source_filter: validatedParams.sources?.[0] || null, // Only support single source filter for now
+      limit_count: validatedParams.limit,
+      offset_count: offset,
     });
 
     if (error) {
@@ -78,13 +78,13 @@ export async function GET(request: NextRequest) {
       "search_monsters",
       {
         search_query: validatedParams.q || "",
-        min_level: validatedParams.minLevel || 1,
-        max_level: validatedParams.maxLevel || 20,
+        min_challenge_level: validatedParams.minLevel || 1,
+        max_challenge_level: validatedParams.maxLevel || 20,
         monster_types: validatedParams.types || null,
-        locations: validatedParams.locations || null,
-        sources: validatedParams.sources || null,
-        result_limit: 999999,
-        result_offset: 0,
+        location_tags: validatedParams.locations || null,
+        source_filter: validatedParams.sources?.[0] || null,
+        limit_count: 999999,
+        offset_count: 0,
       },
     );
 
