@@ -1,5 +1,7 @@
 import { createClient } from "@/lib/supabase/server";
 import { TraitsSection } from "@/components/magic-items/TraitsSection";
+import { SourceBadge } from "@/components/magic-items/SourceBadge";
+import { UserMagicItemActions } from "@/components/magic-items/UserMagicItemActions";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { ArrowLeft } from "lucide-react";
@@ -12,6 +14,10 @@ interface MagicItem {
   slug: string;
   description: string;
   traits: { name: string; description: string }[];
+  item_type?: "official" | "custom";
+  user_id?: string | null;
+  creator_name?: string | null;
+  is_public?: boolean;
 }
 
 interface PageProps {
@@ -20,21 +26,99 @@ interface PageProps {
   }>;
 }
 
-export default async function MagicItemDetailPage({ params }: PageProps) {
-  const { slug } = await params;
-  const supabase = await createClient();
-
-  const { data, error } = await supabase
+async function fetchMagicItem(
+  supabase: Awaited<ReturnType<typeof createClient>>,
+  slug: string,
+  currentUserId: string | null,
+): Promise<{
+  item: MagicItem | null;
+  itemType: "official" | "custom";
+  creatorName: string | null;
+  userId: string | null;
+}> {
+  // First try to find in official_magic_items
+  const { data: officialItem } = await supabase
     .from("official_magic_items")
     .select("*")
     .eq("slug", slug)
     .single();
 
-  if (error || !data) {
+  if (officialItem) {
+    return {
+      item: officialItem,
+      itemType: "official",
+      creatorName: null,
+      userId: null,
+    };
+  }
+
+  // Try to find public user item by slug
+  const { data: userItem } = await supabase
+    .from("user_magic_items")
+    .select(
+      `
+      *,
+      user_profiles:user_id (display_name)
+    `,
+    )
+    .eq("slug", slug)
+    .eq("is_public", true)
+    .single();
+
+  if (userItem) {
+    return {
+      item: userItem,
+      itemType: "custom",
+      creatorName:
+        (userItem.user_profiles as { display_name: string })?.display_name ||
+        null,
+      userId: userItem.user_id,
+    };
+  }
+
+  // If user is logged in, check if they own a private item with this slug
+  if (currentUserId) {
+    const { data: ownItem } = await supabase
+      .from("user_magic_items")
+      .select("*")
+      .eq("slug", slug)
+      .eq("user_id", currentUserId)
+      .single();
+
+    if (ownItem) {
+      return {
+        item: ownItem,
+        itemType: "custom",
+        creatorName: null,
+        userId: ownItem.user_id,
+      };
+    }
+  }
+
+  return { item: null, itemType: "official", creatorName: null, userId: null };
+}
+
+export default async function MagicItemDetailPage({ params }: PageProps) {
+  const { slug } = await params;
+  const supabase = await createClient();
+
+  // Get current user
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+
+  const { item, itemType, creatorName, userId } = await fetchMagicItem(
+    supabase,
+    slug,
+    user?.id || null,
+  );
+
+  if (!item) {
     notFound();
   }
 
-  const item = data as MagicItem;
+  const magicItem = item as MagicItem;
+  const isOwner = user && userId === user.id;
 
   // Group traits by type
   const groupedTraits: Record<string, { name: string; description: string }[]> =
@@ -45,7 +129,7 @@ export default async function MagicItemDetailPage({ params }: PageProps) {
       Personality: [],
     };
 
-  item.traits.forEach((trait) => {
+  magicItem.traits.forEach((trait) => {
     if (groupedTraits[trait.name]) {
       groupedTraits[trait.name].push(trait);
     }
@@ -64,15 +148,30 @@ export default async function MagicItemDetailPage({ params }: PageProps) {
         {/* Main Info */}
         <Card>
           <CardHeader>
-            <CardTitle className="text-3xl">{item.name}</CardTitle>
+            <div className="flex items-start justify-between gap-4">
+              <CardTitle className="text-3xl">{magicItem.name}</CardTitle>
+              <SourceBadge
+                itemType={itemType}
+                creatorName={creatorName}
+                userId={userId}
+              />
+            </div>
+            {isOwner && (
+              <div className="mt-4">
+                <UserMagicItemActions
+                  itemId={magicItem.id}
+                  itemSlug={magicItem.slug}
+                />
+              </div>
+            )}
           </CardHeader>
           <CardContent>
-            <p className="text-base leading-relaxed">{item.description}</p>
+            <p className="text-base leading-relaxed">{magicItem.description}</p>
           </CardContent>
         </Card>
 
         {/* Traits Section */}
-        {item.traits.length > 0 && (
+        {magicItem.traits.length > 0 && (
           <Card>
             <CardHeader>
               <CardTitle className="text-xl">Traits</CardTitle>

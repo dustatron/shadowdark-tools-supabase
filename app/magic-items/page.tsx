@@ -3,8 +3,11 @@
 import { useState, useEffect } from "react";
 import { MagicItemList } from "@/components/magic-items/MagicItemList";
 import { MagicItemFilters } from "@/components/magic-items/MagicItemFilters";
+import { Button } from "@/components/ui/button";
 import { createClient } from "@/lib/supabase/client";
 import { createFavoritesMap } from "@/lib/utils/favorites";
+import { Plus, FolderOpen } from "lucide-react";
+import Link from "next/link";
 
 interface MagicItem {
   id: string;
@@ -12,6 +15,9 @@ interface MagicItem {
   slug: string;
   description: string;
   traits: { name: string; description: string }[];
+  item_type?: "official" | "custom";
+  creator_name?: string | null;
+  user_id?: string | null;
 }
 
 interface FilterValues {
@@ -145,8 +151,26 @@ export default function MagicItemsPage() {
         <div>
           <h1 className="text-3xl font-bold">Magic Items</h1>
           <p className="text-muted-foreground mt-1">
-            Browse official Shadowdark magic items
+            Browse official and community magic items
           </p>
+        </div>
+        <div className="flex gap-2">
+          {isAuthenticated && (
+            <>
+              <Button variant="outline" asChild>
+                <Link href="/magic-items/my-items">
+                  <FolderOpen className="h-4 w-4 mr-2" />
+                  My Items
+                </Link>
+              </Button>
+              <Button asChild>
+                <Link href="/magic-items/create">
+                  <Plus className="h-4 w-4 mr-2" />
+                  Create Item
+                </Link>
+              </Button>
+            </>
+          )}
         </div>
       </div>
 

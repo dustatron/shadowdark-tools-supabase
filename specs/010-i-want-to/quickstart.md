@@ -314,6 +314,6 @@ npm run test:coverage
 - [ ] Mobile and desktop both tested
 - [ ] Guest and authenticated flows tested
 
-**Tester Name**: ******\_\_\_******
-**Date**: ******\_\_\_******
-**Notes**: ******\_\_\_******
+**Tester Name**: **\*\***\_\_\_**\*\***
+**Date**: **\*\***\_\_\_**\*\***
+**Notes**: **\*\***\_\_\_**\*\***

@@ -141,7 +141,8 @@
       "Bash(npm run test:*)",
       "Bash(timeout 10 npm run dev:*)",
       "WebFetch(domain:tweakcn.com)",
-      "WebFetch(domain:www.onlinewebfonts.com)"
+      "WebFetch(domain:www.onlinewebfonts.com)",
+      "Bash(npx supabase migration list:*)"
     ],
     "deny": [],
     "ask": []
