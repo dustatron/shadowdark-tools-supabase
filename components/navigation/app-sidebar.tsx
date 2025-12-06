@@ -22,6 +22,8 @@ import {
   ChevronDown,
   Skull,
   Wand2,
+  Scroll,
+  Plus,
 } from "lucide-react";
 import {
   Sidebar,
@@ -182,6 +184,26 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
             href: "/dashboard/encounters",
             label: "Your Encounters",
             icon: Dice6,
+            requiresAuth: true,
+          },
+        ],
+      },
+      {
+        label: "Adventure Lists",
+        icon: Scroll,
+        defaultLink: "/adventure-lists",
+        defaultOpen: pathname.startsWith("/adventure-lists"),
+        items: [
+          {
+            href: "/adventure-lists",
+            label: "Your Lists",
+            icon: Scroll,
+            requiresAuth: true,
+          },
+          {
+            href: "/adventure-lists/new",
+            label: "Create List",
+            icon: Plus,
             requiresAuth: true,
           },
         ],
