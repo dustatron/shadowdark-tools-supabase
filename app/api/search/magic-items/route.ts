@@ -6,7 +6,7 @@ import { z } from "zod";
 const SearchParamsSchema = z.object({
   q: z.string().min(1).max(200).optional(),
   traitTypes: z.array(z.string()).optional(),
-  source: z.enum(["official", "community", "all"]).optional(),
+  source: z.enum(["official", "custom", "all"]).optional(),
   favorites: z.boolean().optional(),
   page: z.number().int().min(1).default(1),
   limit: z.number().int().min(1).max(100).default(20),
@@ -58,8 +58,7 @@ export async function GET(request: NextRequest) {
 
     // Determine which tables to query based on source filter
     const queryOfficial = !source || source === "official" || source === "all";
-    const queryCommunity =
-      !source || source === "community" || source === "all";
+    const queryCommunity = !source || source === "custom" || source === "all";
 
     const results: Array<{
       id: string;

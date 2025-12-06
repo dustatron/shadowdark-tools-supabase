@@ -23,11 +23,13 @@ interface MagicItem {
 interface FilterValues {
   search: string;
   traitTypes: string[];
+  itemSource: "all" | "official" | "custom";
 }
 
 const DEFAULT_FILTERS: FilterValues = {
   search: "",
   traitTypes: [],
+  itemSource: "all",
 };
 
 export default function MagicItemsPage() {
@@ -106,6 +108,9 @@ export default function MagicItemsPage() {
       }
       if (filters.traitTypes.length > 0) {
         params.append("traitTypes", filters.traitTypes.join(","));
+      }
+      if (filters.itemSource !== "all") {
+        params.append("source", filters.itemSource);
       }
 
       const response = await fetch(

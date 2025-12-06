@@ -16,6 +16,7 @@ import {
 interface FilterValues {
   search: string;
   traitTypes: string[];
+  itemSource: "all" | "official" | "custom";
 }
 
 interface MagicItemFiltersProps {
@@ -28,6 +29,7 @@ interface MagicItemFiltersProps {
 const DEFAULT_FILTERS: FilterValues = {
   search: "",
   traitTypes: [],
+  itemSource: "all",
 };
 
 export function MagicItemFilters({
@@ -62,11 +64,42 @@ export function MagicItemFilters({
     onFiltersChange(DEFAULT_FILTERS);
   };
 
-  const hasActiveFilters = filters.traitTypes.length > 0 || filters.search;
+  const hasActiveFilters =
+    filters.traitTypes.length > 0 ||
+    filters.search !== "" ||
+    filters.itemSource !== "all";
 
   return (
     <Card>
-      <CardContent className="p-4">
+      <CardContent className="p-4 space-y-4">
+        {/* Item Source Filter */}
+        <div className="grid grid-cols-3 gap-2">
+          <Button
+            variant={filters.itemSource === "all" ? "default" : "outline"}
+            onClick={() => handleFilterChange("itemSource", "all")}
+            disabled={loading}
+            className="text-xs sm:text-sm"
+          >
+            All Items
+          </Button>
+          <Button
+            variant={filters.itemSource === "official" ? "default" : "outline"}
+            onClick={() => handleFilterChange("itemSource", "official")}
+            disabled={loading}
+            className="text-xs sm:text-sm"
+          >
+            Core Items
+          </Button>
+          <Button
+            variant={filters.itemSource === "custom" ? "default" : "outline"}
+            onClick={() => handleFilterChange("itemSource", "custom")}
+            disabled={loading}
+            className="text-xs sm:text-sm"
+          >
+            Custom Items
+          </Button>
+        </div>
+
         <div className="space-y-4">
           {/* Search Input */}
           <div className="relative">

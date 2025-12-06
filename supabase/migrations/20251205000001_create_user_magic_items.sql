@@ -23,19 +23,20 @@ CREATE TABLE IF NOT EXISTS public.user_magic_items (
 );
 
 -- Create updated_at trigger
+DROP TRIGGER IF EXISTS set_updated_at_user_magic_items ON public.user_magic_items;
 CREATE TRIGGER set_updated_at_user_magic_items
     BEFORE UPDATE ON public.user_magic_items
     FOR EACH ROW
     EXECUTE FUNCTION public.handle_updated_at();
 
 -- Indexes for performance
-CREATE INDEX idx_user_magic_items_user_id ON public.user_magic_items(user_id);
-CREATE INDEX idx_user_magic_items_slug ON public.user_magic_items(user_id, slug);
-CREATE INDEX idx_user_magic_items_name_trgm ON public.user_magic_items USING GIN (name gin_trgm_ops);
-CREATE INDEX idx_user_magic_items_is_public ON public.user_magic_items(is_public) WHERE is_public = true;
+CREATE INDEX IF NOT EXISTS idx_user_magic_items_user_id ON public.user_magic_items(user_id);
+CREATE INDEX IF NOT EXISTS idx_user_magic_items_slug ON public.user_magic_items(user_id, slug);
+CREATE INDEX IF NOT EXISTS idx_user_magic_items_name_trgm ON public.user_magic_items USING GIN (name gin_trgm_ops);
+CREATE INDEX IF NOT EXISTS idx_user_magic_items_is_public ON public.user_magic_items(is_public) WHERE is_public = true;
 
 -- Full-text search index
-CREATE INDEX idx_user_magic_items_search ON public.user_magic_items USING GIN (
+CREATE INDEX IF NOT EXISTS idx_user_magic_items_search ON public.user_magic_items USING GIN (
     to_tsvector('english',
         COALESCE(name, '') || ' ' ||
         COALESCE(description, '')
@@ -46,6 +47,7 @@ CREATE INDEX idx_user_magic_items_search ON public.user_magic_items USING GIN (
 ALTER TABLE public.user_magic_items ENABLE ROW LEVEL SECURITY;
 
 -- RLS Policy: Users can read their own items and public items
+DROP POLICY IF EXISTS "user_magic_items_select" ON public.user_magic_items;
 CREATE POLICY "user_magic_items_select" ON public.user_magic_items
     FOR SELECT USING (
         user_id = auth.uid() OR
@@ -57,10 +59,12 @@ CREATE POLICY "user_magic_items_select" ON public.user_magic_items
     );
 
 -- RLS Policy: Users can insert their own items
+DROP POLICY IF EXISTS "user_magic_items_insert" ON public.user_magic_items;
 CREATE POLICY "user_magic_items_insert" ON public.user_magic_items
     FOR INSERT WITH CHECK (user_id = auth.uid());
 
 -- RLS Policy: Users can update their own items, admins can update any
+DROP POLICY IF EXISTS "user_magic_items_update" ON public.user_magic_items;
 CREATE POLICY "user_magic_items_update" ON public.user_magic_items
     FOR UPDATE USING (
         user_id = auth.uid() OR
@@ -71,6 +75,7 @@ CREATE POLICY "user_magic_items_update" ON public.user_magic_items
     );
 
 -- RLS Policy: Users can delete their own items, admins can delete any
+DROP POLICY IF EXISTS "user_magic_items_delete" ON public.user_magic_items;
 CREATE POLICY "user_magic_items_delete" ON public.user_magic_items
     FOR DELETE USING (
         user_id = auth.uid() OR

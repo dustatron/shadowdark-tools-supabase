@@ -145,49 +145,51 @@ export default async function MagicItemDetailPage({ params }: PageProps) {
       </Button>
 
       <div className="space-y-6">
-        {/* Main Info */}
         <Card>
-          <CardHeader>
-            <div className="flex items-start justify-between gap-4">
-              <CardTitle className="text-3xl">{magicItem.name}</CardTitle>
-              <SourceBadge
-                itemType={itemType}
-                creatorName={creatorName}
-                userId={userId}
-              />
-            </div>
-            {isOwner && (
-              <div className="mt-4">
-                <UserMagicItemActions
-                  itemId={magicItem.id}
-                  itemSlug={magicItem.slug}
+          <CardContent>
+            {/* Main Info */}
+            <CardHeader>
+              <div className="flex items-start justify-between gap-4">
+                <CardTitle className="text-3xl">{magicItem.name}</CardTitle>
+                <SourceBadge
+                  itemType={itemType}
+                  creatorName={creatorName}
+                  userId={userId}
                 />
               </div>
-            )}
-          </CardHeader>
-          <CardContent>
-            <p className="text-base leading-relaxed">{magicItem.description}</p>
-          </CardContent>
-        </Card>
-
-        {/* Traits Section */}
-        {magicItem.traits.length > 0 && (
-          <Card>
-            <CardHeader>
-              <CardTitle className="text-xl">Traits</CardTitle>
+              {isOwner && (
+                <div className="mt-4">
+                  <UserMagicItemActions
+                    itemId={magicItem.id}
+                    itemSlug={magicItem.slug}
+                  />
+                </div>
+              )}
             </CardHeader>
             <CardContent>
-              <TraitsSection
-                groupedTraits={{
-                  Benefit: groupedTraits.Benefit,
-                  Curse: groupedTraits.Curse,
-                  Bonus: groupedTraits.Bonus,
-                  Personality: groupedTraits.Personality,
-                }}
-              />
+              <p className="text-base leading-relaxed">
+                {magicItem.description}
+              </p>
             </CardContent>
-          </Card>
-        )}
+
+            {/* Traits Section */}
+            {magicItem.traits.length > 0 && (
+              <>
+                <CardHeader>
+                  <CardTitle className="text-xl">Traits</CardTitle>
+                </CardHeader>
+                <TraitsSection
+                  groupedTraits={{
+                    Benefit: groupedTraits.Benefit,
+                    Curse: groupedTraits.Curse,
+                    Bonus: groupedTraits.Bonus,
+                    Personality: groupedTraits.Personality,
+                  }}
+                />
+              </>
+            )}
+          </CardContent>
+        </Card>
       </div>
     </div>
   );
