@@ -172,6 +172,13 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
         ],
       },
       {
+        label: "Equipment",
+        icon: Library, // Using Library icon for now, could be changed to something more specific like a gear or backpack
+        defaultLink: "/equipment",
+        defaultOpen: pathname.startsWith("/equipment"),
+        items: [{ href: "/equipment", label: "Browse", icon: Search }],
+      },
+      {
         label: "Encounters",
         icon: Dice6,
         defaultLink: "/encounter-tables",
