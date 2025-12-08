@@ -16,6 +16,8 @@ export function PageHeader() {
     if (pathname === "/magic-items") return "Magic Item Search";
     if (pathname.startsWith("/magic-items/")) return "Magic Item Details";
     if (pathname === "/encounter-tables") return "Encounter Tables";
+    if (pathname === "/encounter-tables/new") return "Create Encounter Table";
+    if (pathname === "/dashboard/decks/create") return "Create Deck";
     if (pathname === "/dashboard/monsters") return "Your Monsters";
     if (pathname === "/dashboard/spells") return "Your Spells";
     if (pathname === "/dashboard/encounters") return "Your Encounters";
