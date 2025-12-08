@@ -4,10 +4,13 @@ import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { createClient } from "@/lib/supabase/client";
 import { MagicItemCard } from "@/components/magic-items/MagicItemCard";
+import { MagicItemTable } from "@/components/magic-items/MagicItemTable";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Skeleton } from "@/components/ui/skeleton";
-import { Plus, Search, ArrowLeft } from "lucide-react";
+import { ViewModeToggle } from "@/src/components/ui/ViewModeToggle";
+import { useViewMode } from "@/lib/hooks";
+import { Plus, Search } from "lucide-react";
 import Link from "next/link";
 import type { UserMagicItem } from "@/lib/types/magic-items";
 
@@ -18,6 +21,7 @@ export default function MyMagicItemsPage() {
   const [error, setError] = useState<string | null>(null);
   const [searchQuery, setSearchQuery] = useState("");
   const [isAuthenticated, setIsAuthenticated] = useState(false);
+  const { view, setView } = useViewMode();
 
   useEffect(() => {
     checkAuthAndFetch();
@@ -85,14 +89,7 @@ export default function MyMagicItemsPage() {
   }
 
   return (
-    <div className="container mx-auto px-4 py-8">
-      <Button variant="ghost" asChild className="mb-6">
-        <Link href="/magic-items">
-          <ArrowLeft className="h-4 w-4 mr-2" />
-          Back to Magic Items
-        </Link>
-      </Button>
-
+    <div className="container mx-auto px-4 py-1">
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-6">
         <div>
           <h1 className="text-3xl font-bold">My Magic Items</h1>
@@ -100,12 +97,15 @@ export default function MyMagicItemsPage() {
             Manage your custom magic items
           </p>
         </div>
-        <Button asChild>
-          <Link href="/magic-items/create">
-            <Plus className="h-4 w-4 mr-2" />
-            Create Item
-          </Link>
-        </Button>
+        <div className="flex items-center gap-2">
+          <ViewModeToggle view={view} onViewChange={setView} />
+          <Button asChild>
+            <Link href="/magic-items/create">
+              <Plus className="h-4 w-4 mr-2" />
+              Create Item
+            </Link>
+          </Button>
+        </div>
       </div>
 
       <form onSubmit={handleSearch} className="mb-6">
@@ -147,6 +147,14 @@ export default function MyMagicItemsPage() {
             </Link>
           </Button>
         </div>
+      ) : view === "table" ? (
+        <MagicItemTable
+          items={items.map((item) => ({
+            ...item,
+            item_type: "custom" as const,
+            creator_name: null,
+          }))}
+        />
       ) : (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
           {items.map((item) => (

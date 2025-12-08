@@ -4,10 +4,13 @@ import { useState, useEffect } from "react";
 import { SpellList } from "@/src/components/spells/SpellList";
 import { SpellFilters } from "@/src/components/spells/SpellFilters";
 import { Button } from "@/components/ui/button";
+import { ViewModeToggle } from "@/src/components/ui/ViewModeToggle";
 import { Plus } from "lucide-react";
 import Link from "next/link";
 import { createClient } from "@/lib/supabase/client";
 import { createFavoritesMap } from "@/lib/utils/favorites";
+import { useViewMode } from "@/lib/hooks";
+import { ViewMode } from "@/lib/types/monsters";
 
 interface Spell {
   id: string;
@@ -62,6 +65,9 @@ export default function SpellsPage() {
   const [favoritesMap, setFavoritesMap] = useState<Map<string, string>>(
     new Map(),
   );
+
+  // Global view mode with localStorage persistence
+  const { view, setView } = useViewMode();
 
   // Available filter options
   const [availableClasses, setAvailableClasses] = useState<string[]>([]);
@@ -212,14 +218,17 @@ export default function SpellsPage() {
     <div>
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-6">
         <h1 className="text-3xl font-bold">Spells</h1>
-        {isAuthenticated && (
-          <Button asChild>
-            <Link href="/spells/create">
-              <Plus className="h-4 w-4" />
-              Create Spell
-            </Link>
-          </Button>
-        )}
+        <div className="flex items-center gap-2">
+          <ViewModeToggle view={view} onViewChange={setView} />
+          {isAuthenticated && (
+            <Button asChild>
+              <Link href="/spells/create">
+                <Plus className="h-4 w-4" />
+                Create Spell
+              </Link>
+            </Button>
+          )}
+        </div>
       </div>
 
       <div className="mb-6">
@@ -244,6 +253,7 @@ export default function SpellsPage() {
         onPageChange={handlePageChange}
         onPageSizeChange={handlePageSizeChange}
         onRetry={fetchSpells}
+        view={view}
       />
     </div>
   );

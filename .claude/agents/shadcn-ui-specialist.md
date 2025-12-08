@@ -150,7 +150,8 @@ const statBlockVariants = cva("rounded-lg border p-4", {
 });
 
 interface StatBlockProps
-  extends React.HTMLAttributes<HTMLDivElement>,
+  extends
+    React.HTMLAttributes<HTMLDivElement>,
     VariantProps<typeof statBlockVariants> {
   label: string;
   value: string | number;

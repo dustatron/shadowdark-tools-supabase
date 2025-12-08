@@ -1,11 +1,13 @@
 "use client";
 
 import { MagicItemCard } from "./MagicItemCard";
+import { MagicItemTable } from "./MagicItemTable";
 import { EmptyState } from "@/src/components/ui/EmptyState";
 import { LoadingSpinner } from "@/src/components/ui/LoadingSpinner";
 import { ErrorAlert } from "@/src/components/ui/ErrorAlert";
 import { Pagination } from "@/src/components/ui/Pagination";
 import { Sparkles } from "lucide-react";
+import { ViewMode } from "@/lib/types/monsters";
 
 interface MagicItem {
   id: string;
@@ -32,6 +34,7 @@ interface MagicItemListProps {
   onPageChange?: (page: number) => void;
   onPageSizeChange?: (pageSize: number) => void;
   onRetry?: () => void;
+  view?: ViewMode;
 }
 
 export function MagicItemList({
@@ -44,6 +47,7 @@ export function MagicItemList({
   onPageChange,
   onPageSizeChange,
   onRetry,
+  view = "cards",
 }: MagicItemListProps) {
   if (loading) {
     return <LoadingSpinner message="Loading magic items..." />;
@@ -71,11 +75,19 @@ export function MagicItemList({
 
   return (
     <div className="flex flex-col gap-6">
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-        {items.map((item) => (
-          <MagicItemCard key={item.id} item={item} />
-        ))}
-      </div>
+      {view === "table" ? (
+        <MagicItemTable
+          items={items}
+          currentUserId={currentUserId}
+          favoritesMap={favoritesMap}
+        />
+      ) : (
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+          {items.map((item) => (
+            <MagicItemCard key={item.id} item={item} />
+          ))}
+        </div>
+      )}
 
       {pagination && pagination.totalPages > 1 && (
         <Pagination

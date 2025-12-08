@@ -23,12 +23,15 @@ export const AVAILABLE_SPEED_TYPES = [
   "triple near (burrow, swim)",
 ];
 
+export type ViewMode = "cards" | "table";
+
 export interface FilterValues {
   search: string;
   challengeLevelRange: [number, number];
   types: string[];
   speedType: string[];
   monsterSource: "all" | "official" | "custom";
+  view: ViewMode;
 }
 
 export interface PaginationState {
@@ -42,6 +45,7 @@ export const DEFAULT_FILTERS: FilterValues = {
   types: [],
   speedType: [],
   monsterSource: "all",
+  view: "cards",
 };
 
 export const DEFAULT_PAGINATION: PaginationState = {
@@ -85,12 +89,16 @@ export function parseFiltersFromSearchParams(
       ? sourceParam
       : "all";
 
+  const viewParam = get("view");
+  const view: ViewMode = viewParam === "table" ? "table" : "cards";
+
   return {
     search,
     challengeLevelRange,
     types,
     speedType,
     monsterSource,
+    view,
   };
 }
 
@@ -152,6 +160,11 @@ export function serializeFiltersToSearchParams(
   // Monster source
   if (filters.monsterSource !== "all") {
     params.set("type", filters.monsterSource);
+  }
+
+  // View mode
+  if (filters.view === "table") {
+    params.set("view", "table");
   }
 
   // Pagination

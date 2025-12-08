@@ -25,10 +25,6 @@ import Link from "next/link";
 import { formatDistanceToNow } from "date-fns";
 import type { DeckWithCount } from "@/lib/validations/deck";
 
-interface DeckListProps {
-  onCreateClick?: () => void;
-}
-
 async function fetchDecks(): Promise<DeckWithCount[]> {
   const response = await fetch("/api/decks");
 
@@ -40,7 +36,7 @@ async function fetchDecks(): Promise<DeckWithCount[]> {
   return data.decks;
 }
 
-export function DeckList({ onCreateClick }: DeckListProps) {
+export function DeckList() {
   const {
     data: decks,
     isLoading,
@@ -114,9 +110,11 @@ export function DeckList({ onCreateClick }: DeckListProps) {
           </CardDescription>
         </CardHeader>
         <CardFooter className="justify-center">
-          <Button onClick={onCreateClick}>
-            <Plus className="w-4 h-4 mr-2" />
-            Create Deck
+          <Button asChild>
+            <Link href="/dashboard/decks/create">
+              <Plus className="w-4 h-4 mr-2" />
+              Create Deck
+            </Link>
           </Button>
         </CardFooter>
       </Card>
