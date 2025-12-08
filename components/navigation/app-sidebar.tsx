@@ -212,7 +212,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
             requiresAuth: true,
           },
           {
-            href: "/encounter-tables/create",
+            href: "/encounter-tables/new",
             label: "Create Encounter",
             icon: Plus,
             requiresAuth: true,
