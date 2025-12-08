@@ -286,77 +286,90 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
     [pathname, user],
   );
 
-  // Check if link is active
-  const isLinkActive = (href: string) => {
-    if (href === "/") {
-      return pathname === "/";
-    }
-    return pathname.startsWith(href);
-  };
+  // Memoize link active check
+  const isLinkActive = React.useCallback(
+    (href: string) => {
+      if (href === "/") {
+        return pathname === "/";
+      }
+      return pathname.startsWith(href);
+    },
+    [pathname],
+  );
 
-  // Filter category items based on auth
-  const filterCategoryItems = (category: CategoryGroup): SubMenuItem[] => {
-    return category.items.filter((item) => {
-      if (item.requiresAuth && !user) return false;
-      return true;
-    });
-  };
+  // Memoize category item filtering
+  const filterCategoryItems = React.useCallback(
+    (category: CategoryGroup): SubMenuItem[] => {
+      return category.items.filter((item) => {
+        if (item.requiresAuth && !user) return false;
+        return true;
+      });
+    },
+    [user],
+  );
 
-  // Handle category click - navigate if collapsed, toggle if expanded
-  const handleCategoryClick = (e: React.MouseEvent, defaultLink: string) => {
-    if (state === "collapsed") {
-      router.push(defaultLink);
-    }
-    // If expanded, let CollapsibleTrigger handle the toggle
-  };
+  // Memoize category click handler
+  const handleCategoryClick = React.useCallback(
+    (e: React.MouseEvent, defaultLink: string) => {
+      if (state === "collapsed") {
+        router.push(defaultLink);
+      }
+      // If expanded, let CollapsibleTrigger handle the toggle
+    },
+    [state, router],
+  );
 
-  // Render collapsible category group
-  const renderCategoryGroup = (category: CategoryGroup) => {
-    const filteredItems = filterCategoryItems(category);
-    if (filteredItems.length === 0) return null;
+  // Memoize category group renderer
+  const renderCategoryGroup = React.useCallback(
+    (category: CategoryGroup) => {
+      const filteredItems = filterCategoryItems(category);
+      if (filteredItems.length === 0) return null;
 
-    return (
-      <Collapsible
-        key={category.label}
-        defaultOpen={category.defaultOpen}
-        className="group/collapsible"
-      >
-        <SidebarGroup>
-          <SidebarMenuItem>
-            <CollapsibleTrigger asChild>
-              <SidebarMenuButton
-                tooltip={category.label}
-                onClick={(e) => handleCategoryClick(e, category.defaultLink)}
-              >
-                <category.icon />
-                <span className="group-data-[collapsible=icon]:hidden">
-                  {category.label}
-                </span>
-                <ChevronDown className="ml-auto transition-transform group-data-[collapsible=icon]:hidden group-data-[state=open]/collapsible:rotate-180" />
-              </SidebarMenuButton>
-            </CollapsibleTrigger>
-            <CollapsibleContent>
-              <SidebarMenuSub>
-                {filteredItems.map((item) => (
-                  <SidebarMenuSubItem key={item.href}>
-                    <SidebarMenuSubButton
-                      asChild
-                      isActive={isLinkActive(item.href)}
-                    >
-                      <Link href={item.href}>
-                        <item.icon />
-                        <span>{item.label}</span>
-                      </Link>
-                    </SidebarMenuSubButton>
-                  </SidebarMenuSubItem>
-                ))}
-              </SidebarMenuSub>
-            </CollapsibleContent>
-          </SidebarMenuItem>
-        </SidebarGroup>
-      </Collapsible>
-    );
-  };
+      return (
+        <Collapsible
+          key={category.label}
+          defaultOpen={category.defaultOpen}
+          className="group/collapsible"
+        >
+          <SidebarGroup>
+            <SidebarMenuItem>
+              <CollapsibleTrigger asChild>
+                <SidebarMenuButton
+                  tooltip={category.label}
+                  onClick={(e) => handleCategoryClick(e, category.defaultLink)}
+                  aria-label={`${category.label} menu`}
+                >
+                  <category.icon />
+                  <span className="group-data-[collapsible=icon]:hidden">
+                    {category.label}
+                  </span>
+                  <ChevronDown className="ml-auto transition-transform group-data-[collapsible=icon]:hidden group-data-[state=open]/collapsible:rotate-180" />
+                </SidebarMenuButton>
+              </CollapsibleTrigger>
+              <CollapsibleContent>
+                <SidebarMenuSub>
+                  {filteredItems.map((item) => (
+                    <SidebarMenuSubItem key={item.href}>
+                      <SidebarMenuSubButton
+                        asChild
+                        isActive={isLinkActive(item.href)}
+                      >
+                        <Link href={item.href}>
+                          <item.icon />
+                          <span>{item.label}</span>
+                        </Link>
+                      </SidebarMenuSubButton>
+                    </SidebarMenuSubItem>
+                  ))}
+                </SidebarMenuSub>
+              </CollapsibleContent>
+            </SidebarMenuItem>
+          </SidebarGroup>
+        </Collapsible>
+      );
+    },
+    [filterCategoryItems, handleCategoryClick, isLinkActive],
+  );
 
   return (
     <Sidebar collapsible="icon" variant="sidebar" {...props}>
@@ -439,7 +452,11 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
           <SidebarGroup>
             <SidebarMenu>
               <SidebarMenuItem>
-                <SidebarMenuButton onClick={handleLogout} tooltip="Logout">
+                <SidebarMenuButton
+                  onClick={handleLogout}
+                  tooltip="Logout"
+                  aria-label="Logout"
+                >
                   <LogOut />
                   <span className="group-data-[collapsible=icon]:hidden">
                     Logout

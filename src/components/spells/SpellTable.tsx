@@ -20,7 +20,7 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { Badge } from "@/components/ui/badge";
-import { FavoriteButton } from "@/components/favorites/FavoriteButton";
+import { FavoriteButton } from "@/src/components/favorites/FavoriteButton";
 
 interface Spell {
   id: string;

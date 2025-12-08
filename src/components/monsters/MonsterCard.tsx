@@ -9,7 +9,7 @@ import {
   Heart,
   Edit,
 } from "lucide-react";
-import { useState } from "react";
+import { useState, useMemo, useCallback, memo } from "react";
 import Link from "next/link";
 import { useSearchParams } from "next/navigation";
 import { Card, CardHeader, CardContent } from "@/components/ui/card";
@@ -17,7 +17,7 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 
 import { Separator } from "@/components/ui/separator";
-import { FavoriteButton } from "@/components/favorites/FavoriteButton";
+import { FavoriteButton } from "@/src/components/favorites/FavoriteButton";
 
 interface Monster {
   id: string;
@@ -59,7 +59,7 @@ interface MonsterCardProps {
   preserveSearchParams?: boolean;
 }
 
-export function MonsterCard({
+export const MonsterCard = memo(function MonsterCard({
   monster,
   currentUserId,
   favoriteId,
@@ -70,8 +70,13 @@ export function MonsterCard({
   const [expanded, setExpanded] = useState(false);
   const searchParams = useSearchParams();
 
-  // Generate monster detail URL with preserved search parameters
-  const getMonsterUrl = () => {
+  // Memoize toggle handler
+  const handleToggleExpand = useCallback(() => {
+    setExpanded((prev) => !prev);
+  }, []);
+
+  // Memoize URL generation
+  const monsterUrl = useMemo(() => {
     if (!preserveSearchParams) {
       return `/monsters/${monster.id}`;
     }
@@ -107,20 +112,29 @@ export function MonsterCard({
     return queryString
       ? `/monsters/${monster.id}?${queryString}`
       : `/monsters/${monster.id}`;
-  };
+  }, [monster.id, preserveSearchParams, searchParams]);
 
-  const challengeLevelColor =
-    monster.challenge_level <= 3
-      ? "bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200"
-      : monster.challenge_level <= 7
-        ? "bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-200"
-        : monster.challenge_level <= 12
-          ? "bg-orange-100 text-orange-800 dark:bg-orange-900 dark:text-orange-200"
-          : "bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-200";
+  // Memoize challenge level color
+  const challengeLevelColor = useMemo(() => {
+    if (monster.challenge_level <= 3) {
+      return "bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200";
+    } else if (monster.challenge_level <= 7) {
+      return "bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-200";
+    } else if (monster.challenge_level <= 12) {
+      return "bg-orange-100 text-orange-800 dark:bg-orange-900 dark:text-orange-200";
+    } else {
+      return "bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-200";
+    }
+  }, [monster.challenge_level]);
 
-  const isOwner =
-    currentUserId &&
-    (monster.creator_id === currentUserId || monster.user_id === currentUserId);
+  // Memoize owner check
+  const isOwner = useMemo(
+    () =>
+      currentUserId &&
+      (monster.creator_id === currentUserId ||
+        monster.user_id === currentUserId),
+    [currentUserId, monster.creator_id, monster.user_id],
+  );
 
   const cardContent = (
     <Card
@@ -134,6 +148,7 @@ export function MonsterCard({
             size="icon"
             className="h-8 w-8"
             title="Edit monster"
+            aria-label={`Edit ${monster.name}`}
           >
             <Link href={`/monsters/${monster.id}/edit`}>
               <Edit className="h-4 w-4" />
@@ -149,7 +164,7 @@ export function MonsterCard({
           />
         )}
       </div>
-      <Link href={getMonsterUrl()} className="flex items-center gap-2">
+      <Link href={monsterUrl} className="flex items-center gap-2">
         <CardHeader>
           <div className="flex justify-between">
             <h3 className="text-xl font-semibold line-clamp-1">
@@ -204,8 +219,15 @@ export function MonsterCard({
               <Button
                 variant="ghost"
                 size="sm"
-                onClick={() => setExpanded(!expanded)}
+                onClick={handleToggleExpand}
                 className="w-full"
+                aria-expanded={expanded}
+                aria-controls={`monster-details-${monster.id}`}
+                aria-label={
+                  expanded
+                    ? `Hide details for ${monster.name}`
+                    : `Show details for ${monster.name}`
+                }
               >
                 {expanded ? "Hide Details" : "Show Details"}
                 {expanded ? (
@@ -216,7 +238,10 @@ export function MonsterCard({
               </Button>
 
               {expanded && (
-                <div className="flex flex-col gap-4">
+                <div
+                  className="flex flex-col gap-4"
+                  id={`monster-details-${monster.id}`}
+                >
                   {/* Attacks */}
                   {Array.isArray(monster.attacks) &&
                     monster.attacks.length > 0 && (
@@ -293,11 +318,11 @@ export function MonsterCard({
   // If showActions is false, wrap in Link to make whole card clickable
   if (!showActions) {
     return (
-      <Link href={getMonsterUrl()} className="block">
+      <Link href={monsterUrl} className="block">
         {cardContent}
       </Link>
     );
   }
 
   return cardContent;
-}
+});

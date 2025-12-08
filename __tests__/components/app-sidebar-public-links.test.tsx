@@ -7,7 +7,7 @@
 
 import { render, screen } from "@testing-library/react";
 import { describe, it, expect, vi, beforeEach } from "vitest";
-import { AppSidebar } from "@/components/navigation/app-sidebar";
+import { AppSidebar } from "@/src/components/navigation/app-sidebar";
 
 // Mock next/navigation
 vi.mock("next/navigation", () => ({

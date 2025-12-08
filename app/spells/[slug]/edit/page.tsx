@@ -4,7 +4,7 @@ import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { createClient } from "@/lib/supabase/client";
 import { LoadingSpinner } from "@/src/components/ui/LoadingSpinner";
-import { SpellForm } from "@/components/spells/SpellForm";
+import { SpellForm } from "@/src/components/spells/SpellForm";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { AlertCircle } from "lucide-react";
 

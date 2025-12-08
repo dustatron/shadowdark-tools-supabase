@@ -223,7 +223,7 @@ import {
   TableEntryList,
   MonsterDetailPanel,
   ShareDialog,
-} from "@/components/encounter-tables";
+} from "@/src/components/encounter-tables";
 
 function EncounterTablePage() {
   const [selectedMonster, setSelectedMonster] =

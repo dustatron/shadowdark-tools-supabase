@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback, useMemo } from "react";
 import { useRouter } from "next/navigation";
 import { MonsterList } from "@/src/components/monsters/MonsterList";
 import { MonsterFilters } from "@/src/components/monsters/MonsterFilters";
@@ -78,49 +78,8 @@ export function MonstersClient({
   const [availableTypes, setAvailableTypes] = useState<string[]>([]);
   const [availableSources, setAvailableSources] = useState<string[]>([]);
 
-  useEffect(() => {
-    fetchMonsters();
-  }, [filters, pagination.page, pagination.limit]);
-
-  // Subscribe to favorites changes
-  useEffect(() => {
-    if (!currentUserId) return;
-
-    const supabase = createClient();
-    const channel = supabase
-      .channel("favorites-changes")
-      .on(
-        "postgres_changes",
-        {
-          event: "*",
-          schema: "public",
-          table: "favorites",
-          filter: `user_id=eq.${currentUserId}`,
-        },
-        async () => {
-          // Refetch favorites when they change
-          const { data: favorites } = await supabase
-            .from("favorites")
-            .select("id, item_id")
-            .eq("user_id", currentUserId)
-            .eq("item_type", "monster");
-
-          if (favorites) {
-            const favMap = new Map(
-              favorites.map((fav) => [fav.item_id, fav.id]),
-            );
-            setFavoritesMap(favMap);
-          }
-        },
-      )
-      .subscribe();
-
-    return () => {
-      supabase.removeChannel(channel);
-    };
-  }, [currentUserId]);
-
-  const fetchMonsters = async () => {
+  // Memoize fetchMonsters to avoid recreating on every render
+  const fetchMonsters = useCallback(async () => {
     try {
       setLoading(true);
       setError(null);
@@ -205,48 +164,109 @@ export function MonstersClient({
     } finally {
       setLoading(false);
     }
-  };
+  }, [filters, pagination.page, pagination.limit]);
 
-  // Update URL when filters or pagination change
-  const updateURL = (
-    newFilters: FilterValues,
-    newPagination: { page: number; limit: number },
-  ) => {
-    const params = serializeFiltersToSearchParams(newFilters, newPagination);
-    const queryString = params.toString();
+  useEffect(() => {
+    fetchMonsters();
+  }, [fetchMonsters]);
 
-    // Use router.push to update URL without page reload
-    router.push(queryString ? `/monsters?${queryString}` : "/monsters", {
-      scroll: false,
-    });
-  };
+  // Subscribe to favorites changes
+  useEffect(() => {
+    if (!currentUserId) return;
 
-  const handleFiltersChange = (newFilters: FilterValues) => {
-    setFilters(newFilters);
-    const newPagination = { ...pagination, page: 1 };
-    setPagination((prev) => ({ ...prev, page: 1 })); // Reset to page 1 when filters change
+    const supabase = createClient();
+    const channel = supabase
+      .channel("favorites-changes")
+      .on(
+        "postgres_changes",
+        {
+          event: "*",
+          schema: "public",
+          table: "favorites",
+          filter: `user_id=eq.${currentUserId}`,
+        },
+        async () => {
+          // Refetch favorites when they change
+          const { data: favorites } = await supabase
+            .from("favorites")
+            .select("id, item_id")
+            .eq("user_id", currentUserId)
+            .eq("item_type", "monster");
 
-    // Update URL
-    updateURL(newFilters, newPagination);
-  };
+          if (favorites) {
+            const favMap = new Map<string, string>(
+              favorites.map((fav) => [fav.item_id as string, fav.id as string]),
+            );
+            setFavoritesMap(favMap);
+          }
+        },
+      )
+      .subscribe();
 
-  const handlePageChange = (page: number) => {
-    setPagination((prev) => ({ ...prev, page }));
+    return () => {
+      supabase.removeChannel(channel);
+    };
+  }, [currentUserId]);
 
-    // Update URL with new page
-    updateURL(filters, { page, limit: pagination.limit });
-  };
+  // Memoize URL update handler
+  const updateURL = useCallback(
+    (
+      newFilters: FilterValues,
+      newPagination: { page: number; limit: number },
+    ) => {
+      const params = serializeFiltersToSearchParams(newFilters, newPagination);
+      const queryString = params.toString();
 
-  const handlePageSizeChange = (pageSize: number) => {
-    setPagination((prev) => ({ ...prev, limit: pageSize, page: 1 }));
+      // Use router.push to update URL without page reload
+      router.push(queryString ? `/monsters?${queryString}` : "/monsters", {
+        scroll: false,
+      });
+    },
+    [router],
+  );
 
-    // Update URL with new page size
-    updateURL(filters, { page: 1, limit: pageSize });
-  };
+  // Memoize filters change handler
+  const handleFiltersChange = useCallback(
+    (newFilters: FilterValues) => {
+      setFilters(newFilters);
+      const newPagination = { ...pagination, page: 1 };
+      setPagination((prev) => ({ ...prev, page: 1 })); // Reset to page 1 when filters change
 
-  const handleViewChange = (newView: ViewMode) => {
-    setView(newView);
-  };
+      // Update URL
+      updateURL(newFilters, newPagination);
+    },
+    [pagination, updateURL],
+  );
+
+  // Memoize page change handler
+  const handlePageChange = useCallback(
+    (page: number) => {
+      setPagination((prev) => ({ ...prev, page }));
+
+      // Update URL with new page
+      updateURL(filters, { page, limit: pagination.limit });
+    },
+    [filters, pagination.limit, updateURL],
+  );
+
+  // Memoize page size change handler
+  const handlePageSizeChange = useCallback(
+    (pageSize: number) => {
+      setPagination((prev) => ({ ...prev, limit: pageSize, page: 1 }));
+
+      // Update URL with new page size
+      updateURL(filters, { page: 1, limit: pageSize });
+    },
+    [filters, updateURL],
+  );
+
+  // Memoize view change handler
+  const handleViewChange = useCallback(
+    (newView: ViewMode) => {
+      setView(newView);
+    },
+    [setView],
+  );
 
   return (
     <div>

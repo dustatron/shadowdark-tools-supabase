@@ -2,7 +2,7 @@
 
 import { use, useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
-import { EncounterTableForm } from "@/components/encounter-tables/EncounterTableForm";
+import { EncounterTableForm } from "@/src/components/encounter-tables/EncounterTableForm";
 import { Button } from "@/components/ui/button";
 import {
   AlertDialog,

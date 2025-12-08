@@ -17,7 +17,7 @@ import { SpellDetailBlock } from "@/src/components/spells/SpellDetailBlock";
 import { ArrowLeft, AlertCircle, Edit, Trash2 } from "lucide-react";
 import Link from "next/link";
 import { createClient } from "@/lib/supabase/client";
-import { FavoriteButton } from "@/components/favorites/FavoriteButton";
+import { FavoriteButton } from "@/src/components/favorites/FavoriteButton";
 import { toast } from "sonner";
 import { useRouter } from "next/navigation";
 import {

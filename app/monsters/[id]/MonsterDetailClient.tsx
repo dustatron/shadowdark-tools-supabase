@@ -22,7 +22,7 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 import { toast } from "sonner";
-import { FavoriteButton } from "@/components/favorites/FavoriteButton";
+import { FavoriteButton } from "@/src/components/favorites/FavoriteButton";
 
 interface Author {
   id: string;

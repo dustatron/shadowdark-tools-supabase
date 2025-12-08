@@ -26,7 +26,7 @@ import {
 } from "lucide-react";
 import { useState } from "react";
 import Link from "next/link";
-import { FavoriteButton } from "@/components/favorites/FavoriteButton";
+import { FavoriteButton } from "@/src/components/favorites/FavoriteButton";
 
 interface Spell {
   id: string;

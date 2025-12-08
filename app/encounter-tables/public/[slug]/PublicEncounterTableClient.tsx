@@ -12,9 +12,9 @@ import {
 } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
-import { DiceRoller } from "@/components/encounter-tables/DiceRoller";
-import { TableEntryList } from "@/components/encounter-tables/TableEntryList";
-import { MonsterDetailPanel } from "@/components/encounter-tables/MonsterDetailPanel";
+import { DiceRoller } from "@/src/components/encounter-tables/DiceRoller";
+import { TableEntryList } from "@/src/components/encounter-tables/TableEntryList";
+import { MonsterDetailPanel } from "@/src/components/encounter-tables/MonsterDetailPanel";
 import { Copy, ExternalLink, Loader2 } from "lucide-react";
 import type {
   EncounterTable,

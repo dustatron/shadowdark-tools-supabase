@@ -5,10 +5,12 @@ import {
   useContext,
   useEffect,
   useState,
+  useCallback,
   ReactNode,
 } from "react";
 import { createClient } from "@/lib/supabase/client";
 import { User } from "@supabase/supabase-js";
+import { logger } from "@/lib/utils/logger";
 
 export interface UserData {
   id: string;
@@ -28,43 +30,97 @@ const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
 interface AuthProviderProps {
   children: ReactNode;
-  initialSession?: any;
+  initialSession?: { user: User } | null;
 }
+
+const PROFILE_FETCH_TIMEOUT = 3000;
 
 export function AuthProvider({ children, initialSession }: AuthProviderProps) {
   const [user, setUser] = useState<UserData | null>(null);
   const [loading, setLoading] = useState(true);
   const supabase = createClient();
 
-  useEffect(() => {
-    let mounted = true;
+  const fetchUserProfile = useCallback(
+    async (authUser: User, signal?: AbortSignal): Promise<UserData> => {
+      logger.debug("Fetching user profile for:", authUser.id);
 
-    // Get initial user - uses session from server if available, otherwise fetches from client
-    const getInitialUser = async () => {
+      let username_slug: string | undefined;
+
       try {
-        // If we have an initial session from the server, use it directly
-        if (initialSession?.user) {
-          console.log("Using initial session from server");
-          if (mounted) {
-            await fetchUserProfile(initialSession.user);
-          }
-        } else {
-          // Otherwise, get the session from the client
-          console.log("Fetching session from client");
-          const {
-            data: { session },
-          } = await supabase.auth.getSession();
+        const { data: profile, error } = await supabase
+          .from("user_profiles")
+          .select("username_slug")
+          .eq("id", authUser.id)
+          .abortSignal(signal as AbortSignal)
+          .single();
 
-          if (mounted) {
-            if (session?.user) {
-              await fetchUserProfile(session.user);
-            } else {
-              setUser(null);
-            }
-          }
+        if (!error && profile) {
+          username_slug = profile.username_slug;
+          logger.debug("Found username_slug:", username_slug);
         }
       } catch (error) {
-        console.error("Error getting user:", error);
+        // Silently fail if query aborted or fails
+        if (error instanceof Error && error.name !== "AbortError") {
+          logger.warn("Could not fetch username_slug:", error.message);
+        }
+      }
+
+      return {
+        id: authUser.id,
+        email: authUser.email!,
+        display_name: authUser.user_metadata?.display_name,
+        role: authUser.app_metadata?.role,
+        username_slug,
+      };
+    },
+    [supabase],
+  );
+
+  useEffect(() => {
+    let mounted = true;
+    const abortController = new AbortController();
+    let timeoutId: NodeJS.Timeout | undefined;
+
+    const getInitialUser = async () => {
+      try {
+        const authUser = initialSession?.user;
+
+        if (authUser) {
+          logger.debug("Using initial session from server");
+        } else {
+          logger.debug("Fetching session from client");
+        }
+
+        const {
+          data: { session },
+        } = initialSession?.user
+          ? { data: { session: initialSession } }
+          : await supabase.auth.getSession();
+
+        if (!mounted) return;
+
+        if (session?.user) {
+          // Set timeout for profile fetch
+          timeoutId = setTimeout(() => {
+            abortController.abort();
+          }, PROFILE_FETCH_TIMEOUT);
+
+          const userData = await fetchUserProfile(
+            session.user,
+            abortController.signal,
+          );
+
+          clearTimeout(timeoutId);
+
+          if (mounted) {
+            logger.debug("Setting user data:", userData);
+            setUser(userData);
+          }
+        } else {
+          setUser(null);
+        }
+      } catch (error) {
+        logger.error("Error getting user:", error);
         if (mounted) {
           setUser(null);
         }
@@ -84,7 +140,10 @@ export function AuthProvider({ children, initialSession }: AuthProviderProps) {
       if (!mounted) return;
 
       if (session?.user) {
-        await fetchUserProfile(session.user);
+        const userData = await fetchUserProfile(session.user);
+        if (mounted) {
+          setUser(userData);
+        }
       } else {
         setUser(null);
       }
@@ -93,78 +152,22 @@ export function AuthProvider({ children, initialSession }: AuthProviderProps) {
 
     return () => {
       mounted = false;
+      if (timeoutId) clearTimeout(timeoutId);
+      abortController.abort();
       subscription.unsubscribe();
     };
-  }, [supabase]);
+  }, [supabase, initialSession, fetchUserProfile]);
 
-  const fetchUserProfile = async (authUser: User) => {
-    try {
-      console.log("Fetching user profile for:", authUser.id);
-
-      // Try to fetch user profile to get username_slug with timeout
-      let username_slug: string | undefined;
-      try {
-        // Add a timeout to prevent hanging indefinitely
-        const profilePromise = supabase
-          .from("user_profiles")
-          .select("username_slug")
-          .eq("id", authUser.id)
-          .single();
-
-        const timeoutPromise = new Promise((_, reject) =>
-          setTimeout(() => reject(new Error("Profile fetch timeout")), 3000),
-        );
-
-        const { data: profile } = (await Promise.race([
-          profilePromise,
-          timeoutPromise,
-        ])) as any;
-
-        username_slug = profile?.username_slug;
-        console.log("Found username_slug:", username_slug);
-      } catch (error) {
-        // Silently fail if username_slug column doesn't exist yet or query times out
-        console.log(
-          "Could not fetch username_slug:",
-          error instanceof Error ? error.message : "Unknown error",
-        );
-      }
-
-      // Always set user data, even if profile fetch failed
-      const userData = {
-        id: authUser.id,
-        email: authUser.email!,
-        display_name: authUser.user_metadata?.display_name,
-        role: authUser.app_metadata?.role,
-        username_slug,
-      };
-
-      console.log("Setting user data:", userData);
-      setUser(userData);
-    } catch (error) {
-      console.error("Error fetching user profile:", error);
-      // Fallback: set basic user data without profile info
-      const userData = {
-        id: authUser.id,
-        email: authUser.email!,
-        display_name: authUser.user_metadata?.display_name,
-        role: authUser.app_metadata?.role,
-      };
-      console.log("Setting fallback user data:", userData);
-      setUser(userData);
-    }
-  };
-
-  const signOut = async () => {
+  const signOut = useCallback(async () => {
     try {
       const { error } = await supabase.auth.signOut();
       if (error) throw error;
       setUser(null);
     } catch (error) {
-      console.error("Error signing out:", error);
+      logger.error("Error signing out:", error);
       throw error;
     }
-  };
+  }, [supabase]);
 
   const value: AuthContextType = {
     user,
