@@ -1,6 +1,14 @@
 "use client";
 
-import { Search, Filter, FilterX, ChevronDown, ChevronUp } from "lucide-react";
+import {
+  Search,
+  Filter,
+  FilterX,
+  ChevronDown,
+  ChevronUp,
+  LayoutGrid,
+  Table2,
+} from "lucide-react";
 import { useState, useEffect } from "react";
 import { useDebounce } from "use-debounce";
 import { Card, CardContent } from "@/components/ui/card";
@@ -22,6 +30,7 @@ import {
   AVAILABLE_SPEED_TYPES,
   FilterValues,
   DEFAULT_FILTERS,
+  ViewMode,
 } from "@/lib/types/monsters";
 
 interface MonsterFiltersProps {
@@ -31,6 +40,8 @@ interface MonsterFiltersProps {
   availableSpeedTypes?: string[];
   availableSources?: string[];
   loading?: boolean;
+  view: ViewMode;
+  onViewChange: (view: ViewMode) => void;
 }
 
 export function MonsterFilters({
@@ -39,6 +50,8 @@ export function MonsterFilters({
   availableTypes = [],
   availableSpeedTypes = AVAILABLE_SPEED_TYPES,
   loading = false,
+  view,
+  onViewChange,
 }: MonsterFiltersProps) {
   const [expanded, setExpanded] = useState(false);
   const [mobileSheetOpen, setMobileSheetOpen] = useState(false);

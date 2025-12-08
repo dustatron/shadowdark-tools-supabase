@@ -1,11 +1,13 @@
 "use client";
 
 import { MonsterCard } from "./MonsterCard";
+import { MonsterTable } from "./MonsterTable";
 import { EmptyState } from "../ui/EmptyState";
 import { LoadingSpinner } from "../ui/LoadingSpinner";
 import { ErrorAlert } from "../ui/ErrorAlert";
 import { Pagination } from "../ui/Pagination";
 import { Search } from "lucide-react";
+import { ViewMode } from "@/lib/types/monsters";
 
 interface Monster {
   id: string;
@@ -59,6 +61,7 @@ interface MonsterListProps {
   preserveSearchParams?: boolean;
   emptyStateTitle?: string;
   emptyStateDescription?: string;
+  view?: ViewMode;
 }
 
 export function MonsterList({
@@ -78,6 +81,7 @@ export function MonsterList({
   preserveSearchParams = true,
   emptyStateTitle = "No monsters found",
   emptyStateDescription = "Try adjusting your search filters or create a new monster.",
+  view = "cards",
 }: MonsterListProps) {
   if (loading) {
     return <LoadingSpinner message="Loading monsters..." />;
@@ -113,22 +117,31 @@ export function MonsterList({
 
   return (
     <div className="flex flex-col gap-6">
-      <div
-        className={`grid gap-4 ${compact ? "grid-cols-1 sm:grid-cols-2 lg:grid-cols-4" : "grid-cols-1 sm:grid-cols-2 lg:grid-cols-3"}`}
-      >
-        {monsters?.map((monster) => (
-          <MonsterCard
-            key={monster.id}
-            monster={monster}
-            currentUserId={currentUserId}
-            favoriteId={favoritesMap?.get(monster.id) || null}
-            onEdit={onEditMonster}
-            onDelete={onDeleteMonster}
-            compact={compact}
-            preserveSearchParams={preserveSearchParams}
-          />
-        ))}
-      </div>
+      {view === "table" ? (
+        <MonsterTable
+          monsters={monsters}
+          currentUserId={currentUserId}
+          favoritesMap={favoritesMap}
+          preserveSearchParams={preserveSearchParams}
+        />
+      ) : (
+        <div
+          className={`grid gap-4 ${compact ? "grid-cols-1 sm:grid-cols-2 lg:grid-cols-4" : "grid-cols-1 sm:grid-cols-2 lg:grid-cols-3"}`}
+        >
+          {monsters?.map((monster) => (
+            <MonsterCard
+              key={monster.id}
+              monster={monster}
+              currentUserId={currentUserId}
+              favoriteId={favoritesMap?.get(monster.id) || null}
+              onEdit={onEditMonster}
+              onDelete={onDeleteMonster}
+              compact={compact}
+              preserveSearchParams={preserveSearchParams}
+            />
+          ))}
+        </div>
+      )}
 
       {pagination && pagination.totalPages > 1 && (
         <Pagination
