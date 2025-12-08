@@ -1,10 +1,8 @@
 "use client";
 
-import { Search, Filter, FilterX, ChevronDown, ChevronUp } from "lucide-react";
-import { useState, useEffect } from "react";
-import { useDebounce } from "use-debounce";
+import { Filter, FilterX, ChevronDown, ChevronUp } from "lucide-react";
+import { useState } from "react";
 import { Card, CardContent } from "../../../components/ui/card";
-import { Input } from "../../../components/ui/input";
 import { Button } from "../../../components/ui/button";
 import { MultiSelect } from "../../../components/ui/multi-select";
 import {
@@ -12,6 +10,8 @@ import {
   CollapsibleContent,
   CollapsibleTrigger,
 } from "../../../components/ui/collapsible";
+import { SourceToggle } from "@/src/components/ui/SourceToggle";
+import { SearchInput } from "@/src/components/ui/SearchInput";
 
 interface FilterValues {
   search: string;
@@ -55,18 +55,6 @@ export function SpellFilters({
   loading = false,
 }: SpellFiltersProps) {
   const [expanded, setExpanded] = useState(false);
-  const [localSearch, setLocalSearch] = useState(filters.search);
-
-  const [debouncedSearch] = useDebounce(localSearch, 300);
-
-  useEffect(() => {
-    if (debouncedSearch !== filters.search) {
-      onFiltersChange({
-        ...filters,
-        search: debouncedSearch,
-      });
-    }
-  }, [debouncedSearch]);
 
   const handleFilterChange = (key: keyof FilterValues, value: any) => {
     onFiltersChange({
@@ -76,7 +64,6 @@ export function SpellFilters({
   };
 
   const clearFilters = () => {
-    setLocalSearch("");
     onFiltersChange(DEFAULT_FILTERS);
   };
 
@@ -103,47 +90,25 @@ export function SpellFilters({
     <Card>
       <CardContent className="p-4 space-y-4">
         {/* Spell Source Filter */}
-        <div className="grid grid-cols-3 gap-2">
-          <Button
-            variant={filters.spellSource === "all" ? "default" : "outline"}
-            onClick={() => handleFilterChange("spellSource", "all")}
-            disabled={loading}
-            className="text-xs sm:text-sm"
-          >
-            All Spells
-          </Button>
-          <Button
-            variant={filters.spellSource === "official" ? "default" : "outline"}
-            onClick={() => handleFilterChange("spellSource", "official")}
-            disabled={loading}
-            className="text-xs sm:text-sm"
-          >
-            Core Spells
-          </Button>
-          <Button
-            variant={filters.spellSource === "custom" ? "default" : "outline"}
-            onClick={() => handleFilterChange("spellSource", "custom")}
-            disabled={loading}
-            className="text-xs sm:text-sm"
-          >
-            Custom Spells
-          </Button>
-        </div>
+        <SourceToggle
+          value={filters.spellSource}
+          onChange={(value) => handleFilterChange("spellSource", value)}
+          labels={{
+            all: "All Spells",
+            official: "Core Spells",
+            custom: "Custom Spells",
+          }}
+          disabled={loading}
+        />
 
         <div className="flex flex-col sm:flex-row gap-4">
-          <div className="relative flex-1">
-            <Search
-              size={16}
-              className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground pointer-events-none"
-            />
-            <Input
-              placeholder="Search spells by name or description..."
-              value={localSearch}
-              onChange={(e) => setLocalSearch(e.target.value)}
-              disabled={loading}
-              className="pl-9"
-            />
-          </div>
+          <SearchInput
+            value={filters.search}
+            onChange={(value) => handleFilterChange("search", value)}
+            placeholder="Search spells by name or description..."
+            disabled={loading}
+            debounceMs={300}
+          />
 
           <div className="flex gap-2">
             <Collapsible open={expanded} onOpenChange={setExpanded}>

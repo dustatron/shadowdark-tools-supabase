@@ -1,22 +1,15 @@
 "use client";
 
-import {
-  Search,
-  Filter,
-  FilterX,
-  ChevronDown,
-  ChevronUp,
-  LayoutGrid,
-  Table2,
-} from "lucide-react";
-import { useState, useEffect } from "react";
-import { useDebounce } from "use-debounce";
+import { Filter, FilterX, ChevronDown, ChevronUp } from "lucide-react";
+import { useState } from "react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { MultiSelect } from "@/components/ui/multi-select";
 import { Collapsible, CollapsibleContent } from "@/components/ui/collapsible";
+import { SourceToggle } from "@/src/components/ui/SourceToggle";
+import { SearchInput } from "@/src/components/ui/SearchInput";
 import {
   Sheet,
   SheetContent,
@@ -30,7 +23,6 @@ import {
   AVAILABLE_SPEED_TYPES,
   FilterValues,
   DEFAULT_FILTERS,
-  ViewMode,
 } from "@/lib/types/monsters";
 
 interface MonsterFiltersProps {
@@ -40,8 +32,6 @@ interface MonsterFiltersProps {
   availableSpeedTypes?: string[];
   availableSources?: string[];
   loading?: boolean;
-  view: ViewMode;
-  onViewChange: (view: ViewMode) => void;
 }
 
 export function MonsterFilters({
@@ -50,24 +40,9 @@ export function MonsterFilters({
   availableTypes = [],
   availableSpeedTypes = AVAILABLE_SPEED_TYPES,
   loading = false,
-  view,
-  onViewChange,
 }: MonsterFiltersProps) {
   const [expanded, setExpanded] = useState(false);
   const [mobileSheetOpen, setMobileSheetOpen] = useState(false);
-  const [localSearch, setLocalSearch] = useState(filters.search);
-
-  // Debounce search input
-  const [debouncedSearch] = useDebounce(localSearch, 500);
-
-  useEffect(() => {
-    if (debouncedSearch !== filters.search) {
-      onFiltersChange({
-        ...filters,
-        search: debouncedSearch,
-      });
-    }
-  }, [debouncedSearch]);
 
   const handleFilterChange = (key: keyof FilterValues, value: any) => {
     onFiltersChange({
@@ -77,7 +52,6 @@ export function MonsterFilters({
   };
 
   const clearFilters = () => {
-    setLocalSearch("");
     onFiltersChange(DEFAULT_FILTERS);
   };
 
@@ -191,48 +165,26 @@ export function MonsterFilters({
       <CardContent className="pt-6">
         <div className="flex flex-col gap-4">
           {/* Monster Source Filter */}
-          <div className="grid grid-cols-3 gap-2">
-            <Button
-              variant={filters.monsterSource === "all" ? "default" : "outline"}
-              onClick={() => handleFilterChange("monsterSource", "all")}
-              disabled={loading}
-              className="text-xs sm:text-sm"
-            >
-              All Monsters
-            </Button>
-            <Button
-              variant={
-                filters.monsterSource === "official" ? "default" : "outline"
-              }
-              onClick={() => handleFilterChange("monsterSource", "official")}
-              disabled={loading}
-              className="text-xs sm:text-sm"
-            >
-              Core Monsters
-            </Button>
-            <Button
-              variant={
-                filters.monsterSource === "custom" ? "default" : "outline"
-              }
-              onClick={() => handleFilterChange("monsterSource", "custom")}
-              disabled={loading}
-              className="text-xs sm:text-sm"
-            >
-              User Created
-            </Button>
-          </div>
+          <SourceToggle
+            value={filters.monsterSource}
+            onChange={(value) => handleFilterChange("monsterSource", value)}
+            labels={{
+              all: "All Monsters",
+              official: "Core Monsters",
+              custom: "User Created",
+            }}
+            disabled={loading}
+          />
 
           {/* Search and Filter Button */}
           <div className="flex gap-2">
-            <div className="relative flex-1">
-              <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-              <Input
-                placeholder="Search monsters by name or description..."
-                value={localSearch}
-                onChange={(e) => setLocalSearch(e.target.value)}
-                className="pl-9"
-              />
-            </div>
+            <SearchInput
+              value={filters.search}
+              onChange={(value) => handleFilterChange("search", value)}
+              placeholder="Search monsters by name or description..."
+              disabled={loading}
+              debounceMs={500}
+            />
 
             <div className="flex gap-2">
               {/* Mobile Filter Button - Opens Sheet */}

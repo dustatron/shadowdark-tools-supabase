@@ -1,10 +1,8 @@
 "use client";
 
-import { Search, Filter, FilterX, ChevronDown, ChevronUp } from "lucide-react";
-import { useState, useEffect } from "react";
-import { useDebounce } from "use-debounce";
+import { Filter, FilterX, ChevronDown, ChevronUp } from "lucide-react";
+import { useState } from "react";
 import { Card, CardContent } from "@/components/ui/card";
-import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { MultiSelect } from "@/components/ui/multi-select";
 import {
@@ -12,6 +10,8 @@ import {
   CollapsibleContent,
   CollapsibleTrigger,
 } from "@/components/ui/collapsible";
+import { SourceToggle } from "@/src/components/ui/SourceToggle";
+import { SearchInput } from "@/src/components/ui/SearchInput";
 
 interface FilterValues {
   search: string;
@@ -39,18 +39,6 @@ export function MagicItemFilters({
   loading = false,
 }: MagicItemFiltersProps) {
   const [expanded, setExpanded] = useState(false);
-  const [localSearch, setLocalSearch] = useState(filters.search);
-
-  const [debouncedSearch] = useDebounce(localSearch, 300);
-
-  useEffect(() => {
-    if (debouncedSearch !== filters.search) {
-      onFiltersChange({
-        ...filters,
-        search: debouncedSearch,
-      });
-    }
-  }, [debouncedSearch]);
 
   const handleFilterChange = (key: keyof FilterValues, value: any) => {
     onFiltersChange({
@@ -60,7 +48,6 @@ export function MagicItemFilters({
   };
 
   const clearFilters = () => {
-    setLocalSearch("");
     onFiltersChange(DEFAULT_FILTERS);
   };
 
@@ -73,45 +60,26 @@ export function MagicItemFilters({
     <Card>
       <CardContent className="p-4 space-y-4">
         {/* Item Source Filter */}
-        <div className="grid grid-cols-3 gap-2">
-          <Button
-            variant={filters.itemSource === "all" ? "default" : "outline"}
-            onClick={() => handleFilterChange("itemSource", "all")}
-            disabled={loading}
-            className="text-xs sm:text-sm"
-          >
-            All Items
-          </Button>
-          <Button
-            variant={filters.itemSource === "official" ? "default" : "outline"}
-            onClick={() => handleFilterChange("itemSource", "official")}
-            disabled={loading}
-            className="text-xs sm:text-sm"
-          >
-            Core Items
-          </Button>
-          <Button
-            variant={filters.itemSource === "custom" ? "default" : "outline"}
-            onClick={() => handleFilterChange("itemSource", "custom")}
-            disabled={loading}
-            className="text-xs sm:text-sm"
-          >
-            Custom Items
-          </Button>
-        </div>
+        <SourceToggle
+          value={filters.itemSource}
+          onChange={(value) => handleFilterChange("itemSource", value)}
+          labels={{
+            all: "All Items",
+            official: "Core Items",
+            custom: "Custom Items",
+          }}
+          disabled={loading}
+        />
 
         <div className="space-y-4">
           {/* Search Input */}
-          <div className="relative">
-            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground h-4 w-4" />
-            <Input
-              placeholder="Search magic items by name or description..."
-              value={localSearch}
-              onChange={(e) => setLocalSearch(e.target.value)}
-              className="pl-10"
-              disabled={loading}
-            />
-          </div>
+          <SearchInput
+            value={filters.search}
+            onChange={(value) => handleFilterChange("search", value)}
+            placeholder="Search magic items by name or description..."
+            disabled={loading}
+            debounceMs={300}
+          />
 
           {/* Collapsible Advanced Filters */}
           <Collapsible open={expanded} onOpenChange={setExpanded}>

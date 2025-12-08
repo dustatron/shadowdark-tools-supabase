@@ -4,9 +4,10 @@ import { useState, useEffect, useCallback, useMemo } from "react";
 import { useRouter } from "next/navigation";
 import { MonsterList } from "@/src/components/monsters/MonsterList";
 import { MonsterFilters } from "@/src/components/monsters/MonsterFilters";
+import { ViewModeToggle } from "@/src/components/ui/ViewModeToggle";
 import Link from "next/link";
 import { createClient } from "@/lib/supabase/client";
-import { LayoutGrid, Plus, Table2 } from "lucide-react";
+import { Plus } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
   FilterValues,
@@ -279,26 +280,7 @@ export function MonstersClient({
             </Link>
           </Button>
         )}
-        <div className="flex border rounded-md">
-          <Button
-            variant={view === "cards" ? "default" : "ghost"}
-            size="icon"
-            onClick={() => handleViewChange("cards")}
-            title="Card view"
-            className="rounded-r-none"
-          >
-            <LayoutGrid className="h-4 w-4" />
-          </Button>
-          <Button
-            variant={view === "table" ? "default" : "ghost"}
-            size="icon"
-            onClick={() => handleViewChange("table")}
-            title="Table view"
-            className="rounded-l-none"
-          >
-            <Table2 className="h-4 w-4" />
-          </Button>
-        </div>
+        <ViewModeToggle view={view} onViewChange={handleViewChange} />
       </div>
 
       <div className="mb-4">
@@ -308,8 +290,6 @@ export function MonstersClient({
           availableTypes={availableTypes}
           availableSources={availableSources}
           loading={loading}
-          view={view}
-          onViewChange={handleViewChange}
         />
       </div>
 
