@@ -9,15 +9,27 @@ export function PageHeader() {
   const getPageTitle = () => {
     if (pathname === "/") return "Home";
     if (pathname === "/about") return "About";
-    if (pathname === "/monsters") return "Monster Search";
-    if (pathname.startsWith("/monsters/")) return "Monster Details";
-    if (pathname === "/spells") return "Spell Search";
-    if (pathname.startsWith("/spells/")) return "Spell Details";
-    if (pathname === "/magic-items") return "Magic Item Search";
-    if (pathname.startsWith("/magic-items/")) return "Magic Item Details";
-    if (pathname === "/encounter-tables") return "Encounter Tables";
+    // Create pages (check before generic startsWith)
+    if (pathname === "/monsters/create") return "Create Monster";
+    if (pathname === "/spells/create") return "Create Spell";
+    if (pathname === "/magic-items/create") return "Create Magic Item";
     if (pathname === "/encounter-tables/new") return "Create Encounter Table";
+    if (pathname === "/adventure-lists/new") return "Create Adventure List";
     if (pathname === "/dashboard/decks/create") return "Create Deck";
+    // Search pages
+    if (pathname === "/monsters") return "Monster Search";
+    if (pathname === "/spells") return "Spell Search";
+    if (pathname === "/magic-items") return "Magic Item Search";
+    if (pathname === "/encounter-tables") return "Encounter Tables";
+    if (pathname === "/adventure-lists") return "Adventure Lists";
+    if (pathname === "/equipment") return "Equipment";
+    // Detail pages
+    if (pathname.startsWith("/monsters/")) return "Monster Details";
+    if (pathname.startsWith("/spells/")) return "Spell Details";
+    if (pathname.startsWith("/magic-items/")) return "Magic Item Details";
+    if (pathname.startsWith("/encounter-tables/")) return "Encounter Table";
+    if (pathname.startsWith("/adventure-lists/")) return "Adventure List";
+    // Dashboard pages
     if (pathname === "/dashboard/monsters") return "Your Monsters";
     if (pathname === "/dashboard/spells") return "Your Spells";
     if (pathname === "/dashboard/encounters") return "Your Encounters";
