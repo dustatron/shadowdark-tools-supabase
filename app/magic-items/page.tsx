@@ -4,8 +4,10 @@ import { useState, useEffect } from "react";
 import { MagicItemList } from "@/components/magic-items/MagicItemList";
 import { MagicItemFilters } from "@/components/magic-items/MagicItemFilters";
 import { Button } from "@/components/ui/button";
+import { ViewModeToggle } from "@/src/components/ui/ViewModeToggle";
 import { createClient } from "@/lib/supabase/client";
 import { createFavoritesMap } from "@/lib/utils/favorites";
+import { useViewMode } from "@/lib/hooks";
 import { Plus, FolderOpen } from "lucide-react";
 import Link from "next/link";
 
@@ -37,6 +39,7 @@ export default function MagicItemsPage() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [filters, setFilters] = useState<FilterValues>(DEFAULT_FILTERS);
+  const { view, setView } = useViewMode();
   const [pagination, setPagination] = useState({
     page: 1,
     limit: 20,
@@ -159,7 +162,8 @@ export default function MagicItemsPage() {
             Browse official and community magic items
           </p>
         </div>
-        <div className="flex gap-2">
+        <div className="flex items-center gap-2">
+          <ViewModeToggle view={view} onViewChange={setView} />
           {isAuthenticated && (
             <>
               <Button variant="outline" asChild>
@@ -198,6 +202,7 @@ export default function MagicItemsPage() {
         onPageChange={handlePageChange}
         onPageSizeChange={handlePageSizeChange}
         onRetry={fetchMagicItems}
+        view={view}
       />
     </div>
   );
