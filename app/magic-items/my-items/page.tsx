@@ -85,14 +85,7 @@ export default function MyMagicItemsPage() {
   }
 
   return (
-    <div className="container mx-auto px-4 py-8">
-      <Button variant="ghost" asChild className="mb-6">
-        <Link href="/magic-items">
-          <ArrowLeft className="h-4 w-4 mr-2" />
-          Back to Magic Items
-        </Link>
-      </Button>
-
+    <div className="container mx-auto px-4 py-1">
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-6">
         <div>
           <h1 className="text-3xl font-bold">My Magic Items</h1>

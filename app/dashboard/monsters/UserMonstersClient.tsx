@@ -4,7 +4,8 @@ import { MonsterCard } from "@/src/components/monsters/MonsterCard";
 import { MonsterTable } from "@/src/components/monsters/MonsterTable";
 import { useViewMode } from "@/lib/hooks";
 import { Button } from "@/components/ui/button";
-import { LayoutGrid, Table2, Plus } from "lucide-react";
+import { ViewModeToggle } from "@/src/components/ui/ViewModeToggle";
+import { Plus } from "lucide-react";
 import Link from "next/link";
 
 interface Monster {
@@ -50,32 +51,13 @@ export function UserMonstersClient({
     <div className="flex flex-col gap-4">
       {/* Header with Toggle + Create Button */}
       <div className="flex justify-end items-center gap-2">
+        <ViewModeToggle view={view} onViewChange={setView} />
         <Button asChild>
           <Link href="/monsters/create">
             <Plus className="mr-2 h-4 w-4" />
             Create Monster
           </Link>
         </Button>
-        <div className="flex border rounded-md">
-          <Button
-            variant={view === "cards" ? "default" : "ghost"}
-            size="icon"
-            onClick={() => setView("cards")}
-            title="Card view"
-            className="rounded-r-none"
-          >
-            <LayoutGrid className="h-4 w-4" />
-          </Button>
-          <Button
-            variant={view === "table" ? "default" : "ghost"}
-            size="icon"
-            onClick={() => setView("table")}
-            title="Table view"
-            className="rounded-l-none"
-          >
-            <Table2 className="h-4 w-4" />
-          </Button>
-        </div>
       </div>
 
       {/* Content */}

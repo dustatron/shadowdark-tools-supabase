@@ -1,11 +1,13 @@
 "use client";
 
 import { SpellCard } from "./SpellCard";
+import { SpellTable } from "./SpellTable";
 import { EmptyState } from "../ui/EmptyState";
 import { LoadingSpinner } from "../ui/LoadingSpinner";
 import { ErrorAlert } from "../ui/ErrorAlert";
 import { Pagination } from "../ui/Pagination";
 import { Book } from "lucide-react";
+import { ViewMode } from "@/lib/types/monsters";
 
 interface Spell {
   id: string;
@@ -39,6 +41,7 @@ interface SpellListProps {
   onPageChange?: (page: number) => void;
   onPageSizeChange?: (pageSize: number) => void;
   onRetry?: () => void;
+  view?: ViewMode;
 }
 
 export function SpellList({
@@ -51,6 +54,7 @@ export function SpellList({
   onPageChange,
   onPageSizeChange,
   onRetry,
+  view = "cards",
 }: SpellListProps) {
   if (loading) {
     return <LoadingSpinner message="Loading spells..." />;
@@ -78,16 +82,24 @@ export function SpellList({
 
   return (
     <div className="flex flex-col gap-6">
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-        {spells.map((spell) => (
-          <SpellCard
-            key={spell.id}
-            spell={spell}
-            currentUserId={currentUserId}
-            favoriteId={favoritesMap?.get(spell.id) || null}
-          />
-        ))}
-      </div>
+      {view === "table" ? (
+        <SpellTable
+          spells={spells}
+          currentUserId={currentUserId}
+          favoritesMap={favoritesMap}
+        />
+      ) : (
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+          {spells.map((spell) => (
+            <SpellCard
+              key={spell.id}
+              spell={spell}
+              currentUserId={currentUserId}
+              favoriteId={favoritesMap?.get(spell.id) || null}
+            />
+          ))}
+        </div>
+      )}
 
       {pagination && pagination.totalPages > 1 && (
         <Pagination
