@@ -2,18 +2,16 @@
 
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
-import { createClient } from "@/lib/supabase/client"; // Needed for client-side supabase calls if any, though not for equipment fetch
-import { Plus } from "lucide-react";
-import { Button } from "@/components/ui/button";
-import { PageTitle } from "@/components/page-title";
 import {
   EquipmentItem,
   FilterValues,
   PaginationState,
   serializeFiltersToSearchParams,
 } from "@/lib/types/equipment";
-import { EquipmentList } from "@/components/equipment/EquipmentList"; // Will create this
-import { EquipmentFilters } from "@/components/equipment/EquipmentFilters"; // Will create this
+import { EquipmentList } from "@/components/equipment/EquipmentList";
+import { EquipmentFilters } from "@/components/equipment/EquipmentFilters";
+import { ViewModeToggle } from "@/src/components/ui/ViewModeToggle";
+import { useViewMode } from "@/lib/hooks";
 
 interface EquipmentClientProps {
   initialFilters: FilterValues;
@@ -29,6 +27,7 @@ export function EquipmentClient({
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [filters, setFilters] = useState<FilterValues>(initialFilters);
+  const { view, setView } = useViewMode();
   const [pagination, setPagination] = useState({
     ...initialPagination,
     total: 0,
@@ -125,7 +124,10 @@ export function EquipmentClient({
 
   return (
     <div>
-      {/* No create button for equipment initially */}
+      <div className="flex justify-end mb-4">
+        <ViewModeToggle view={view} onViewChange={setView} />
+      </div>
+
       <div className="mb-4">
         <EquipmentFilters
           filters={filters}
@@ -142,6 +144,7 @@ export function EquipmentClient({
         onPageChange={handlePageChange}
         onPageSizeChange={handlePageSizeChange}
         onRetry={fetchEquipment}
+        view={view}
       />
     </div>
   );

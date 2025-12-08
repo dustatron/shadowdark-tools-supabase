@@ -6,7 +6,9 @@ import { ErrorAlert } from "@/src/components/ui/ErrorAlert";
 import { Pagination } from "@/src/components/ui/Pagination";
 import { Search } from "lucide-react";
 import { EquipmentItem, PaginationState } from "@/lib/types/equipment";
-import { EquipmentCard } from "./EquipmentCard"; // Will create this
+import { EquipmentCard } from "./EquipmentCard";
+import { EquipmentTable } from "./EquipmentTable";
+import { ViewMode } from "@/lib/types/monsters";
 
 interface EquipmentListProps {
   equipment: EquipmentItem[];
@@ -18,6 +20,7 @@ interface EquipmentListProps {
   onRetry?: () => void;
   emptyStateTitle?: string;
   emptyStateDescription?: string;
+  view?: ViewMode;
 }
 
 export function EquipmentList({
@@ -30,6 +33,7 @@ export function EquipmentList({
   onRetry,
   emptyStateTitle = "No equipment found",
   emptyStateDescription = "Try adjusting your search filters.",
+  view = "cards",
 }: EquipmentListProps) {
   if (loading) {
     return <LoadingSpinner message="Loading equipment..." />;
@@ -57,11 +61,15 @@ export function EquipmentList({
 
   return (
     <div className="flex flex-col gap-6">
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-        {equipment?.map((item) => (
-          <EquipmentCard key={item.id} item={item} />
-        ))}
-      </div>
+      {view === "table" ? (
+        <EquipmentTable equipment={equipment} />
+      ) : (
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+          {equipment?.map((item) => (
+            <EquipmentCard key={item.id} item={item} />
+          ))}
+        </div>
+      )}
 
       {pagination && pagination.totalPages > 1 && (
         <Pagination
