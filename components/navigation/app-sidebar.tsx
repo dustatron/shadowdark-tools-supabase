@@ -375,7 +375,10 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
   return (
     <Sidebar collapsible="icon" variant="sidebar" {...props}>
       <SidebarHeader>
-        <div className="flex items-center gap-2 px-2 py-2">
+        <Link
+          href="/"
+          className="flex items-center gap-2 px-2 py-2 hover:opacity-80 transition-opacity"
+        >
           <Image
             src="/legend.png"
             alt="Dungeon Exchange"
@@ -386,7 +389,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
           <span className="font-heading font-bold text-sm group-data-[collapsible=icon]:hidden">
             Dungeon Exchange
           </span>
-        </div>
+        </Link>
       </SidebarHeader>
       <SidebarContent>
         {/* Home & About */}

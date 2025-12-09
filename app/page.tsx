@@ -38,37 +38,6 @@ export default async function Home() {
         <div className="max-w-4xl mx-auto w-full">
           <HomeSearchClient />
         </div>
-
-        {/* Quick Links */}
-        <div className="flex flex-col gap-4 items-center text-center mt-8 pt-8 border-t">
-          <p className="text-sm text-muted-foreground">
-            Or browse by category:
-          </p>
-          <div className="flex items-center justify-center gap-4 flex-wrap">
-            <Button variant="outline" size="sm" asChild>
-              <Link href="/monsters">All Monsters</Link>
-            </Button>
-            <Button variant="outline" size="sm" asChild>
-              <Link href="/magic-items">All Magic Items</Link>
-            </Button>
-            <Button variant="outline" size="sm" asChild>
-              <Link href="/equipment">All Equipment</Link>
-            </Button>
-            <Button variant="outline" size="sm" asChild>
-              <Link href="/spells">All Spells</Link>
-            </Button>
-            <Button variant="outline" size="sm" asChild>
-              <Link href="/encounter-tables">Encounter Tables</Link>
-            </Button>
-          </div>
-          {!session && (
-            <div className="flex items-center justify-center gap-4 mt-4">
-              <Button size="sm" variant="secondary" asChild>
-                <Link href="/auth/sign-up">Create Account</Link>
-              </Button>
-            </div>
-          )}
-        </div>
       </div>
     </div>
   );

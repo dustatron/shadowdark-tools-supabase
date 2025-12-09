@@ -58,7 +58,7 @@ export function UnifiedSearchForm({
   isLoading = false,
 }: UnifiedSearchFormProps) {
   const form = useForm<SearchFormValues>({
-    resolver: zodResolver(SearchFormSchema),
+    resolver: zodResolver(SearchFormSchema) as any,
     defaultValues: {
       q: "",
       source: "all",
@@ -102,84 +102,72 @@ export function UnifiedSearchForm({
               </FormItem>
             )}
           />
-          <Button
-            type="submit"
-            size="lg"
-            disabled={isLoading}
-            className="h-14 px-8 rounded-xl shadow-sm hidden sm:flex"
-          >
-            Search
-          </Button>
-        </div>
-
-        {/* Filters Row */}
-        <div className="flex flex-col sm:flex-row gap-4 items-start sm:items-center justify-center">
-          {/* Content Type Toggle Group (Scrollable on mobile) */}
-          <FormField
-            control={form.control}
-            name="includeTypes"
-            render={({ field }) => (
-              <FormItem className="w-full sm:w-auto overflow-x-auto pb-1 sm:pb-0 -mx-4 px-4 sm:mx-0 sm:px-0 no-scrollbar">
-                <FormControl>
-                  <ToggleGroup
-                    type="multiple"
-                    variant="outline"
-                    value={field.value}
-                    onValueChange={field.onChange}
-                    className="justify-start sm:flex-wrap gap-0"
-                  >
-                    <ToggleGroupItem
-                      value="monsters"
-                      aria-label="Toggle Monsters"
-                      className="h-9 px-4 rounded-full border border-muted-foreground/20 hover:bg-muted/50 data-[state=on]:bg-primary data-[state=on]:text-primary-foreground data-[state=on]:border-primary transition-all"
-                    >
-                      <Swords className="h-4 w-4 mr-2" />
-                      Monsters
-                    </ToggleGroupItem>
-                    <ToggleGroupItem
-                      value="magicItems"
-                      aria-label="Toggle Magic Items"
-                      className="h-9 px-4 rounded-full border border-muted-foreground/20 hover:bg-muted/50 data-[state=on]:bg-primary data-[state=on]:text-primary-foreground data-[state=on]:border-primary transition-all"
-                    >
-                      <Wand2 className="h-4 w-4 mr-2" />
-                      Magic Items
-                    </ToggleGroupItem>
-                    <ToggleGroupItem
-                      value="equipment"
-                      aria-label="Toggle Equipment"
-                      className="h-9 px-4 rounded-full border border-muted-foreground/20 hover:bg-muted/50 data-[state=on]:bg-primary data-[state=on]:text-primary-foreground data-[state=on]:border-primary transition-all"
-                    >
-                      <Shield className="h-4 w-4 mr-2" />
-                      Equipment
-                    </ToggleGroupItem>
-                    <ToggleGroupItem
-                      value="spells"
-                      aria-label="Toggle Spells"
-                      className="h-9 px-4 rounded-full border border-muted-foreground/20 hover:bg-muted/50 data-[state=on]:bg-primary data-[state=on]:text-primary-foreground data-[state=on]:border-primary transition-all"
-                    >
-                      <Sparkles className="h-4 w-4 mr-2" />
-                      Spells
-                    </ToggleGroupItem>
-                  </ToggleGroup>
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
-
-          {/* Advanced Filters Popover */}
+          {/* Filters Popover */}
           <Popover>
             <PopoverTrigger asChild>
               <Button
                 variant="outline"
-                className="h-10 gap-2 rounded-lg border-muted-foreground/20 ml-auto sm:ml-0"
+                className="h-14 w-14 px-0 rounded-xl border-muted-foreground/20 shadow-sm shrink-0"
+                aria-label="Filters"
               >
-                <SlidersHorizontal className="h-4 w-4" />
-                Sources
+                <SlidersHorizontal className="h-5 w-5" />
               </Button>
             </PopoverTrigger>
-            <PopoverContent align="end" className="w-80 p-4 space-y-4">
+            <PopoverContent align="end" className="min-w-80 p-2 space-y-2">
               <div className="space-y-4">
+                {/* Content Type Filter */}
+                <FormField
+                  control={form.control}
+                  name="includeTypes"
+                  render={({ field }) => (
+                    <FormItem className="space-y-2">
+                      <FormControl>
+                        <ToggleGroup
+                          type="multiple"
+                          variant="outline"
+                          value={field.value}
+                          onValueChange={field.onChange}
+                          className="justify-start flex-wrap gap-2"
+                          spacing={2}
+                        >
+                          <ToggleGroupItem
+                            value="monsters"
+                            aria-label="Toggle Monsters"
+                            className="h-9 px-3 rounded-md border border-muted-foreground/20 hover:bg-muted/50 data-[state=on]:bg-primary data-[state=on]:text-primary-foreground data-[state=on]:border-primary transition-all text-xs"
+                          >
+                            <Swords className="h-3.5 w-3.5 mr-1.5" />
+                            Monsters
+                          </ToggleGroupItem>
+                          <ToggleGroupItem
+                            value="magicItems"
+                            aria-label="Toggle Magic Items"
+                            className="h-9 px-3 rounded-md border border-muted-foreground/20 hover:bg-muted/50 data-[state=on]:bg-primary data-[state=on]:text-primary-foreground data-[state=on]:border-primary transition-all text-xs"
+                          >
+                            <Wand2 className="h-3.5 w-3.5 mr-1.5" />
+                            Items
+                          </ToggleGroupItem>
+                          <ToggleGroupItem
+                            value="equipment"
+                            aria-label="Toggle Equipment"
+                            className="h-9 px-3 rounded-md border border-muted-foreground/20 hover:bg-muted/50 data-[state=on]:bg-primary data-[state=on]:text-primary-foreground data-[state=on]:border-primary transition-all text-xs"
+                          >
+                            <Shield className="h-3.5 w-3.5 mr-1.5" />
+                            Gear
+                          </ToggleGroupItem>
+                          <ToggleGroupItem
+                            value="spells"
+                            aria-label="Toggle Spells"
+                            className="h-9 px-3 rounded-md border border-muted-foreground/20 hover:bg-muted/50 data-[state=on]:bg-primary data-[state=on]:text-primary-foreground data-[state=on]:border-primary transition-all text-xs"
+                          >
+                            <Sparkles className="h-3.5 w-3.5 mr-1.5" />
+                            Spells
+                          </ToggleGroupItem>
+                        </ToggleGroup>
+                      </FormControl>
+                    </FormItem>
+                  )}
+                />
+
                 {/* Source Filter */}
                 <FormField
                   control={form.control}
@@ -255,6 +243,15 @@ export function UnifiedSearchForm({
               </div>
             </PopoverContent>
           </Popover>
+
+          <Button
+            type="submit"
+            size="lg"
+            disabled={isLoading}
+            className="h-14 px-8 rounded-xl shadow-sm hidden sm:flex"
+          >
+            Search
+          </Button>
         </div>
 
         {/* Mobile Search Button (Visible only on small screens) */}
