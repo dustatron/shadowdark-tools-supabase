@@ -1,39 +1,109 @@
 import { NextRequest, NextResponse } from "next/server";
+import { z } from "zod";
+import { createClient } from "@/lib/supabase/server";
+import { SearchFormSchema } from "@/lib/validations/search";
+import { logger } from "@/lib/utils/logger";
+import type {
+  SearchResult,
+  SearchResponse,
+  SearchAllContentRow,
+  ContentType,
+  SourceType,
+} from "@/lib/types/search";
 
+/**
+ * GET /api/search
+ * Unified search across monsters, magic items, and equipment
+ */
 export async function GET(request: NextRequest) {
-  const searchParams = request.nextUrl.searchParams;
-  const type = searchParams.get("type") || "all";
+  try {
+    const { searchParams } = new URL(request.url);
 
-  // Redirect to specific search endpoints based on type
-  const typeRoutes: Record<string, string> = {
-    monsters: "/api/search/monsters",
-    spells: "/api/search/spells",
-    "magic-items": "/api/search/magic-items",
-    filters: "/api/search/filters",
-    suggestions: "/api/search/suggestions",
-  };
+    // Parse query parameters
+    const rawParams = {
+      q: searchParams.get("q") ?? undefined,
+      source: searchParams.get("source") ?? undefined,
+      includeMonsters: searchParams.get("includeMonsters") ?? undefined,
+      includeMagicItems: searchParams.get("includeMagicItems") ?? undefined,
+      includeEquipment: searchParams.get("includeEquipment") ?? undefined,
+      includeSpells: searchParams.get("includeSpells") ?? undefined,
+      limit: searchParams.get("limit") ?? undefined,
+    };
 
-  if (type in typeRoutes) {
-    const newUrl = new URL(typeRoutes[type], request.url);
-    searchParams.forEach((value, key) => {
-      if (key !== "type") {
-        newUrl.searchParams.set(key, value);
-      }
+    // Validate parameters
+    const validationResult = SearchFormSchema.safeParse(rawParams);
+
+    if (!validationResult.success) {
+      return NextResponse.json(
+        {
+          error: "Validation error",
+          details: validationResult.error.issues.map((issue) => ({
+            code: issue.code,
+            message: issue.message,
+            path: issue.path.map(String),
+          })),
+        },
+        { status: 400 },
+      );
+    }
+
+    const filters = validationResult.data;
+
+    // Create Supabase client
+    const supabase = await createClient();
+
+    // Call the search function
+    const { data, error } = await supabase.rpc("search_all_content", {
+      include_equipment: filters.includeEquipment,
+      include_magic_items: filters.includeMagicItems,
+      include_monsters: filters.includeMonsters,
+      include_spells: filters.includeSpells,
+      result_limit: filters.limit,
+      search_query: filters.q,
+      source_filter: filters.source,
     });
-    return NextResponse.redirect(newUrl);
-  }
 
-  // Return info about available search endpoints
-  return NextResponse.json({
-    message: "Search API",
-    endpoints: {
-      monsters: "/api/search/monsters",
-      spells: "/api/search/spells",
-      "magic-items": "/api/search/magic-items",
-      filters: "/api/search/filters",
-      suggestions: "/api/search/suggestions",
-    },
-    usage:
-      "Add ?type=monsters (or spells, magic-items) to search specific content",
-  });
+    if (error) {
+      logger.error("Search error:", error);
+      return NextResponse.json(
+        { error: "Search failed", details: error.message },
+        { status: 500 },
+      );
+    }
+
+    // Transform database results to API response format
+    const results: SearchResult[] = (data as SearchAllContentRow[]).map(
+      (row) => ({
+        id: row.id,
+        name: row.name,
+        type: row.content_type as ContentType,
+        source: row.source as SourceType,
+        detailUrl: row.detail_url,
+        relevance: row.relevance,
+        description: row.description,
+      }),
+    );
+
+    const response: SearchResponse = {
+      results,
+      total: results.length,
+      query: filters.q,
+      filters: {
+        source: filters.source ?? "all",
+        includeMonsters: filters.includeMonsters ?? true,
+        includeMagicItems: filters.includeMagicItems ?? true,
+        includeEquipment: filters.includeEquipment ?? true,
+        includeSpells: filters.includeSpells ?? true,
+        limit: filters.limit ?? 25,
+      },
+    };
+
+    return NextResponse.json(response);
+  } catch (error) {
+    logger.error("Unexpected search error:", error);
+    return NextResponse.json(
+      { error: "Internal server error" },
+      { status: 500 },
+    );
+  }
 }

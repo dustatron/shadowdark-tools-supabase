@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { getBaseUrl } from "@/lib/utils";
 
 type Props = {
   params: Promise<{ slug: string }>;
@@ -8,10 +9,9 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const { slug } = await params;
 
   try {
-    const response = await fetch(
-      `${process.env.NEXT_PUBLIC_SUPABASE_URL ? `https://${process.env.VERCEL_URL || "localhost:3000"}` : "http://localhost:3000"}/api/spells/${slug}`,
-      { cache: "no-store" },
-    );
+    const response = await fetch(`${getBaseUrl()}/api/spells/${slug}`, {
+      cache: "no-store",
+    });
 
     if (response.ok) {
       const spell = await response.json();
