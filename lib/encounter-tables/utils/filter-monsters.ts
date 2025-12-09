@@ -6,6 +6,7 @@
 import { createClient } from "@/lib/supabase/server";
 import { EncounterTableFilters } from "../types";
 import { buildMonsterFilterQuery, countMatchingMonsters } from "../queries";
+import { logger } from "@/lib/utils/logger";
 
 /**
  * Filter and fetch random monsters matching the given criteria
@@ -44,7 +45,7 @@ export async function filterMonsters(
       .eq("item_type", "monster");
 
     if (favError) {
-      console.error("Error fetching favorites:", favError);
+      logger.error("Error fetching favorites:", favError);
       throw new Error("Failed to fetch favorites");
     }
 
@@ -88,7 +89,7 @@ export async function filterMonsters(
     const { data, error, count } = await query;
 
     if (error) {
-      console.error("Error filtering favorite monsters:", error);
+      logger.error("Error filtering favorite monsters:", error);
       throw new Error("Failed to fetch monsters from database");
     }
 
@@ -116,7 +117,7 @@ export async function filterMonsters(
     user?.id,
   );
 
-  console.log(
+  logger.debug(
     `[filterMonsters] Found ${matchingCount} matching monsters for filters:`,
     JSON.stringify(filters),
   );
@@ -141,11 +142,11 @@ export async function filterMonsters(
   const { data, error } = await query.limit(fetchLimit);
 
   if (error) {
-    console.error("Error filtering monsters:", error);
+    logger.error("Error filtering monsters:", error);
     throw new Error("Failed to fetch monsters from database");
   }
 
-  console.log(`[filterMonsters] Fetched ${data?.length || 0} monsters`);
+  logger.debug(`[filterMonsters] Fetched ${data?.length || 0} monsters`);
 
   if (!data || data.length === 0) {
     throw new Error("No monsters found matching your criteria");

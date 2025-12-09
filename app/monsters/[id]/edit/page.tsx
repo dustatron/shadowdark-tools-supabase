@@ -2,11 +2,15 @@
 
 import { useState, useEffect } from "react";
 import { useParams, useRouter } from "next/navigation";
-import { MonsterCreateEditForm } from "@/src/components/monsters/MonsterCreateEditForm";
+import { MonsterCreateEditForm } from "@/components/monsters/MonsterCreateEditForm";
 import { AlertCircle } from "lucide-react";
 import { createClient } from "@/lib/supabase/client";
-import { LoadingSpinner } from "@/src/components/ui/LoadingSpinner";
-import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
+import { LoadingSpinner } from "@/components/shared/LoadingSpinner";
+import {
+  Alert,
+  AlertDescription,
+  AlertTitle,
+} from "@/components/primitives/alert";
 
 export default function EditMonsterPage() {
   const params = useParams();

@@ -1,4 +1,4 @@
-import { Button } from "@/components/ui/button";
+import { Button } from "@/components/primitives/button";
 import {
   Table,
   TableBody,
@@ -6,10 +6,10 @@ import {
   TableHead,
   TableHeader,
   TableRow,
-} from "@/components/ui/table";
+} from "@/components/primitives/table";
 import { UseMutationResult } from "@tanstack/react-query";
 import { Plus, Trash2 } from "lucide-react";
-import { Badge } from "@/components/ui/badge";
+import { Badge } from "@/components/primitives/badge";
 
 type Deck =
   | {
@@ -82,7 +82,17 @@ export function SpellTable({
             <TableRow
               key={spell.id}
               onClick={() => onSelectSpell?.(spell.id)}
-              className={`cursor-pointer hover:bg-accent ${
+              onKeyDown={(e) => {
+                if (e.key === "Enter" || e.key === " ") {
+                  e.preventDefault();
+                  onSelectSpell?.(spell.id);
+                }
+              }}
+              tabIndex={0}
+              role="button"
+              aria-pressed={selectedSpellId === spell.id}
+              aria-label={`Select ${spell.name}`}
+              className={`cursor-pointer hover:bg-accent focus:bg-accent focus:outline-none focus:ring-2 focus:ring-ring ${
                 selectedSpellId === spell.id ? "bg-accent" : ""
               }`}
             >
@@ -111,6 +121,7 @@ export function SpellTable({
                     removeMutation.mutate({ spellId: spell.id });
                   }}
                   disabled={removeMutation.isPending}
+                  aria-label={`Remove ${spell.name}`}
                 >
                   <Trash2 className="w-4 h-4" />
                 </Button>

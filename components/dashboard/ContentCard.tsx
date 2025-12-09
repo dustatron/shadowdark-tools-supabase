@@ -1,12 +1,12 @@
-import { Card, CardContent } from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
-import { Button } from "@/components/ui/button";
+import { Card, CardContent } from "@/components/primitives/card";
+import { Badge } from "@/components/primitives/badge";
+import { Button } from "@/components/primitives/button";
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
+} from "@/components/primitives/dropdown-menu";
 import { MoreVertical, Edit, Trash, Eye, EyeOff } from "lucide-react";
 import Link from "next/link";
 

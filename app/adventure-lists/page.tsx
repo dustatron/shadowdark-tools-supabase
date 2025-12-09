@@ -3,13 +3,19 @@
 import { useState, useEffect } from "react";
 import { AdventureList } from "@/lib/types/adventure-lists";
 import { AdventureListCard } from "@/components/adventure-lists/AdventureListCard";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
+import { Button } from "@/components/primitives/button";
+import { Input } from "@/components/primitives/input";
 import { Plus, Search, Loader2 } from "lucide-react";
 import Link from "next/link";
 import { useDebounce } from "@/lib/hooks/use-debounce";
 import { toast } from "sonner";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import {
+  Tabs,
+  TabsContent,
+  TabsList,
+  TabsTrigger,
+} from "@/components/primitives/tabs";
+import { logger } from "@/lib/utils/logger";
 
 export default function AdventureListsPage() {
   const [lists, setLists] = useState<AdventureList[]>([]);
@@ -44,7 +50,7 @@ export default function AdventureListsPage() {
           setPublicLists(data.data || []);
         }
       } catch (error) {
-        console.error("Error fetching lists:", error);
+        logger.error("Error fetching lists:", error);
         toast.error("Failed to load adventure lists");
       } finally {
         setIsLoading(false);
@@ -67,7 +73,7 @@ export default function AdventureListsPage() {
       setLists(lists.filter((list) => list.id !== id));
       toast.success("List deleted successfully");
     } catch (error) {
-      console.error("Error deleting list:", error);
+      logger.error("Error deleting list:", error);
       toast.error("Failed to delete list");
     }
   };

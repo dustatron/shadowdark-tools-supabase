@@ -1,12 +1,13 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { Input } from "@/components/ui/input";
-import { Button } from "@/components/ui/button";
-import { Card, CardContent } from "@/components/ui/card";
+import { Input } from "@/components/primitives/input";
+import { Button } from "@/components/primitives/button";
+import { Card, CardContent } from "@/components/primitives/card";
 import { Loader2, Search, Plus } from "lucide-react";
 import { useDebounce } from "@/lib/hooks/use-debounce";
 import { toast } from "sonner";
+import { logger } from "@/lib/utils/logger";
 
 interface ItemSelectorProps {
   itemType: "monster" | "spell" | "magic_item";
@@ -62,7 +63,7 @@ export function ItemSelector({
         const data = await response.json();
         setResults(data.results || []);
       } catch (error) {
-        console.error("Search error:", error);
+        logger.error("Search error:", error);
         toast.error("Failed to search items");
       } finally {
         setIsLoading(false);
@@ -100,7 +101,7 @@ export function ItemSelector({
       toast.success(`Added ${item.name} to list`);
       onItemAdded();
     } catch (error) {
-      console.error("Error adding item:", error);
+      logger.error("Error adding item:", error);
       toast.error("Failed to add item to list");
     } finally {
       setAddingId(null);

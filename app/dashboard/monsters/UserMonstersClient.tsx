@@ -1,43 +1,16 @@
 "use client";
 
-import { MonsterCard } from "@/src/components/monsters/MonsterCard";
-import { MonsterTable } from "@/src/components/monsters/MonsterTable";
+import { MonsterCard } from "@/components/monsters/MonsterCard";
+import { MonsterTable } from "@/components/monsters/MonsterTable";
 import { useViewMode } from "@/lib/hooks";
-import { Button } from "@/components/ui/button";
-import { ViewModeToggle } from "@/src/components/ui/ViewModeToggle";
+import { Button } from "@/components/primitives/button";
+import { ViewModeToggle } from "@/components/shared/ViewModeToggle";
 import { Plus } from "lucide-react";
 import Link from "next/link";
-
-interface Monster {
-  id: string;
-  name: string;
-  challenge_level: number;
-  hit_points: number;
-  armor_class: number;
-  speed: string;
-  attacks: Array<{
-    name: string;
-    type: "melee" | "ranged";
-    damage: string;
-    range: string;
-    description?: string;
-  }>;
-  abilities: Array<{
-    name: string;
-    description: string;
-  }>;
-  tags: {
-    type: string[];
-    location: string[];
-  };
-  source: string;
-  author_notes?: string;
-  monster_type?: "official" | "user";
-  creator_id?: string;
-}
+import { AllMonster } from "@/lib/types/monsters";
 
 interface UserMonstersClientProps {
-  monsters: Monster[];
+  monsters: AllMonster[];
   currentUserId: string;
 }
 

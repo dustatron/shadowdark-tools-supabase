@@ -7,19 +7,25 @@ import { z } from "zod";
 import { toast } from "sonner";
 import { useRouter } from "next/navigation";
 import { Loader2, Sparkles } from "lucide-react";
+import { logger } from "@/lib/utils/logger";
 
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Textarea } from "@/components/ui/textarea";
+import { Button } from "@/components/primitives/button";
+import { Input } from "@/components/primitives/input";
+import { Textarea } from "@/components/primitives/textarea";
 import {
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from "@/components/ui/select";
-import { Switch } from "@/components/ui/switch";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+} from "@/components/primitives/select";
+import { Switch } from "@/components/primitives/switch";
+import {
+  Card,
+  CardContent,
+  CardHeader,
+  CardTitle,
+} from "@/components/primitives/card";
 import {
   Form,
   FormControl,
@@ -28,7 +34,7 @@ import {
   FormItem,
   FormLabel,
   FormMessage,
-} from "@/components/ui/form";
+} from "@/components/primitives/form";
 import { spellCreateSchema, type SpellCreate } from "@/lib/validations/spell";
 
 // Spell tiers (Shadowdark standard)
@@ -105,7 +111,7 @@ export function SpellForm({
         router.push(`/spells/${spell.slug || spell.id}`);
       }
     } catch (error) {
-      console.error("Error saving spell:", error);
+      logger.error("Error saving spell:", error);
       toast.error(
         error instanceof Error
           ? error.message

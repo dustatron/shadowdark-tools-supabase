@@ -1,10 +1,15 @@
 import { notFound } from "next/navigation";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import {
+  Tabs,
+  TabsContent,
+  TabsList,
+  TabsTrigger,
+} from "@/components/primitives/tabs";
 import { ProfileHeader } from "@/components/profile/ProfileHeader";
 import { ProfileStats } from "@/components/profile/ProfileStats";
 import { getProfileBySlug } from "@/lib/api/profiles";
 import { createClient } from "@/lib/supabase/server";
-import { MonsterCard } from "@/src/components/monsters/MonsterCard";
+import { MonsterCard } from "@/components/monsters/MonsterCard";
 import { Swords, Sparkles, Dice6 } from "lucide-react";
 
 interface PublicProfilePageProps {

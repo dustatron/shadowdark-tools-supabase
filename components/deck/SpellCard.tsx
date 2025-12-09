@@ -1,10 +1,16 @@
 "use client";
 
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
-import { Button } from "@/components/ui/button";
+import {
+  Card,
+  CardContent,
+  CardHeader,
+  CardTitle,
+} from "@/components/primitives/card";
+import { Badge } from "@/components/primitives/badge";
+import { Button } from "@/components/primitives/button";
 import { X, Sparkles } from "lucide-react";
 import type { SpellForDeck } from "@/lib/validations/deck";
+import { getTierColorSubtle } from "@/lib/utils/shadowdark-colors";
 
 interface SpellCardProps {
   spell: SpellForDeck;
@@ -17,12 +23,6 @@ export function SpellCard({
   onRemove,
   compact = false,
 }: SpellCardProps) {
-  const tierColor = (tier: number) => {
-    if (tier <= 1) return "bg-green-500/10 text-green-700 dark:text-green-400";
-    if (tier <= 3) return "bg-blue-500/10 text-blue-700 dark:text-blue-400";
-    return "bg-purple-500/10 text-purple-700 dark:text-purple-400";
-  };
-
   if (compact) {
     return (
       <div className="flex items-center justify-between gap-2 p-3 rounded-lg border bg-card hover:bg-accent transition-colors">
@@ -35,7 +35,7 @@ export function SpellCard({
             <div className="flex items-center gap-2 mt-1">
               <Badge
                 variant="secondary"
-                className={`text-xs ${tierColor(spell.tier)}`}
+                className={`text-xs ${getTierColorSubtle(spell.tier)}`}
               >
                 Tier {spell.tier}
               </Badge>
@@ -80,7 +80,7 @@ export function SpellCard({
           )}
         </div>
         <div className="flex items-center gap-2 flex-wrap">
-          <Badge variant="secondary" className={tierColor(spell.tier)}>
+          <Badge variant="secondary" className={getTierColorSubtle(spell.tier)}>
             Tier {spell.tier}
           </Badge>
           <span className="text-sm text-muted-foreground">

@@ -11,16 +11,16 @@ import {
   Trash2,
   ExternalLink,
 } from "lucide-react";
-import { Button } from "@/components/ui/button";
+import { Button } from "@/components/primitives/button";
 import {
   Card,
   CardContent,
   CardDescription,
   CardHeader,
   CardTitle,
-} from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
-import { Alert, AlertDescription } from "@/components/ui/alert";
+} from "@/components/primitives/card";
+import { Badge } from "@/components/primitives/badge";
+import { Alert, AlertDescription } from "@/components/primitives/alert";
 import {
   Table,
   TableBody,
@@ -28,7 +28,7 @@ import {
   TableHead,
   TableHeader,
   TableRow,
-} from "@/components/ui/table";
+} from "@/components/primitives/table";
 import {
   Dialog,
   DialogContent,
@@ -37,13 +37,15 @@ import {
   DialogHeader,
   DialogTitle,
   DialogTrigger,
-} from "@/components/ui/dialog";
-import { Separator } from "@/components/ui/separator";
+} from "@/components/primitives/dialog";
+import { Separator } from "@/components/primitives/separator";
 import type {
   EncounterTable,
   EncounterTableEntry,
   MonsterSnapshot,
 } from "@/lib/encounter-tables/types";
+import { toast } from "sonner";
+import { logger } from "@/lib/utils/logger";
 
 interface EncounterTableClientProps {
   table: EncounterTable;
@@ -111,7 +113,7 @@ export function EncounterTableClient({
 
       router.push("/encounter-tables");
     } catch (error) {
-      console.error("Error deleting table:", error);
+      logger.error("Error deleting table:", error);
       setIsDeleting(false);
       setShowDeleteDialog(false);
     }
@@ -134,7 +136,7 @@ export function EncounterTableClient({
 
       router.refresh();
     } catch (error) {
-      console.error("Error updating sharing settings:", error);
+      logger.error("Error updating sharing settings:", error);
     }
   };
 

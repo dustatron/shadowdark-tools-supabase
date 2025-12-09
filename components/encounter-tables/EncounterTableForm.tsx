@@ -2,19 +2,19 @@
 
 import { useForm, Controller } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { Input } from "@/components/ui/input";
-import { Textarea } from "@/components/ui/textarea";
-import { Button } from "@/components/ui/button";
-import { Label } from "@/components/ui/label";
-import { Checkbox } from "@/components/ui/checkbox";
-import { Slider } from "@/components/ui/slider";
+import { Input } from "@/components/primitives/input";
+import { Textarea } from "@/components/primitives/textarea";
+import { Button } from "@/components/primitives/button";
+import { Label } from "@/components/primitives/label";
+import { Checkbox } from "@/components/primitives/checkbox";
+import { Slider } from "@/components/primitives/slider";
 import {
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from "@/components/ui/select";
+} from "@/components/primitives/select";
 import {
   EncounterTableCreateSchema,
   type EncounterTableCreateInput,

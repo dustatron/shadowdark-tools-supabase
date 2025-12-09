@@ -3,39 +3,32 @@
 import { useState, useEffect } from "react";
 import { MagicItemList } from "@/components/magic-items/MagicItemList";
 import { MagicItemFilters } from "@/components/magic-items/MagicItemFilters";
-import { Button } from "@/components/ui/button";
-import { ViewModeToggle } from "@/src/components/ui/ViewModeToggle";
+import { Button } from "@/components/primitives/button";
+import { ViewModeToggle } from "@/components/shared/ViewModeToggle";
 import { createClient } from "@/lib/supabase/client";
 import { createFavoritesMap } from "@/lib/utils/favorites";
 import { useViewMode } from "@/lib/hooks";
 import { Plus, FolderOpen } from "lucide-react";
 import Link from "next/link";
+import { logger } from "@/lib/utils/logger";
+import type {
+  AllMagicItem,
+  MagicItemFilterValues,
+} from "@/lib/types/magic-items";
+import { DEFAULT_MAGIC_ITEM_FILTERS } from "@/lib/types/magic-items";
 
-interface MagicItem {
-  id: string;
-  name: string;
-  slug: string;
-  description: string;
-  traits: { name: string; description: string }[];
-  item_type?: "official" | "custom";
-  creator_name?: string | null;
-  user_id?: string | null;
-}
-
-interface FilterValues {
-  search: string;
-  traitTypes: string[];
+// Map itemSource to source for compatibility
+interface FilterValues extends Omit<MagicItemFilterValues, "source"> {
   itemSource: "all" | "official" | "custom";
 }
 
 const DEFAULT_FILTERS: FilterValues = {
-  search: "",
-  traitTypes: [],
+  ...DEFAULT_MAGIC_ITEM_FILTERS,
   itemSource: "all",
 };
 
 export default function MagicItemsPage() {
-  const [items, setItems] = useState<MagicItem[]>([]);
+  const [items, setItems] = useState<AllMagicItem[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [filters, setFilters] = useState<FilterValues>(DEFAULT_FILTERS);
@@ -124,16 +117,16 @@ export default function MagicItemsPage() {
         throw new Error("Failed to fetch magic items");
       }
 
-      const data = await response.json();
+      const result = await response.json();
 
-      setItems(data.results || []);
+      setItems(result.data || []);
       setPagination((prev) => ({
         ...prev,
-        total: data.total || 0,
-        totalPages: data.pagination.totalPages || 0,
+        total: result.pagination?.totalCount || 0,
+        totalPages: result.pagination?.totalPages || 0,
       }));
     } catch (err) {
-      console.error("Error fetching magic items:", err);
+      logger.error("Error fetching magic items:", err);
       setError(err instanceof Error ? err.message : "An error occurred");
     } finally {
       setLoading(false);

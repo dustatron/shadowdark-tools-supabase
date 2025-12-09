@@ -1,8 +1,8 @@
 import { createClient } from "@/lib/supabase/server";
 import Link from "next/link";
-import { Button } from "@/components/ui/button";
+import { Button } from "@/components/primitives/button";
 import { Library } from "lucide-react";
-import { MonsterCard } from "@/src/components/monsters/MonsterCard";
+import { MonsterCard } from "@/components/monsters/MonsterCard";
 import { getFavoriteMonsters } from "@/lib/api/dashboard";
 
 export default async function FavoriteMonstersPage() {

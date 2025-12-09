@@ -1,22 +1,33 @@
 "use client";
 
 import { AdventureList, AdventureListItem } from "@/lib/types/adventure-lists";
-import { Button } from "@/components/ui/button";
-import { Badge } from "@/components/ui/badge";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Button } from "@/components/primitives/button";
+import { Badge } from "@/components/primitives/badge";
+import {
+  Card,
+  CardContent,
+  CardHeader,
+  CardTitle,
+} from "@/components/primitives/card";
+import {
+  Tabs,
+  TabsContent,
+  TabsList,
+  TabsTrigger,
+} from "@/components/primitives/tabs";
 import { Edit, Trash2, Plus, Globe, Lock, ArrowLeft } from "lucide-react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { toast } from "sonner";
+import { logger } from "@/lib/utils/logger";
 import {
   Sheet,
   SheetContent,
   SheetHeader,
   SheetTitle,
   SheetTrigger,
-} from "@/components/ui/sheet";
+} from "@/components/primitives/sheet";
 import { ItemSelector } from "./ItemSelector";
 import { ExportButton } from "./ExportButton";
 import {
@@ -61,7 +72,7 @@ export function AdventureListDetail({
       toast.success("Item removed from list");
       router.refresh();
     } catch (error) {
-      console.error("Error removing item:", error);
+      logger.error("Error removing item:", error);
       toast.error("Failed to remove item from list");
     }
   };

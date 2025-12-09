@@ -9,7 +9,7 @@ import type { EncounterTableCreateInput } from "@/lib/encounter-tables/schemas";
 import { generateEncounterTableName } from "@/lib/encounter-tables/utils/generate-name";
 import { createClient } from "@/lib/supabase/client";
 import type { User } from "@supabase/supabase-js";
-import { Button } from "@/components/ui/button";
+import { Button } from "@/components/primitives/button";
 import {
   Form,
   FormControl,
@@ -18,21 +18,27 @@ import {
   FormItem,
   FormLabel,
   FormMessage,
-} from "@/components/ui/form";
-import { Input } from "@/components/ui/input";
-import { Textarea } from "@/components/ui/textarea";
-import { Checkbox } from "@/components/ui/checkbox";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+} from "@/components/primitives/form";
+import { Input } from "@/components/primitives/input";
+import { Textarea } from "@/components/primitives/textarea";
+import { Checkbox } from "@/components/primitives/checkbox";
+import {
+  Card,
+  CardContent,
+  CardHeader,
+  CardTitle,
+} from "@/components/primitives/card";
 import {
   Accordion,
   AccordionContent,
   AccordionItem,
   AccordionTrigger,
-} from "@/components/ui/accordion";
-import { Alert, AlertDescription } from "@/components/ui/alert";
+} from "@/components/primitives/accordion";
+import { Alert, AlertDescription } from "@/components/primitives/alert";
 import { Loader2, AlertCircle, ArrowLeft, RefreshCw } from "lucide-react";
 import { toast } from "sonner";
 import Link from "next/link";
+import { logger } from "@/lib/utils/logger";
 import { EncounterTablePreview } from "./EncounterTablePreview";
 
 const COMMON_DIE_SIZES = [4, 6, 8, 10, 12, 20, 100];
@@ -88,7 +94,7 @@ export default function EncounterForm() {
     try {
       form.setValue("name", generateEncounterTableName());
     } catch (err) {
-      console.error("Error generating name:", err);
+      logger.error("Error generating name:", err);
       toast.error("Failed to generate table name. Please enter manually.");
     }
   }, [form]);
@@ -117,7 +123,7 @@ export default function EncounterForm() {
           toast.info("Your generated table is ready to save!");
           localStorage.removeItem("pending_encounter_table");
         } catch (err) {
-          console.error("Error restoring table:", err);
+          logger.error("Error restoring table:", err);
           localStorage.removeItem("pending_encounter_table");
         }
       }
@@ -153,11 +159,11 @@ export default function EncounterForm() {
             JSON.stringify(result.preview),
           );
         } catch (storageErr) {
-          console.error("Failed to save to localStorage:", storageErr);
+          logger.error("Failed to save to localStorage:", storageErr);
         }
       }
     } catch (err) {
-      console.error("Error generating preview:", err);
+      logger.error("Error generating preview:", err);
       const errorMessage =
         err instanceof Error ? err.message : "An error occurred";
       setError(errorMessage);
@@ -198,7 +204,7 @@ export default function EncounterForm() {
       // Redirect to the newly created table
       router.push(`/encounter-tables/${result.id}`);
     } catch (err) {
-      console.error("Error saving encounter table:", err);
+      logger.error("Error saving encounter table:", err);
       const errorMessage =
         err instanceof Error ? err.message : "An error occurred";
       setError(errorMessage);
@@ -257,7 +263,7 @@ export default function EncounterForm() {
                                   generateEncounterTableName(),
                                 );
                               } catch (err) {
-                                console.error("Error generating name:", err);
+                                logger.error("Error generating name:", err);
                                 toast.error(
                                   "Failed to generate table name. Please enter manually.",
                                 );

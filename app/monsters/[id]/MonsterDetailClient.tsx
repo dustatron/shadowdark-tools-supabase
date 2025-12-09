@@ -2,17 +2,17 @@
 
 import { useState, useEffect } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
-import { MonsterStatBlock } from "@/src/components/monsters/MonsterStatBlock";
-import { MonsterAttacksDisplay } from "@/src/components/monsters/MonsterAttacksDisplay";
-import { MonsterAbilitiesDisplay } from "@/src/components/monsters/MonsterAbilitiesDisplay";
-import { MonsterOwnershipCard } from "@/src/components/monsters/MonsterOwnershipCard";
-import { AbilityScoresCard } from "@/src/components/monsters/AbilityScoresCard";
+import { MonsterStatBlock } from "@/components/monsters/MonsterStatBlock";
+import { MonsterAttacksDisplay } from "@/components/monsters/MonsterAttacksDisplay";
+import { MonsterAbilitiesDisplay } from "@/components/monsters/MonsterAbilitiesDisplay";
+import { MonsterOwnershipCard } from "@/components/monsters/MonsterOwnershipCard";
+import { AbilityScoresCard } from "@/components/monsters/AbilityScoresCard";
 import { ArrowLeft, Pencil, Trash2, MoreVertical, Copy } from "lucide-react";
 import Link from "next/link";
 import Image from "next/image";
-import { Button } from "@/components/ui/button";
-import { Card, CardContent } from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/primitives/button";
+import { Card, CardContent } from "@/components/primitives/card";
+import { Badge } from "@/components/primitives/badge";
 import {
   Dialog,
   DialogContent,
@@ -20,67 +20,18 @@ import {
   DialogFooter,
   DialogHeader,
   DialogTitle,
-} from "@/components/ui/dialog";
+} from "@/components/primitives/dialog";
 import { toast } from "sonner";
 import { FavoriteButton } from "@/components/favorites/FavoriteButton";
+import { logger } from "@/lib/utils/logger";
+import { getChallengeLevelColor } from "@/lib/utils/shadowdark-colors";
+import type { MonsterWithAuthor, MonsterAuthor } from "@/lib/types/monsters";
 
-interface Author {
-  id: string;
-  display_name: string | null;
-  avatar_url: string | null;
-  username_slug: string | null;
-}
-
-interface Monster {
-  id: string;
-  name: string;
-  challenge_level: number;
-  hit_points: number;
-  armor_class: number;
-  speed: string;
-  attacks: Array<{
-    name: string;
-    type: "melee" | "ranged";
-    damage: string;
-    range: string;
-    description?: string;
-  }>;
-  abilities: Array<{
-    name: string;
-    description: string;
-  }>;
-  tags?: {
-    type?: string[];
-    location?: string[];
-  };
-  source: string;
-  author_notes?: string;
-  description?: string;
-  treasure?: string | null;
-  tactics?: string;
-  wants?: string;
-  gm_notes?: string;
-  icon_url?: string | null;
-  art_url?: string | null;
-  xp?: number;
-  // Ability score modifiers
-  strength_mod?: number;
-  dexterity_mod?: number;
-  constitution_mod?: number;
-  intelligence_mod?: number;
-  wisdom_mod?: number;
-  charisma_mod?: number;
-  monster_type?: "official" | "user" | "custom";
-  creator_id?: string;
-  user_id?: string;
-  is_public?: boolean;
-  author?: Author | null;
-  created_at?: string;
-  updated_at?: string;
-}
+// Re-export Author type for backwards compatibility
+type Author = MonsterAuthor;
 
 interface MonsterDetailClientProps {
-  monster: Monster;
+  monster: MonsterWithAuthor;
   currentUserId: string | null;
   favoriteId: string | null;
 }
@@ -92,7 +43,7 @@ export function MonsterDetailClient({
 }: MonsterDetailClientProps) {
   const router = useRouter();
   const searchParams = useSearchParams();
-  const [monster, setMonster] = useState<Monster>(initialMonster);
+  const [monster, setMonster] = useState<MonsterWithAuthor>(initialMonster);
   const [deleteModalOpen, setDeleteModalOpen] = useState(false);
   const [isDeleting, setIsDeleting] = useState(false);
   const [backUrl, setBackUrl] = useState("/monsters");
@@ -130,28 +81,7 @@ export function MonsterDetailClient({
     setBackUrl(queryString ? `/monsters?${queryString}` : "/monsters");
   }, [searchParams]);
 
-  const challengeLevelColor =
-    monster.challenge_level <= 3
-      ? "green"
-      : monster.challenge_level <= 7
-        ? "yellow"
-        : monster.challenge_level <= 12
-          ? "orange"
-          : "red";
-
-  const getChallengeColorClass = (color: string) => {
-    const colorMap: Record<string, string> = {
-      green:
-        "bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200",
-      yellow:
-        "bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-200",
-      orange:
-        "bg-orange-100 text-orange-800 dark:bg-orange-900 dark:text-orange-200",
-      red: "bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-200",
-      gray: "bg-gray-100 text-gray-800 dark:bg-gray-900 dark:text-gray-200",
-    };
-    return colorMap[color] || colorMap.gray;
-  };
+  const challengeLevelColor = getChallengeLevelColor(monster.challenge_level);
 
   const handleDelete = async () => {
     setIsDeleting(true);
@@ -170,7 +100,7 @@ export function MonsterDetailClient({
 
       router.push(backUrl);
     } catch (err) {
-      console.error("Error deleting monster:", err);
+      logger.error("Error deleting monster:", err);
       toast.error("Error", {
         description: "Failed to delete monster",
       });
@@ -217,7 +147,7 @@ export function MonsterDetailClient({
 
       router.push(`/monsters/${newMonster.id}`);
     } catch (err) {
-      console.error("Error duplicating monster:", err);
+      logger.error("Error duplicating monster:", err);
       toast.error("Error", {
         description: "Failed to duplicate monster",
       });
@@ -249,7 +179,7 @@ export function MonsterDetailClient({
         description: `Monster is now ${updatedMonster.is_public ? "public" : "private"}`,
       });
     } catch (err) {
-      console.error("Error toggling visibility:", err);
+      logger.error("Error toggling visibility:", err);
       toast.error("Error", {
         description: "Failed to update monster visibility",
       });
@@ -276,7 +206,7 @@ export function MonsterDetailClient({
                 <h1 className="text-3xl font-bold mb-3">{monster.name}</h1>
                 <div className="flex flex-wrap gap-2">
                   <Badge
-                    className={`${getChallengeColorClass(challengeLevelColor)} text-base px-3 py-1`}
+                    className={`${challengeLevelColor} text-base px-3 py-1`}
                   >
                     Challenge Level {monster.challenge_level}
                   </Badge>
@@ -413,7 +343,29 @@ export function MonsterDetailClient({
           <Card className="shadow-sm">
             <CardContent className="p-6">
               <h3 className="text-lg font-semibold mb-2">Treasure</h3>
-              <p className="text-sm">{monster.treasure}</p>
+              <div className="text-sm">
+                {monster.treasure.type && (
+                  <p>
+                    <strong>Type:</strong> {monster.treasure.type}
+                  </p>
+                )}
+                {monster.treasure.amount && (
+                  <p>
+                    <strong>Amount:</strong> {monster.treasure.amount}
+                  </p>
+                )}
+                {monster.treasure.items &&
+                  monster.treasure.items.length > 0 && (
+                    <div>
+                      <strong>Items:</strong>
+                      <ul className="list-disc pl-5 mt-1">
+                        {monster.treasure.items.map((item, idx) => (
+                          <li key={idx}>{item}</li>
+                        ))}
+                      </ul>
+                    </div>
+                  )}
+              </div>
             </CardContent>
           </Card>
         )}

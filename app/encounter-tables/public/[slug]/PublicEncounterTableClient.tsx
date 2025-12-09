@@ -2,16 +2,16 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
-import { Button } from "@/components/ui/button";
+import { Button } from "@/components/primitives/button";
 import {
   Card,
   CardContent,
   CardDescription,
   CardHeader,
   CardTitle,
-} from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
-import { Separator } from "@/components/ui/separator";
+} from "@/components/primitives/card";
+import { Badge } from "@/components/primitives/badge";
+import { Separator } from "@/components/primitives/separator";
 import { DiceRoller } from "@/components/encounter-tables/DiceRoller";
 import { TableEntryList } from "@/components/encounter-tables/TableEntryList";
 import { MonsterDetailPanel } from "@/components/encounter-tables/MonsterDetailPanel";
@@ -22,6 +22,7 @@ import type {
   MonsterSnapshot,
 } from "@/lib/encounter-tables/types";
 import { toast } from "sonner";
+import { logger } from "@/lib/utils/logger";
 
 interface PublicEncounterTableClientProps {
   table: EncounterTable;
@@ -83,7 +84,7 @@ export function PublicEncounterTableClient({
 
       router.push(`/encounter-tables/${copiedTable.id}`);
     } catch (error) {
-      console.error("Error copying table:", error);
+      logger.error("Error copying table:", error);
       toast.error("Error", {
         description:
           error instanceof Error ? error.message : "Failed to copy table",

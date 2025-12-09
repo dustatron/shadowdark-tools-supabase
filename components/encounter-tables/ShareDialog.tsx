@@ -9,11 +9,11 @@ import {
   DialogFooter,
   DialogHeader,
   DialogTitle,
-} from "@/components/ui/dialog";
-import { Button } from "@/components/ui/button";
-import { Label } from "@/components/ui/label";
-import { Switch } from "@/components/ui/switch";
-import { Alert, AlertDescription } from "@/components/ui/alert";
+} from "@/components/primitives/dialog";
+import { Button } from "@/components/primitives/button";
+import { Label } from "@/components/primitives/label";
+import { Switch } from "@/components/primitives/switch";
+import { Alert, AlertDescription } from "@/components/primitives/alert";
 import { toast } from "sonner";
 
 interface ShareDialogProps {

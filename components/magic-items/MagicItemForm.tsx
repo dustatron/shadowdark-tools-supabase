@@ -4,18 +4,18 @@ import { useState } from "react";
 import { useForm, useFieldArray } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useRouter } from "next/navigation";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Textarea } from "@/components/ui/textarea";
-import { Switch } from "@/components/ui/switch";
-import { Label } from "@/components/ui/label";
+import { Button } from "@/components/primitives/button";
+import { Input } from "@/components/primitives/input";
+import { Textarea } from "@/components/primitives/textarea";
+import { Switch } from "@/components/primitives/switch";
+import { Label } from "@/components/primitives/label";
 import {
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from "@/components/ui/select";
+} from "@/components/primitives/select";
 import {
   Form,
   FormControl,
@@ -24,8 +24,13 @@ import {
   FormItem,
   FormLabel,
   FormMessage,
-} from "@/components/ui/form";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+} from "@/components/primitives/form";
+import {
+  Card,
+  CardContent,
+  CardHeader,
+  CardTitle,
+} from "@/components/primitives/card";
 import { Plus, Trash2, Loader2 } from "lucide-react";
 import {
   MagicItemCreateSchema,
@@ -244,6 +249,7 @@ export function MagicItemForm({
                   size="icon"
                   onClick={() => remove(index)}
                   className="mt-6"
+                  aria-label={`Remove trait ${index + 1}`}
                 >
                   <Trash2 className="h-4 w-4 text-destructive" />
                 </Button>

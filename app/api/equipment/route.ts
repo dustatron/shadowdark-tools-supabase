@@ -1,45 +1,37 @@
 import { NextRequest, NextResponse } from "next/server";
 import { createClient } from "@/lib/supabase/server";
-import { z } from "zod";
-
-// Schema for search parameters
-const SearchParamsSchema = z.object({
-  q: z.string().min(1).max(200).optional(),
-  itemType: z.string().optional(),
-  page: z.number().int().min(1).default(1),
-  limit: z.number().int().min(1).max(100).default(20),
-});
+import {
+  buildPaginationParams,
+  buildPaginationMeta,
+  buildSearchQuery,
+} from "@/lib/api/query-builder";
 
 export async function GET(request: NextRequest) {
   try {
     const supabase = await createClient();
-    const { searchParams } = new URL(request.url);
+    const { searchParams } = request.nextUrl;
 
-    // Parse and validate query parameters
-    const rawParams = {
-      q: searchParams.get("q") || undefined,
-      itemType: searchParams.get("itemType") || undefined,
-      page: searchParams.get("page") ? parseInt(searchParams.get("page")!) : 1,
-      limit: searchParams.get("limit")
-        ? parseInt(searchParams.get("limit")!)
-        : 20,
-    };
+    // Build pagination parameters
+    const pagination = buildPaginationParams(searchParams);
 
-    const validatedParams = SearchParamsSchema.parse(rawParams);
-    const offset = (validatedParams.page - 1) * validatedParams.limit;
-
+    // Start query
     let query = supabase.from("equipment").select("*", { count: "exact" });
 
-    // Apply filters
-    if (validatedParams.q) {
-      query = query.ilike("name", `%${validatedParams.q}%`);
-    }
-    if (validatedParams.itemType) {
-      query = query.eq("item_type", validatedParams.itemType);
+    // Apply search filter
+    const searchTerm = searchParams.get("q") || undefined;
+    query = buildSearchQuery(query, searchTerm, ["name"], "medium");
+
+    // Apply item type filter
+    const itemType = searchParams.get("itemType");
+    if (itemType) {
+      query = query.eq("item_type", itemType);
     }
 
     // Apply pagination
-    query = query.range(offset, offset + validatedParams.limit - 1);
+    query = query.range(
+      pagination.offset,
+      pagination.offset + pagination.limit - 1,
+    );
 
     const { data: equipment, count, error } = await query;
 
@@ -51,28 +43,14 @@ export async function GET(request: NextRequest) {
       );
     }
 
+    // Build pagination metadata
+    const paginationMeta = buildPaginationMeta(pagination, count ?? 0);
+
     return NextResponse.json({
-      equipment,
-      total: count,
-      pagination: {
-        page: validatedParams.page,
-        limit: validatedParams.limit,
-        total: count,
-        totalPages: count ? Math.ceil(count / validatedParams.limit) : 0,
-      },
-      query: validatedParams,
+      data: equipment,
+      pagination: paginationMeta,
     });
   } catch (error) {
-    if (error instanceof z.ZodError) {
-      return NextResponse.json(
-        {
-          error: "Invalid search parameters",
-          details: error.issues,
-        },
-        { status: 400 },
-      );
-    }
-
     console.error("API error:", error);
     return NextResponse.json(
       { error: "Internal server error" },

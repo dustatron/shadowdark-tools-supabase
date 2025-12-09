@@ -3,19 +3,22 @@
 import { Search, Filter, FilterX, ChevronDown, ChevronUp } from "lucide-react";
 import { useState, useEffect } from "react";
 import { useDebounce } from "use-debounce";
-import { Card, CardContent } from "@/components/ui/card";
-import { Input } from "@/components/ui/input";
-import { Button } from "@/components/ui/button";
-import { Badge } from "@/components/ui/badge";
-import { MultiSelect } from "@/components/ui/multi-select";
-import { Collapsible, CollapsibleContent } from "@/components/ui/collapsible";
+import { Card, CardContent } from "@/components/primitives/card";
+import { Input } from "@/components/primitives/input";
+import { Button } from "@/components/primitives/button";
+import { Badge } from "@/components/primitives/badge";
+import { MultiSelect } from "@/components/primitives/multi-select";
+import {
+  Collapsible,
+  CollapsibleContent,
+} from "@/components/primitives/collapsible";
 import {
   Sheet,
   SheetContent,
   SheetHeader,
   SheetTitle,
   SheetTrigger,
-} from "@/components/ui/sheet";
+} from "@/components/primitives/sheet";
 import {
   AVAILABLE_ITEM_TYPES,
   FilterValues,
@@ -169,6 +172,7 @@ export function EquipmentFilters({
                   size="icon"
                   onClick={clearFilters}
                   title="Clear all filters"
+                  aria-label="Clear all filters"
                 >
                   <FilterX className="h-4 w-4 text-destructive" />
                 </Button>

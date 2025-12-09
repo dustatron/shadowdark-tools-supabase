@@ -1,6 +1,6 @@
 "use client";
 
-import { Badge } from "@/components/ui/badge";
+import { Badge } from "@/components/primitives/badge";
 import type { SourceBadgeProps } from "@/lib/types/magic-items";
 
 export function SourceBadge({ itemType, creatorName }: SourceBadgeProps) {

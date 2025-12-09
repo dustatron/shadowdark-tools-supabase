@@ -9,8 +9,8 @@ import {
   CardDescription,
   CardHeader,
   CardTitle,
-} from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
+} from "@/components/primitives/card";
+import { Button } from "@/components/primitives/button";
 import { Sparkles, BookOpen, Skull, Layers, ArrowRight } from "lucide-react";
 
 export const metadata: Metadata = {

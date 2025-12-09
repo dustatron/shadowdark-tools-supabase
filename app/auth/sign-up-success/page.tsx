@@ -4,7 +4,7 @@ import {
   CardDescription,
   CardHeader,
   CardTitle,
-} from "@/components/ui/card";
+} from "@/components/primitives/card";
 import type { Metadata } from "next";
 
 export const metadata: Metadata = {

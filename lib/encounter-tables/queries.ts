@@ -5,6 +5,7 @@
 
 import { SupabaseClient } from "@supabase/supabase-js";
 import { EncounterTableFilters } from "./types";
+import { logger } from "@/lib/utils/logger";
 
 // ============================================
 // Select Fragments (reusable field lists)
@@ -88,7 +89,7 @@ export function buildMonsterFilterQuery(
   excludeIds?: string[],
   userId?: string,
 ) {
-  console.log(
+  logger.debug(
     "[buildMonsterFilterQuery] Input filters:",
     filters,
     "userId:",
@@ -100,7 +101,7 @@ export function buildMonsterFilterQuery(
     query = query
       .gte("challenge_level", filters.level_min)
       .lte("challenge_level", filters.level_max);
-    console.log(
+    logger.debug(
       `[buildMonsterFilterQuery] Applied level filter: ${filters.level_min}-${filters.level_max}`,
     );
   }
@@ -116,13 +117,13 @@ export function buildMonsterFilterQuery(
     const hasPublic = filters.sources.includes("public");
     const hasFavorites = filters.sources.includes("favorites");
 
-    console.log(
+    logger.debug(
       `[buildMonsterFilterQuery] Source flags: official=${hasOfficial}, user=${hasUser}, public=${hasPublic}, favorites=${hasFavorites}`,
     );
 
     // Skip source filtering if favorites is selected (handled elsewhere)
     if (hasFavorites) {
-      console.log(
+      logger.debug(
         "[buildMonsterFilterQuery] Skipping source filter (favorites selected)",
       );
       return query;
@@ -133,13 +134,13 @@ export function buildMonsterFilterQuery(
     if (!(hasOfficial && hasUser && hasPublic)) {
       if (hasOfficial && !hasUser && !hasPublic) {
         // Only official monsters
-        console.log(
+        logger.debug(
           "[buildMonsterFilterQuery] Applying filter: monster_type=official",
         );
         query = query.eq("monster_type", "official");
       } else if (hasUser && !hasOfficial && !hasPublic) {
         // Only user's own monsters (both public and private)
-        console.log(
+        logger.debug(
           "[buildMonsterFilterQuery] Applying filter: monster_type=custom AND user_id=" +
             userId,
         );
@@ -149,7 +150,7 @@ export function buildMonsterFilterQuery(
         }
       } else if (hasPublic && !hasOfficial && !hasUser) {
         // Only public user monsters
-        console.log(
+        logger.debug(
           "[buildMonsterFilterQuery] Applying filter: monster_type=custom AND is_public=true",
         );
         query = query.eq("monster_type", "custom").eq("is_public", true);
@@ -158,12 +159,12 @@ export function buildMonsterFilterQuery(
         // This is more complex and may need custom SQL
         // For now, we'll allow all and filter in application if needed
         // TODO: Implement more sophisticated source filtering
-        console.log(
+        logger.debug(
           "[buildMonsterFilterQuery] Mixed sources - allowing all (TODO: implement OR logic)",
         );
       }
     } else {
-      console.log(
+      logger.debug(
         "[buildMonsterFilterQuery] All three sources selected - no source filter",
       );
     }

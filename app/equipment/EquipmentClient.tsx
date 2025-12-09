@@ -10,8 +10,9 @@ import {
 } from "@/lib/types/equipment";
 import { EquipmentList } from "@/components/equipment/EquipmentList";
 import { EquipmentFilters } from "@/components/equipment/EquipmentFilters";
-import { ViewModeToggle } from "@/src/components/ui/ViewModeToggle";
+import { ViewModeToggle } from "@/components/shared/ViewModeToggle";
 import { useViewMode } from "@/lib/hooks";
+import { logger } from "@/lib/utils/logger";
 
 interface EquipmentClientProps {
   initialFilters: FilterValues;
@@ -64,26 +65,27 @@ export function EquipmentClient({
         throw new Error("Failed to fetch equipment");
       }
 
-      const data = await response.json();
+      const result = await response.json();
 
       // Parse JSONB fields (cost and properties)
-      const parsedEquipment = data.equipment.map((item: any) => ({
+      const parsedEquipment = (result.data || []).map((item: any) => ({
         ...item,
         cost: typeof item.cost === "string" ? JSON.parse(item.cost) : item.cost,
-        properties: item.properties || [], // Ensure properties is an array
+        properties: item.properties || [],
       }));
 
-      setEquipment(parsedEquipment || []);
+      setEquipment(parsedEquipment);
 
-      const totalPages = Math.ceil((data.total || 0) / pagination.limit);
+      const total = result.pagination?.totalCount || 0;
+      const totalPages = Math.ceil(total / pagination.limit);
 
       setPagination((prev) => ({
         ...prev,
-        total: data.total || 0,
-        totalPages: totalPages,
+        total,
+        totalPages,
       }));
     } catch (err) {
-      console.error("Error fetching equipment:", err);
+      logger.error("Error fetching equipment:", err);
       setError(err instanceof Error ? err.message : "An error occurred");
     } finally {
       setLoading(false);

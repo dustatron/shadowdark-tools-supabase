@@ -1,8 +1,8 @@
 import type { Metadata } from "next";
-import { RootProvider } from "@/src/components/providers/RootProvider";
+import { RootProvider } from "@/components/providers/RootProvider";
 import { ThemeProvider } from "next-themes";
-import { Toaster } from "@/components/ui/sonner";
-import { SidebarProvider, SidebarInset } from "@/components/ui/sidebar";
+import { Toaster } from "@/components/primitives/sonner";
+import { SidebarProvider, SidebarInset } from "@/components/primitives/sidebar";
 import { AppSidebar } from "@/components/navigation/app-sidebar";
 import { PageHeader } from "@/components/navigation/page-header";
 import { getServerSession } from "@/lib/auth-helpers";

@@ -7,20 +7,20 @@ import {
   SheetContent,
   SheetHeader,
   SheetTitle,
-} from "@/components/ui/sheet";
+} from "@/components/primitives/sheet";
 import {
   Dialog,
   DialogContent,
   DialogHeader,
   DialogTitle,
-} from "@/components/ui/dialog";
-import { Button } from "@/components/ui/button";
-import { Badge } from "@/components/ui/badge";
-import { Separator } from "@/components/ui/separator";
-import { Card, CardContent } from "@/components/ui/card";
-import { MonsterAttacksDisplay } from "@/src/components/monsters/MonsterAttacksDisplay";
-import { MonsterAbilitiesDisplay } from "@/src/components/monsters/MonsterAbilitiesDisplay";
-import { AbilityScoresCard } from "@/src/components/monsters/AbilityScoresCard";
+} from "@/components/primitives/dialog";
+import { Button } from "@/components/primitives/button";
+import { Badge } from "@/components/primitives/badge";
+import { Separator } from "@/components/primitives/separator";
+import { Card, CardContent } from "@/components/primitives/card";
+import { MonsterAttacksDisplay } from "@/components/monsters/MonsterAttacksDisplay";
+import { MonsterAbilitiesDisplay } from "@/components/monsters/MonsterAbilitiesDisplay";
+import { AbilityScoresCard } from "@/components/monsters/AbilityScoresCard";
 import {
   MonsterSnapshot,
   Attack as EncounterAttack,

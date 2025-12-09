@@ -5,6 +5,7 @@
 
 import { nanoid } from "nanoid";
 import { createClient } from "@/lib/supabase/server";
+import { logger } from "@/lib/utils/logger";
 
 /**
  * Generate a unique public slug for an encounter table
@@ -32,7 +33,7 @@ export async function generateUniqueSlug(
       .eq("public_slug", slug);
 
     if (error) {
-      console.error("Error checking slug uniqueness:", error);
+      logger.error("Error checking slug uniqueness:", error);
       // Continue to next attempt on error
       continue;
     }
@@ -43,7 +44,7 @@ export async function generateUniqueSlug(
     }
 
     // Collision detected (extremely rare)
-    console.warn(`Slug collision detected on attempt ${attempt}: ${slug}`);
+    logger.warn(`Slug collision detected on attempt ${attempt}: ${slug}`);
   }
 
   // Failed to generate unique slug after all attempts

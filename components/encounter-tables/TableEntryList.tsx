@@ -1,8 +1,8 @@
 "use client";
 
-import { Card, CardContent } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
-import { Badge } from "@/components/ui/badge";
+import { Card, CardContent } from "@/components/primitives/card";
+import { Button } from "@/components/primitives/button";
+import { Badge } from "@/components/primitives/badge";
 import { Edit2, Skull } from "lucide-react";
 import { EncounterTableEntry } from "@/lib/encounter-tables/types";
 import { cn } from "@/lib/utils";

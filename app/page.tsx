@@ -1,7 +1,7 @@
 import Link from "next/link";
 import type { Metadata } from "next";
-import { Button } from "@/components/ui/button";
-import { Card, CardContent } from "@/components/ui/card";
+import { Button } from "@/components/primitives/button";
+import { Card, CardContent } from "@/components/primitives/card";
 import { Sword, Wand2, Dice6 } from "lucide-react";
 
 export const metadata: Metadata = {

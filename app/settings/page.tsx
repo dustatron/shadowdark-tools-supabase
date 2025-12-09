@@ -1,7 +1,12 @@
 import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Separator } from "@/components/ui/separator";
+import {
+  Card,
+  CardContent,
+  CardHeader,
+  CardTitle,
+} from "@/components/primitives/card";
+import { Separator } from "@/components/primitives/separator";
 import { AvatarUpload } from "@/components/settings/AvatarUpload";
 import { ProfileSettingsForm } from "@/components/settings/ProfileSettingsForm";
 

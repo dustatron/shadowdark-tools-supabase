@@ -1,4 +1,4 @@
-import { Card, CardContent } from "@/components/ui/card";
+import { Card, CardContent } from "@/components/primitives/card";
 import { Swords, Sparkles, Dice6, Heart } from "lucide-react";
 import type { ProfileStats } from "@/lib/types/profile.types";
 
