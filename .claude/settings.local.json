@@ -145,7 +145,8 @@
       "Bash(npx supabase migration list:*)",
       "Bash(supabase projects list:*)",
       "Bash(npx supabase gen types typescript:*)",
-      "Bash(npx next dev:*)"
+      "Bash(npx next dev:*)",
+      "Bash(grep:*)"
     ],
     "deny": [],
     "ask": []

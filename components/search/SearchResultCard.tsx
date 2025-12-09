@@ -1,8 +1,8 @@
 "use client";
 
 import Link from "next/link";
-import { Card, CardContent } from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
+import { Card, CardContent } from "@/components/primitives/card";
+import { Badge } from "@/components/primitives/badge";
 import { Sword, Wand2, Shield, User, Crown } from "lucide-react";
 import type { SearchResult } from "@/lib/types/search";
 
