@@ -2,16 +2,19 @@
 
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { Search } from "lucide-react";
+import { Search, Swords, Wand2, Shield, Sparkles } from "lucide-react";
 
 import { Button } from "@/components/primitives/button";
 import { Input } from "@/components/primitives/input";
 import { Label } from "@/components/primitives/label";
-import { Checkbox } from "@/components/primitives/checkbox";
 import {
   RadioGroup,
   RadioGroupItem,
 } from "@/components/primitives/radio-group";
+import {
+  ToggleGroup,
+  ToggleGroupItem,
+} from "@/components/primitives/toggle-group";
 import {
   Select,
   SelectContent,
@@ -30,7 +33,6 @@ import {
 
 import {
   SearchFormSchema,
-  defaultSearchFormValues,
   type SearchFormValues,
 } from "@/lib/validations/search";
 
@@ -45,11 +47,25 @@ export function UnifiedSearchForm({
 }: UnifiedSearchFormProps) {
   const form = useForm<SearchFormValues>({
     resolver: zodResolver(SearchFormSchema),
-    defaultValues: defaultSearchFormValues,
+    defaultValues: {
+      q: "",
+      source: "all",
+      includeTypes: ["monsters", "magicItems", "equipment", "spells"], // New default for toggle group
+      limit: 25,
+    } as any,
   });
 
   const handleSubmit = form.handleSubmit((values) => {
-    onSubmit(values);
+    const { includeTypes, ...rest } = values;
+
+    const parsedValues = SearchFormSchema.parse({
+      ...rest,
+      includeMonsters: includeTypes?.includes("monsters") ?? false,
+      includeMagicItems: includeTypes?.includes("magicItems") ?? false,
+      includeEquipment: includeTypes?.includes("equipment") ?? false,
+      includeSpells: includeTypes?.includes("spells") ?? false,
+    });
+    onSubmit(parsedValues);
   });
 
   return (
@@ -85,7 +101,7 @@ export function UnifiedSearchForm({
         </div>
 
         {/* Filters Row */}
-        <div className="flex flex-wrap gap-6 items-start">
+        <div className="flex flex-col md:flex-row md:flex-wrap gap-4 md:gap-6 items-start">
           {/* Source Filter */}
           <FormField
             control={form.control}
@@ -123,80 +139,59 @@ export function UnifiedSearchForm({
             )}
           />
 
-          {/* Content Type Checkboxes */}
-          <div className="space-y-2">
-            <Label className="text-sm font-medium">Include</Label>
-            <div className="flex gap-4">
-              <FormField
-                control={form.control}
-                name="includeMonsters"
-                render={({ field }) => (
-                  <FormItem className="flex items-center space-x-2">
-                    <FormControl>
-                      <Checkbox
-                        id="include-monsters"
-                        checked={field.value}
-                        onCheckedChange={field.onChange}
-                      />
-                    </FormControl>
-                    <Label
-                      htmlFor="include-monsters"
-                      className="cursor-pointer text-sm"
+          {/* Content Type Toggle Group */}
+          <FormField
+            control={form.control}
+            name="includeTypes"
+            render={({ field }) => (
+              <FormItem className="space-y-2">
+                <FormLabel className="text-sm font-medium">Include</FormLabel>
+                <FormControl>
+                  <ToggleGroup
+                    type="multiple"
+                    variant="outline"
+                    value={field.value}
+                    onValueChange={field.onChange}
+                    className="justify-start flex-wrap"
+                  >
+                    <ToggleGroupItem
+                      value="monsters"
+                      aria-label="Toggle Monsters"
+                      className="data-[state=on]:bg-primary data-[state=on]:text-primary-foreground"
                     >
+                      <Swords className="h-4 w-4 mr-2" />
                       Monsters
-                    </Label>
-                  </FormItem>
-                )}
-              />
-              <FormField
-                control={form.control}
-                name="includeMagicItems"
-                render={({ field }) => (
-                  <FormItem className="flex items-center space-x-2">
-                    <FormControl>
-                      <Checkbox
-                        id="include-magic-items"
-                        checked={field.value}
-                        onCheckedChange={field.onChange}
-                      />
-                    </FormControl>
-                    <Label
-                      htmlFor="include-magic-items"
-                      className="cursor-pointer text-sm"
+                    </ToggleGroupItem>
+                    <ToggleGroupItem
+                      value="magicItems"
+                      aria-label="Toggle Magic Items"
+                      className="data-[state=on]:bg-primary data-[state=on]:text-primary-foreground"
                     >
+                      <Wand2 className="h-4 w-4 mr-2" />
                       Magic Items
-                    </Label>
-                  </FormItem>
-                )}
-              />
-              <FormField
-                control={form.control}
-                name="includeEquipment"
-                render={({ field }) => (
-                  <FormItem className="flex items-center space-x-2">
-                    <FormControl>
-                      <Checkbox
-                        id="include-equipment"
-                        checked={field.value}
-                        onCheckedChange={field.onChange}
-                      />
-                    </FormControl>
-                    <Label
-                      htmlFor="include-equipment"
-                      className="cursor-pointer text-sm"
+                    </ToggleGroupItem>
+                    <ToggleGroupItem
+                      value="equipment"
+                      aria-label="Toggle Equipment"
+                      className="data-[state=on]:bg-primary data-[state=on]:text-primary-foreground"
                     >
+                      <Shield className="h-4 w-4 mr-2" />
                       Equipment
-                    </Label>
-                  </FormItem>
-                )}
-              />
-            </div>
-            {form.formState.errors.includeMonsters && (
-              <p className="text-sm text-destructive">
-                {form.formState.errors.includeMonsters.message}
-              </p>
+                    </ToggleGroupItem>
+                    <ToggleGroupItem
+                      value="spells"
+                      aria-label="Toggle Spells"
+                      className="data-[state=on]:bg-primary data-[state=on]:text-primary-foreground"
+                    >
+                      <Sparkles className="h-4 w-4 mr-2" />
+                      Spells
+                    </ToggleGroupItem>
+                  </ToggleGroup>
+                </FormControl>
+                <FormMessage />
+              </FormItem>
             )}
-          </div>
+          />
 
           {/* Limit Selector */}
           <FormField
@@ -207,7 +202,10 @@ export function UnifiedSearchForm({
                 <FormLabel className="text-sm font-medium">
                   Results per page
                 </FormLabel>
-                <Select onValueChange={field.onChange} value={field.value}>
+                <Select
+                  onValueChange={field.onChange}
+                  value={String(field.value)}
+                >
                   <FormControl>
                     <SelectTrigger className="w-24">
                       <SelectValue placeholder="25" />

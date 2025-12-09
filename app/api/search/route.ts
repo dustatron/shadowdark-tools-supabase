@@ -26,6 +26,7 @@ export async function GET(request: NextRequest) {
       includeMonsters: searchParams.get("includeMonsters") ?? undefined,
       includeMagicItems: searchParams.get("includeMagicItems") ?? undefined,
       includeEquipment: searchParams.get("includeEquipment") ?? undefined,
+      includeSpells: searchParams.get("includeSpells") ?? undefined,
       limit: searchParams.get("limit") ?? undefined,
     };
 
@@ -53,12 +54,13 @@ export async function GET(request: NextRequest) {
 
     // Call the search function
     const { data, error } = await supabase.rpc("search_all_content", {
+      include_equipment: filters.includeEquipment,
+      include_magic_items: filters.includeMagicItems,
+      include_monsters: filters.includeMonsters,
+      include_spells: filters.includeSpells,
+      result_limit: filters.limit,
       search_query: filters.q,
       source_filter: filters.source,
-      include_monsters: filters.includeMonsters,
-      include_magic_items: filters.includeMagicItems,
-      include_equipment: filters.includeEquipment,
-      result_limit: filters.limit,
     });
 
     if (error) {
@@ -87,11 +89,12 @@ export async function GET(request: NextRequest) {
       total: results.length,
       query: filters.q,
       filters: {
-        source: filters.source,
-        includeMonsters: filters.includeMonsters,
-        includeMagicItems: filters.includeMagicItems,
-        includeEquipment: filters.includeEquipment,
-        limit: filters.limit,
+        source: filters.source ?? "all",
+        includeMonsters: filters.includeMonsters ?? true,
+        includeMagicItems: filters.includeMagicItems ?? true,
+        includeEquipment: filters.includeEquipment ?? true,
+        includeSpells: filters.includeSpells ?? true,
+        limit: filters.limit ?? 25,
       },
     };
 

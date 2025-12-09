@@ -1,4 +1,4 @@
-export type ContentType = "monster" | "magic_item" | "equipment";
+export type ContentType = "monster" | "magic_item" | "equipment" | "spell";
 export type SourceType = "official" | "user";
 
 export type SearchResult = {
@@ -20,6 +20,7 @@ export type SearchResponse = {
     includeMonsters: boolean;
     includeMagicItems: boolean;
     includeEquipment: boolean;
+    includeSpells: boolean;
     limit: number;
   };
 };
@@ -30,6 +31,7 @@ export type SearchFilters = {
   includeMonsters: boolean;
   includeMagicItems: boolean;
   includeEquipment: boolean;
+  includeSpells: boolean;
   limit: 25 | 50 | 100;
 };
 

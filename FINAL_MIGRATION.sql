@@ -1,3 +1,6 @@
+Here is the final, correct SQL script. Please copy the entire content of this file and run it in your remote Supabase database's SQL Editor.
+
+```sql
 -- Migration: Create search_all_content() function for unified search
 -- Feature: 014-turn-the-home (Central Home Page Search)
 -- Date: 2025-12-08
@@ -140,3 +143,6 @@ GRANT EXECUTE ON FUNCTION public.search_all_content TO anon;
 
 -- Comments
 COMMENT ON FUNCTION public.search_all_content IS 'Unified fuzzy search across monsters, magic items, and equipment with filtering options';
+```
+
+After you have successfully applied this SQL, please try searching for 'alarm' again.

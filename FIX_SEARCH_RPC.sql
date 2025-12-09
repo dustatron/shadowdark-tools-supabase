@@ -1,23 +1,15 @@
--- Migration: Create search_all_content() function for unified search
--- Feature: 014-turn-the-home (Central Home Page Search)
--- Date: 2025-12-08
+-- Fix for Search Error: PGRST202
+-- The error occurs because the live database function signature doesn't match the code.
+-- The code expects 'include_spells' parameter, but the database function is missing it.
+-- Run this SQL in your Supabase SQL Editor to update the function.
 
--- Ensure pg_trgm extension is enabled
-CREATE EXTENSION IF NOT EXISTS "pg_trgm";
+-- 1. Drop the old function to avoid ambiguity (optional but recommended)
+-- We use DROP FUNCTION IF EXISTS with the likely old signature to clean up.
+-- Note: The argument types and order must match exactly what's in the DB for DROP to work.
+-- If this DROP fails, you can ignore it and just run the CREATE OR REPLACE below.
+DROP FUNCTION IF EXISTS public.search_all_content(text, text, boolean, boolean, boolean, integer);
 
--- Add trigram index on equipment.name if not exists
-CREATE INDEX IF NOT EXISTS idx_equipment_name_trgm
-ON public.equipment USING GIN (name gin_trgm_ops);
-
--- Add trigram index on official_spells.name if not exists
-CREATE INDEX IF NOT EXISTS idx_official_spells_name_trgm
-ON public.official_spells USING GIN (name gin_trgm_ops);
-
--- Add trigram index on user_spells.name if not exists
-CREATE INDEX IF NOT EXISTS idx_user_spells_name_trgm
-ON public.user_spells USING GIN (name gin_trgm_ops);
-
--- Create unified search function
+-- 2. Create the updated function with include_spells
 CREATE OR REPLACE FUNCTION public.search_all_content(
     search_query TEXT,
     source_filter TEXT DEFAULT 'all',
@@ -134,9 +126,9 @@ BEGIN
 END;
 $$;
 
--- Grant execute permission to authenticated and anonymous users
+-- 3. Grant permissions
 GRANT EXECUTE ON FUNCTION public.search_all_content TO authenticated;
 GRANT EXECUTE ON FUNCTION public.search_all_content TO anon;
 
--- Comments
-COMMENT ON FUNCTION public.search_all_content IS 'Unified fuzzy search across monsters, magic items, and equipment with filtering options';
+-- 4. Add comment
+COMMENT ON FUNCTION public.search_all_content IS 'Unified fuzzy search across monsters, magic items, equipment, and spells with filtering options';

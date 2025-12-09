@@ -1,23 +1,13 @@
--- Migration: Create search_all_content() function for unified search
--- Feature: 014-turn-the-home (Central Home Page Search)
--- Date: 2025-12-08
+-- Fix for Search Error: PGRST202
+-- The error occurs because the live database function signature doesn't match the code.
+-- The code expects 'include_spells' parameter, but the database function is missing it.
 
--- Ensure pg_trgm extension is enabled
-CREATE EXTENSION IF NOT EXISTS "pg_trgm";
+-- 1. Drop the old function to avoid ambiguity
+-- We need to drop the function with the NEW signature as well, to ensure we can recreate it.
+DROP FUNCTION IF EXISTS public.search_all_content(text, text, boolean, boolean, boolean, integer);
+DROP FUNCTION IF EXISTS public.search_all_content(text, text, boolean, boolean, boolean, boolean, integer);
 
--- Add trigram index on equipment.name if not exists
-CREATE INDEX IF NOT EXISTS idx_equipment_name_trgm
-ON public.equipment USING GIN (name gin_trgm_ops);
-
--- Add trigram index on official_spells.name if not exists
-CREATE INDEX IF NOT EXISTS idx_official_spells_name_trgm
-ON public.official_spells USING GIN (name gin_trgm_ops);
-
--- Add trigram index on user_spells.name if not exists
-CREATE INDEX IF NOT EXISTS idx_user_spells_name_trgm
-ON public.user_spells USING GIN (name gin_trgm_ops);
-
--- Create unified search function
+-- 2. Create the updated function with include_spells
 CREATE OR REPLACE FUNCTION public.search_all_content(
     search_query TEXT,
     source_filter TEXT DEFAULT 'all',
@@ -54,11 +44,11 @@ BEGIN
         FROM public.all_monsters m
         WHERE
             include_monsters = true
-            AND similarity(m.name, search_query) > 0.3
+            AND (similarity(m.name, search_query) > 0.3 OR m.name ILIKE '%' || search_query || '%')
             AND (
                 source_filter = 'all'
                 OR (source_filter = 'core' AND m.monster_type = 'official')
-                OR (source_filter = 'user' AND m.monster_type = 'custom')
+                OR (source_filter = 'user' AND m.monster_type = 'user')
             )
 
         UNION ALL
@@ -75,7 +65,7 @@ BEGIN
         FROM public.all_magic_items mi
         WHERE
             include_magic_items = true
-            AND similarity(mi.name, search_query) > 0.3
+            AND (similarity(mi.name, search_query) > 0.3 OR mi.name ILIKE '%' || search_query || '%')
             AND (
                 source_filter = 'all'
                 OR (source_filter = 'core' AND mi.item_type = 'official')
@@ -90,13 +80,13 @@ BEGIN
             s.name as name,
             'spell'::TEXT as content_type,
             CASE WHEN s.spell_type = 'official' THEN 'official' ELSE 'user' END as source,
-            '/spells/' || s.id::TEXT as detail_url,
+            '/spells/' || s.slug as detail_url,
             similarity(s.name, search_query) as relevance,
             NULL::TEXT as description
         FROM public.all_spells s
         WHERE
             include_spells = true
-            AND similarity(s.name, search_query) > 0.3
+            AND (similarity(s.name, search_query) > 0.3 OR s.name ILIKE '%' || search_query || '%')
             AND (
                 source_filter = 'all'
                 OR (source_filter = 'core' AND s.spell_type = 'official')
@@ -117,7 +107,7 @@ BEGIN
         FROM public.equipment e
         WHERE
             include_equipment = true
-            AND similarity(e.name, search_query) > 0.3
+            AND (similarity(e.name, search_query) > 0.3 OR e.name ILIKE '%' || search_query || '%')
             AND source_filter != 'user' -- Equipment has no user content
     )
     SELECT
@@ -134,9 +124,9 @@ BEGIN
 END;
 $$;
 
--- Grant execute permission to authenticated and anonymous users
+-- 3. Grant permissions
 GRANT EXECUTE ON FUNCTION public.search_all_content TO authenticated;
 GRANT EXECUTE ON FUNCTION public.search_all_content TO anon;
 
--- Comments
-COMMENT ON FUNCTION public.search_all_content IS 'Unified fuzzy search across monsters, magic items, and equipment with filtering options';
+-- 4. Add comment
+COMMENT ON FUNCTION public.search_all_content IS 'Unified fuzzy search across monsters, magic items, equipment, and spells with filtering options';

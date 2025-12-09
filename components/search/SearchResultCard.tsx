@@ -3,7 +3,7 @@
 import Link from "next/link";
 import { Card, CardContent } from "@/components/primitives/card";
 import { Badge } from "@/components/primitives/badge";
-import { Sword, Wand2, Shield, User, Crown } from "lucide-react";
+import { Sword, Wand2, Shield, User, Crown, BookText } from "lucide-react";
 import type { SearchResult } from "@/lib/types/search";
 
 interface SearchResultCardProps {
@@ -26,6 +26,11 @@ const typeConfig = {
     icon: Shield,
     label: "Equipment",
     color: "bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-200",
+  },
+  spell: {
+    icon: BookText,
+    label: "Spell",
+    color: "bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200",
   },
 };
 

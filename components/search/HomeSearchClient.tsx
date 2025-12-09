@@ -12,11 +12,12 @@ async function searchContent(
 ): Promise<SearchResponse> {
   const searchParams = new URLSearchParams({
     q: params.q,
-    source: params.source,
-    includeMonsters: String(params.includeMonsters),
-    includeMagicItems: String(params.includeMagicItems),
-    includeEquipment: String(params.includeEquipment),
-    limit: String(params.limit),
+    source: params.source ?? "all",
+    includeMonsters: String(params.includeMonsters ?? true),
+    includeMagicItems: String(params.includeMagicItems ?? true),
+    includeEquipment: String(params.includeEquipment ?? true),
+    includeSpells: String(params.includeSpells ?? true),
+    limit: String(params.limit ?? 25),
   });
 
   const response = await fetch(`/api/search?${searchParams.toString()}`);
