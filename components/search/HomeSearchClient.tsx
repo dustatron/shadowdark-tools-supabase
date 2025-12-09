@@ -16,7 +16,7 @@ async function searchContent(
     includeMonsters: String(params.includeMonsters),
     includeMagicItems: String(params.includeMagicItems),
     includeEquipment: String(params.includeEquipment),
-    limit: params.limit,
+    limit: String(params.limit),
   });
 
   const response = await fetch(`/api/search?${searchParams.toString()}`);

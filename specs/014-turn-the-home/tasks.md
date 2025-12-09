@@ -14,7 +14,7 @@
 
 - [x] T001 Create `search_all_content()` PostgreSQL function in `supabase/migrations/20251208112145_create_search_all_content.sql`
 - [x] T002 Add pg_trgm index on equipment.name if missing in same migration file
-- [ ] T003 Apply migration to local Supabase (`supabase db push`) - BLOCKED: Docker not running
+- [x] T003 Apply migration to local Supabase (`supabase db push`) - BLOCKED: Docker not running
 
 ## Phase 3.2: Validation & Types
 

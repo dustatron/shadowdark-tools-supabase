@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { z } from "zod";
 import { createClient } from "@/lib/supabase/server";
-import { SearchFiltersSchema } from "@/lib/validations/search";
+import { SearchFormSchema } from "@/lib/validations/search";
 import { logger } from "@/lib/utils/logger";
 import type {
   SearchResult,
@@ -30,7 +30,7 @@ export async function GET(request: NextRequest) {
     };
 
     // Validate parameters
-    const validationResult = SearchFiltersSchema.safeParse(rawParams);
+    const validationResult = SearchFormSchema.safeParse(rawParams);
 
     if (!validationResult.success) {
       return NextResponse.json(
