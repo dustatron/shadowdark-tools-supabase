@@ -7,7 +7,7 @@
 
 import { render, screen } from "@testing-library/react";
 import { describe, it, expect, vi, beforeEach } from "vitest";
-import { AppSidebar } from "@/src/components/navigation/app-sidebar";
+import { AppSidebar } from "@/components/navigation/app-sidebar";
 
 // Mock next/navigation
 vi.mock("next/navigation", () => ({
@@ -20,7 +20,7 @@ vi.mock("next/navigation", () => ({
 }));
 
 // Mock AuthProvider
-vi.mock("@/src/components/providers/AuthProvider", () => ({
+vi.mock("@/components/providers/AuthProvider", () => ({
   useAuth: () => ({
     user: null, // Guest user
     loading: false,
@@ -37,7 +37,7 @@ vi.mock("next-themes", () => ({
 }));
 
 // Mock sidebar components (they exist after T001)
-vi.mock("@/components/ui/sidebar", () => ({
+vi.mock("@/components/primitives/sidebar", () => ({
   Sidebar: ({ children }: { children: React.ReactNode }) => (
     <div data-testid="sidebar">{children}</div>
   ),

@@ -3,9 +3,9 @@
 import { useSearchParams } from "next/navigation";
 import { ArrowLeft, DollarSign, ScrollText, Shield, Sword } from "lucide-react";
 import Link from "next/link";
-import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardHeader } from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/primitives/button";
+import { Card, CardContent, CardHeader } from "@/components/primitives/card";
+import { Badge } from "@/components/primitives/badge";
 import { EquipmentItem } from "@/lib/types/equipment";
 import { generateBackUrl } from "@/lib/utils";
 

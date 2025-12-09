@@ -5,9 +5,9 @@ import {
   CardFooter,
   CardHeader,
   CardTitle,
-} from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
-import { Button } from "@/components/ui/button";
+} from "@/components/primitives/card";
+import { Badge } from "@/components/primitives/badge";
+import { Button } from "@/components/primitives/button";
 import { Edit, Trash2, Eye, Lock, Globe } from "lucide-react";
 import Link from "next/link";
 import Image from "next/image";

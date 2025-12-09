@@ -1,0 +1,56 @@
+"use client";
+
+import { usePathname } from "next/navigation";
+import { SidebarTrigger } from "@/components/primitives/sidebar";
+
+export function PageHeader() {
+  const pathname = usePathname();
+
+  const getPageTitle = () => {
+    if (pathname === "/") return "Home";
+    if (pathname === "/about") return "About";
+    // Create pages (check before generic startsWith)
+    if (pathname === "/monsters/create") return "Create Monster";
+    if (pathname === "/spells/create") return "Create Spell";
+    if (pathname === "/magic-items/create") return "Create Magic Item";
+    if (pathname === "/encounter-tables/new") return "Create Encounter Table";
+    if (pathname === "/adventure-lists/new") return "Create Adventure List";
+    if (pathname === "/dashboard/decks/create") return "Create Deck";
+    // Search pages
+    if (pathname === "/monsters") return "Monster Search";
+    if (pathname === "/spells") return "Spell Search";
+    if (pathname === "/magic-items") return "Magic Item Search";
+    if (pathname === "/encounter-tables") return "Encounter Tables";
+    if (pathname === "/adventure-lists") return "Adventure Lists";
+    if (pathname === "/equipment") return "Equipment";
+    // Detail pages
+    if (pathname.startsWith("/monsters/")) return "Monster Details";
+    if (pathname.startsWith("/spells/")) return "Spell Details";
+    if (pathname.startsWith("/magic-items/")) return "Magic Item Details";
+    if (pathname.startsWith("/encounter-tables/")) return "Encounter Table";
+    if (pathname.startsWith("/adventure-lists/")) return "Adventure List";
+    // Dashboard pages
+    if (pathname === "/dashboard/monsters") return "Your Monsters";
+    if (pathname === "/dashboard/spells") return "Your Spells";
+    if (pathname === "/dashboard/encounters") return "Your Encounters";
+    if (pathname === "/dashboard/decks") return "Your Decks";
+    if (pathname === "/dashboard/favorites/monsters")
+      return "Favorite Monsters";
+    if (pathname === "/dashboard/favorites/spells") return "Favorite Spells";
+    if (pathname === "/settings") return "Settings";
+    if (pathname.startsWith("/users/")) return "Profile";
+    if (pathname === "/admin") return "Admin";
+    return "Dungeon Exchange";
+  };
+
+  return (
+    <header className="flex h-14 shrink-0 items-center gap-2 border-b bg-background px-4">
+      <SidebarTrigger />
+      <div className="flex items-center gap-2">
+        <span className="font-heading font-bold text-xl">
+          {getPageTitle() !== "Dungeon Exchange" && `${getPageTitle()}`}
+        </span>
+      </div>
+    </header>
+  );
+}

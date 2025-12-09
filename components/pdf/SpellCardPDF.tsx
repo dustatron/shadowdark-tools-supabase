@@ -2,6 +2,7 @@ import React from "react";
 import { View, Text, StyleSheet, Font } from "@react-pdf/renderer";
 import type { SpellForDeck } from "@/lib/validations/deck";
 import path from "path";
+import { getTierColorPDF } from "@/lib/utils/shadowdark-colors";
 
 /**
  * Individual Spell Card PDF Component
@@ -124,17 +125,11 @@ const styles = StyleSheet.create({
 });
 
 export function SpellCardPDF({ spell }: SpellCardPDFProps) {
-  const getTierColor = (tier: number): string => {
-    if (tier <= 1) return "#333"; // green
-    if (tier <= 3) return "#333"; // blue
-    return "#a855f7"; // purple
-  };
-
   return (
     <View style={styles.card}>
       <View style={styles.header}>
         <Text style={styles.name}>{spell.name}</Text>
-        <Text style={[styles.tier, { color: getTierColor(spell.tier) }]}>
+        <Text style={[styles.tier, { color: getTierColorPDF(spell.tier) }]}>
           Tier {spell.tier}
         </Text>
         <Text style={styles.metadata}>Duration: {spell.duration}</Text>

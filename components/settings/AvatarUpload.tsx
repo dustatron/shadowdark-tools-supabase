@@ -1,8 +1,12 @@
 "use client";
 
 import { useState, useRef } from "react";
-import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
-import { Button } from "@/components/ui/button";
+import {
+  Avatar,
+  AvatarImage,
+  AvatarFallback,
+} from "@/components/primitives/avatar";
+import { Button } from "@/components/primitives/button";
 import { Camera, Trash, User } from "lucide-react";
 import { updateUserAvatar } from "@/app/actions/profile";
 import { toast } from "sonner";

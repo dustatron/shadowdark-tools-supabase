@@ -7,11 +7,23 @@ import {
   type MonsterSearchResponse,
 } from "@/lib/validations/monster";
 import { type DatabaseMonster } from "@/lib/types/database";
+import {
+  buildPaginationParamsFromOffset,
+  buildPaginationMeta,
+  buildSearchQuery,
+  buildRangeFilter,
+  buildInFilter,
+  parseJsonFields,
+} from "@/lib/api/query-builder";
 
 export async function GET(request: NextRequest) {
   try {
     // Parse URL search parameters
     const searchParams = request.nextUrl.searchParams;
+
+    // Build pagination using query builder utility
+    const pagination = buildPaginationParamsFromOffset(searchParams);
+
     const rawParams = {
       q: searchParams.get("q") || undefined,
       fuzziness: searchParams.get("fuzziness") || undefined,
@@ -36,23 +48,9 @@ export async function GET(request: NextRequest) {
             .filter((s) => s)
         : undefined,
       type: searchParams.get("type") || undefined,
-      limit: Math.min(
-        Math.max(parseInt(searchParams.get("limit") || "20"), 1),
-        100,
-      ),
-      offset: parseInt(searchParams.get("offset") || "0"),
+      limit: pagination.limit,
+      offset: pagination.offset,
     };
-
-    // Validate offset >= 0
-    if (rawParams.offset < 0) {
-      return NextResponse.json(
-        {
-          error: "Invalid offset",
-          message: "Offset must be a non-negative integer",
-        },
-        { status: 400 },
-      );
-    }
 
     // Validate query parameters
     const validationResult = monsterSearchSchema.safeParse(rawParams);
@@ -140,31 +138,18 @@ export async function GET(request: NextRequest) {
       }
     }
 
-    // Apply common filters to queries
+    // Apply common filters to queries using query builder utilities
     const applyFilters = (q: any) => {
-      // Search filter
-      if (params.q) {
-        const sanitizedQuery = shadowdarkValidations.sanitizeSearchQuery(
-          params.q,
-        );
-        if (sanitizedQuery) {
-          switch (params.fuzziness) {
-            case "high":
-              return q.or(
-                `name.ilike.%${sanitizedQuery}%,source.ilike.%${sanitizedQuery}%,author_notes.ilike.%${sanitizedQuery}%`,
-              );
-            case "medium":
-              return q.or(
-                `name.ilike.%${sanitizedQuery}%,source.ilike.%${sanitizedQuery}%`,
-              );
-            case "low":
-            default:
-              return q.or(
-                `name.ilike.${sanitizedQuery}%,source.ilike.%${sanitizedQuery}%`,
-              );
-          }
-        }
-      }
+      // Search filter using query builder
+      const searchFields =
+        params.fuzziness === "high"
+          ? ["name", "source", "author_notes"]
+          : ["name", "source"];
+      q = buildSearchQuery(q, params.q, searchFields, params.fuzziness);
+
+      // Challenge level filters using query builder
+      q = buildRangeFilter(q, "challenge_level", params.min_cl, params.max_cl);
+
       return q;
     };
 
@@ -173,20 +158,6 @@ export async function GET(request: NextRequest) {
     }
     if (userQuery) {
       userQuery = applyFilters(userQuery);
-    }
-
-    // Apply challenge level filters
-    if (params.min_cl !== undefined) {
-      if (officialQuery)
-        officialQuery = officialQuery.gte("challenge_level", params.min_cl);
-      if (userQuery)
-        userQuery = userQuery.gte("challenge_level", params.min_cl);
-    }
-    if (params.max_cl !== undefined) {
-      if (officialQuery)
-        officialQuery = officialQuery.lte("challenge_level", params.max_cl);
-      if (userQuery)
-        userQuery = userQuery.lte("challenge_level", params.max_cl);
     }
 
     // Apply tags filter - support multiple tags with OR logic
@@ -216,15 +187,12 @@ export async function GET(request: NextRequest) {
       }
     }
 
-    // Apply speed filter - support multiple speed types with OR logic
-    if (params.speed && params.speed.length > 0) {
-      // Use .in() for both single and multiple values
-      if (officialQuery) {
-        officialQuery = officialQuery.in("speed", params.speed);
-      }
-      if (userQuery) {
-        userQuery = userQuery.in("speed", params.speed);
-      }
+    // Apply speed filter using query builder
+    if (officialQuery) {
+      officialQuery = buildInFilter(officialQuery, "speed", params.speed);
+    }
+    if (userQuery) {
+      userQuery = buildInFilter(userQuery, "speed", params.speed);
     }
 
     // Apply sorting
@@ -253,50 +221,35 @@ export async function GET(request: NextRequest) {
       console.error("User query error:", userResult.error);
     }
 
-    // Helper function to parse JSON fields
-    const parseMonsterFields = (monster: any) => ({
-      ...monster,
-      attacks:
-        typeof monster.attacks === "string"
-          ? JSON.parse(monster.attacks)
-          : monster.attacks,
-      abilities:
-        typeof monster.abilities === "string"
-          ? JSON.parse(monster.abilities)
-          : monster.abilities,
-      tags:
-        typeof monster.tags === "string"
-          ? JSON.parse(monster.tags)
-          : monster.tags,
-    });
-
-    // Combine and enhance data
-    const officialMonsters = (officialResult.data || []).map((m: any) =>
-      parseMonsterFields({
+    // Combine and enhance data using query builder utility
+    const officialMonsters = parseJsonFields(
+      (officialResult.data || []).map((m: any) => ({
         ...m,
         is_official: true,
         is_public: true,
-      }),
+      })),
+      ["attacks", "abilities", "tags"],
     );
 
-    const userMonsters = (userResult.data || []).map((m: any) =>
-      parseMonsterFields({
+    const userMonsters = parseJsonFields(
+      (userResult.data || []).map((m: any) => ({
         ...m,
         is_official: false,
         is_public: m.is_public || false,
-      }),
+      })),
+      ["attacks", "abilities", "tags"],
     );
 
     const allMonsters = [...officialMonsters, ...userMonsters];
 
-    // Calculate has_more based on total
-    const has_more = total > params.offset + params.limit;
+    // Build pagination metadata using query builder
+    const paginationMeta = buildPaginationMeta(pagination, total);
 
     // Format response according to OpenAPI spec
     const response: MonsterSearchResponse = {
       monsters: allMonsters as DatabaseMonster[],
       total,
-      has_more,
+      has_more: paginationMeta.hasMore,
     };
 
     return NextResponse.json(response, {
@@ -380,22 +333,11 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // Parse JSON fields before returning
-    const parsedMonster = {
-      ...newMonster,
-      attacks:
-        typeof newMonster.attacks === "string"
-          ? JSON.parse(newMonster.attacks)
-          : newMonster.attacks,
-      abilities:
-        typeof newMonster.abilities === "string"
-          ? JSON.parse(newMonster.abilities)
-          : newMonster.abilities,
-      tags:
-        typeof newMonster.tags === "string"
-          ? JSON.parse(newMonster.tags)
-          : newMonster.tags,
-    };
+    // Parse JSON fields before returning using query builder utility
+    const [parsedMonster] = parseJsonFields(
+      [newMonster],
+      ["attacks", "abilities", "tags"],
+    );
 
     return NextResponse.json(parsedMonster, {
       status: 201,

@@ -5,6 +5,7 @@
 
 import { createClient } from "@/lib/supabase/server";
 import { MonsterSnapshot } from "../types";
+import { logger } from "@/lib/utils/logger";
 
 /**
  * Create a complete snapshot of a monster by its ID
@@ -28,7 +29,7 @@ export async function createMonsterSnapshot(
     .single();
 
   if (error || !monster) {
-    console.error("Monster not found:", monsterId, error);
+    logger.error("Monster not found:", monsterId, error);
     throw new Error(`Monster with ID ${monsterId} not found`);
   }
 
@@ -79,7 +80,7 @@ export async function createMultipleSnapshots(
     .in("id", monsterIds);
 
   if (error) {
-    console.error("Error fetching monsters:", error);
+    logger.error("Error fetching monsters:", error);
     throw new Error("Failed to create monster snapshots");
   }
 

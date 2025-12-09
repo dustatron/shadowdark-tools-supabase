@@ -2,10 +2,10 @@
 
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { Input } from "@/components/ui/input";
-import { Textarea } from "@/components/ui/textarea";
-import { Button } from "@/components/ui/button";
-import { Label } from "@/components/ui/label";
+import { Input } from "@/components/primitives/input";
+import { Textarea } from "@/components/primitives/textarea";
+import { Button } from "@/components/primitives/button";
+import { Label } from "@/components/primitives/label";
 import {
   ProfileSettingsSchema,
   type ProfileSettingsFormData,

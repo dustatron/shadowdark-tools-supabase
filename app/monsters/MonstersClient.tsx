@@ -2,48 +2,22 @@
 
 import { useState, useEffect, useCallback, useMemo } from "react";
 import { useRouter } from "next/navigation";
-import { MonsterList } from "@/src/components/monsters/MonsterList";
-import { MonsterFilters } from "@/src/components/monsters/MonsterFilters";
-import { ViewModeToggle } from "@/src/components/ui/ViewModeToggle";
+import { MonsterList } from "@/components/monsters/MonsterList";
+import { MonsterFilters } from "@/components/monsters/MonsterFilters";
+import { ViewModeToggle } from "@/components/shared/ViewModeToggle";
 import Link from "next/link";
 import { createClient } from "@/lib/supabase/client";
-import { Plus } from "lucide-react";
-import { Button } from "@/components/ui/button";
+import { Plus, FolderOpen } from "lucide-react";
+import { Button } from "@/components/primitives/button";
 import {
   FilterValues,
   PaginationState,
   serializeFiltersToSearchParams,
   ViewMode,
+  AllMonster,
 } from "@/lib/types/monsters";
 import { useViewMode } from "@/lib/hooks";
-
-interface Monster {
-  id: string;
-  name: string;
-  challenge_level: number;
-  hit_points: number;
-  armor_class: number;
-  speed: string;
-  attacks: Array<{
-    name: string;
-    type: "melee" | "ranged";
-    damage: string;
-    range: string;
-    description?: string;
-  }>;
-  abilities: Array<{
-    name: string;
-    description: string;
-  }>;
-  tags: {
-    type: string[];
-    location: string[];
-  };
-  source: string;
-  author_notes?: string;
-  monster_type?: "official" | "user";
-  creator_id?: string;
-}
+import { logger } from "@/lib/utils/logger";
 
 interface MonstersClientProps {
   currentUserId: string | null;
@@ -59,7 +33,7 @@ export function MonstersClient({
   initialPagination,
 }: MonstersClientProps) {
   const router = useRouter();
-  const [monsters, setMonsters] = useState<Monster[]>([]);
+  const [monsters, setMonsters] = useState<AllMonster[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [filters, setFilters] = useState<FilterValues>(initialFilters);
@@ -147,7 +121,7 @@ export function MonstersClient({
         const types = new Set<string>();
         const sources = new Set<string>();
 
-        data.monsters.forEach((monster: Monster) => {
+        data.monsters.forEach((monster: AllMonster) => {
           if (monster.tags?.type) {
             monster.tags.type.forEach((t) => types.add(t));
           }
@@ -160,7 +134,7 @@ export function MonstersClient({
         setAvailableSources(Array.from(sources).sort());
       }
     } catch (err) {
-      console.error("Error fetching monsters:", err);
+      logger.error("Error fetching monsters:", err);
       setError(err instanceof Error ? err.message : "An error occurred");
     } finally {
       setLoading(false);
@@ -272,15 +246,25 @@ export function MonstersClient({
   return (
     <div>
       <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between md:justify-end mb-6">
-        {currentUserId && (
-          <Button asChild>
-            <Link href="/monsters/create">
-              <Plus className="mr-2 h-4 w-4" />
-              Create Monster
-            </Link>
-          </Button>
-        )}
-        <ViewModeToggle view={view} onViewChange={handleViewChange} />
+        <div className="flex items-center gap-2">
+          <ViewModeToggle view={view} onViewChange={handleViewChange} />
+          {currentUserId && (
+            <>
+              <Button variant="outline" asChild>
+                <Link href="/dashboard/monsters">
+                  <FolderOpen className="h-4 w-4 mr-2" />
+                  My Monsters
+                </Link>
+              </Button>
+              <Button asChild>
+                <Link href="/monsters/create">
+                  <Plus className="h-4 w-4 mr-2" />
+                  Create Monster
+                </Link>
+              </Button>
+            </>
+          )}
+        </div>
       </div>
 
       <div className="mb-4">

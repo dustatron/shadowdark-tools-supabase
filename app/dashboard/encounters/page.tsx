@@ -2,7 +2,7 @@ import { createClient } from "@/lib/supabase/server";
 import { redirect } from "next/navigation";
 import Link from "next/link";
 import { Plus } from "lucide-react";
-import { Button } from "@/components/ui/button";
+import { Button } from "@/components/primitives/button";
 import type { EncounterTable } from "@/lib/encounter-tables/types";
 import { EncounterTablesView } from "@/components/encounters/EncounterTablesView";
 

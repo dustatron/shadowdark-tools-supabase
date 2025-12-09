@@ -2,10 +2,10 @@
 
 import { MagicItemCard } from "./MagicItemCard";
 import { MagicItemTable } from "./MagicItemTable";
-import { EmptyState } from "@/src/components/ui/EmptyState";
-import { LoadingSpinner } from "@/src/components/ui/LoadingSpinner";
-import { ErrorAlert } from "@/src/components/ui/ErrorAlert";
-import { Pagination } from "@/src/components/ui/Pagination";
+import { EmptyState } from "@/components/shared/EmptyState";
+import { LoadingSpinner } from "@/components/shared/LoadingSpinner";
+import { ErrorAlert } from "@/components/shared/ErrorAlert";
+import { Pagination } from "@/components/shared/Pagination";
 import { Sparkles } from "lucide-react";
 import { ViewMode } from "@/lib/types/monsters";
 

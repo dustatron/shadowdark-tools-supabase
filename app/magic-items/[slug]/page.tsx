@@ -2,8 +2,13 @@ import { createClient } from "@/lib/supabase/server";
 import { TraitsSection } from "@/components/magic-items/TraitsSection";
 import { SourceBadge } from "@/components/magic-items/SourceBadge";
 import { UserMagicItemActions } from "@/components/magic-items/UserMagicItemActions";
-import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Button } from "@/components/primitives/button";
+import {
+  Card,
+  CardContent,
+  CardHeader,
+  CardTitle,
+} from "@/components/primitives/card";
 import { ArrowLeft } from "lucide-react";
 import Link from "next/link";
 import { notFound } from "next/navigation";

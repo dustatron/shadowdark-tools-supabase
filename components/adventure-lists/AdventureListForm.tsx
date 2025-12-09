@@ -7,10 +7,10 @@ import {
   adventureListSchema,
   AdventureListInput,
 } from "@/lib/validations/adventure-lists";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Textarea } from "@/components/ui/textarea";
-import { Checkbox } from "@/components/ui/checkbox";
+import { Button } from "@/components/primitives/button";
+import { Input } from "@/components/primitives/input";
+import { Textarea } from "@/components/primitives/textarea";
+import { Checkbox } from "@/components/primitives/checkbox";
 import {
   Form,
   FormControl,
@@ -19,11 +19,17 @@ import {
   FormItem,
   FormLabel,
   FormMessage,
-} from "@/components/ui/form";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+} from "@/components/primitives/form";
+import {
+  Card,
+  CardContent,
+  CardHeader,
+  CardTitle,
+} from "@/components/primitives/card";
 import { useRouter } from "next/navigation";
 import { Loader2, Trash2 } from "lucide-react";
 import { toast } from "sonner";
+import { logger } from "@/lib/utils/logger";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -34,7 +40,7 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
   AlertDialogTrigger,
-} from "@/components/ui/alert-dialog";
+} from "@/components/primitives/alert-dialog";
 
 interface AdventureListFormProps {
   initialValues?: Partial<AdventureListInput> & { id?: string };
@@ -66,7 +72,7 @@ export function AdventureListForm({
       router.push("/adventure-lists");
       router.refresh();
     } catch (error) {
-      console.error("Error deleting list:", error);
+      logger.error("Error deleting list:", error);
       toast.error("Failed to delete adventure list");
       setIsDeleting(false);
     }
@@ -115,7 +121,7 @@ export function AdventureListForm({
       router.push(`/adventure-lists/${result.id}`);
       router.refresh();
     } catch (error) {
-      console.error("Error saving adventure list:", error);
+      logger.error("Error saving adventure list:", error);
       toast.error(
         error instanceof Error ? error.message : "An unexpected error occurred",
       );

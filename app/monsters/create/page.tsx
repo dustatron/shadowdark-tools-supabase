@@ -2,9 +2,9 @@
 
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
-import { MonsterCreateEditForm } from "@/src/components/monsters/MonsterCreateEditForm";
+import { MonsterCreateEditForm } from "@/components/monsters/MonsterCreateEditForm";
 import { createClient } from "@/lib/supabase/client";
-import { LoadingSpinner } from "@/src/components/ui/LoadingSpinner";
+import { LoadingSpinner } from "@/components/shared/LoadingSpinner";
 
 export default function CreateMonsterPage() {
   const router = useRouter();

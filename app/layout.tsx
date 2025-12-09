@@ -1,10 +1,10 @@
 import type { Metadata } from "next";
-import { RootProvider } from "@/src/components/providers/RootProvider";
+import { RootProvider } from "@/components/providers/RootProvider";
 import { ThemeProvider } from "next-themes";
-import { Toaster } from "@/components/ui/sonner";
-import { SidebarProvider, SidebarInset } from "@/components/ui/sidebar";
-import { AppSidebar } from "@/src/components/navigation/app-sidebar";
-import { PageHeader } from "@/src/components/navigation/page-header";
+import { Toaster } from "@/components/primitives/sonner";
+import { SidebarProvider, SidebarInset } from "@/components/primitives/sidebar";
+import { AppSidebar } from "@/components/navigation/app-sidebar";
+import { PageHeader } from "@/components/navigation/page-header";
 import { getServerSession } from "@/lib/auth-helpers";
 import { Roboto, Source_Code_Pro } from "next/font/google";
 import "./globals.css";

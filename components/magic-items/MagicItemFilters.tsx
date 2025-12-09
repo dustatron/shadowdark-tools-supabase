@@ -2,16 +2,16 @@
 
 import { Filter, FilterX, ChevronDown, ChevronUp } from "lucide-react";
 import { useState } from "react";
-import { Card, CardContent } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
-import { MultiSelect } from "@/components/ui/multi-select";
+import { Card, CardContent } from "@/components/primitives/card";
+import { Button } from "@/components/primitives/button";
+import { MultiSelect } from "@/components/primitives/multi-select";
 import {
   Collapsible,
   CollapsibleContent,
   CollapsibleTrigger,
-} from "@/components/ui/collapsible";
-import { SourceToggle } from "@/src/components/ui/SourceToggle";
-import { SearchInput } from "@/src/components/ui/SearchInput";
+} from "@/components/primitives/collapsible";
+import { SourceToggle } from "@/components/shared/SourceToggle";
+import { SearchInput } from "@/components/shared/SearchInput";
 
 interface FilterValues {
   search: string;

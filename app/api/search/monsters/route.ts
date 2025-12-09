@@ -1,6 +1,11 @@
 import { NextRequest, NextResponse } from "next/server";
 import { createClient } from "@/lib/supabase/server";
 import { z } from "zod";
+import {
+  buildPaginationParams,
+  buildPaginationMeta,
+  parseJsonFields,
+} from "@/lib/api/query-builder";
 
 // Schema for search parameters
 const SearchParamsSchema = z.object({
@@ -20,6 +25,9 @@ export async function GET(request: NextRequest) {
     const supabase = await createClient();
     const { searchParams } = new URL(request.url);
 
+    // Build pagination using query builder utility
+    const pagination = buildPaginationParams(searchParams);
+
     // Parse and validate query parameters
     const rawParams = {
       q: searchParams.get("q") || undefined,
@@ -32,14 +40,11 @@ export async function GET(request: NextRequest) {
       types: searchParams.get("types")?.split(",").filter(Boolean),
       locations: searchParams.get("locations")?.split(",").filter(Boolean),
       sources: searchParams.get("sources")?.split(",").filter(Boolean),
-      page: searchParams.get("page") ? parseInt(searchParams.get("page")!) : 1,
-      limit: searchParams.get("limit")
-        ? parseInt(searchParams.get("limit")!)
-        : 20,
+      page: pagination.page,
+      limit: pagination.limit,
     };
 
     const validatedParams = SearchParamsSchema.parse(rawParams);
-    const offset = (validatedParams.page - 1) * validatedParams.limit;
 
     // If no search query, require at least one filter
     if (
@@ -56,7 +61,7 @@ export async function GET(request: NextRequest) {
       );
     }
 
-    // Use the search function
+    // Use the search function with pagination from query builder
     const { data: results, error } = await supabase.rpc("search_monsters", {
       search_query: validatedParams.q || "",
       min_challenge_level: validatedParams.minLevel || 1,
@@ -64,8 +69,8 @@ export async function GET(request: NextRequest) {
       monster_types: validatedParams.types || null,
       location_tags: validatedParams.locations || null,
       source_filter: validatedParams.sources?.[0] || null, // Only support single source filter for now
-      limit_count: validatedParams.limit,
-      offset_count: offset,
+      limit_count: pagination.limit,
+      offset_count: pagination.offset,
     });
 
     if (error) {
@@ -94,32 +99,20 @@ export async function GET(request: NextRequest) {
 
     const total = allResults?.length || results.length;
 
-    // Parse JSON fields for response
-    const parsedResults = results.map((monster: any) => ({
-      ...monster,
-      attacks:
-        typeof monster.attacks === "string"
-          ? JSON.parse(monster.attacks)
-          : monster.attacks,
-      abilities:
-        typeof monster.abilities === "string"
-          ? JSON.parse(monster.abilities)
-          : monster.abilities,
-      tags:
-        typeof monster.tags === "string"
-          ? JSON.parse(monster.tags)
-          : monster.tags,
-    }));
+    // Parse JSON fields for response using query builder utility
+    const parsedResults = parseJsonFields(results, [
+      "attacks",
+      "abilities",
+      "tags",
+    ]);
+
+    // Build pagination metadata using query builder
+    const paginationMeta = buildPaginationMeta(pagination, total);
 
     return NextResponse.json({
       results: parsedResults,
       total,
-      pagination: {
-        page: validatedParams.page,
-        limit: validatedParams.limit,
-        total,
-        totalPages: Math.ceil(total / validatedParams.limit),
-      },
+      pagination: paginationMeta,
       query: validatedParams,
     });
   } catch (error) {

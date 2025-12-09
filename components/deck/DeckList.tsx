@@ -1,7 +1,7 @@
 "use client";
 
 import { useQuery } from "@tanstack/react-query";
-import { Button } from "@/components/ui/button";
+import { Button } from "@/components/primitives/button";
 import {
   Card,
   CardContent,
@@ -9,7 +9,7 @@ import {
   CardFooter,
   CardHeader,
   CardTitle,
-} from "@/components/ui/card";
+} from "@/components/primitives/card";
 import {
   Table,
   TableBody,
@@ -17,9 +17,9 @@ import {
   TableHead,
   TableHeader,
   TableRow,
-} from "@/components/ui/table";
-import { Badge } from "@/components/ui/badge";
-import { Skeleton } from "@/components/ui/skeleton";
+} from "@/components/primitives/table";
+import { Badge } from "@/components/primitives/badge";
+import { Skeleton } from "@/components/primitives/skeleton";
 import { Plus, BookOpen, ExternalLink } from "lucide-react";
 import Link from "next/link";
 import { formatDistanceToNow } from "date-fns";

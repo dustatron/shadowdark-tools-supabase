@@ -1,8 +1,8 @@
 import { createClient } from "@/lib/supabase/server";
 import Link from "next/link";
-import { Button } from "@/components/ui/button";
+import { Button } from "@/components/primitives/button";
 import { Library } from "lucide-react";
-import { SpellCard } from "@/src/components/spells/SpellCard";
+import { SpellCard } from "@/components/spells/SpellCard";
 import { getFavoriteSpells } from "@/lib/api/dashboard";
 
 export default async function FavoriteSpellsPage() {

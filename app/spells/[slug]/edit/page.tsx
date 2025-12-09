@@ -3,9 +3,9 @@
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { createClient } from "@/lib/supabase/client";
-import { LoadingSpinner } from "@/src/components/ui/LoadingSpinner";
-import { SpellForm } from "@/src/components/spells/SpellForm";
-import { Alert, AlertDescription } from "@/components/ui/alert";
+import { LoadingSpinner } from "@/components/shared/LoadingSpinner";
+import { SpellForm } from "@/components/spells/SpellForm";
+import { Alert, AlertDescription } from "@/components/primitives/alert";
 import { AlertCircle } from "lucide-react";
 
 interface EditSpellPageProps {

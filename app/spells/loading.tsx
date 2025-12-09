@@ -1,5 +1,5 @@
-import { Skeleton } from "@/components/ui/skeleton";
-import { Card, CardContent, CardHeader } from "@/components/ui/card";
+import { Skeleton } from "@/components/primitives/skeleton";
+import { Card, CardContent, CardHeader } from "@/components/primitives/card";
 
 export default function SpellsLoading() {
   return (

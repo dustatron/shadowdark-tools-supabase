@@ -2,8 +2,12 @@
 
 import { useEffect } from "react";
 import { AlertCircle, RefreshCw, Home } from "lucide-react";
-import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
-import { Button } from "@/components/ui/button";
+import {
+  Alert,
+  AlertDescription,
+  AlertTitle,
+} from "@/components/primitives/alert";
+import { Button } from "@/components/primitives/button";
 import Link from "next/link";
 
 export default function DashboardError({

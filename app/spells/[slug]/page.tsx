@@ -8,18 +8,23 @@ import {
   CardDescription,
   CardHeader,
   CardTitle,
-} from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
-import { Button } from "@/components/ui/button";
-import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
+} from "@/components/primitives/card";
+import { Badge } from "@/components/primitives/badge";
+import { Button } from "@/components/primitives/button";
+import {
+  Alert,
+  AlertDescription,
+  AlertTitle,
+} from "@/components/primitives/alert";
 import { Spinner } from "@/components/ui/spinner";
-import { SpellDetailBlock } from "@/src/components/spells/SpellDetailBlock";
+import { SpellDetailBlock } from "@/components/spells/SpellDetailBlock";
 import { ArrowLeft, AlertCircle, Edit, Trash2 } from "lucide-react";
 import Link from "next/link";
 import { createClient } from "@/lib/supabase/client";
-import { FavoriteButton } from "@/src/components/favorites/FavoriteButton";
+import { FavoriteButton } from "@/components/favorites/FavoriteButton";
 import { toast } from "sonner";
 import { useRouter } from "next/navigation";
+import { logger } from "@/lib/utils/logger";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -30,7 +35,7 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
   AlertDialogTrigger,
-} from "@/components/ui/alert-dialog";
+} from "@/components/primitives/alert-dialog";
 
 interface Spell {
   id: string;
@@ -109,7 +114,7 @@ export default function SpellDetailPage() {
         setFavoriteId(favorite?.id || null);
       }
     } catch (err) {
-      console.error("Error fetching spell:", err);
+      logger.error("Error fetching spell:", err);
       setError("An error occurred while loading the spell");
     } finally {
       setLoading(false);
@@ -141,7 +146,7 @@ export default function SpellDetailPage() {
       toast.success("Spell deleted successfully");
       router.push("/spells");
     } catch (err) {
-      console.error("Error deleting spell:", err);
+      logger.error("Error deleting spell:", err);
       toast.error("Failed to delete spell");
       setIsDeleting(false);
     }

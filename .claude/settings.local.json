@@ -143,7 +143,8 @@
       "WebFetch(domain:tweakcn.com)",
       "WebFetch(domain:www.onlinewebfonts.com)",
       "Bash(npx supabase migration list:*)",
-      "Bash(supabase projects list:*)"
+      "Bash(supabase projects list:*)",
+      "Bash(npx supabase gen types typescript:*)"
     ],
     "deny": [],
     "ask": []

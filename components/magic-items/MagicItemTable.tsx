@@ -16,8 +16,8 @@ import {
   TableHead,
   TableHeader,
   TableRow,
-} from "@/components/ui/table";
-import { Badge } from "@/components/ui/badge";
+} from "@/components/primitives/table";
+import { Badge } from "@/components/primitives/badge";
 import { SourceBadge } from "./SourceBadge";
 import { ArrowUpDown } from "lucide-react";
 import Link from "next/link";
@@ -50,15 +50,23 @@ export function MagicItemTable({
     () => [
       {
         accessorKey: "name",
-        header: ({ column }) => (
-          <button
-            className="flex items-center gap-1 hover:text-foreground"
-            onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
-          >
-            Name
-            <ArrowUpDown className="h-4 w-4" />
-          </button>
-        ),
+        header: ({ column }) => {
+          const sortState = column.getIsSorted();
+          const ariaLabel = `Sort by name${sortState ? `, currently ${sortState === "asc" ? "ascending" : "descending"}` : ""}`;
+
+          return (
+            <button
+              className="flex items-center gap-1 hover:text-foreground"
+              onClick={() =>
+                column.toggleSorting(column.getIsSorted() === "asc")
+              }
+              aria-label={ariaLabel}
+            >
+              Name
+              <ArrowUpDown className="h-4 w-4" />
+            </button>
+          );
+        },
         cell: ({ row }) => (
           <Link
             href={`/magic-items/${row.original.slug}`}
@@ -132,16 +140,27 @@ export function MagicItemTable({
         <TableHeader>
           {table.getHeaderGroups().map((headerGroup) => (
             <TableRow key={headerGroup.id}>
-              {headerGroup.headers.map((header) => (
-                <TableHead key={header.id}>
-                  {header.isPlaceholder
-                    ? null
-                    : flexRender(
-                        header.column.columnDef.header,
-                        header.getContext(),
-                      )}
-                </TableHead>
-              ))}
+              {headerGroup.headers.map((header) => {
+                const sortState = header.column.getIsSorted();
+                const ariaSort = sortState
+                  ? sortState === "asc"
+                    ? "ascending"
+                    : "descending"
+                  : header.column.getCanSort()
+                    ? "none"
+                    : undefined;
+
+                return (
+                  <TableHead key={header.id} aria-sort={ariaSort}>
+                    {header.isPlaceholder
+                      ? null
+                      : flexRender(
+                          header.column.columnDef.header,
+                          header.getContext(),
+                        )}
+                  </TableHead>
+                );
+              })}
             </TableRow>
           ))}
         </TableHeader>

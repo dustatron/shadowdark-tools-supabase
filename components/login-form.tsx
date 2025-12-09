@@ -2,20 +2,20 @@
 
 import { cn } from "@/lib/utils";
 import { createClient } from "@/lib/supabase/client";
-import { Button } from "@/components/ui/button";
+import { Button } from "@/components/primitives/button";
 import {
   Card,
   CardContent,
   CardDescription,
   CardHeader,
   CardTitle,
-} from "@/components/ui/card";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
+} from "@/components/primitives/card";
+import { Input } from "@/components/primitives/input";
+import { Label } from "@/components/primitives/label";
 import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
 import { useState, useEffect } from "react";
-import { useAuth } from "@/src/components/providers/AuthProvider";
+import { useAuth } from "@/components/providers/AuthProvider";
 
 export function LoginForm({
   className,

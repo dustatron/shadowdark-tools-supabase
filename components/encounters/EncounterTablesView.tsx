@@ -3,16 +3,16 @@
 import { useState, useEffect } from "react";
 import Link from "next/link";
 import { Plus, Edit, LayoutGrid, Table2 } from "lucide-react";
-import { Button } from "@/components/ui/button";
+import { Button } from "@/components/primitives/button";
 import {
   Card,
   CardContent,
   CardDescription,
   CardHeader,
   CardTitle,
-} from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
-import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
+} from "@/components/primitives/card";
+import { Badge } from "@/components/primitives/badge";
+import { Tabs, TabsList, TabsTrigger } from "@/components/primitives/tabs";
 import {
   Table,
   TableBody,
@@ -20,7 +20,7 @@ import {
   TableHead,
   TableHeader,
   TableRow,
-} from "@/components/ui/table";
+} from "@/components/primitives/table";
 import type { EncounterTable } from "@/lib/encounter-tables/types";
 
 type ViewMode = "table" | "cards";

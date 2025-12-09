@@ -1,6 +1,6 @@
 "use client";
 
-import { TooltipProvider } from "@/components/ui/tooltip";
+import { TooltipProvider } from "@/components/primitives/tooltip";
 import { TraitBadge } from "./TraitBadge";
 
 interface Trait {

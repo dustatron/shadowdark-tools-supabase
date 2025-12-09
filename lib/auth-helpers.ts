@@ -1,5 +1,6 @@
 import { createClient } from "@/lib/supabase/server";
 import { User } from "@supabase/supabase-js";
+import { logger } from "@/lib/utils/logger";
 
 export async function getServerUser(): Promise<User | null> {
   try {
@@ -9,7 +10,7 @@ export async function getServerUser(): Promise<User | null> {
     } = await supabase.auth.getUser();
     return user;
   } catch (error) {
-    console.error("Error getting server user:", error);
+    logger.error("Error getting server user:", error);
     return null;
   }
 }
@@ -22,7 +23,7 @@ export async function getServerSession() {
     } = await supabase.auth.getSession();
     return session;
   } catch (error) {
-    console.error("Error getting server session:", error);
+    logger.error("Error getting server session:", error);
     return null;
   }
 }

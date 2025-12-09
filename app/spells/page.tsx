@@ -1,59 +1,26 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { SpellList } from "@/src/components/spells/SpellList";
-import { SpellFilters } from "@/src/components/spells/SpellFilters";
-import { Button } from "@/components/ui/button";
-import { ViewModeToggle } from "@/src/components/ui/ViewModeToggle";
-import { Plus } from "lucide-react";
+import { SpellList } from "@/components/spells/SpellList";
+import { SpellFilters } from "@/components/spells/SpellFilters";
+import { Button } from "@/components/primitives/button";
+import { ViewModeToggle } from "@/components/shared/ViewModeToggle";
+import { Plus, FolderOpen } from "lucide-react";
 import Link from "next/link";
 import { createClient } from "@/lib/supabase/client";
 import { createFavoritesMap } from "@/lib/utils/favorites";
 import { useViewMode } from "@/lib/hooks";
-import { ViewMode } from "@/lib/types/monsters";
+import { logger } from "@/lib/utils/logger";
+import type { AllSpell, SpellFilterValues } from "@/lib/types/spells";
+import { DEFAULT_SPELL_FILTERS } from "@/lib/types/spells";
 
-interface Spell {
-  id: string;
-  name: string;
-  slug: string;
-  description: string;
-  classes: string[];
-  duration: string;
-  range: string;
-  tier: number;
-  source: string;
-  author_notes?: string;
-  spell_type?: "official" | "user";
-  creator_id?: string;
-}
-
-interface FilterValues {
-  search: string;
-  tierRange: [number, number];
-  tiers: number[];
-  classes: string[];
-  durations: string[];
-  ranges: string[];
-  sources: string[];
-  spellSource: "all" | "official" | "custom";
-}
-
-const DEFAULT_FILTERS: FilterValues = {
-  search: "",
-  tierRange: [1, 5],
-  tiers: [],
-  classes: [],
-  durations: [],
-  ranges: [],
-  sources: [],
-  spellSource: "all",
-};
+const DEFAULT_FILTERS: SpellFilterValues = DEFAULT_SPELL_FILTERS;
 
 export default function SpellsPage() {
-  const [spells, setSpells] = useState<Spell[]>([]);
+  const [spells, setSpells] = useState<AllSpell[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  const [filters, setFilters] = useState<FilterValues>(DEFAULT_FILTERS);
+  const [filters, setFilters] = useState<SpellFilterValues>(DEFAULT_FILTERS);
   const [pagination, setPagination] = useState({
     page: 1,
     limit: 20,
@@ -92,7 +59,7 @@ export default function SpellsPage() {
             const ranges = new Set<string>();
             const sources = new Set<string>();
 
-            data.results.forEach((spell: Spell) => {
+            data.results.forEach((spell: AllSpell) => {
               spell.classes.forEach((c) => classes.add(c));
               durations.add(spell.duration);
               ranges.add(spell.range);
@@ -106,7 +73,7 @@ export default function SpellsPage() {
           }
         }
       } catch (err) {
-        console.error("Error fetching filter options:", err);
+        logger.error("Error fetching filter options:", err);
       }
     };
     fetchFilterOptions();
@@ -194,14 +161,14 @@ export default function SpellsPage() {
         totalPages: data.pagination.totalPages || 0,
       }));
     } catch (err) {
-      console.error("Error fetching spells:", err);
+      logger.error("Error fetching spells:", err);
       setError(err instanceof Error ? err.message : "An error occurred");
     } finally {
       setLoading(false);
     }
   };
 
-  const handleFiltersChange = (newFilters: FilterValues) => {
+  const handleFiltersChange = (newFilters: SpellFilterValues) => {
     setFilters(newFilters);
     setPagination((prev) => ({ ...prev, page: 1 }));
   };
@@ -221,12 +188,20 @@ export default function SpellsPage() {
         <div className="flex items-center gap-2">
           <ViewModeToggle view={view} onViewChange={setView} />
           {isAuthenticated && (
-            <Button asChild>
-              <Link href="/spells/create">
-                <Plus className="h-4 w-4" />
-                Create Spell
-              </Link>
-            </Button>
+            <>
+              <Button variant="outline" asChild>
+                <Link href="/dashboard/spells">
+                  <FolderOpen className="h-4 w-4 mr-2" />
+                  My Spells
+                </Link>
+              </Button>
+              <Button asChild>
+                <Link href="/spells/create">
+                  <Plus className="h-4 w-4 mr-2" />
+                  Create Spell
+                </Link>
+              </Button>
+            </>
           )}
         </div>
       </div>

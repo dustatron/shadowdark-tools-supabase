@@ -2,30 +2,30 @@
 
 import { useState, useMemo } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Badge } from "@/components/ui/badge";
-import { Checkbox } from "@/components/ui/checkbox";
-import { Label } from "@/components/ui/label";
-import { ScrollArea } from "@/components/ui/scroll-area";
+import { Button } from "@/components/primitives/button";
+import { Input } from "@/components/primitives/input";
+import { Badge } from "@/components/primitives/badge";
+import { Checkbox } from "@/components/primitives/checkbox";
+import { Label } from "@/components/primitives/label";
+import { ScrollArea } from "@/components/primitives/scroll-area";
 import {
   Sheet,
   SheetContent,
   SheetDescription,
   SheetHeader,
   SheetTitle,
-} from "@/components/ui/sheet";
+} from "@/components/primitives/sheet";
 import {
   Accordion,
   AccordionContent,
   AccordionItem,
   AccordionTrigger,
-} from "@/components/ui/accordion";
+} from "@/components/primitives/accordion";
 import {
   Popover,
   PopoverContent,
   PopoverTrigger,
-} from "@/components/ui/popover";
+} from "@/components/primitives/popover";
 import {
   Search,
   Plus,

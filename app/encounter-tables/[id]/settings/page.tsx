@@ -2,8 +2,8 @@
 
 import { use, useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
-import { EncounterTableForm } from "@/src/components/encounter-tables/EncounterTableForm";
-import { Button } from "@/components/ui/button";
+import { EncounterTableForm } from "@/components/encounter-tables/EncounterTableForm";
+import { Button } from "@/components/primitives/button";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -14,19 +14,20 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
   AlertDialogTrigger,
-} from "@/components/ui/alert-dialog";
+} from "@/components/primitives/alert-dialog";
 import {
   Card,
   CardContent,
   CardDescription,
   CardHeader,
   CardTitle,
-} from "@/components/ui/card";
-import { Separator } from "@/components/ui/separator";
+} from "@/components/primitives/card";
+import { Separator } from "@/components/primitives/separator";
 import { Loader2, RefreshCw, Trash2 } from "lucide-react";
 import type { EncounterTableCreateInput } from "@/lib/encounter-tables/schemas";
 import type { EncounterTable } from "@/lib/encounter-tables/types";
 import { toast } from "sonner";
+import { logger } from "@/lib/utils/logger";
 
 interface PageProps {
   params: Promise<{ id: string }>;
@@ -52,7 +53,7 @@ export default function EncounterTableSettingsPage({ params }: PageProps) {
         const data = await response.json();
         setTable(data);
       } catch (error) {
-        console.error("Error fetching table:", error);
+        logger.error("Error fetching table:", error);
         toast.error("Error", {
           description: "Failed to load encounter table",
         });
@@ -84,7 +85,7 @@ export default function EncounterTableSettingsPage({ params }: PageProps) {
 
       router.push(`/encounter-tables/${id}`);
     } catch (error) {
-      console.error("Error updating table:", error);
+      logger.error("Error updating table:", error);
       toast.error("Error", {
         description:
           error instanceof Error ? error.message : "Failed to update table",
@@ -110,7 +111,7 @@ export default function EncounterTableSettingsPage({ params }: PageProps) {
 
       router.push(`/encounter-tables/${id}`);
     } catch (error) {
-      console.error("Error regenerating table:", error);
+      logger.error("Error regenerating table:", error);
       toast.error("Error", {
         description:
           error instanceof Error ? error.message : "Failed to regenerate table",
@@ -138,7 +139,7 @@ export default function EncounterTableSettingsPage({ params }: PageProps) {
 
       router.push("/encounter-tables");
     } catch (error) {
-      console.error("Error deleting table:", error);
+      logger.error("Error deleting table:", error);
       toast.error("Error", {
         description:
           error instanceof Error ? error.message : "Failed to delete table",

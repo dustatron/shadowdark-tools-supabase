@@ -1,10 +1,10 @@
 "use client";
 
-import { SpellCard } from "@/src/components/spells/SpellCard";
-import { SpellTable } from "@/src/components/spells/SpellTable";
+import { SpellCard } from "@/components/spells/SpellCard";
+import { SpellTable } from "@/components/spells/SpellTable";
 import { useViewMode } from "@/lib/hooks";
-import { Button } from "@/components/ui/button";
-import { ViewModeToggle } from "@/src/components/ui/ViewModeToggle";
+import { Button } from "@/components/primitives/button";
+import { ViewModeToggle } from "@/components/shared/ViewModeToggle";
 import { Plus } from "lucide-react";
 import Link from "next/link";
 

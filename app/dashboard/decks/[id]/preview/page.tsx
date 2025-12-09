@@ -2,8 +2,8 @@
 
 import { useParams, useRouter } from "next/navigation";
 import { useQuery } from "@tanstack/react-query";
-import { Button } from "@/components/ui/button";
-import { Skeleton } from "@/components/ui/skeleton";
+import { Button } from "@/components/primitives/button";
+import { Skeleton } from "@/components/primitives/skeleton";
 import { SpellCardPreview } from "@/components/deck";
 import { ArrowLeft, Download } from "lucide-react";
 import Link from "next/link";

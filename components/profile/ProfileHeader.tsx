@@ -1,4 +1,8 @@
-import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
+import {
+  Avatar,
+  AvatarImage,
+  AvatarFallback,
+} from "@/components/primitives/avatar";
 import { Calendar, User } from "lucide-react";
 import type { Profile } from "@/lib/types/profile.types";
 

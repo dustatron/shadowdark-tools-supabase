@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { Button } from "../ui/button";
+import { Button } from "@/components/primitives/button";
 
 const CopyIcon = () => (
   <svg
@@ -52,6 +52,7 @@ export function CodeBlock({ code }: { code: string }) {
         onClick={copy}
         variant={"outline"}
         className="absolute right-2 top-2"
+        aria-label="Copy code to clipboard"
       >
         {icon}
       </Button>

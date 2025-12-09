@@ -1,7 +1,7 @@
 "use client";
 
 import { usePathname, useRouter } from "next/navigation";
-import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Tabs, TabsList, TabsTrigger } from "@/components/primitives/tabs";
 import { Swords, Sparkles, Dice6, Heart, Layers } from "lucide-react";
 
 export function DashboardMobileNav() {

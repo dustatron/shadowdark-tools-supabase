@@ -1,5 +1,5 @@
 import { DeckList } from "@/components/deck";
-import { Button } from "@/components/ui/button";
+import { Button } from "@/components/primitives/button";
 import { Plus } from "lucide-react";
 import Link from "next/link";
 

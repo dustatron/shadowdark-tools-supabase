@@ -1,6 +1,12 @@
 import { NextRequest, NextResponse } from "next/server";
 import { createClient } from "@/lib/supabase/server";
 import { z } from "zod";
+import {
+  buildPaginationParams,
+  buildPaginationMeta,
+  buildSearchQuery,
+  buildInFilter,
+} from "@/lib/api/query-builder";
 
 // Schema for search parameters
 const SearchParamsSchema = z.object({
@@ -20,7 +26,7 @@ const SearchParamsSchema = z.object({
 export async function GET(request: NextRequest) {
   try {
     const supabase = await createClient();
-    const { searchParams } = new URL(request.url);
+    const searchParams = request.nextUrl.searchParams;
 
     // Parse and validate query parameters
     const rawParams = {
@@ -57,10 +63,10 @@ export async function GET(request: NextRequest) {
       sources,
       spellTypes,
       favorites,
-      page,
-      limit,
     } = validatedParams;
-    const offset = (page - 1) * limit;
+
+    // Build pagination params
+    const pagination = buildPaginationParams(searchParams, 20, 100);
 
     // Get current user if favorites filter is requested
     let userId: string | null = null;
@@ -72,15 +78,10 @@ export async function GET(request: NextRequest) {
 
       // If favorites requested but no user, return empty results
       if (!userId) {
+        const emptyMeta = buildPaginationMeta(pagination, 0);
         return NextResponse.json({
           results: [],
-          total: 0,
-          pagination: {
-            page,
-            limit,
-            total: 0,
-            totalPages: 0,
-          },
+          pagination: emptyMeta,
           query: validatedParams,
         });
       }
@@ -88,12 +89,15 @@ export async function GET(request: NextRequest) {
 
     let query = supabase.from("all_spells").select("*", { count: "exact" });
 
-    if (q) {
-      query = query.or(`name.ilike.%${q}%,description.ilike.%${q}%`);
-    }
+    // Apply search using query builder
+    query = buildSearchQuery(query, q, ["name", "description"], "high");
+
+    // Apply tier filter
     if (tiers && tiers.length > 0) {
       query = query.in("tier", tiers);
     }
+
+    // Apply class filter
     if (classes && classes.length > 0) {
       // Build OR filters for each class - spell matches if classes array contains ANY selected class
       const orConditions = classes
@@ -101,18 +105,18 @@ export async function GET(request: NextRequest) {
         .join(",");
       query = query.or(orConditions);
     }
-    if (durations && durations.length > 0) {
-      query = query.in("duration", durations);
-    }
-    if (ranges && ranges.length > 0) {
-      query = query.in("range", ranges);
-    }
-    if (sources && sources.length > 0) {
-      query = query.in("source", sources);
-    }
-    if (spellTypes && spellTypes.length > 0) {
-      query = query.in("spell_type", spellTypes);
-    }
+
+    // Apply duration filter
+    query = buildInFilter(query, "duration", durations);
+
+    // Apply range filter
+    query = buildInFilter(query, "range", ranges);
+
+    // Apply source filter
+    query = buildInFilter(query, "source", sources);
+
+    // Apply spell type filter
+    query = buildInFilter(query, "spell_type", spellTypes as string[]);
 
     // Filter by favorites if requested
     if (favorites && userId) {
@@ -127,15 +131,10 @@ export async function GET(request: NextRequest) {
 
       // If user has no favorites, return empty
       if (favoriteIds.length === 0) {
+        const emptyMeta = buildPaginationMeta(pagination, 0);
         return NextResponse.json({
           results: [],
-          total: 0,
-          pagination: {
-            page,
-            limit,
-            total: 0,
-            totalPages: 0,
-          },
+          pagination: emptyMeta,
           query: validatedParams,
         });
       }
@@ -143,10 +142,14 @@ export async function GET(request: NextRequest) {
       query = query.in("id", favoriteIds);
     }
 
-    query = query
-      .order("tier")
-      .order("name")
-      .range(offset, offset + limit - 1);
+    // Apply sorting
+    query = query.order("tier").order("name");
+
+    // Apply pagination
+    query = query.range(
+      pagination.offset,
+      pagination.offset + pagination.limit - 1,
+    );
 
     const { data, error, count } = await query;
 
@@ -155,17 +158,12 @@ export async function GET(request: NextRequest) {
       return NextResponse.json({ error: "Search failed" }, { status: 500 });
     }
 
-    const total = count || 0;
+    // Build pagination metadata
+    const paginationMeta = buildPaginationMeta(pagination, count || 0);
 
     return NextResponse.json({
       results: data || [],
-      total,
-      pagination: {
-        page: page,
-        limit: limit,
-        total,
-        totalPages: Math.ceil(total / limit),
-      },
+      pagination: paginationMeta,
       query: validatedParams,
     });
   } catch (error) {

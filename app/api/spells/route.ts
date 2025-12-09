@@ -2,6 +2,15 @@ import { NextRequest, NextResponse } from "next/server";
 import { createClient } from "@/lib/supabase/server";
 import { spellCreateSchema } from "@/lib/validations/spell";
 import { generateSlug } from "@/lib/utils/slug";
+import {
+  buildPaginationParamsFromOffset,
+  buildPaginationMeta,
+  buildSearchQuery,
+  buildSortQuery,
+  parseJsonFields,
+  buildArrayContainsFilter,
+  buildRangeFilter,
+} from "@/lib/api/query-builder";
 
 // GET /api/spells - List spells with filtering
 export async function GET(request: NextRequest) {
@@ -15,10 +24,13 @@ export async function GET(request: NextRequest) {
     } = await supabase.auth.getUser();
     const isAuthenticated = !!user;
 
+    // Build pagination params (using offset mode for backwards compatibility)
+    const pagination = buildPaginationParamsFromOffset(searchParams, 50, 100);
+
     // Build query for user_spells (RLS handles visibility automatically)
     let query = supabase.from("user_spells").select("*", { count: "exact" });
 
-    // Apply filters
+    // Apply tier filter
     const tier = searchParams.get("tier");
     if (tier) {
       const tierNum = parseInt(tier);
@@ -28,9 +40,10 @@ export async function GET(request: NextRequest) {
           { status: 400 },
         );
       }
-      query = query.eq("tier", tierNum);
+      query = buildRangeFilter(query, "tier", tierNum, tierNum);
     }
 
+    // Apply class filter
     const classFilter = searchParams.get("class");
     if (classFilter) {
       if (classFilter !== "wizard" && classFilter !== "priest") {
@@ -39,24 +52,28 @@ export async function GET(request: NextRequest) {
           { status: 400 },
         );
       }
-      query = query.contains("classes", [classFilter]);
+      query = buildArrayContainsFilter(query, "classes", [classFilter]);
     }
 
-    const search = searchParams.get("search");
-    if (search) {
-      query = query.or(`name.ilike.%${search}%,description.ilike.%${search}%`);
-    }
-
-    // Pagination
-    const limit = Math.min(
-      Math.max(parseInt(searchParams.get("limit") || "50"), 1),
-      100,
+    // Apply search
+    const searchTerm = searchParams.get("search") || undefined;
+    query = buildSearchQuery(
+      query,
+      searchTerm,
+      ["name", "description"],
+      "high",
     );
-    const offset = Math.max(parseInt(searchParams.get("offset") || "0"), 0);
 
-    // Apply sorting and pagination
-    query = query.order("name", { ascending: true });
-    query = query.range(offset, offset + limit - 1);
+    // Apply sorting (default to name ascending)
+    const sortField = searchParams.get("sort") || "name";
+    const sortOrder = (searchParams.get("order") || "asc") as "asc" | "desc";
+    query = buildSortQuery(query, sortField, sortOrder);
+
+    // Apply pagination
+    query = query.range(
+      pagination.offset,
+      pagination.offset + pagination.limit - 1,
+    );
 
     const { data: spells, error, count } = await query;
 
@@ -68,18 +85,15 @@ export async function GET(request: NextRequest) {
       );
     }
 
-    // Parse JSONB classes field if needed
-    const parsedSpells = (spells || []).map((spell) => ({
-      ...spell,
-      classes:
-        typeof spell.classes === "string"
-          ? JSON.parse(spell.classes)
-          : spell.classes,
-    }));
+    // Parse JSONB fields
+    const parsedSpells = parseJsonFields(spells || [], ["classes"]);
+
+    // Build pagination metadata
+    const meta = buildPaginationMeta(pagination, count || 0);
 
     return NextResponse.json({
       data: parsedSpells,
-      count: count || 0,
+      pagination: meta,
     });
   } catch (error) {
     console.error("Unexpected error in GET /api/spells:", error);

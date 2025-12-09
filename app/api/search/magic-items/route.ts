@@ -1,6 +1,12 @@
 import { NextRequest, NextResponse } from "next/server";
 import { createClient } from "@/lib/supabase/server";
 import { z } from "zod";
+import {
+  buildPaginationParams,
+  buildPaginationMeta,
+  buildSearchQuery,
+  buildSortQuery,
+} from "@/lib/api/query-builder";
 
 // Schema for search parameters
 const SearchParamsSchema = z.object({
@@ -8,15 +14,19 @@ const SearchParamsSchema = z.object({
   traitTypes: z.array(z.string()).optional(),
   source: z.enum(["official", "custom", "all"]).optional(),
   favorites: z.boolean().optional(),
-  page: z.number().int().min(1).default(1),
-  limit: z.number().int().min(1).max(100).default(20),
+  fuzziness: z.enum(["low", "medium", "high"]).optional(),
+  sort: z.string().optional(),
+  order: z.enum(["asc", "desc"]).optional(),
 });
 
 // GET /api/search/magic-items - Advanced search for magic items
 export async function GET(request: NextRequest) {
   try {
     const supabase = await createClient();
-    const { searchParams } = new URL(request.url);
+    const searchParams = request.nextUrl.searchParams;
+
+    // Build pagination parameters
+    const pagination = buildPaginationParams(searchParams, 20, 100);
 
     // Parse and validate query parameters
     const rawParams = {
@@ -24,15 +34,14 @@ export async function GET(request: NextRequest) {
       traitTypes: searchParams.get("traitTypes")?.split(",").filter(Boolean),
       source: searchParams.get("source") || undefined,
       favorites: searchParams.get("favorites") === "true",
-      page: searchParams.get("page") ? parseInt(searchParams.get("page")!) : 1,
-      limit: searchParams.get("limit")
-        ? parseInt(searchParams.get("limit")!)
-        : 20,
+      fuzziness: searchParams.get("fuzziness") || "medium",
+      sort: searchParams.get("sort") || undefined,
+      order: searchParams.get("order") || undefined,
     };
 
     const validatedParams = SearchParamsSchema.parse(rawParams);
-    const { q, traitTypes, source, favorites, page, limit } = validatedParams;
-    const offset = (page - 1) * limit;
+    const { q, traitTypes, source, favorites, fuzziness, sort, order } =
+      validatedParams;
 
     // Get current user for favorites
     let userId: string | null = null;
@@ -43,16 +52,10 @@ export async function GET(request: NextRequest) {
 
     // If favorites requested but no user, return empty results
     if (favorites && !userId) {
+      const emptyMeta = buildPaginationMeta(pagination, 0);
       return NextResponse.json({
-        results: [],
-        total: 0,
-        pagination: {
-          page,
-          limit,
-          total: 0,
-          totalPages: 0,
-        },
-        query: validatedParams,
+        data: [],
+        pagination: emptyMeta,
       });
     }
 
@@ -77,11 +80,13 @@ export async function GET(request: NextRequest) {
     if (queryOfficial) {
       let officialQuery = supabase.from("official_magic_items").select("*");
 
-      if (q) {
-        officialQuery = officialQuery.or(
-          `name.ilike.%${q}%,description.ilike.%${q}%`,
-        );
-      }
+      // Apply search using query builder
+      officialQuery = buildSearchQuery(
+        officialQuery,
+        q,
+        ["name", "description"],
+        fuzziness as "low" | "medium" | "high",
+      );
 
       if (traitTypes && traitTypes.length > 0) {
         const orConditions = traitTypes
@@ -116,11 +121,13 @@ export async function GET(request: NextRequest) {
         )
         .eq("is_public", true);
 
-      if (q) {
-        communityQuery = communityQuery.or(
-          `name.ilike.%${q}%,description.ilike.%${q}%`,
-        );
-      }
+      // Apply search using query builder
+      communityQuery = buildSearchQuery(
+        communityQuery,
+        q,
+        ["name", "description"],
+        fuzziness as "low" | "medium" | "high",
+      );
 
       if (traitTypes && traitTypes.length > 0) {
         const orConditions = traitTypes
@@ -167,30 +174,42 @@ export async function GET(request: NextRequest) {
       filteredResults = results.filter((item) => favoriteIds.has(item.id));
     }
 
-    // Sort by name
-    filteredResults.sort((a, b) => a.name.localeCompare(b.name));
+    // Apply sorting
+    const sortField = sort || "name";
+    const sortOrder = (order || "asc") as "asc" | "desc";
+    filteredResults.sort((a, b) => {
+      const aVal = (a as any)[sortField];
+      const bVal = (b as any)[sortField];
+
+      if (typeof aVal === "string" && typeof bVal === "string") {
+        return sortOrder === "asc"
+          ? aVal.localeCompare(bVal)
+          : bVal.localeCompare(aVal);
+      }
+
+      return sortOrder === "asc" ? aVal - bVal : bVal - aVal;
+    });
 
     // Apply pagination
     const total = filteredResults.length;
-    const paginatedResults = filteredResults.slice(offset, offset + limit);
+    const paginatedResults = filteredResults.slice(
+      pagination.offset,
+      pagination.offset + pagination.limit,
+    );
+
+    // Build pagination metadata
+    const meta = buildPaginationMeta(pagination, total);
 
     return NextResponse.json({
-      results: paginatedResults,
-      total,
-      pagination: {
-        page,
-        limit,
-        total,
-        totalPages: Math.ceil(total / limit),
-      },
-      query: validatedParams,
+      data: paginatedResults,
+      pagination: meta,
     });
   } catch (error) {
     if (error instanceof z.ZodError) {
       return NextResponse.json(
         {
           error: "Invalid search parameters",
-          details: error.flatten(),
+          details: error.issues,
         },
         { status: 400 },
       );

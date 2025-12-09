@@ -2,8 +2,8 @@ import { createClient } from "@/lib/supabase/server";
 import { EquipmentDetailClient } from "./EquipmentDetailClient"; // Will create this
 import { ArrowLeft, AlertCircle } from "lucide-react";
 import Link from "next/link";
-import { Button } from "@/components/ui/button";
-import { Alert, AlertDescription } from "@/components/ui/alert";
+import { Button } from "@/components/primitives/button";
+import { Alert, AlertDescription } from "@/components/primitives/alert";
 import { generateBackUrl } from "@/lib/utils";
 
 export default async function EquipmentDetailPage({

@@ -1,3 +1,36 @@
+import type { DatabaseMonster, AllMonstersView } from "./database";
+
+// Re-export database types for convenience
+export type { DatabaseMonster, AllMonstersView };
+
+// Monster entity type alias for database type
+export type Monster = DatabaseMonster;
+
+export interface AllMonster extends AllMonstersView {
+  creator_id?: string;
+}
+
+// Monster author/creator information
+export interface MonsterAuthor {
+  id: string;
+  display_name: string | null;
+  avatar_url: string | null;
+  username_slug: string | null;
+}
+
+// Monster with extended details (for detail pages)
+export interface MonsterWithAuthor extends Monster {
+  author?: MonsterAuthor | null;
+  xp?: number;
+  description?: string;
+  tactics?: string;
+  wants?: string;
+  gm_notes?: string;
+  monster_type?: "official" | "user" | "custom";
+  creator_id?: string;
+  username_slug?: string | null;
+}
+
 export const AVAILABLE_SPEED_TYPES = [
   "close",
   "close (climb)",
@@ -21,10 +54,14 @@ export const AVAILABLE_SPEED_TYPES = [
   "near (swim, fly)",
   "none",
   "triple near (burrow, swim)",
-];
+] as const;
 
+export type SpeedType = (typeof AVAILABLE_SPEED_TYPES)[number];
+
+// UI types
 export type ViewMode = "cards" | "table";
 
+// Filter types
 export interface FilterValues {
   search: string;
   challengeLevelRange: [number, number];
@@ -34,9 +71,17 @@ export interface FilterValues {
   view: ViewMode;
 }
 
+// Pagination types
 export interface PaginationState {
   page: number;
   limit: number;
+}
+
+export interface PaginationResponse {
+  page: number;
+  limit: number;
+  total: number;
+  totalPages: number;
 }
 
 export const DEFAULT_FILTERS: FilterValues = {
