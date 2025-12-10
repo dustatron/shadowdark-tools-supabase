@@ -26,8 +26,15 @@ const Toaster = ({ ...props }: ToasterProps) => {
       }}
       toastOptions={{
         classNames: {
-          toast: "group-[.toaster]:justify-between",
-          closeButton: "!left-auto !right-2 !top-2",
+          toast:
+            "group-[.toaster]:gap-4 group-[.toaster]:p-4 group-[.toaster]:pr-12 group-[.toaster]:min-h-[56px] group-[.toaster]:shadow-lg",
+          closeButton:
+            "!left-auto !right-3 !top-3 !bg-transparent hover:!bg-accent !text-foreground/60 hover:!text-foreground !border-0 !shadow-none",
+          title: "font-medium text-sm",
+          description: "text-sm opacity-90",
+          actionButton:
+            "!bg-primary !text-primary-foreground hover:!bg-primary/90",
+          cancelButton: "!bg-muted !text-muted-foreground hover:!bg-muted/80",
         },
       }}
       style={

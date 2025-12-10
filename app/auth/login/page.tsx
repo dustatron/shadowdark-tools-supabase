@@ -30,8 +30,8 @@ export default async function Page() {
   }
 
   return (
-    <div className="flex min-h-svh w-full items-center justify-center p-6 md:p-10">
-      <div className="w-full max-w-sm">
+    <div className="flex min-h-svh w-full justify-center p-2 md:p-5">
+      <div className="w-full max-w-md">
         <Suspense fallback={<div>Loading...</div>}>
           <LoginForm />
         </Suspense>
