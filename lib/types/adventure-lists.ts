@@ -12,6 +12,7 @@ export interface AdventureList {
     monsters: number;
     spells: number;
     magic_items: number;
+    equipment: number;
     total: number;
   };
 }
@@ -19,7 +20,12 @@ export interface AdventureList {
 export interface AdventureListItem {
   id: string;
   list_id: string;
-  item_type: "monster" | "spell" | "magic_item";
+  item_type:
+    | "monster"
+    | "spell"
+    | "magic_item"
+    | "equipment"
+    | "encounter_table";
   item_id: string;
   quantity: number;
   notes: string | null;
@@ -39,5 +45,6 @@ export interface AdventureListWithItems {
     monsters: AdventureListItem[];
     spells: AdventureListItem[];
     magic_items: AdventureListItem[];
+    equipment: AdventureListItem[];
   };
 }

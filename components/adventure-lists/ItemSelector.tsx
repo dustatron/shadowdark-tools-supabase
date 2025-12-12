@@ -10,7 +10,7 @@ import { toast } from "sonner";
 import { logger } from "@/lib/utils/logger";
 
 interface ItemSelectorProps {
-  itemType: "monster" | "spell" | "magic_item";
+  itemType: "monster" | "spell" | "magic_item" | "equipment";
   listId: string;
   onItemAdded: () => void;
 }
@@ -23,6 +23,8 @@ interface SearchResult {
   // Additional fields based on type
   challenge_level?: number;
   tier?: number;
+  item_type?: string; // For equipment
+  cost?: any;
 }
 
 export function ItemSelector({
@@ -54,6 +56,7 @@ export function ItemSelector({
         else if (itemType === "spell") endpoint = "/api/search/spells";
         else if (itemType === "magic_item")
           endpoint = "/api/search/magic-items";
+        else if (itemType === "equipment") endpoint = "/api/equipment";
 
         const response = await fetch(
           `${endpoint}?q=${encodeURIComponent(debouncedSearch)}`,
@@ -61,7 +64,7 @@ export function ItemSelector({
         if (!response.ok) throw new Error("Search failed");
 
         const data = await response.json();
-        setResults(data.results || []);
+        setResults(data.results || data.data || []);
       } catch (error) {
         logger.error("Search error:", error);
         toast.error("Failed to search items");
@@ -139,6 +142,9 @@ export function ItemSelector({
                     {itemType === "spell" &&
                       item.tier !== undefined &&
                       `Tier ${item.tier}`}
+                    {itemType === "equipment" &&
+                      item.item_type &&
+                      item.item_type}
                     {item.source && ` • ${item.source}`}
                   </div>
                 </div>

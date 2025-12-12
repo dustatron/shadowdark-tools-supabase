@@ -8,7 +8,7 @@ import {
 import { Button } from "@/components/primitives/button";
 
 interface ExportButtonProps {
-  onExport: (format: "json" | "csv") => void;
+  onExport: (format: "json" | "csv" | "markdown") => void;
   className?: string;
 }
 
@@ -27,6 +27,9 @@ export function ExportButton({ onExport, className }: ExportButtonProps) {
         </DropdownMenuItem>
         <DropdownMenuItem onClick={() => onExport("csv")}>
           Export as CSV
+        </DropdownMenuItem>
+        <DropdownMenuItem onClick={() => onExport("markdown")}>
+          Export as Markdown
         </DropdownMenuItem>
       </DropdownMenuContent>
     </DropdownMenu>

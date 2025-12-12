@@ -19,19 +19,13 @@ export default async function Page() {
   const session = await getServerSession();
 
   if (session?.user) {
-    // User is already logged in, redirect to profile page
-    // Try to get username_slug from user metadata or redirect to settings
-    const usernameSlug = session.user.user_metadata?.username_slug;
-    if (usernameSlug) {
-      redirect(`/users/${usernameSlug}`);
-    } else {
-      redirect("/settings");
-    }
+    // User is already logged in, redirect to adventure lists
+    redirect("/adventure-lists");
   }
 
   return (
-    <div className="flex min-h-svh w-full items-center justify-center p-6 md:p-10">
-      <div className="w-full max-w-sm">
+    <div className="flex min-h-svh w-full justify-center p-2 md:p-5">
+      <div className="w-full max-w-md">
         <Suspense fallback={<div>Loading...</div>}>
           <LoginForm />
         </Suspense>

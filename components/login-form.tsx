@@ -32,8 +32,8 @@ export function LoginForm({
   // Redirect if user is already authenticated
   useEffect(() => {
     if (user) {
-      // User is already logged in, redirect to dashboard
-      router.replace("/dashboard");
+      // User is already logged in, redirect to adventure lists
+      router.replace("/adventure-lists");
     }
   }, [user, router]);
 
@@ -50,8 +50,8 @@ export function LoginForm({
       });
       if (error) throw error;
 
-      // Check for redirect parameter and use it, otherwise default to /dashboard
-      const redirectTo = searchParams.get("redirect") || "/dashboard";
+      // Check for redirect parameter and use it, otherwise default to /adventure-lists
+      const redirectTo = searchParams.get("redirect") || "/adventure-lists";
       router.push(redirectTo);
     } catch (error: unknown) {
       setError(error instanceof Error ? error.message : "An error occurred");

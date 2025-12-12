@@ -28,7 +28,13 @@ export const adventureListSchema = z.object({
 export type AdventureListInput = z.infer<typeof adventureListSchema>;
 
 export const adventureListItemSchema = z.object({
-  item_type: z.enum(["monster", "spell", "magic_item"]),
+  item_type: z.enum([
+    "monster",
+    "spell",
+    "magic_item",
+    "equipment",
+    "encounter_table",
+  ]),
   item_id: z.string().uuid("Invalid item ID"),
   quantity: z
     .number()
