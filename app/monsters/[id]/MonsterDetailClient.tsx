@@ -211,19 +211,18 @@ export function MonsterDetailClient({
                     Challenge Level {monster.challenge_level}
                   </Badge>
                   {monster.source === "Shadowdark Core" ? (
-                    <Badge
-                      variant="outline"
-                      className="text-base px-3 py-1 hover:bg-accent"
-                      asChild
+                    <a
+                      href="https://www.thearcanelibrary.com/collections/shadowdark-core-rules/products/shadowdark-rpg-quickstart-set-pdf"
+                      target="_blank"
+                      rel="noopener noreferrer"
                     >
-                      <a
-                        href="https://www.thearcanelibrary.com/collections/shadowdark-core-rules/products/shadowdark-rpg-quickstart-set-pdf"
-                        target="_blank"
-                        rel="noopener noreferrer"
+                      <Badge
+                        variant="outline"
+                        className="text-base px-3 py-1 hover:bg-accent"
                       >
                         {monster.source}
-                      </a>
-                    </Badge>
+                      </Badge>
+                    </a>
                   ) : (
                     <Badge variant="outline" className="text-base px-3 py-1">
                       {monster.source}
