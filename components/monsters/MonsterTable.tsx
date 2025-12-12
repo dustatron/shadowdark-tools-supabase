@@ -139,7 +139,7 @@ export function MonsterTable({
             onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
             aria-label={ariaLabel}
           >
-            CL
+            Lvl
             {column.getIsSorted() === "asc" ? (
               <ArrowUp className="h-4 w-4" />
             ) : column.getIsSorted() === "desc" ? (

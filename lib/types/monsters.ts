@@ -86,7 +86,7 @@ export interface PaginationResponse {
 
 export const DEFAULT_FILTERS: FilterValues = {
   search: "",
-  challengeLevelRange: [1, 20],
+  challengeLevelRange: [1, 50],
   types: [],
   speedType: [],
   monsterSource: "all",
@@ -116,10 +116,10 @@ export function parseFiltersFromSearchParams(
   const search = get("q") || get("search") || "";
 
   const minCl = parseInt(get("min_cl") || "1");
-  const maxCl = parseInt(get("max_cl") || "20");
+  const maxCl = parseInt(get("max_cl") || "50");
   const challengeLevelRange: [number, number] = [
-    isNaN(minCl) ? 1 : Math.max(1, Math.min(20, minCl)),
-    isNaN(maxCl) ? 20 : Math.max(1, Math.min(20, maxCl)),
+    isNaN(minCl) ? 1 : Math.max(1, Math.min(100, minCl)),
+    isNaN(maxCl) ? 50 : Math.max(1, Math.min(100, maxCl)),
   ];
 
   const typesParam = get("types");
@@ -188,7 +188,7 @@ export function serializeFiltersToSearchParams(
   if (filters.challengeLevelRange[0] > 1) {
     params.set("min_cl", filters.challengeLevelRange[0].toString());
   }
-  if (filters.challengeLevelRange[1] < 20) {
+  if (filters.challengeLevelRange[1] < 100) {
     params.set("max_cl", filters.challengeLevelRange[1].toString());
   }
 

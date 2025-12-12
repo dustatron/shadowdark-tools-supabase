@@ -71,9 +71,14 @@ export function MonsterOwnershipCard({
                 {isOwner ? "Your Monster" : "Monster Information"}
               </p>
               {isOfficialMonster && (
-                <p className="text-sm text-muted-foreground">
+                <a
+                  href="https://www.thearcanelibrary.com/collections/shadowdark-core-rules/products/shadowdark-rpg-quickstart-set-pdf"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="text-sm text-muted-foreground underline hover:text-foreground"
+                >
                   Official Shadowdark content
-                </p>
+                </a>
               )}
             </div>
             <Badge

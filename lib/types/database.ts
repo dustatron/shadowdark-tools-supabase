@@ -143,6 +143,8 @@ export interface MonsterAttack {
   damage: string;
   range?: string;
   description?: string;
+  attackBonus?: number;
+  numberOfAttacks?: number;
 }
 
 export interface MonsterAbility {

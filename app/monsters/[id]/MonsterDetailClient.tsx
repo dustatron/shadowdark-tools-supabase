@@ -210,14 +210,24 @@ export function MonsterDetailClient({
                   >
                     Challenge Level {monster.challenge_level}
                   </Badge>
-                  {monster.xp && (
+                  {monster.source === "Shadowdark Core" ? (
+                    <a
+                      href="https://www.thearcanelibrary.com/collections/shadowdark-core-rules/products/shadowdark-rpg-quickstart-set-pdf"
+                      target="_blank"
+                      rel="noopener noreferrer"
+                    >
+                      <Badge
+                        variant="outline"
+                        className="text-base px-3 py-1 hover:bg-accent"
+                      >
+                        {monster.source}
+                      </Badge>
+                    </a>
+                  ) : (
                     <Badge variant="outline" className="text-base px-3 py-1">
-                      {monster.xp} XP
+                      {monster.source}
                     </Badge>
                   )}
-                  <Badge variant="outline" className="text-base px-3 py-1">
-                    {monster.source}
-                  </Badge>
                   {monster.monster_type === "user" && (
                     <Badge
                       variant="secondary"

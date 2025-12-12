@@ -78,7 +78,7 @@ export function MonstersClient({
         params.append("min_cl", filters.challengeLevelRange[0].toString());
       }
 
-      if (filters.challengeLevelRange[1] < 20) {
+      if (filters.challengeLevelRange[1] < 100) {
         params.append("max_cl", filters.challengeLevelRange[1].toString());
       }
 
