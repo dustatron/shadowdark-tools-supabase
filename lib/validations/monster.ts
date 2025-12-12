@@ -12,6 +12,8 @@ export const attackSchema = z.object({
   damage: z.string().min(1, "Attack damage is required"),
   range: z.string().optional(),
   description: z.string().optional(),
+  attackBonus: z.number().int().min(-10).max(20).optional(),
+  numberOfAttacks: z.number().int().min(1).max(20).optional(),
 });
 
 // Ability schema based on OpenAPI specification
@@ -48,7 +50,7 @@ export const monsterSchema = z.object({
     .number()
     .int()
     .min(1, "Challenge level must be at least 1")
-    .max(20, "Challenge level must be at most 20"),
+    .max(100, "Challenge level must be at most 100"),
   hit_points: z.number().int().min(1, "Hit points must be at least 1"),
   armor_class: z
     .number()
@@ -67,13 +69,13 @@ export const monsterSchema = z.object({
   gm_notes: z.string().optional(),
   icon_url: z.string().url().optional().or(z.literal("")),
   art_url: z.string().url().optional().or(z.literal("")),
-  // Ability score modifiers (-4 to +4)
-  strength_mod: z.number().int().min(-4).max(4).default(0),
-  dexterity_mod: z.number().int().min(-4).max(4).default(0),
-  constitution_mod: z.number().int().min(-4).max(4).default(0),
-  intelligence_mod: z.number().int().min(-4).max(4).default(0),
-  wisdom_mod: z.number().int().min(-4).max(4).default(0),
-  charisma_mod: z.number().int().min(-4).max(4).default(0),
+  // Ability score modifiers (-10 to +10)
+  strength_mod: z.number().int().min(-10).max(10).default(0),
+  dexterity_mod: z.number().int().min(-10).max(10).default(0),
+  constitution_mod: z.number().int().min(-10).max(10).default(0),
+  intelligence_mod: z.number().int().min(-10).max(10).default(0),
+  wisdom_mod: z.number().int().min(-10).max(10).default(0),
+  charisma_mod: z.number().int().min(-10).max(10).default(0),
   is_official: z.boolean().default(false),
   is_public: z.boolean().default(false),
   user_id: uuidSchema.optional(),
@@ -95,7 +97,7 @@ export const createMonsterSchema = z.object({
     .number()
     .int()
     .min(1, "Challenge level must be at least 1")
-    .max(20, "Challenge level must be at most 20"),
+    .max(100, "Challenge level must be at most 100"),
   hit_points: z.number().int().min(1, "Hit points must be at least 1"),
   armor_class: z
     .number()
@@ -114,13 +116,13 @@ export const createMonsterSchema = z.object({
   gm_notes: z.string().optional(),
   icon_url: z.string().url().optional().or(z.literal("")),
   art_url: z.string().url().optional().or(z.literal("")),
-  // Ability score modifiers (-4 to +4)
-  strength_mod: z.number().int().min(-4).max(4).default(0),
-  dexterity_mod: z.number().int().min(-4).max(4).default(0),
-  constitution_mod: z.number().int().min(-4).max(4).default(0),
-  intelligence_mod: z.number().int().min(-4).max(4).default(0),
-  wisdom_mod: z.number().int().min(-4).max(4).default(0),
-  charisma_mod: z.number().int().min(-4).max(4).default(0),
+  // Ability score modifiers (-10 to +10)
+  strength_mod: z.number().int().min(-10).max(10).default(0),
+  dexterity_mod: z.number().int().min(-10).max(10).default(0),
+  constitution_mod: z.number().int().min(-10).max(10).default(0),
+  intelligence_mod: z.number().int().min(-10).max(10).default(0),
+  wisdom_mod: z.number().int().min(-10).max(10).default(0),
+  charisma_mod: z.number().int().min(-10).max(10).default(0),
   is_public: z.boolean().default(false),
 });
 
@@ -132,13 +134,13 @@ export const monsterSearchSchema = z.object({
     .number()
     .int()
     .min(1, "Minimum challenge level must be at least 1")
-    .max(20, "Minimum challenge level must be at most 20")
+    .max(100, "Minimum challenge level must be at most 100")
     .optional(),
   max_cl: z
     .number()
     .int()
     .min(1, "Maximum challenge level must be at least 1")
-    .max(20, "Maximum challenge level must be at most 20")
+    .max(100, "Maximum challenge level must be at most 100")
     .optional(),
   tags: z
     .array(z.string())

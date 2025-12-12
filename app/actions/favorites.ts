@@ -30,12 +30,20 @@ export async function toggleFavorite(
       revalidatePath("/dashboard");
       return { favoriteId: null };
     } else {
+      // Check if already favorited (race condition protection)
+      const existingId = await getFavoriteId(user.id, itemType, itemId);
+      if (existingId) {
+        // Already favorited, return existing ID
+        return { favoriteId: existingId };
+      }
+
       // Add to favorites
       const favorite = await addToFavorites(user.id, itemType, itemId);
       revalidatePath("/dashboard");
       return { favoriteId: favorite.id };
     }
   } catch (error) {
+    console.error("toggleFavorite error:", error);
     return { error: "Failed to update favorites" };
   }
 }

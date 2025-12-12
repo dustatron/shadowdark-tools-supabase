@@ -1,5 +1,9 @@
-const fs = require("fs");
-const path = require("path");
+import fs from "fs";
+import path from "path";
+import { fileURLToPath } from "url";
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
 
 // Function to transform the monster data to our schema
 function transformMonster(monster) {
@@ -30,8 +34,8 @@ function transformMonster(monster) {
     hitPoints = 11; // Default HP for variable monsters (from Hydra description)
   }
 
-  // Ensure challenge level is within valid range (1-10)
-  challengeLevel = Math.max(1, Math.min(10, challengeLevel));
+  // Ensure challenge level is at least 1 (max 50 for epic monsters like Tarrasque at 30)
+  challengeLevel = Math.max(1, Math.min(50, challengeLevel));
 
   return {
     name: monster.name,
@@ -47,6 +51,13 @@ function transformMonster(monster) {
     author_notes: monster.description || null,
     icon_url: null,
     art_url: null,
+    // Clamp modifiers to -10/+10 range (database constraint)
+    strength_mod: Math.max(-10, Math.min(10, monster.strength ?? 0)),
+    dexterity_mod: Math.max(-10, Math.min(10, monster.dexterity ?? 0)),
+    constitution_mod: Math.max(-10, Math.min(10, monster.constitution ?? 0)),
+    intelligence_mod: Math.max(-10, Math.min(10, monster.intelligence ?? 0)),
+    wisdom_mod: Math.max(-10, Math.min(10, monster.wisdom ?? 0)),
+    charisma_mod: Math.max(-10, Math.min(10, monster.charisma ?? 0)),
   };
 }
 
@@ -54,51 +65,68 @@ function transformMonster(monster) {
 function parseAttacks(attackString) {
   if (!attackString) return [];
 
-  // Basic parsing - this is simplified and may need refinement
   const attacks = [];
   const attackParts = attackString.split(" or ");
 
   attackParts.forEach((part) => {
     const trimmed = part.trim();
 
-    // Try to extract attack name, type, and damage
-    let name = "Unknown Attack";
-    let type = "melee";
-    let damage = "1d4";
-    let range = "5 ft";
+    // Primary pattern: [NUM] [NAME] ([RANGE]) +/-[BONUS] ([DAMAGE])
+    // Example: "2 tentacle (near) +5 (1d8 + curse)"
+    let match = trimmed.match(
+      /^(\d+)\s+([^+\-\(]+?)\s*(?:\(([^)]+)\))?\s*([+\-]\d+)(?:\s*\(([^)]+)\))?/,
+    );
 
-    // Simple pattern matching
-    if (trimmed.includes("(far)")) {
-      type = "ranged";
-      range = "far";
-    } else if (trimmed.includes("(near)")) {
-      range = "near";
-    } else if (trimmed.includes("(close)")) {
-      range = "close";
-    }
+    if (match) {
+      const numberOfAttacks = parseInt(match[1], 10);
+      const name = match[2].trim();
+      const rangeText = match[3] || "close";
+      const attackBonus = parseInt(match[4], 10);
+      const damageText = match[5] || "1d4";
 
-    // Extract damage pattern like (1d6+2)
-    const damageMatch = trimmed.match(/\(([^)]+)\)/);
-    if (damageMatch) {
-      const damageText = damageMatch[1];
-      if (damageText.match(/\d+d\d+/)) {
-        damage = damageText.split(" ")[0].replace(/,+$/, ""); // Get just the dice part and remove trailing commas
+      // Extract just the dice portion from damage (e.g., "1d8" from "1d8 + curse")
+      const damage = damageText.split(" ")[0].replace(/,+$/, "");
+
+      // Determine type from range or name
+      let type = "melee";
+      if (rangeText.includes("far")) {
+        type = "ranged";
+      } else if (name.toLowerCase().includes("spell")) {
+        type = "spell";
+      } else if (rangeText.includes("near")) {
+        type = "ranged";
+      }
+
+      attacks.push({
+        name,
+        type,
+        damage,
+        range: rangeText,
+        description: "",
+        attackBonus,
+        numberOfAttacks,
+      });
+    } else {
+      // Fallback pattern for special abilities without bonuses: [NUM] [NAME]
+      // Example: "1 horn", "1 soulbind"
+      match = trimmed.match(/^(\d+)\s+(.+)$/);
+      if (match) {
+        const numberOfAttacks = parseInt(match[1], 10);
+        const name = match[2].trim();
+
+        attacks.push({
+          name,
+          type: "melee",
+          damage: "special",
+          range: "close",
+          description: "",
+          numberOfAttacks,
+        });
+      } else {
+        // Last resort fallback
+        console.warn(`Could not parse attack: ${trimmed}`);
       }
     }
-
-    // Extract attack name (first word usually)
-    const nameMatch = trimmed.match(/^(\d+\s+)?([^+\(]+)/);
-    if (nameMatch && nameMatch[2]) {
-      name = nameMatch[2].trim();
-    }
-
-    attacks.push({
-      name: name,
-      type: type,
-      damage: damage,
-      range: range,
-      description: "",
-    });
   });
 
   return attacks;
@@ -248,14 +276,23 @@ const sqlStatements = transformedMonsters.map((monster) => {
       : "NULL",
     monster.icon_url ? `'${monster.icon_url}'` : "NULL",
     monster.art_url ? `'${monster.art_url}'` : "NULL",
+    monster.strength_mod,
+    monster.dexterity_mod,
+    monster.constitution_mod,
+    monster.intelligence_mod,
+    monster.wisdom_mod,
+    monster.charisma_mod,
   ];
 
-  return `INSERT INTO public.official_monsters (name, challenge_level, hit_points, armor_class, speed, attacks, abilities, treasure, tags, source, author_notes, icon_url, art_url) VALUES (${values.join(", ")});`;
+  return `INSERT INTO public.official_monsters (name, challenge_level, hit_points, armor_class, speed, attacks, abilities, treasure, tags, source, author_notes, icon_url, art_url, strength_mod, dexterity_mod, constitution_mod, intelligence_mod, wisdom_mod, charisma_mod) VALUES (${values.join(", ")});`;
 });
 
 // Write to migration file
 const migrationContent = `-- Seed official monsters from Shadowdark starter data
 -- Generated from starter-data/monsters.json
+
+-- Clear existing data to allow re-seeding with updated fields
+DELETE FROM official_monsters;
 
 ${sqlStatements.join("\n")}
 `;

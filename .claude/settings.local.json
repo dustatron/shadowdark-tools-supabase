@@ -146,7 +146,8 @@
       "Bash(supabase projects list:*)",
       "Bash(npx supabase gen types typescript:*)",
       "Bash(npx next dev:*)",
-      "Bash(grep:*)"
+      "Bash(grep:*)",
+      "Bash(supabase db:*)"
     ],
     "deny": [],
     "ask": []

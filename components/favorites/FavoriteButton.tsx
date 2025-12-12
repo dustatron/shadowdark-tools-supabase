@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useTransition } from "react";
+import { useState, useTransition, useEffect } from "react";
 import { Button } from "@/components/primitives/button";
 import { Heart } from "lucide-react";
 import { toast } from "sonner";
@@ -22,7 +22,15 @@ export function FavoriteButton({
   const [favoriteId, setFavoriteId] = useState(initialFavoriteId);
   const [isPending, startTransition] = useTransition();
 
-  const handleToggle = () => {
+  // Sync local state when initialFavoriteId changes (from real-time updates)
+  useEffect(() => {
+    setFavoriteId(initialFavoriteId);
+  }, [initialFavoriteId]);
+
+  const handleToggle = (e: React.MouseEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+
     startTransition(async () => {
       try {
         const result = await toggleFavorite(itemType, itemId, favoriteId);
@@ -44,13 +52,13 @@ export function FavoriteButton({
   return (
     <Button
       variant={compact ? "ghost" : "outline"}
-      size={compact ? "icon-lg" : "lg"}
+      size={compact ? "icon" : "lg"}
       onClick={handleToggle}
       disabled={isPending}
       className={isFavorited ? "text-red-500 hover:text-red-600" : ""}
     >
       <Heart
-        size={16}
+        size={compact ? 16 : 20}
         fill={isFavorited ? "currentColor" : "none"}
         className={isFavorited ? "text-red-500" : ""}
       />
