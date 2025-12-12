@@ -33,6 +33,7 @@ import { ExportButton } from "./ExportButton";
 import {
   exportAdventureListAsJson,
   exportAdventureListAsCsv,
+  exportAdventureListAsMarkdown,
 } from "@/lib/utils/export";
 
 interface AdventureListDetailProps {
@@ -41,6 +42,7 @@ interface AdventureListDetailProps {
     monsters: AdventureListItem[];
     spells: AdventureListItem[];
     magic_items: AdventureListItem[];
+    equipment: AdventureListItem[];
   };
   isOwner: boolean;
 }
@@ -53,7 +55,7 @@ export function AdventureListDetail({
   const router = useRouter();
   const [isSheetOpen, setIsSheetOpen] = useState(false);
   const [activeSheetTab, setActiveSheetTab] = useState<
-    "monster" | "spell" | "magic_item"
+    "monster" | "spell" | "magic_item" | "equipment"
   >("monster");
 
   const handleRemoveItem = async (itemId: string) => {
@@ -82,16 +84,20 @@ export function AdventureListDetail({
     // We don't close the sheet automatically to allow adding multiple items
   };
 
-  const openSheet = (type: "monster" | "spell" | "magic_item") => {
+  const openSheet = (
+    type: "monster" | "spell" | "magic_item" | "equipment",
+  ) => {
     setActiveSheetTab(type);
     setIsSheetOpen(true);
   };
 
-  const handleExport = (format: "json" | "csv") => {
+  const handleExport = (format: "json" | "csv" | "markdown") => {
     if (format === "json") {
       exportAdventureListAsJson(list, items);
-    } else {
+    } else if (format === "csv") {
       exportAdventureListAsCsv(list, items);
+    } else {
+      exportAdventureListAsMarkdown(list, items);
     }
   };
 
@@ -169,7 +175,7 @@ export function AdventureListDetail({
           )}
 
           <Tabs defaultValue="monsters" className="w-full">
-            <TabsList className="grid w-full grid-cols-3">
+            <TabsList className="grid w-full grid-cols-4">
               <TabsTrigger value="monsters">
                 Monsters ({items.monsters.length})
               </TabsTrigger>
@@ -178,6 +184,9 @@ export function AdventureListDetail({
               </TabsTrigger>
               <TabsTrigger value="magic_items">
                 Magic Items ({items.magic_items.length})
+              </TabsTrigger>
+              <TabsTrigger value="equipment">
+                Equipment ({items.equipment.length})
               </TabsTrigger>
             </TabsList>
 
@@ -261,6 +270,33 @@ export function AdventureListDetail({
                 </Button>
               )}
             </TabsContent>
+
+            <TabsContent value="equipment" className="space-y-4 mt-4">
+              {items.equipment.length === 0 ? (
+                <div className="text-center py-8 text-muted-foreground">
+                  No equipment in this list.
+                </div>
+              ) : (
+                items.equipment.map((item) => (
+                  <ListItem
+                    key={item.id}
+                    item={item}
+                    isOwner={isOwner}
+                    onRemove={() => handleRemoveItem(item.id)}
+                  />
+                ))
+              )}
+              {isOwner && (
+                <Button
+                  className="w-full"
+                  variant="outline"
+                  onClick={() => openSheet("equipment")}
+                >
+                  <Plus className="w-4 h-4 mr-2" />
+                  Add Equipment
+                </Button>
+              )}
+            </TabsContent>
           </Tabs>
         </div>
 
@@ -275,7 +311,8 @@ export function AdventureListDetail({
                 <span className="font-medium">
                   {items.monsters.length +
                     items.spells.length +
-                    items.magic_items.length}
+                    items.magic_items.length +
+                    items.equipment.length}
                 </span>
               </div>
               <div className="flex justify-between">
@@ -289,6 +326,10 @@ export function AdventureListDetail({
               <div className="flex justify-between">
                 <span className="text-muted-foreground">Magic Items</span>
                 <span className="font-medium">{items.magic_items.length}</span>
+              </div>
+              <div className="flex justify-between">
+                <span className="text-muted-foreground">Equipment</span>
+                <span className="font-medium">{items.equipment.length}</span>
               </div>
               <div className="pt-2 mt-2 border-t">
                 <ExportButton onExport={handleExport} className="w-full mt-2" />
@@ -307,7 +348,9 @@ export function AdventureListDetail({
                 ? "Monster"
                 : activeSheetTab === "spell"
                   ? "Spell"
-                  : "Magic Item"}
+                  : activeSheetTab === "magic_item"
+                    ? "Magic Item"
+                    : "Equipment"}
             </SheetTitle>
           </SheetHeader>
           <div className="mt-6">
@@ -378,6 +421,13 @@ function ListItem({
                 <span>
                   Tier {item.details.tier} • {item.details.range} •{" "}
                   {item.details.duration}
+                </span>
+              )}
+              {item.item_type === "equipment" && (
+                <span>
+                  {item.details.item_type}
+                  {item.details.cost &&
+                    ` • ${item.details.cost.amount} ${item.details.cost.currency}`}
                 </span>
               )}
             </div>

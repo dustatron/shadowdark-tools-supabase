@@ -58,6 +58,7 @@ export default async function AdventureListDetailPage({
     monsters: items?.filter((i: any) => i.item_type === "monster") || [],
     spells: items?.filter((i: any) => i.item_type === "spell") || [],
     magic_items: items?.filter((i: any) => i.item_type === "magic_item") || [],
+    equipment: items?.filter((i: any) => i.item_type === "equipment") || [],
   };
 
   const isOwner = user?.id === list.user_id;

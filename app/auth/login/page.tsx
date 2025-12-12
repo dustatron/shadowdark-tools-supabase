@@ -19,14 +19,8 @@ export default async function Page() {
   const session = await getServerSession();
 
   if (session?.user) {
-    // User is already logged in, redirect to profile page
-    // Try to get username_slug from user metadata or redirect to settings
-    const usernameSlug = session.user.user_metadata?.username_slug;
-    if (usernameSlug) {
-      redirect(`/users/${usernameSlug}`);
-    } else {
-      redirect("/settings");
-    }
+    // User is already logged in, redirect to adventure lists
+    redirect("/adventure-lists");
   }
 
   return (

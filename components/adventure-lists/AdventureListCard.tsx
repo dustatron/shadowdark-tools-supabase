@@ -25,7 +25,10 @@ export function AdventureListCard({
 }: AdventureListCardProps) {
   return (
     <Card className="flex flex-col h-full overflow-hidden hover:shadow-md transition-shadow">
-      <div className="relative h-32 w-full bg-muted">
+      <Link
+        href={`/adventure-lists/${list.id}`}
+        className="relative h-32 w-full bg-muted block"
+      >
         {list.image_url ? (
           // eslint-disable-next-line @next/next/no-img-element
           <img
@@ -57,10 +60,14 @@ export function AdventureListCard({
             </Badge>
           )}
         </div>
-      </div>
+      </Link>
 
       <CardHeader className="pb-2">
-        <CardTitle className="line-clamp-1 text-lg">{list.title}</CardTitle>
+        <Link href={`/adventure-lists/${list.id}`}>
+          <CardTitle className="line-clamp-1 text-lg hover:underline">
+            {list.title}
+          </CardTitle>
+        </Link>
       </CardHeader>
 
       <CardContent className="flex-grow pb-2">
