@@ -147,7 +147,8 @@
       "Bash(npx supabase gen types typescript:*)",
       "Bash(npx next dev:*)",
       "Bash(grep:*)",
-      "Bash(supabase db:*)"
+      "Bash(supabase db:*)",
+      "Bash(PGPASSWORD=postgres psql:*)"
     ],
     "deny": [],
     "ask": []

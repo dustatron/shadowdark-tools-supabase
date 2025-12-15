@@ -41,6 +41,16 @@ export const tagsSchema = z.object({
   location: z.array(z.string()).optional(),
 });
 
+// Alignment schema - L (Lawful), N (Neutral), C (Chaotic)
+// For database records (optional for official, may be null)
+export const alignmentSchema = z.enum(["L", "N", "C"]).nullable().optional();
+
+// Alignment schema for user creation (required)
+export const alignmentRequiredSchema = z.enum(["L", "N", "C"], {
+  required_error: "Alignment is required",
+  invalid_type_error: "Alignment must be L, N, or C",
+});
+
 // Complete Monster schema for database entities
 export const monsterSchema = z.object({
   id: uuidSchema,
@@ -76,6 +86,7 @@ export const monsterSchema = z.object({
   intelligence_mod: z.number().int().min(-10).max(10).default(0),
   wisdom_mod: z.number().int().min(-10).max(10).default(0),
   charisma_mod: z.number().int().min(-10).max(10).default(0),
+  alignment: alignmentSchema,
   is_official: z.boolean().default(false),
   is_public: z.boolean().default(false),
   user_id: uuidSchema.optional(),
@@ -123,6 +134,7 @@ export const createMonsterSchema = z.object({
   intelligence_mod: z.number().int().min(-10).max(10).default(0),
   wisdom_mod: z.number().int().min(-10).max(10).default(0),
   charisma_mod: z.number().int().min(-10).max(10).default(0),
+  alignment: alignmentRequiredSchema,
   is_public: z.boolean().default(false),
 });
 
@@ -149,6 +161,10 @@ export const monsterSearchSchema = z.object({
   speed: z
     .array(z.string())
     .or(z.string().transform((str) => [str]))
+    .optional(),
+  alignment: z
+    .array(z.enum(["L", "N", "C"]))
+    .or(z.string().transform((str) => [str as "L" | "N" | "C"]))
     .optional(),
   type: z.enum(["official", "custom", "public"]).optional(),
   limit: z
@@ -181,6 +197,7 @@ export type Attack = z.infer<typeof attackSchema>;
 export type Ability = z.infer<typeof abilitySchema>;
 export type Treasure = z.infer<typeof treasureSchema>;
 export type Tags = z.infer<typeof tagsSchema>;
+export type Alignment = z.infer<typeof alignmentSchema>;
 
 // Validation helper functions
 export function validateMonsterSearch(params: unknown) {

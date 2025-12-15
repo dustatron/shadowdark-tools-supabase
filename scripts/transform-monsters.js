@@ -58,6 +58,7 @@ function transformMonster(monster) {
     intelligence_mod: Math.max(-10, Math.min(10, monster.intelligence ?? 0)),
     wisdom_mod: Math.max(-10, Math.min(10, monster.wisdom ?? 0)),
     charisma_mod: Math.max(-10, Math.min(10, monster.charisma ?? 0)),
+    alignment: monster.alignment || null,
   };
 }
 
@@ -282,9 +283,10 @@ const sqlStatements = transformedMonsters.map((monster) => {
     monster.intelligence_mod,
     monster.wisdom_mod,
     monster.charisma_mod,
+    monster.alignment ? `'${monster.alignment}'` : "NULL",
   ];
 
-  return `INSERT INTO public.official_monsters (name, challenge_level, hit_points, armor_class, speed, attacks, abilities, treasure, tags, source, author_notes, icon_url, art_url, strength_mod, dexterity_mod, constitution_mod, intelligence_mod, wisdom_mod, charisma_mod) VALUES (${values.join(", ")});`;
+  return `INSERT INTO public.official_monsters (name, challenge_level, hit_points, armor_class, speed, attacks, abilities, treasure, tags, source, author_notes, icon_url, art_url, strength_mod, dexterity_mod, constitution_mod, intelligence_mod, wisdom_mod, charisma_mod, alignment) VALUES (${values.join(", ")});`;
 });
 
 // Write to migration file

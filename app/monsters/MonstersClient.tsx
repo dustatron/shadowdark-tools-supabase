@@ -92,6 +92,11 @@ export function MonstersClient({
         params.append("speed", filters.speedType.join(","));
       }
 
+      // API expects 'alignment' parameter for alignment filtering
+      if (filters.alignment.length > 0) {
+        params.append("alignment", filters.alignment.join(","));
+      }
+
       // API expects 'type' parameter for monster source filtering
       if (filters.monsterSource !== "all") {
         params.append("type", filters.monsterSource);
