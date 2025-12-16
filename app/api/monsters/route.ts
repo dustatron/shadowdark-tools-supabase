@@ -47,6 +47,13 @@ export async function GET(request: NextRequest) {
             .map((s) => s.trim())
             .filter((s) => s)
         : undefined,
+      alignment: searchParams.get("alignment")
+        ? searchParams
+            .get("alignment")!
+            .split(",")
+            .map((a) => a.trim())
+            .filter((a) => a)
+        : undefined,
       type: searchParams.get("type") || undefined,
       limit: pagination.limit,
       offset: pagination.offset,
@@ -193,6 +200,18 @@ export async function GET(request: NextRequest) {
     }
     if (userQuery) {
       userQuery = buildInFilter(userQuery, "speed", params.speed);
+    }
+
+    // Apply alignment filter using query builder
+    if (officialQuery) {
+      officialQuery = buildInFilter(
+        officialQuery,
+        "alignment",
+        params.alignment,
+      );
+    }
+    if (userQuery) {
+      userQuery = buildInFilter(userQuery, "alignment", params.alignment);
     }
 
     // Apply sorting

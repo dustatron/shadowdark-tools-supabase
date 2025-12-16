@@ -102,6 +102,30 @@ export function BasicInfoSection({
           )}
         />
 
+        <FormField
+          control={form.control}
+          name="alignment"
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel>Alignment</FormLabel>
+              <Select value={field.value || ""} onValueChange={field.onChange}>
+                <FormControl>
+                  <SelectTrigger>
+                    <SelectValue placeholder="Select alignment" />
+                  </SelectTrigger>
+                </FormControl>
+                <SelectContent>
+                  <SelectItem value="L">Lawful</SelectItem>
+                  <SelectItem value="N">Neutral</SelectItem>
+                  <SelectItem value="C">Chaotic</SelectItem>
+                </SelectContent>
+              </Select>
+              <FormDescription>Monster&apos;s moral alignment</FormDescription>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
+
         <div className="flex items-end gap-2 mb-4">
           <FormField
             control={form.control}

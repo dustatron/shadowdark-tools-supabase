@@ -87,3 +87,52 @@ export function getTierColorPDF(tier: number): string {
     return "#a855f7"; // Purple for higher tiers
   }
 }
+
+/**
+ * Get human-readable alignment label
+ *
+ * @param alignment - Single character alignment (L/N/C)
+ * @returns Full alignment name
+ */
+export function getAlignmentLabel(
+  alignment: "L" | "N" | "C" | null | undefined,
+): string | null {
+  if (!alignment) return null;
+
+  const labels = {
+    L: "Lawful",
+    N: "Neutral",
+    C: "Chaotic",
+  };
+
+  return labels[alignment] || null;
+}
+
+/**
+ * Get Tailwind color classes for alignment badge
+ *
+ * @param alignment - Single character alignment (L/N/C)
+ * @returns Tailwind CSS classes for background and text colors
+ *
+ * Color scheme:
+ * - Lawful: Blue (order, structure)
+ * - Neutral: Gray (balance)
+ * - Chaotic: Red (disorder, unpredictability)
+ */
+export function getAlignmentColor(
+  alignment: "L" | "N" | "C" | null | undefined,
+): string {
+  if (!alignment)
+    return "bg-gray-100 text-gray-800 dark:bg-gray-800 dark:text-gray-200";
+
+  switch (alignment) {
+    case "L":
+      return "bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-200";
+    case "N":
+      return "bg-gray-100 text-gray-800 dark:bg-gray-800 dark:text-gray-200";
+    case "C":
+      return "bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-200";
+    default:
+      return "bg-gray-100 text-gray-800 dark:bg-gray-800 dark:text-gray-200";
+  }
+}

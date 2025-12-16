@@ -23,6 +23,7 @@ import {
 import { cn } from "@/lib/utils";
 import {
   AVAILABLE_SPEED_TYPES,
+  AVAILABLE_ALIGNMENTS,
   FilterValues,
   DEFAULT_FILTERS,
 } from "@/lib/types/monsters";
@@ -87,6 +88,7 @@ export function MonsterFilters({
     filters.challengeLevelRange[1] !== 30 ||
     filters.types.length > 0 ||
     filters.speedType.length > 0 ||
+    filters.alignment.length > 0 ||
     filters.monsterSource !== "all";
 
   const activeFilterCount = [
@@ -95,6 +97,7 @@ export function MonsterFilters({
       filters.challengeLevelRange[1] !== 30,
     filters.types.length > 0,
     filters.speedType.length > 0,
+    filters.alignment.length > 0,
     filters.monsterSource !== "all",
   ].filter(Boolean).length;
 
@@ -216,6 +219,20 @@ export function MonsterFilters({
             selected={localFilters.speedType}
             onChange={(value) => handleLocalFilterChange("speedType", value)}
             searchable
+            clearable
+            disabled={loading}
+          />
+
+          {/* Alignment */}
+          <MultiSelect
+            label="Alignment"
+            placeholder="Select alignments"
+            options={AVAILABLE_ALIGNMENTS.map((align) => ({
+              value: align.value,
+              label: align.label,
+            }))}
+            selected={localFilters.alignment}
+            onChange={(value) => handleLocalFilterChange("alignment", value)}
             clearable
             disabled={loading}
           />

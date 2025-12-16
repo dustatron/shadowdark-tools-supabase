@@ -150,6 +150,7 @@ export function MonsterDetailPanel({
         intelligence={monster.int_mod}
         wisdom={monster.wis_mod}
         charisma={monster.cha_mod}
+        alignment={monster.alignment}
       />
 
       {/* Attacks */}

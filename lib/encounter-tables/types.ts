@@ -8,7 +8,7 @@
 // ============================================
 
 export type MonsterSource = "official" | "user" | "public" | "favorites";
-export type Alignment = "Lawful" | "Neutral" | "Chaotic";
+export type Alignment = "L" | "N" | "C";
 export type MovementType = "fly" | "swim" | "burrow" | "climb";
 
 // ============================================

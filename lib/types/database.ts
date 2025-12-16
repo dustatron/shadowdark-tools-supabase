@@ -23,6 +23,7 @@ export interface DatabaseMonster {
   treasure?: MonsterTreasure;
   tags: MonsterTags;
   source: string;
+  alignment?: "L" | "N" | "C" | null; // Lawful, Neutral, or Chaotic
   author_notes?: string;
   icon_url?: string;
   art_url?: string;

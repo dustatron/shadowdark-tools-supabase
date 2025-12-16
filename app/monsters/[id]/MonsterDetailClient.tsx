@@ -3,16 +3,20 @@
 import { useState, useEffect } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { MonsterStatBlock } from "@/components/monsters/MonsterStatBlock";
-import { MonsterAttacksDisplay } from "@/components/monsters/MonsterAttacksDisplay";
-import { MonsterAbilitiesDisplay } from "@/components/monsters/MonsterAbilitiesDisplay";
 import { MonsterOwnershipCard } from "@/components/monsters/MonsterOwnershipCard";
-import { AbilityScoresCard } from "@/components/monsters/AbilityScoresCard";
-import { ArrowLeft, Pencil, Trash2, MoreVertical, Copy } from "lucide-react";
+import { ArrowLeft, Sword } from "lucide-react";
 import Link from "next/link";
 import Image from "next/image";
 import { Button } from "@/components/primitives/button";
 import { Card, CardContent } from "@/components/primitives/card";
 import { Badge } from "@/components/primitives/badge";
+import { Separator } from "@/components/primitives/separator";
+import {
+  Tooltip,
+  TooltipProvider,
+  TooltipTrigger,
+  TooltipContent,
+} from "@/components/primitives/tooltip";
 import {
   Dialog,
   DialogContent,
@@ -24,7 +28,11 @@ import {
 import { toast } from "sonner";
 import { FavoriteButton } from "@/components/favorites/FavoriteButton";
 import { logger } from "@/lib/utils/logger";
-import { getChallengeLevelColor } from "@/lib/utils/shadowdark-colors";
+import {
+  getChallengeLevelColor,
+  getAlignmentLabel,
+  getAlignmentColor,
+} from "@/lib/utils/shadowdark-colors";
 import type { MonsterWithAuthor, MonsterAuthor } from "@/lib/types/monsters";
 
 // Re-export Author type for backwards compatibility
@@ -197,19 +205,19 @@ export function MonsterDetailClient({
         </Link>
       </Button>
 
-      <div className="flex flex-col gap-6">
-        {/* Header */}
+      <div className="flex flex-col gap-4">
+        {/* Main Monster Card - Consolidated */}
         <Card className="shadow-sm border">
-          <CardContent className="p-6">
-            <div className="flex justify-between items-start mb-4">
+          <CardContent className="p-4 space-y-4">
+            {/* Header */}
+            <div className="flex justify-between items-start">
               <div className="flex-1">
-                <h1 className="text-3xl font-bold mb-3">{monster.name}</h1>
+                <h1 className="text-2xl font-bold mb-2">{monster.name}</h1>
                 <div className="flex flex-wrap gap-2">
-                  <Badge
-                    className={`${challengeLevelColor} text-base px-3 py-1`}
-                  >
-                    Challenge Level {monster.challenge_level}
+                  <Badge className={`${challengeLevelColor} text-sm px-2 py-1`}>
+                    CL {monster.challenge_level}
                   </Badge>
+
                   {monster.source === "Shadowdark Core" ? (
                     <a
                       href="https://www.thearcanelibrary.com/collections/shadowdark-core-rules/products/shadowdark-rpg-quickstart-set-pdf"
@@ -218,20 +226,20 @@ export function MonsterDetailClient({
                     >
                       <Badge
                         variant="outline"
-                        className="text-base px-3 py-1 hover:bg-accent"
+                        className="text-sm px-2 py-1 hover:bg-accent"
                       >
                         {monster.source}
                       </Badge>
                     </a>
                   ) : (
-                    <Badge variant="outline" className="text-base px-3 py-1">
+                    <Badge variant="outline" className="text-sm px-2 py-1">
                       {monster.source}
                     </Badge>
                   )}
                   {monster.monster_type === "user" && (
                     <Badge
                       variant="secondary"
-                      className="text-base px-3 py-1 bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-200"
+                      className="text-sm px-2 py-1 bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-200"
                     >
                       Custom
                     </Badge>
@@ -239,7 +247,7 @@ export function MonsterDetailClient({
                   {monster.is_public && (
                     <Badge
                       variant="secondary"
-                      className="text-base px-3 py-1 bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200"
+                      className="text-sm px-2 py-1 bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200"
                     >
                       Public
                     </Badge>
@@ -260,7 +268,7 @@ export function MonsterDetailClient({
 
             {/* Description */}
             {monster.description && (
-              <p className="text-base text-muted-foreground mb-4">
+              <p className="text-sm text-muted-foreground">
                 {monster.description}
               </p>
             )}
@@ -268,7 +276,7 @@ export function MonsterDetailClient({
             {/* Author Notes */}
             {monster.author_notes &&
               monster.author_notes !== monster.description && (
-                <p className="text-base text-muted-foreground mb-4 italic">
+                <p className="text-sm text-muted-foreground italic">
                   {monster.author_notes}
                 </p>
               )}
@@ -276,7 +284,11 @@ export function MonsterDetailClient({
             {/* Tags */}
             <div className="flex flex-wrap gap-2">
               {monster.tags?.type?.map((type, index) => (
-                <Badge key={`type-${index}`} variant="secondary">
+                <Badge
+                  key={`type-${index}`}
+                  variant="secondary"
+                  className="text-xs"
+                >
                   {type}
                 </Badge>
               ))}
@@ -284,131 +296,264 @@ export function MonsterDetailClient({
                 <Badge
                   key={`location-${index}`}
                   variant="outline"
-                  className="text-gray-600 dark:text-gray-400"
+                  className="text-xs text-gray-600 dark:text-gray-400"
                 >
                   {location}
                 </Badge>
               ))}
             </div>
-          </CardContent>
-        </Card>
 
-        {/* Art/Icon */}
-        {(monster.art_url || monster.icon_url) && (
-          <Card className="shadow-sm">
-            <CardContent className="p-6">
-              {monster.art_url && (
-                <div>
-                  <h3 className="text-sm font-semibold mb-2">Art</h3>
-                  <Image
-                    src={monster.art_url}
-                    alt={`${monster.name} art`}
-                    width={448}
-                    height={300}
-                    className="max-w-md w-full rounded-lg border"
-                  />
-                </div>
-              )}
-              {monster.icon_url && (
-                <div>
-                  <h3 className="text-sm font-semibold mb-2">Icon</h3>
-                  <Image
-                    src={monster.icon_url}
-                    alt={`${monster.name} icon`}
-                    width={96}
-                    height={96}
-                    className="w-24 h-24 rounded-lg border"
-                  />
-                </div>
-              )}
-            </CardContent>
-          </Card>
-        )}
-
-        {/* Stats */}
-        <MonsterStatBlock
-          hitPoints={monster.hit_points}
-          armorClass={monster.armor_class}
-          speed={monster.speed}
-        />
-
-        {/* Ability Scores */}
-        <AbilityScoresCard
-          strength={monster.strength_mod}
-          dexterity={monster.dexterity_mod}
-          constitution={monster.constitution_mod}
-          intelligence={monster.intelligence_mod}
-          wisdom={monster.wisdom_mod}
-          charisma={monster.charisma_mod}
-        />
-
-        {/* Attacks */}
-        <MonsterAttacksDisplay attacks={monster.attacks} />
-
-        {/* Abilities */}
-        <MonsterAbilitiesDisplay abilities={monster.abilities} />
-
-        {/* Treasure */}
-        {monster.treasure && (
-          <Card className="shadow-sm">
-            <CardContent className="p-6">
-              <h3 className="text-lg font-semibold mb-2">Treasure</h3>
-              <div className="text-sm">
-                {monster.treasure.type && (
-                  <p>
-                    <strong>Type:</strong> {monster.treasure.type}
-                  </p>
-                )}
-                {monster.treasure.amount && (
-                  <p>
-                    <strong>Amount:</strong> {monster.treasure.amount}
-                  </p>
-                )}
-                {monster.treasure.items &&
-                  monster.treasure.items.length > 0 && (
+            {/* Art/Icon */}
+            {(monster.art_url || monster.icon_url) && (
+              <>
+                <Separator />
+                <div className="space-y-3">
+                  {monster.art_url && (
                     <div>
-                      <strong>Items:</strong>
-                      <ul className="list-disc pl-5 mt-1">
-                        {monster.treasure.items.map((item, idx) => (
-                          <li key={idx}>{item}</li>
-                        ))}
-                      </ul>
+                      <h3 className="text-sm font-semibold mb-2">Art</h3>
+                      <Image
+                        src={monster.art_url}
+                        alt={`${monster.name} art`}
+                        width={448}
+                        height={300}
+                        className="max-w-md w-full rounded-lg border"
+                      />
                     </div>
                   )}
+                  {monster.icon_url && (
+                    <div>
+                      <h3 className="text-sm font-semibold mb-2">Icon</h3>
+                      <Image
+                        src={monster.icon_url}
+                        alt={`${monster.name} icon`}
+                        width={96}
+                        height={96}
+                        className="w-24 h-24 rounded-lg border"
+                      />
+                    </div>
+                  )}
+                </div>
+              </>
+            )}
+
+            {/* Stats */}
+            <Separator />
+            <MonsterStatBlock
+              hitPoints={monster.hit_points}
+              armorClass={monster.armor_class}
+              speed={monster.speed}
+              compact
+            />
+
+            {/* Modifiers with Alignment */}
+            <Separator />
+            <div className="space-y-2">
+              <div className="flex items-center justify-between">
+                <h3 className="text-base font-semibold">Modifiers</h3>
+                {monster.alignment && (
+                  <Badge
+                    className={`${getAlignmentColor(monster.alignment)} text-xs px-2 py-0.5`}
+                  >
+                    {getAlignmentLabel(monster.alignment)}
+                  </Badge>
+                )}
               </div>
-            </CardContent>
-          </Card>
-        )}
+              <TooltipProvider>
+                <div className="flex flex-wrap gap-2 text-sm">
+                  {[
+                    {
+                      abbr: "S",
+                      full: "Strength",
+                      value: monster.strength_mod,
+                    },
+                    {
+                      abbr: "D",
+                      full: "Dexterity",
+                      value: monster.dexterity_mod,
+                    },
+                    {
+                      abbr: "C",
+                      full: "Constitution",
+                      value: monster.constitution_mod,
+                    },
+                    {
+                      abbr: "I",
+                      full: "Intelligence",
+                      value: monster.intelligence_mod,
+                    },
+                    { abbr: "W", full: "Wisdom", value: monster.wisdom_mod },
+                    {
+                      abbr: "CH",
+                      full: "Charisma",
+                      value: monster.charisma_mod,
+                    },
+                  ].map((ability, index) => (
+                    <span
+                      key={ability.abbr}
+                      className="inline-flex items-center"
+                    >
+                      <Tooltip>
+                        <TooltipTrigger asChild>
+                          <span className="font-semibold cursor-help">
+                            {ability.abbr}
+                          </span>
+                        </TooltipTrigger>
+                        <TooltipContent>
+                          <p>{ability.full}</p>
+                        </TooltipContent>
+                      </Tooltip>
+                      <span className="ml-1">
+                        {ability.value >= 0 ? "+" : ""}
+                        {ability.value}
+                      </span>
+                      {index < 5 && (
+                        <span className="ml-1 text-muted-foreground">,</span>
+                      )}
+                    </span>
+                  ))}
+                </div>
+              </TooltipProvider>
+            </div>
 
-        {/* Tactics */}
-        {monster.tactics && (
-          <Card className="shadow-sm">
-            <CardContent className="p-6">
-              <h3 className="text-lg font-semibold mb-2">Tactics</h3>
-              <p className="text-sm">{monster.tactics}</p>
-            </CardContent>
-          </Card>
-        )}
+            {/* Attacks */}
+            {monster.attacks && monster.attacks.length > 0 && (
+              <>
+                <Separator />
+                <div className="space-y-3">
+                  <div className="flex items-center gap-2">
+                    <Sword size={18} />
+                    <h3 className="text-base font-semibold">Attacks</h3>
+                  </div>
+                  {monster.attacks.map((attack, index) => (
+                    <div key={index} className="space-y-1">
+                      <div className="flex items-center gap-2">
+                        <span className="text-sm font-semibold">
+                          {attack.name}
+                        </span>
+                        <Badge variant="outline" className="text-xs">
+                          {attack.type}
+                        </Badge>
+                      </div>
+                      <div className="flex items-center gap-3 flex-wrap text-xs text-muted-foreground">
+                        {attack.numberOfAttacks !== undefined && (
+                          <span>
+                            <strong>Num:</strong> {attack.numberOfAttacks}
+                          </span>
+                        )}
+                        {attack.attackBonus !== undefined && (
+                          <span>
+                            <strong>To Hit:</strong>{" "}
+                            {attack.attackBonus >= 0 ? "+" : ""}
+                            {attack.attackBonus}
+                          </span>
+                        )}
+                        <span>
+                          <strong>Damage:</strong> {attack.damage}
+                        </span>
+                        <span>
+                          <strong>Range:</strong> {attack.range}
+                        </span>
+                      </div>
+                      {attack.description && (
+                        <p className="text-xs mt-1">{attack.description}</p>
+                      )}
+                      {index < monster.attacks.length - 1 && (
+                        <Separator className="my-2" />
+                      )}
+                    </div>
+                  ))}
+                </div>
+              </>
+            )}
 
-        {/* Wants */}
-        {monster.wants && (
-          <Card className="shadow-sm">
-            <CardContent className="p-6">
-              <h3 className="text-lg font-semibold mb-2">Wants</h3>
-              <p className="text-sm">{monster.wants}</p>
-            </CardContent>
-          </Card>
-        )}
+            {/* Special Abilities */}
+            {monster.abilities && monster.abilities.length > 0 && (
+              <>
+                <Separator />
+                <div className="space-y-3">
+                  <h3 className="text-base font-semibold">Special Abilities</h3>
+                  {monster.abilities.map((ability, index) => (
+                    <div key={index} className="space-y-1">
+                      <p className="text-sm font-semibold">{ability.name}</p>
+                      <p className="text-xs text-muted-foreground">
+                        {ability.description}
+                      </p>
+                      {index < monster.abilities.length - 1 && (
+                        <Separator className="my-2" />
+                      )}
+                    </div>
+                  ))}
+                </div>
+              </>
+            )}
 
-        {/* GM Notes */}
-        {monster.gm_notes && (
-          <Card className="shadow-sm">
-            <CardContent className="p-6">
-              <h3 className="text-lg font-semibold mb-2">GM Notes</h3>
-              <p className="text-sm">{monster.gm_notes}</p>
-            </CardContent>
-          </Card>
-        )}
+            {/* Treasure */}
+            {monster.treasure && (
+              <>
+                <Separator />
+                <div className="space-y-2">
+                  <h3 className="text-base font-semibold">Treasure</h3>
+                  <div className="text-xs text-muted-foreground space-y-1">
+                    {monster.treasure.type && (
+                      <p>
+                        <strong>Type:</strong> {monster.treasure.type}
+                      </p>
+                    )}
+                    {monster.treasure.amount && (
+                      <p>
+                        <strong>Amount:</strong> {monster.treasure.amount}
+                      </p>
+                    )}
+                    {monster.treasure.items &&
+                      monster.treasure.items.length > 0 && (
+                        <div>
+                          <strong>Items:</strong>
+                          <ul className="list-disc pl-4 mt-1">
+                            {monster.treasure.items.map((item, idx) => (
+                              <li key={idx}>{item}</li>
+                            ))}
+                          </ul>
+                        </div>
+                      )}
+                  </div>
+                </div>
+              </>
+            )}
+
+            {/* Tactics */}
+            {monster.tactics && (
+              <>
+                <Separator />
+                <div className="space-y-2">
+                  <h3 className="text-base font-semibold">Tactics</h3>
+                  <p className="text-xs">{monster.tactics}</p>
+                </div>
+              </>
+            )}
+
+            {/* Wants */}
+            {monster.wants && (
+              <>
+                <Separator />
+                <div className="space-y-2">
+                  <h3 className="text-base font-semibold">Wants</h3>
+                  <p className="text-xs">{monster.wants}</p>
+                </div>
+              </>
+            )}
+
+            {/* GM Notes */}
+            {monster.gm_notes && (
+              <>
+                <Separator />
+                <div className="space-y-2">
+                  <h3 className="text-base font-semibold">GM Notes</h3>
+                  <p className="text-xs">{monster.gm_notes}</p>
+                </div>
+              </>
+            )}
+          </CardContent>
+        </Card>
 
         {/* Ownership/Author Card */}
         <MonsterOwnershipCard

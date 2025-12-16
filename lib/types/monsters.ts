@@ -58,6 +58,12 @@ export const AVAILABLE_SPEED_TYPES = [
 
 export type SpeedType = (typeof AVAILABLE_SPEED_TYPES)[number];
 
+export const AVAILABLE_ALIGNMENTS = [
+  { value: "L", label: "Lawful" },
+  { value: "N", label: "Neutral" },
+  { value: "C", label: "Chaotic" },
+] as const;
+
 // UI types
 export type ViewMode = "cards" | "table";
 
@@ -67,6 +73,7 @@ export interface FilterValues {
   challengeLevelRange: [number, number];
   types: string[];
   speedType: string[];
+  alignment: string[];
   monsterSource: "all" | "official" | "custom";
   view: ViewMode;
 }
@@ -89,6 +96,7 @@ export const DEFAULT_FILTERS: FilterValues = {
   challengeLevelRange: [1, 50],
   types: [],
   speedType: [],
+  alignment: [],
   monsterSource: "all",
   view: "cards",
 };
@@ -128,6 +136,11 @@ export function parseFiltersFromSearchParams(
   const speedParam = get("speed");
   const speedType = speedParam ? speedParam.split(",").filter(Boolean) : [];
 
+  const alignmentParam = get("alignment");
+  const alignment = alignmentParam
+    ? alignmentParam.split(",").filter(Boolean)
+    : [];
+
   const sourceParam = get("type") || get("source") || "all";
   const monsterSource =
     sourceParam === "official" || sourceParam === "custom"
@@ -142,6 +155,7 @@ export function parseFiltersFromSearchParams(
     challengeLevelRange,
     types,
     speedType,
+    alignment,
     monsterSource,
     view,
   };
@@ -200,6 +214,11 @@ export function serializeFiltersToSearchParams(
   // Speed types
   if (filters.speedType.length > 0) {
     params.set("speed", filters.speedType.join(","));
+  }
+
+  // Alignment
+  if (filters.alignment.length > 0) {
+    params.set("alignment", filters.alignment.join(","));
   }
 
   // Monster source
