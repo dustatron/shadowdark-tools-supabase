@@ -14,45 +14,26 @@ import {
   CollapsibleTrigger,
 } from "@/components/primitives/collapsible";
 import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuTrigger,
-} from "@/components/primitives/dropdown-menu";
-import {
   ChevronDown,
   ChevronUp,
   Book,
   Clock,
   Users,
   Ruler,
-  MoreVertical,
-  Eye,
 } from "lucide-react";
 import { useState } from "react";
 import Link from "next/link";
-import { FavoriteButton } from "@/components/favorites/FavoriteButton";
-
-interface Spell {
-  id: string;
-  name: string;
-  slug: string;
-  description: string;
-  classes: string[];
-  duration: string;
-  range: string;
-  tier: number;
-  source: string;
-  author_notes?: string;
-  spell_type?: "official" | "user";
-  creator_id?: string;
-}
+import { SpellActionMenu } from "@/components/spells/SpellActionMenu";
+import type { SpellWithAuthor } from "@/lib/types/spells";
 
 interface SpellCardProps {
-  spell: Spell;
+  spell: SpellWithAuthor;
   currentUserId?: string;
   favoriteId?: string | null;
   showActions?: boolean;
+  onFavoriteChange?: (spellId: string, favoriteId: string | undefined) => void;
+  onListChange?: (spellId: string, inList: boolean) => void;
+  onDeckChange?: (spellId: string, inDeck: boolean) => void;
 }
 
 export function SpellCard({
@@ -60,6 +41,9 @@ export function SpellCard({
   currentUserId,
   favoriteId,
   showActions = true,
+  onFavoriteChange,
+  onListChange,
+  onDeckChange,
 }: SpellCardProps) {
   const [expanded, setExpanded] = useState(false);
 
@@ -91,41 +75,15 @@ export function SpellCard({
             </div>
           </div>
 
-          {showActions && (
-            <div className="flex items-center gap-2">
-              {currentUserId && (
-                <FavoriteButton
-                  itemId={spell.id}
-                  itemType="spell"
-                  initialFavoriteId={favoriteId || undefined}
-                  compact={true}
-                />
-              )}
-
-              <DropdownMenu>
-                <DropdownMenuTrigger asChild>
-                  <Button
-                    variant="ghost"
-                    size="icon"
-                    aria-label="Spell actions"
-                  >
-                    <MoreVertical size={16} />
-                  </Button>
-                </DropdownMenuTrigger>
-
-                <DropdownMenuContent className="w-48">
-                  <DropdownMenuItem asChild>
-                    <Link
-                      href={`/spells/${spell.slug}`}
-                      className="flex items-center gap-2"
-                    >
-                      <Eye size={14} />
-                      <span>View Details</span>
-                    </Link>
-                  </DropdownMenuItem>
-                </DropdownMenuContent>
-              </DropdownMenu>
-            </div>
+          {showActions && currentUserId && (
+            <SpellActionMenu
+              spell={spell}
+              userId={currentUserId}
+              initialFavoriteId={favoriteId || undefined}
+              onFavoriteChange={onFavoriteChange}
+              onListChange={onListChange}
+              onDeckChange={onDeckChange}
+            />
           )}
         </div>
       </CardHeader>

@@ -148,7 +148,8 @@
       "Bash(npx next dev:*)",
       "Bash(grep:*)",
       "Bash(supabase db:*)",
-      "Bash(PGPASSWORD=postgres psql:*)"
+      "Bash(PGPASSWORD=postgres psql:*)",
+      "Bash(gh pr create:*)"
     ],
     "deny": [],
     "ask": []

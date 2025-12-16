@@ -7,24 +7,10 @@ import { Button } from "@/components/primitives/button";
 import { ViewModeToggle } from "@/components/shared/ViewModeToggle";
 import { Plus } from "lucide-react";
 import Link from "next/link";
-
-interface Spell {
-  id: string;
-  name: string;
-  slug: string;
-  description: string;
-  classes: string[];
-  duration: string;
-  range: string;
-  tier: number;
-  source: string;
-  author_notes?: string;
-  spell_type?: "official" | "user";
-  creator_id?: string;
-}
+import type { AllSpell, SpellWithAuthor } from "@/lib/types/spells";
 
 interface UserSpellsClientProps {
-  spells: Spell[];
+  spells: AllSpell[];
   currentUserId: string;
 }
 
@@ -62,7 +48,7 @@ export function UserSpellsClient({
           {spells.map((spell) => (
             <SpellCard
               key={spell.id}
-              spell={spell}
+              spell={spell as SpellWithAuthor}
               currentUserId={currentUserId}
               showActions={true}
             />

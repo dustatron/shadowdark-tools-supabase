@@ -7,7 +7,6 @@ import {
   Shield,
   Footprints,
   Heart,
-  Edit,
 } from "lucide-react";
 import { useState, useMemo, useCallback, memo } from "react";
 import Link from "next/link";
@@ -17,9 +16,9 @@ import { Badge } from "@/components/primitives/badge";
 import { Button } from "@/components/primitives/button";
 
 import { Separator } from "@/components/primitives/separator";
-import { FavoriteButton } from "@/components/favorites/FavoriteButton";
+import { MonsterActionMenu } from "@/components/monsters/MonsterActionMenu";
 import { getChallengeLevelColor } from "@/lib/utils/shadowdark-colors";
-import { AllMonster } from "@/lib/types/monsters";
+import { AllMonster, MonsterWithAuthor } from "@/lib/types/monsters";
 
 interface MonsterCardProps {
   monster: AllMonster;
@@ -93,43 +92,19 @@ export const MonsterCard = memo(function MonsterCard({
     [monster.challenge_level],
   );
 
-  // Memoize owner check
-  const isOwner = useMemo(
-    () =>
-      currentUserId &&
-      (monster.creator_id === currentUserId ||
-        monster.user_id === currentUserId),
-    [currentUserId, monster.creator_id, monster.user_id],
-  );
-
   const cardContent = (
     <Card
       className={`${!showActions ? "hover:shadow-md transition-shadow cursor-pointer" : ""} `}
     >
-      <div className="float-end flex gap-1">
-        {showActions && isOwner && (
-          <Button
-            asChild
-            variant="ghost"
-            size="icon"
-            className="h-8 w-8"
-            title="Edit monster"
-            aria-label={`Edit ${monster.name}`}
-          >
-            <Link href={`/monsters/${monster.id}/edit`}>
-              <Edit className="h-4 w-4" />
-            </Link>
-          </Button>
-        )}
-        {currentUserId && (
-          <FavoriteButton
-            itemId={monster.id}
-            itemType="monster"
+      {showActions && currentUserId && (
+        <div className="float-end">
+          <MonsterActionMenu
+            monster={monster as MonsterWithAuthor}
+            userId={currentUserId}
             initialFavoriteId={favoriteId || undefined}
-            compact={true}
           />
-        )}
-      </div>
+        </div>
+      )}
       <Link href={monsterUrl} className="flex items-center gap-2">
         <CardHeader>
           <div className="flex justify-between">
