@@ -273,14 +273,6 @@ export function MonsterDetailClient({
               </p>
             )}
 
-            {/* Author Notes */}
-            {monster.author_notes &&
-              monster.author_notes !== monster.description && (
-                <p className="text-sm text-muted-foreground italic">
-                  {monster.author_notes}
-                </p>
-              )}
-
             {/* Art/Icon */}
             {(monster.art_url || monster.icon_url) && (
               <>
