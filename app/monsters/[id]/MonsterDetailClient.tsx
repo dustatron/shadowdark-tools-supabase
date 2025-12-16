@@ -393,6 +393,37 @@ export function MonsterDetailClient({
               </TooltipProvider>
             </div>
 
+            {/* Tags */}
+            {(monster.tags?.type?.length > 0 ||
+              monster.tags?.location?.length > 0) && (
+              <>
+                <Separator />
+                <div className="space-y-2">
+                  <h3 className="text-base font-semibold">Tags</h3>
+                  <div className="flex flex-wrap gap-2">
+                    {monster.tags?.type?.map((type, index) => (
+                      <Badge
+                        key={`type-${index}`}
+                        variant="secondary"
+                        className="text-xs"
+                      >
+                        {type}
+                      </Badge>
+                    ))}
+                    {monster.tags?.location?.map((location, index) => (
+                      <Badge
+                        key={`location-${index}`}
+                        variant="outline"
+                        className="text-xs text-gray-600 dark:text-gray-400"
+                      >
+                        {location}
+                      </Badge>
+                    ))}
+                  </div>
+                </div>
+              </>
+            )}
+
             {/* Attacks */}
             {monster.attacks && monster.attacks.length > 0 && (
               <>
@@ -527,37 +558,6 @@ export function MonsterDetailClient({
                 <div className="space-y-2">
                   <h3 className="text-base font-semibold">GM Notes</h3>
                   <p className="text-xs">{monster.gm_notes}</p>
-                </div>
-              </>
-            )}
-
-            {/* Tags */}
-            {(monster.tags?.type?.length > 0 ||
-              monster.tags?.location?.length > 0) && (
-              <>
-                <Separator />
-                <div className="space-y-2">
-                  <h3 className="text-base font-semibold">Tags</h3>
-                  <div className="flex flex-wrap gap-2">
-                    {monster.tags?.type?.map((type, index) => (
-                      <Badge
-                        key={`type-${index}`}
-                        variant="secondary"
-                        className="text-xs"
-                      >
-                        {type}
-                      </Badge>
-                    ))}
-                    {monster.tags?.location?.map((location, index) => (
-                      <Badge
-                        key={`location-${index}`}
-                        variant="outline"
-                        className="text-xs text-gray-600 dark:text-gray-400"
-                      >
-                        {location}
-                      </Badge>
-                    ))}
-                  </div>
                 </div>
               </>
             )}
