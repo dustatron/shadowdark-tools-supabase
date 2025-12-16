@@ -390,17 +390,26 @@ function ListItem({
 
   const itemLink = getItemLink();
 
+  const displayName = item.name || `Unknown ${item.item_type}`;
+
   return (
     <Card>
       <CardContent className="p-4 flex items-center justify-between">
         <div>
           <div className="flex items-center gap-2">
             {itemLink ? (
-              <Link href={itemLink} className="font-medium hover:underline">
-                {item.name}
+              <Link
+                href={itemLink}
+                className={`font-medium hover:underline ${!item.name ? "text-muted-foreground italic" : ""}`}
+              >
+                {displayName}
               </Link>
             ) : (
-              <h3 className="font-medium">{item.name}</h3>
+              <h3
+                className={`font-medium ${!item.name ? "text-muted-foreground italic" : ""}`}
+              >
+                {displayName}
+              </h3>
             )}
             {item.quantity > 1 && (
               <Badge variant="secondary">x{item.quantity}</Badge>

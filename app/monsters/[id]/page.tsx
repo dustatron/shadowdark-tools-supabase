@@ -99,7 +99,7 @@ export default async function MonsterDetailPage({
       .eq("user_id", user.id)
       .eq("item_type", "monster")
       .eq("item_id", monsterId)
-      .single();
+      .maybeSingle();
 
     favoriteId = favorite?.id || null;
   }

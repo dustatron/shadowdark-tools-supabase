@@ -26,7 +26,7 @@ import {
   DialogTitle,
 } from "@/components/primitives/dialog";
 import { toast } from "sonner";
-import { FavoriteButton } from "@/components/favorites/FavoriteButton";
+import { MonsterActionMenu } from "@/components/monsters/MonsterActionMenu";
 import { logger } from "@/lib/utils/logger";
 import {
   getChallengeLevelColor,
@@ -257,9 +257,9 @@ export function MonsterDetailClient({
 
               <div className="flex items-center gap-2">
                 {currentUserId && (
-                  <FavoriteButton
-                    itemId={monster.id}
-                    itemType="monster"
+                  <MonsterActionMenu
+                    monster={monster}
+                    userId={currentUserId}
                     initialFavoriteId={favoriteId || undefined}
                   />
                 )}
