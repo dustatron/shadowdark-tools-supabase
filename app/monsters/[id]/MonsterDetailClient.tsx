@@ -559,6 +559,17 @@ export function MonsterDetailClient({
                 </div>
               </>
             )}
+
+            {/* Author Notes */}
+            {monster.author_notes && (
+              <>
+                <Separator />
+                <div className="space-y-2">
+                  <h3 className="text-base font-semibold">Author Notes</h3>
+                  <p className="text-xs">{monster.author_notes}</p>
+                </div>
+              </>
+            )}
           </CardContent>
         </Card>
 
