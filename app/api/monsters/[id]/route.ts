@@ -43,6 +43,7 @@ const MonsterUpdateSchema = z
     tactics: z.string().optional(),
     wants: z.string().optional(),
     gm_notes: z.string().optional(),
+    alignment: z.enum(["L", "N", "C"]).nullable().optional(),
     // Ability modifiers
     strength_mod: z.number().int().min(-4).max(4).optional(),
     dexterity_mod: z.number().int().min(-4).max(4).optional(),

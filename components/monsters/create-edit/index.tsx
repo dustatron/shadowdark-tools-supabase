@@ -57,6 +57,7 @@ export function MonsterCreateEditForm({
       source: initialData?.source || "Custom",
       author_notes: initialData?.author_notes || "",
       icon_url: initialData?.icon_url || "",
+      alignment: initialData?.alignment || "N",
       strength_mod: initialData?.strength_mod || 0,
       dexterity_mod: initialData?.dexterity_mod || 0,
       constitution_mod: initialData?.constitution_mod || 0,
