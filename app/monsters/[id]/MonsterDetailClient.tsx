@@ -458,8 +458,8 @@ export function MonsterDetailClient({
             )}
 
             {/* Tags */}
-            {(monster.tags?.type?.length > 0 ||
-              monster.tags?.location?.length > 0) && (
+            {((monster.tags?.type?.length ?? 0) > 0 ||
+              (monster.tags?.location?.length ?? 0) > 0) && (
               <>
                 <Separator />
                 <div className="space-y-2">
