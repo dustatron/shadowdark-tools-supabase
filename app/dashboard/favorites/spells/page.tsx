@@ -27,8 +27,8 @@ export default async function FavoriteSpellsPage({
 
   const favSpells = await getFavoriteSpells(user.id);
 
-  // Get view mode from URL params (default to cards)
-  const view: ViewMode = params.view === "table" ? "table" : "cards";
+  // Get view mode from URL params (default to table)
+  const view: ViewMode = params.view === "cards" ? "cards" : "table";
 
   // Extract spells and build favorites map
   const spells = favSpells
@@ -50,7 +50,7 @@ export default async function FavoriteSpellsPage({
             Browse Spells
           </Link>
         </Button>
-        <ViewModeToggleLink view={view} />
+        <ViewModeToggleLink view={view} defaultView="table" />
       </div>
 
       {spells.length === 0 ? (

@@ -26,8 +26,8 @@ export default async function FavoriteMonstersPage({
 
   const favMonsters = await getFavoriteMonsters(user.id);
 
-  // Get view mode from URL params (default to cards)
-  const view: ViewMode = params.view === "table" ? "table" : "cards";
+  // Get view mode from URL params (default to table)
+  const view: ViewMode = params.view === "cards" ? "cards" : "table";
 
   // Extract monsters and build favorites map
   const monsters = favMonsters
@@ -49,7 +49,7 @@ export default async function FavoriteMonstersPage({
             Browse Monsters
           </Link>
         </Button>
-        <ViewModeToggleLink view={view} />
+        <ViewModeToggleLink view={view} defaultView="table" />
       </div>
 
       {monsters.length === 0 ? (

@@ -7,15 +7,19 @@ import { ViewMode } from "@/lib/types/monsters";
 
 interface ViewModeToggleLinkProps {
   view: ViewMode;
+  defaultView?: ViewMode;
 }
 
-export function ViewModeToggleLink({ view }: ViewModeToggleLinkProps) {
+export function ViewModeToggleLink({
+  view,
+  defaultView = "cards",
+}: ViewModeToggleLinkProps) {
   const router = useRouter();
   const searchParams = useSearchParams();
 
   const setView = (newView: ViewMode) => {
     const params = new URLSearchParams(searchParams.toString());
-    if (newView === "cards") {
+    if (newView === defaultView) {
       params.delete("view");
     } else {
       params.set("view", newView);
