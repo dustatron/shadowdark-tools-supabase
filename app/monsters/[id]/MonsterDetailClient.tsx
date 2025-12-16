@@ -215,7 +215,7 @@ export function MonsterDetailClient({
                 <h1 className="text-2xl font-bold mb-2">{monster.name}</h1>
                 <div className="flex flex-wrap gap-2">
                   <Badge className={`${challengeLevelColor} text-sm px-2 py-1`}>
-                    CL {monster.challenge_level}
+                    Level {monster.challenge_level}
                   </Badge>
 
                   {monster.source === "Shadowdark Core" ? (
