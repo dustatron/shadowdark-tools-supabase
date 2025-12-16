@@ -22,6 +22,7 @@ import { logger } from "@/lib/utils/logger";
 interface MonstersClientProps {
   currentUserId: string | null;
   initialFavoritesMap: Map<string, string>;
+  initialInListsSet: Set<string>;
   initialFilters: FilterValues;
   initialPagination: PaginationState;
 }
@@ -29,6 +30,7 @@ interface MonstersClientProps {
 export function MonstersClient({
   currentUserId,
   initialFavoritesMap,
+  initialInListsSet,
   initialFilters,
   initialPagination,
 }: MonstersClientProps) {
@@ -45,6 +47,7 @@ export function MonstersClient({
 
   const [favoritesMap, setFavoritesMap] =
     useState<Map<string, string>>(initialFavoritesMap);
+  const [inListsSet, setInListsSet] = useState<Set<string>>(initialInListsSet);
 
   // Global view mode with localStorage persistence
   const { view, setView } = useViewMode(initialFilters.view);
@@ -248,6 +251,35 @@ export function MonstersClient({
     [setView],
   );
 
+  // Handle favorite change from action menu - update favoritesMap immediately
+  const handleFavoriteChange = useCallback(
+    (monsterId: string, favoriteId: string | undefined) => {
+      setFavoritesMap((prevMap) => {
+        const newMap = new Map(prevMap);
+        if (favoriteId) {
+          newMap.set(monsterId, favoriteId);
+        } else {
+          newMap.delete(monsterId);
+        }
+        return newMap;
+      });
+    },
+    [],
+  );
+
+  // Handle list change from action menu - update inListsSet immediately
+  const handleListChange = useCallback((monsterId: string, inList: boolean) => {
+    setInListsSet((prevSet) => {
+      const newSet = new Set(prevSet);
+      if (inList) {
+        newSet.add(monsterId);
+      } else {
+        newSet.delete(monsterId);
+      }
+      return newSet;
+    });
+  }, []);
+
   return (
     <div>
       <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between md:justify-end mb-6">
@@ -289,9 +321,12 @@ export function MonstersClient({
         error={error || undefined}
         currentUserId={currentUserId || undefined}
         favoritesMap={favoritesMap}
+        inListsSet={inListsSet}
         onPageChange={handlePageChange}
         onPageSizeChange={handlePageSizeChange}
         onRetry={fetchMonsters}
+        onFavoriteChange={handleFavoriteChange}
+        onListChange={handleListChange}
         preserveSearchParams={true}
         view={view}
       />

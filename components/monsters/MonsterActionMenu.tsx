@@ -13,12 +13,19 @@ interface MonsterActionMenuProps {
   monster: MonsterWithAuthor;
   userId: string;
   initialFavoriteId?: string;
+  onFavoriteChange?: (
+    monsterId: string,
+    favoriteId: string | undefined,
+  ) => void;
+  onListChange?: (monsterId: string, inList: boolean) => void;
 }
 
 export function MonsterActionMenu({
   monster,
   userId,
   initialFavoriteId,
+  onFavoriteChange,
+  onListChange,
 }: MonsterActionMenuProps) {
   const router = useRouter();
   const [listModalOpen, setListModalOpen] = useState(false);
@@ -55,7 +62,9 @@ export function MonsterActionMenu({
           return;
         }
 
-        setFavoriteId(result.favoriteId || undefined);
+        const newFavoriteId = result.favoriteId || undefined;
+        setFavoriteId(newFavoriteId);
+        onFavoriteChange?.(monster.id, newFavoriteId);
       } catch (error) {
         toast.error("Failed to update favorite");
       }
@@ -76,6 +85,7 @@ export function MonsterActionMenu({
       entityId: monster.id,
       entityType: "monster",
     });
+    onListChange?.(monster.id, true);
   };
 
   const handleCreateList = async (

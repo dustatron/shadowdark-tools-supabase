@@ -27,9 +27,12 @@ export default async function MonstersPage({
     data: { user },
   } = await supabase.auth.getUser();
 
-  // Fetch user's favorite monsters if authenticated
+  // Fetch user's favorite monsters and adventure list items if authenticated
   let initialFavoritesMap = new Map<string, string>();
+  let initialInListsSet = new Set<string>();
+
   if (user) {
+    // Fetch favorites
     const { data: favorites } = await supabase
       .from("favorites")
       .select("id, item_id")
@@ -44,12 +47,24 @@ export default async function MonstersPage({
         })),
       );
     }
+
+    // Fetch monsters that are in adventure lists
+    const { data: listItems } = await supabase
+      .from("adventure_list_items")
+      .select("item_id, adventure_lists!inner(user_id)")
+      .eq("item_type", "monster")
+      .eq("adventure_lists.user_id", user.id);
+
+    if (listItems) {
+      initialInListsSet = new Set(listItems.map((item) => item.item_id));
+    }
   }
 
   return (
     <MonstersClient
       currentUserId={user?.id || null}
       initialFavoritesMap={initialFavoritesMap}
+      initialInListsSet={initialInListsSet}
       initialFilters={initialFilters}
       initialPagination={initialPagination}
     />

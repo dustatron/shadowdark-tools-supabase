@@ -33,7 +33,7 @@ export function useFavoriteToggle({
         // Remove from favorites
         console.log("Attempting to DELETE favorite");
         const { data, error } = await supabase
-          .from("user_favorites")
+          .from("favorites")
           .delete()
           .eq("user_id", userId)
           .eq("item_type", entityType)
@@ -52,7 +52,7 @@ export function useFavoriteToggle({
         // Add to favorites
         console.log("Attempting to INSERT favorite");
         const { data, error } = await supabase
-          .from("user_favorites")
+          .from("favorites")
           .insert({
             user_id: userId,
             item_type: entityType,

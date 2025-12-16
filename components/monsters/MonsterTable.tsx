@@ -11,7 +11,7 @@ import {
   flexRender,
   createColumnHelper,
 } from "@tanstack/react-table";
-import { ArrowUpDown, ArrowUp, ArrowDown } from "lucide-react";
+import { ArrowUpDown, ArrowUp, ArrowDown, Heart, List } from "lucide-react";
 import {
   Table,
   TableBody,
@@ -21,15 +21,26 @@ import {
   TableRow,
 } from "@/components/primitives/table";
 import { Badge } from "@/components/primitives/badge";
-import { FavoriteButton } from "@/components/favorites/FavoriteButton";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipTrigger,
+} from "@/components/primitives/tooltip";
+import { MonsterActionMenu } from "@/components/monsters/MonsterActionMenu";
 import { getChallengeLevelColor } from "@/lib/utils/shadowdark-colors";
-import { AllMonster } from "@/lib/types/monsters";
+import { AllMonster, MonsterWithAuthor } from "@/lib/types/monsters";
 
 interface MonsterTableProps {
   monsters: AllMonster[];
   currentUserId?: string;
   favoritesMap?: Map<string, string>;
+  inListsSet?: Set<string>;
   preserveSearchParams?: boolean;
+  onFavoriteChange?: (
+    monsterId: string,
+    favoriteId: string | undefined,
+  ) => void;
+  onListChange?: (monsterId: string, inList: boolean) => void;
 }
 
 const columnHelper = createColumnHelper<AllMonster>();
@@ -38,7 +49,10 @@ export function MonsterTable({
   monsters,
   currentUserId,
   favoritesMap,
+  inListsSet,
   preserveSearchParams = false,
+  onFavoriteChange,
+  onListChange,
 }: MonsterTableProps) {
   const [sorting, setSorting] = useState<SortingState>([]);
   const searchParams = useSearchParams();
@@ -83,17 +97,25 @@ export function MonsterTable({
   };
 
   const columns = [
-    // Favorite column (non-sortable)
+    // Action menu column (non-sortable)
     columnHelper.display({
-      id: "favorite",
-      header: () => null,
+      id: "actions",
+      header: () => (
+        <Tooltip>
+          <TooltipTrigger asChild>
+            <span className="text-muted-foreground">Actions</span>
+          </TooltipTrigger>
+          <TooltipContent>Monster actions menu</TooltipContent>
+        </Tooltip>
+      ),
       cell: ({ row }) =>
         currentUserId ? (
-          <FavoriteButton
-            itemId={row.original.id}
-            itemType="monster"
-            initialFavoriteId={favoritesMap?.get(row.original.id) || undefined}
-            compact={true}
+          <MonsterActionMenu
+            monster={row.original as MonsterWithAuthor}
+            userId={currentUserId}
+            initialFavoriteId={favoritesMap?.get(row.original.id)}
+            onFavoriteChange={onFavoriteChange}
+            onListChange={onListChange}
           />
         ) : null,
       size: 40,
@@ -232,6 +254,58 @@ export function MonsterTable({
         </span>
       ),
     }),
+
+    // Favorite indicator column (non-sortable)
+    ...(currentUserId
+      ? [
+          columnHelper.display({
+            id: "favorite",
+            header: () => (
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <span className="flex justify-center">
+                    <Heart className="h-4 w-4 text-muted-foreground" />
+                  </span>
+                </TooltipTrigger>
+                <TooltipContent>Favorited</TooltipContent>
+              </Tooltip>
+            ),
+            cell: ({ row }) =>
+              favoritesMap?.has(row.original.id) ? (
+                <span className="flex justify-center">
+                  <Heart className="h-4 w-4 fill-red-500 text-red-500" />
+                </span>
+              ) : null,
+            size: 40,
+          }),
+        ]
+      : []),
+
+    // In adventure list indicator column (non-sortable)
+    ...(currentUserId
+      ? [
+          columnHelper.display({
+            id: "inList",
+            header: () => (
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <span className="flex justify-center">
+                    <List className="h-4 w-4 text-muted-foreground" />
+                  </span>
+                </TooltipTrigger>
+                <TooltipContent>In adventure list</TooltipContent>
+              </Tooltip>
+            ),
+            cell: ({ row }) =>
+              inListsSet?.has(row.original.id) ? (
+                <span className="flex justify-center">
+                  <List className="h-4 w-4 text-primary" />
+                </span>
+              ) : null,
+            size: 40,
+          }),
+        ]
+      : []),
   ];
 
   const table = useReactTable({
@@ -284,7 +358,9 @@ export function MonsterTable({
             >
               {row.getVisibleCells().map((cell) => (
                 <TableCell key={cell.id}>
-                  {cell.column.id === "favorite" ? (
+                  {["actions", "favorite", "inList"].includes(
+                    cell.column.id,
+                  ) ? (
                     flexRender(cell.column.columnDef.cell, cell.getContext())
                   ) : (
                     <Link

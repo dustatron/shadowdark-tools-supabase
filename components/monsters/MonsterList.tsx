@@ -16,12 +16,18 @@ interface MonsterListProps {
   error?: string;
   currentUserId?: string;
   favoritesMap?: Map<string, string>;
+  inListsSet?: Set<string>;
   onPageChange?: (page: number) => void;
   onPageSizeChange?: (pageSize: number) => void;
   onEditMonster?: (monster: AllMonster) => void;
   onDeleteMonster?: (monster: AllMonster) => void;
   onRetry?: () => void;
   onCreateMonster?: () => void;
+  onFavoriteChange?: (
+    monsterId: string,
+    favoriteId: string | undefined,
+  ) => void;
+  onListChange?: (monsterId: string, inList: boolean) => void;
   compact?: boolean;
   preserveSearchParams?: boolean;
   emptyStateTitle?: string;
@@ -36,12 +42,15 @@ export function MonsterList({
   error,
   currentUserId,
   favoritesMap,
+  inListsSet,
   onPageChange,
   onPageSizeChange,
   onEditMonster,
   onDeleteMonster,
   onRetry,
   onCreateMonster,
+  onFavoriteChange,
+  onListChange,
   compact = false,
   preserveSearchParams = true,
   emptyStateTitle = "No monsters found",
@@ -87,7 +96,10 @@ export function MonsterList({
           monsters={monsters}
           currentUserId={currentUserId}
           favoritesMap={favoritesMap}
+          inListsSet={inListsSet}
           preserveSearchParams={preserveSearchParams}
+          onFavoriteChange={onFavoriteChange}
+          onListChange={onListChange}
         />
       ) : (
         <div
