@@ -47,8 +47,7 @@ export const alignmentSchema = z.enum(["L", "N", "C"]).nullable().optional();
 
 // Alignment schema for user creation (required)
 export const alignmentRequiredSchema = z.enum(["L", "N", "C"], {
-  required_error: "Alignment is required",
-  invalid_type_error: "Alignment must be L, N, or C",
+  message: "Alignment must be L, N, or C",
 });
 
 // Complete Monster schema for database entities
