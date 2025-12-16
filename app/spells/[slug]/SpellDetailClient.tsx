@@ -12,9 +12,10 @@ import {
 import { Badge } from "@/components/primitives/badge";
 import { Button } from "@/components/primitives/button";
 import { SpellDetailBlock } from "@/components/spells/SpellDetailBlock";
-import { ArrowLeft, Edit, Trash2 } from "lucide-react";
+import { ArrowLeft, Trash2 } from "lucide-react";
 import Link from "next/link";
-import { FavoriteButton } from "@/components/favorites/FavoriteButton";
+import { SpellActionMenu } from "@/components/spells/SpellActionMenu";
+import type { SpellWithAuthor } from "@/lib/types/spells";
 import { toast } from "sonner";
 import { logger } from "@/lib/utils/logger";
 import {
@@ -29,22 +30,8 @@ import {
   AlertDialogTrigger,
 } from "@/components/primitives/alert-dialog";
 
-interface Spell {
-  id: string;
-  name: string;
-  slug: string;
-  description: string;
-  classes: string[];
-  duration: string;
-  range: string;
-  tier: number;
-  source: string;
-  author_notes?: string;
-  user_id?: string;
-}
-
 interface SpellDetailClientProps {
-  spell: Spell;
+  spell: SpellWithAuthor;
   currentUserId: string | null;
   favoriteId: string | null;
 }
@@ -112,20 +99,14 @@ export function SpellDetailClient({
               </div>
               <div className="flex gap-2">
                 {currentUserId && (
-                  <FavoriteButton
-                    itemId={spell.id}
-                    itemType="spell"
+                  <SpellActionMenu
+                    spell={spell}
+                    userId={currentUserId}
                     initialFavoriteId={favoriteId || undefined}
                   />
                 )}
                 {isOwner && (
                   <>
-                    <Button variant="outline" size="sm" asChild>
-                      <Link href={`/spells/${spell.slug}/edit`}>
-                        <Edit className="h-4 w-4 mr-2" />
-                        Edit
-                      </Link>
-                    </Button>
                     <AlertDialog>
                       <AlertDialogTrigger asChild>
                         <Button

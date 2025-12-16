@@ -10,7 +10,14 @@ import {
   flexRender,
   createColumnHelper,
 } from "@tanstack/react-table";
-import { ArrowUpDown, ArrowUp, ArrowDown } from "lucide-react";
+import {
+  ArrowUpDown,
+  ArrowUp,
+  ArrowDown,
+  Heart,
+  List,
+  Layers,
+} from "lucide-react";
 import {
   Table,
   TableBody,
@@ -20,51 +27,61 @@ import {
   TableRow,
 } from "@/components/primitives/table";
 import { Badge } from "@/components/primitives/badge";
-import { FavoriteButton } from "@/components/favorites/FavoriteButton";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipTrigger,
+} from "@/components/primitives/tooltip";
+import { SpellActionMenu } from "@/components/spells/SpellActionMenu";
 import { getTierColor } from "@/lib/utils/shadowdark-colors";
-
-interface Spell {
-  id: string;
-  name: string;
-  slug: string;
-  description: string;
-  classes: string[];
-  duration: string;
-  range: string;
-  tier: number;
-  source: string;
-  author_notes?: string;
-  spell_type?: "official" | "user";
-  creator_id?: string;
-}
+import type { AllSpell, SpellWithAuthor } from "@/lib/types/spells";
 
 interface SpellTableProps {
-  spells: Spell[];
+  spells: AllSpell[];
   currentUserId?: string;
   favoritesMap?: Map<string, string>;
+  inListsSet?: Set<string>;
+  inDecksSet?: Set<string>;
+  onFavoriteChange?: (spellId: string, favoriteId: string | undefined) => void;
+  onListChange?: (spellId: string, inList: boolean) => void;
+  onDeckChange?: (spellId: string, inDeck: boolean) => void;
 }
 
-const columnHelper = createColumnHelper<Spell>();
+const columnHelper = createColumnHelper<AllSpell>();
 
 export function SpellTable({
   spells,
   currentUserId,
   favoritesMap,
+  inListsSet,
+  inDecksSet,
+  onFavoriteChange,
+  onListChange,
+  onDeckChange,
 }: SpellTableProps) {
   const [sorting, setSorting] = useState<SortingState>([]);
 
   const columns = [
-    // Favorite column (non-sortable)
+    // Action menu column (non-sortable)
     columnHelper.display({
-      id: "favorite",
-      header: () => null,
+      id: "actions",
+      header: () => (
+        <Tooltip>
+          <TooltipTrigger asChild>
+            <span className="text-muted-foreground">Actions</span>
+          </TooltipTrigger>
+          <TooltipContent>Spell actions menu</TooltipContent>
+        </Tooltip>
+      ),
       cell: ({ row }) =>
         currentUserId ? (
-          <FavoriteButton
-            itemId={row.original.id}
-            itemType="spell"
-            initialFavoriteId={favoritesMap?.get(row.original.id) || undefined}
-            compact={true}
+          <SpellActionMenu
+            spell={row.original as SpellWithAuthor}
+            userId={currentUserId}
+            initialFavoriteId={favoritesMap?.get(row.original.id)}
+            onFavoriteChange={onFavoriteChange}
+            onListChange={onListChange}
+            onDeckChange={onDeckChange}
           />
         ) : null,
       size: 40,
@@ -161,10 +178,92 @@ export function SpellTable({
       header: () => <span className="hidden lg:inline">Source</span>,
       cell: ({ row }) => (
         <span className="hidden lg:inline">
-          <Badge variant="outline">{row.original.source}</Badge>
+          <Badge variant="outline">
+            {row.original.source === "Custom"
+              ? "User Created"
+              : row.original.source}
+          </Badge>
         </span>
       ),
     }),
+
+    // Favorite indicator column (non-sortable)
+    ...(currentUserId
+      ? [
+          columnHelper.display({
+            id: "favorite",
+            header: () => (
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <span className="flex justify-center">
+                    <Heart className="h-4 w-4 text-muted-foreground" />
+                  </span>
+                </TooltipTrigger>
+                <TooltipContent>Favorited</TooltipContent>
+              </Tooltip>
+            ),
+            cell: ({ row }) =>
+              favoritesMap?.has(row.original.id) ? (
+                <span className="flex justify-center">
+                  <Heart className="h-4 w-4 fill-red-500 text-red-500" />
+                </span>
+              ) : null,
+            size: 40,
+          }),
+        ]
+      : []),
+
+    // In adventure list indicator column (non-sortable)
+    ...(currentUserId
+      ? [
+          columnHelper.display({
+            id: "inList",
+            header: () => (
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <span className="flex justify-center">
+                    <List className="h-4 w-4 text-muted-foreground" />
+                  </span>
+                </TooltipTrigger>
+                <TooltipContent>In adventure list</TooltipContent>
+              </Tooltip>
+            ),
+            cell: ({ row }) =>
+              inListsSet?.has(row.original.id) ? (
+                <span className="flex justify-center">
+                  <List className="h-4 w-4 text-primary" />
+                </span>
+              ) : null,
+            size: 40,
+          }),
+        ]
+      : []),
+
+    // In deck indicator column (non-sortable)
+    ...(currentUserId
+      ? [
+          columnHelper.display({
+            id: "inDeck",
+            header: () => (
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <span className="flex justify-center">
+                    <Layers className="h-4 w-4 text-muted-foreground" />
+                  </span>
+                </TooltipTrigger>
+                <TooltipContent>In deck</TooltipContent>
+              </Tooltip>
+            ),
+            cell: ({ row }) =>
+              inDecksSet?.has(row.original.id) ? (
+                <span className="flex justify-center">
+                  <Layers className="h-4 w-4 text-primary" />
+                </span>
+              ) : null,
+            size: 40,
+          }),
+        ]
+      : []),
   ];
 
   const table = useReactTable({
@@ -217,7 +316,9 @@ export function SpellTable({
             >
               {row.getVisibleCells().map((cell) => (
                 <TableCell key={cell.id}>
-                  {cell.column.id === "favorite" ? (
+                  {["actions", "favorite", "inList", "inDeck"].includes(
+                    cell.column.id,
+                  ) ? (
                     flexRender(cell.column.columnDef.cell, cell.getContext())
                   ) : (
                     <Link

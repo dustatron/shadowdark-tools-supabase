@@ -23,6 +23,7 @@ export interface EntityActionMenuProps<T extends { id: string }> {
   isOwner: boolean;
   onFavoriteToggle: () => void;
   onAddToList: () => void;
+  onAddToDeck?: () => void;
   onEdit?: () => void;
   config?: ActionMenuConfig;
 }
@@ -38,6 +39,7 @@ export function EntityActionMenu<T extends { id: string }>({
   isOwner,
   onFavoriteToggle,
   onAddToList,
+  onAddToDeck,
   onEdit,
   config = {},
 }: EntityActionMenuProps<T>) {
@@ -83,26 +85,36 @@ export function EntityActionMenu<T extends { id: string }>({
           <span>Add to Adventure List</span>
         </DropdownMenuItem>
 
-        {showDeck && (
-          <TooltipProvider>
-            <Tooltip>
-              <TooltipTrigger asChild>
-                <DropdownMenuItem
-                  disabled={!deckEnabled}
-                  aria-label="Add to deck (coming soon)"
-                >
-                  <Layers className="mr-2 h-4 w-4" />
-                  <span>Add to Deck</span>
-                </DropdownMenuItem>
-              </TooltipTrigger>
-              {!deckEnabled && (
+        {showDeck &&
+          (deckEnabled && onAddToDeck ? (
+            <DropdownMenuItem
+              onClick={(e) => {
+                e.preventDefault();
+                onAddToDeck();
+              }}
+              aria-label="Add to deck"
+            >
+              <Layers className="mr-2 h-4 w-4" />
+              <span>Add to Deck</span>
+            </DropdownMenuItem>
+          ) : (
+            <TooltipProvider>
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <DropdownMenuItem
+                    disabled={true}
+                    aria-label="Add to deck (coming soon)"
+                  >
+                    <Layers className="mr-2 h-4 w-4" />
+                    <span>Add to Deck</span>
+                  </DropdownMenuItem>
+                </TooltipTrigger>
                 <TooltipContent>
                   <p>{deckTooltip}</p>
                 </TooltipContent>
-              )}
-            </Tooltip>
-          </TooltipProvider>
-        )}
+              </Tooltip>
+            </TooltipProvider>
+          ))}
 
         {isOwner && onEdit && (
           <>
