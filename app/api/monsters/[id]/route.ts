@@ -40,6 +40,7 @@ const MonsterUpdateSchema = z
     is_public: z.boolean().optional(),
     // Additional fields
     description: z.string().optional(),
+    source: z.string().min(1).optional(),
     tactics: z.string().optional(),
     wants: z.string().optional(),
     gm_notes: z.string().optional(),
