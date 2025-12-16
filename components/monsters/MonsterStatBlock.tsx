@@ -2,6 +2,12 @@
 
 import { Heart, Shield, Footprints } from "lucide-react";
 import { Card, CardContent } from "@/components/primitives/card";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from "@/components/primitives/tooltip";
 
 interface MonsterStatBlockProps {
   hitPoints: number;
@@ -18,20 +24,45 @@ export function MonsterStatBlock({
 }: MonsterStatBlockProps) {
   if (compact) {
     return (
-      <div className="flex items-center gap-6">
-        <div className="flex items-center gap-2">
-          <Heart size={16} className="text-red-500" />
-          <span className="text-sm font-medium">{hitPoints}</span>
+      <TooltipProvider>
+        <div className="flex items-center gap-6">
+          <Tooltip>
+            <TooltipTrigger asChild>
+              <div className="flex items-center gap-2 cursor-help">
+                <Heart size={16} className="text-red-500" />
+                <span className="text-sm font-medium">{hitPoints}</span>
+              </div>
+            </TooltipTrigger>
+            <TooltipContent>
+              <p>Hit Points</p>
+            </TooltipContent>
+          </Tooltip>
+
+          <Tooltip>
+            <TooltipTrigger asChild>
+              <div className="flex items-center gap-2 cursor-help">
+                <Shield size={16} className="text-blue-500" />
+                <span className="text-sm font-medium">{armorClass}</span>
+              </div>
+            </TooltipTrigger>
+            <TooltipContent>
+              <p>Armor Class</p>
+            </TooltipContent>
+          </Tooltip>
+
+          <Tooltip>
+            <TooltipTrigger asChild>
+              <div className="flex items-center gap-2 cursor-help">
+                <Footprints size={16} className="text-green-500" />
+                <span className="text-sm font-medium">{speed}</span>
+              </div>
+            </TooltipTrigger>
+            <TooltipContent>
+              <p>Speed</p>
+            </TooltipContent>
+          </Tooltip>
         </div>
-        <div className="flex items-center gap-2">
-          <Shield size={16} className="text-blue-500" />
-          <span className="text-sm font-medium">{armorClass}</span>
-        </div>
-        <div className="flex items-center gap-2">
-          <Footprints size={16} className="text-green-500" />
-          <span className="text-sm font-medium">{speed}</span>
-        </div>
-      </div>
+      </TooltipProvider>
     );
   }
 

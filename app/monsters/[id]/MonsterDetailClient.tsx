@@ -215,7 +215,7 @@ export function MonsterDetailClient({
                 <h1 className="text-2xl font-bold mb-2">{monster.name}</h1>
                 <div className="flex flex-wrap gap-2">
                   <Badge className={`${challengeLevelColor} text-sm px-2 py-1`}>
-                    CL {monster.challenge_level}
+                    Level {monster.challenge_level}
                   </Badge>
 
                   {monster.source === "Shadowdark Core" ? (
@@ -272,36 +272,6 @@ export function MonsterDetailClient({
                 {monster.description}
               </p>
             )}
-
-            {/* Author Notes */}
-            {monster.author_notes &&
-              monster.author_notes !== monster.description && (
-                <p className="text-sm text-muted-foreground italic">
-                  {monster.author_notes}
-                </p>
-              )}
-
-            {/* Tags */}
-            <div className="flex flex-wrap gap-2">
-              {monster.tags?.type?.map((type, index) => (
-                <Badge
-                  key={`type-${index}`}
-                  variant="secondary"
-                  className="text-xs"
-                >
-                  {type}
-                </Badge>
-              ))}
-              {monster.tags?.location?.map((location, index) => (
-                <Badge
-                  key={`location-${index}`}
-                  variant="outline"
-                  className="text-xs text-gray-600 dark:text-gray-400"
-                >
-                  {location}
-                </Badge>
-              ))}
-            </div>
 
             {/* Art/Icon */}
             {(monster.art_url || monster.icon_url) && (
@@ -487,6 +457,37 @@ export function MonsterDetailClient({
               </>
             )}
 
+            {/* Tags */}
+            {((monster.tags?.type?.length ?? 0) > 0 ||
+              (monster.tags?.location?.length ?? 0) > 0) && (
+              <>
+                <Separator />
+                <div className="space-y-2">
+                  <h3 className="text-base font-semibold">Tags</h3>
+                  <div className="flex flex-wrap gap-2">
+                    {monster.tags?.type?.map((type, index) => (
+                      <Badge
+                        key={`type-${index}`}
+                        variant="secondary"
+                        className="text-xs"
+                      >
+                        {type}
+                      </Badge>
+                    ))}
+                    {monster.tags?.location?.map((location, index) => (
+                      <Badge
+                        key={`location-${index}`}
+                        variant="outline"
+                        className="text-xs text-gray-600 dark:text-gray-400"
+                      >
+                        {location}
+                      </Badge>
+                    ))}
+                  </div>
+                </div>
+              </>
+            )}
+
             {/* Treasure */}
             {monster.treasure && (
               <>
@@ -494,27 +495,33 @@ export function MonsterDetailClient({
                 <div className="space-y-2">
                   <h3 className="text-base font-semibold">Treasure</h3>
                   <div className="text-xs text-muted-foreground space-y-1">
-                    {monster.treasure.type && (
-                      <p>
-                        <strong>Type:</strong> {monster.treasure.type}
-                      </p>
+                    {typeof monster.treasure === "string" ? (
+                      <p>{monster.treasure}</p>
+                    ) : (
+                      <>
+                        {monster.treasure.type && (
+                          <p>
+                            <strong>Type:</strong> {monster.treasure.type}
+                          </p>
+                        )}
+                        {monster.treasure.amount && (
+                          <p>
+                            <strong>Amount:</strong> {monster.treasure.amount}
+                          </p>
+                        )}
+                        {monster.treasure.items &&
+                          monster.treasure.items.length > 0 && (
+                            <div>
+                              <strong>Items:</strong>
+                              <ul className="list-disc pl-4 mt-1">
+                                {monster.treasure.items.map((item, idx) => (
+                                  <li key={idx}>{item}</li>
+                                ))}
+                              </ul>
+                            </div>
+                          )}
+                      </>
                     )}
-                    {monster.treasure.amount && (
-                      <p>
-                        <strong>Amount:</strong> {monster.treasure.amount}
-                      </p>
-                    )}
-                    {monster.treasure.items &&
-                      monster.treasure.items.length > 0 && (
-                        <div>
-                          <strong>Items:</strong>
-                          <ul className="list-disc pl-4 mt-1">
-                            {monster.treasure.items.map((item, idx) => (
-                              <li key={idx}>{item}</li>
-                            ))}
-                          </ul>
-                        </div>
-                      )}
                   </div>
                 </div>
               </>
@@ -549,6 +556,17 @@ export function MonsterDetailClient({
                 <div className="space-y-2">
                   <h3 className="text-base font-semibold">GM Notes</h3>
                   <p className="text-xs">{monster.gm_notes}</p>
+                </div>
+              </>
+            )}
+
+            {/* Author Notes */}
+            {monster.author_notes && (
+              <>
+                <Separator />
+                <div className="space-y-2">
+                  <h3 className="text-base font-semibold">Author Notes</h3>
+                  <p className="text-xs">{monster.author_notes}</p>
                 </div>
               </>
             )}
