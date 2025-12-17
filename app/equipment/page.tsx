@@ -2,7 +2,8 @@ import { EquipmentClient } from "./EquipmentClient";
 import {
   parseFiltersFromSearchParams,
   parsePaginationFromSearchParams,
-} from "@/lib/types/equipment"; // Will create this type file
+} from "@/lib/types/equipment";
+import { createClient } from "@/lib/supabase/server";
 
 interface EquipmentPageProps {
   searchParams: Promise<Record<string, string | string[] | undefined>>;
@@ -11,10 +12,12 @@ interface EquipmentPageProps {
 export default async function EquipmentPage({
   searchParams,
 }: EquipmentPageProps) {
-  // Await searchParams in Next.js 15
   const params = await searchParams;
+  const supabase = await createClient();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
 
-  // Parse filters and pagination from URL
   const initialFilters = parseFiltersFromSearchParams(params);
   const initialPagination = parsePaginationFromSearchParams(params);
 
@@ -22,6 +25,7 @@ export default async function EquipmentPage({
     <EquipmentClient
       initialFilters={initialFilters}
       initialPagination={initialPagination}
+      currentUserId={user?.id}
     />
   );
 }

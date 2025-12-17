@@ -21,10 +21,15 @@ export async function GET(request: NextRequest) {
     const searchTerm = searchParams.get("q") || undefined;
     query = buildSearchQuery(query, searchTerm, ["name"], "medium");
 
-    // Apply item type filter
+    // Apply item type filter (supports comma-separated values)
     const itemType = searchParams.get("itemType");
     if (itemType) {
-      query = query.eq("item_type", itemType);
+      const itemTypes = itemType.split(",").filter(Boolean);
+      if (itemTypes.length === 1) {
+        query = query.eq("item_type", itemTypes[0]);
+      } else if (itemTypes.length > 1) {
+        query = query.in("item_type", itemTypes);
+      }
     }
 
     // Apply pagination

@@ -261,6 +261,7 @@ export function MonsterDetailClient({
                     monster={monster}
                     userId={currentUserId}
                     initialFavoriteId={favoriteId || undefined}
+                    hideViewDetails
                   />
                 )}
               </div>

@@ -15,6 +15,7 @@ interface SpellActionMenuProps {
   spell: SpellWithAuthor;
   userId: string;
   initialFavoriteId?: string;
+  hideViewDetails?: boolean;
   onFavoriteChange?: (spellId: string, favoriteId: string | undefined) => void;
   onListChange?: (spellId: string, inList: boolean) => void;
   onDeckChange?: (spellId: string, inDeck: boolean) => void;
@@ -24,6 +25,7 @@ export function SpellActionMenu({
   spell,
   userId,
   initialFavoriteId,
+  hideViewDetails = false,
   onFavoriteChange,
   onListChange,
   onDeckChange,
@@ -132,6 +134,7 @@ export function SpellActionMenu({
       <EntityActionMenu
         entity={spell}
         entityType="spell"
+        detailUrl={hideViewDetails ? undefined : `/spells/${spell.slug}`}
         isFavorited={isFavorited}
         isOwner={isOwner}
         onFavoriteToggle={handleFavoriteToggle}

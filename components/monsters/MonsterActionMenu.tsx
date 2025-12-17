@@ -13,6 +13,7 @@ interface MonsterActionMenuProps {
   monster: MonsterWithAuthor;
   userId: string;
   initialFavoriteId?: string;
+  hideViewDetails?: boolean;
   onFavoriteChange?: (
     monsterId: string,
     favoriteId: string | undefined,
@@ -24,6 +25,7 @@ export function MonsterActionMenu({
   monster,
   userId,
   initialFavoriteId,
+  hideViewDetails = false,
   onFavoriteChange,
   onListChange,
 }: MonsterActionMenuProps) {
@@ -101,6 +103,7 @@ export function MonsterActionMenu({
       <EntityActionMenu
         entity={monster}
         entityType="monster"
+        detailUrl={hideViewDetails ? undefined : `/monsters/${monster.id}`}
         isFavorited={isFavorited}
         isOwner={isOwner}
         onFavoriteToggle={handleFavoriteToggle}

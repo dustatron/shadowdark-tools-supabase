@@ -103,6 +103,7 @@ export function SpellDetailClient({
                     spell={spell}
                     userId={currentUserId}
                     initialFavoriteId={favoriteId || undefined}
+                    hideViewDetails
                   />
                 )}
                 {isOwner && (

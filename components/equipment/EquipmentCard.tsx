@@ -3,34 +3,45 @@
 import { Card, CardHeader, CardContent } from "@/components/primitives/card";
 import { Badge } from "@/components/primitives/badge";
 import { EquipmentItem } from "@/lib/types/equipment";
-import Link from "next/link"; // Assuming we might link to an equipment detail page later
-import {
-  Shield, // For armor class
-  Sword, // For weapon damage
-  ScrollText, // For properties
-  DollarSign, // For cost
-} from "lucide-react"; // Icons
+import { EquipmentActionMenu } from "./EquipmentActionMenu";
+import Link from "next/link";
+import { Shield, Sword, ScrollText, DollarSign } from "lucide-react";
 
 interface EquipmentCardProps {
   item: EquipmentItem;
+  currentUserId?: string;
+  showActions?: boolean;
 }
 
-export function EquipmentCard({ item }: EquipmentCardProps) {
+export function EquipmentCard({
+  item,
+  currentUserId,
+  showActions = true,
+}: EquipmentCardProps) {
   return (
     <Card className="hover:shadow-md transition-shadow">
-      <Link href={`/equipment/${item.id}`} className="block">
-        <CardHeader>
-          <div className="flex justify-between items-center">
-            <h3 className="text-xl font-semibold line-clamp-1">{item.name}</h3>
+      <CardHeader>
+        <div className="flex justify-between items-start">
+          <Link href={`/equipment/${item.id}`} className="flex-1">
+            <h3 className="text-xl font-semibold line-clamp-1 hover:underline">
+              {item.name}
+            </h3>
+          </Link>
+          <div className="flex items-center gap-2">
             <Badge variant="secondary">{item.item_type}</Badge>
+            {showActions && currentUserId && (
+              <EquipmentActionMenu equipment={item} userId={currentUserId} />
+            )}
           </div>
-          <div className="flex items-center gap-2 mt-1">
-            <DollarSign className="h-4 w-4 text-green-500" />
-            <span className="text-sm font-medium">
-              {item.cost.amount} {item.cost.currency}
-            </span>
-          </div>
-        </CardHeader>
+        </div>
+        <div className="flex items-center gap-2 mt-1">
+          <DollarSign className="h-4 w-4 text-green-500" />
+          <span className="text-sm font-medium">
+            {item.cost.amount} {item.cost.currency}
+          </span>
+        </div>
+      </CardHeader>
+      <Link href={`/equipment/${item.id}`}>
         <CardContent className="p-4 border-t-2 dark:border-border">
           <div className="grid grid-cols-2 gap-2 text-sm">
             {item.slot !== undefined && (

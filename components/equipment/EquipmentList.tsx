@@ -15,6 +15,7 @@ interface EquipmentListProps {
   pagination?: PaginationState & { total: number; totalPages: number };
   loading?: boolean;
   error?: string;
+  currentUserId?: string;
   onPageChange?: (page: number) => void;
   onPageSizeChange?: (pageSize: number) => void;
   onRetry?: () => void;
@@ -28,6 +29,7 @@ export function EquipmentList({
   pagination,
   loading = false,
   error,
+  currentUserId,
   onPageChange,
   onPageSizeChange,
   onRetry,
@@ -62,16 +64,20 @@ export function EquipmentList({
   return (
     <div className="flex flex-col gap-6">
       {view === "table" ? (
-        <EquipmentTable equipment={equipment} />
+        <EquipmentTable equipment={equipment} currentUserId={currentUserId} />
       ) : (
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
           {equipment?.map((item) => (
-            <EquipmentCard key={item.id} item={item} />
+            <EquipmentCard
+              key={item.id}
+              item={item}
+              currentUserId={currentUserId}
+            />
           ))}
         </div>
       )}
 
-      {pagination && pagination.totalPages > 1 && (
+      {pagination && (
         <Pagination
           currentPage={pagination.page}
           totalPages={pagination.totalPages}

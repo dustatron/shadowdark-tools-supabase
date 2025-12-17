@@ -17,11 +17,13 @@ import { logger } from "@/lib/utils/logger";
 interface EquipmentClientProps {
   initialFilters: FilterValues;
   initialPagination: PaginationState;
+  currentUserId?: string;
 }
 
 export function EquipmentClient({
   initialFilters,
   initialPagination,
+  currentUserId,
 }: EquipmentClientProps) {
   const router = useRouter();
   const [equipment, setEquipment] = useState<EquipmentItem[]>([]);
@@ -143,6 +145,7 @@ export function EquipmentClient({
         pagination={pagination}
         loading={loading}
         error={error || undefined}
+        currentUserId={currentUserId}
         onPageChange={handlePageChange}
         onPageSizeChange={handlePageSizeChange}
         onRetry={fetchEquipment}

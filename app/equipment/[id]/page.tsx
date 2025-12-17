@@ -16,6 +16,9 @@ export default async function EquipmentDetailPage({
   const { id: equipmentId } = await params;
   const resolvedSearchParams = await searchParams;
   const supabase = await createClient();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
 
   const backUrl = generateBackUrl(resolvedSearchParams, "/equipment");
 
@@ -52,5 +55,10 @@ export default async function EquipmentDetailPage({
     properties: equipment.properties || [],
   };
 
-  return <EquipmentDetailClient equipment={parsedEquipment} />;
+  return (
+    <EquipmentDetailClient
+      equipment={parsedEquipment}
+      currentUserId={user?.id}
+    />
+  );
 }
