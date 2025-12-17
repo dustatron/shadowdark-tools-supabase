@@ -7,7 +7,7 @@ import { toast } from "sonner";
 interface UseListOperationsParams {
   userId: string;
   entityId?: string;
-  entityType?: "monster" | "spell";
+  entityType?: "monster" | "spell" | "magic_item" | "equipment";
 }
 
 interface UserList {
@@ -106,7 +106,7 @@ export function useListOperations({
     mutationFn: async (data: {
       listId: string;
       entityId: string;
-      entityType: "monster" | "spell";
+      entityType: "monster" | "spell" | "magic_item" | "equipment";
       quantity?: number;
     }) => {
       const { error } = await supabase.from("adventure_list_items").insert({

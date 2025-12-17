@@ -14,11 +14,13 @@ import {
   TooltipProvider,
   TooltipTrigger,
 } from "@/components/primitives/tooltip";
-import { MoreVertical, Heart, List, Layers, Edit } from "lucide-react";
+import { MoreVertical, Heart, List, Layers, Edit, Eye } from "lucide-react";
+import Link from "next/link";
 
 export interface EntityActionMenuProps<T extends { id: string }> {
   entity: T;
-  entityType: "monster" | "spell";
+  entityType: "monster" | "spell" | "magic_item" | "equipment";
+  detailUrl?: string;
   isFavorited: boolean;
   isOwner: boolean;
   onFavoriteToggle: () => void;
@@ -32,9 +34,12 @@ export interface ActionMenuConfig {
   showDeck?: boolean;
   deckEnabled?: boolean;
   deckTooltip?: string;
+  favoritesEnabled?: boolean;
+  favoritesTooltip?: string;
 }
 
 export function EntityActionMenu<T extends { id: string }>({
+  detailUrl,
   isFavorited,
   isOwner,
   onFavoriteToggle,
@@ -47,6 +52,8 @@ export function EntityActionMenu<T extends { id: string }>({
     showDeck = true,
     deckEnabled = false,
     deckTooltip = "Deck support coming soon",
+    favoritesEnabled = true,
+    favoritesTooltip = "Favorites coming soon",
   } = config;
 
   return (
@@ -57,22 +64,53 @@ export function EntityActionMenu<T extends { id: string }>({
         </Button>
       </DropdownMenuTrigger>
       <DropdownMenuContent align="end" className="w-56">
-        <DropdownMenuItem
-          onClick={(e) => {
-            e.preventDefault();
-            onFavoriteToggle();
-          }}
-          aria-label={
-            isFavorited ? "Remove from favorites" : "Add to favorites"
-          }
-        >
-          <Heart
-            className={`mr-2 h-4 w-4 ${isFavorited ? "fill-current" : ""}`}
-          />
-          <span>
-            {isFavorited ? "Remove from Favorites" : "Add to Favorites"}
-          </span>
-        </DropdownMenuItem>
+        {detailUrl && (
+          <>
+            <DropdownMenuItem asChild>
+              <Link href={detailUrl} className="flex items-center">
+                <Eye className="mr-2 h-4 w-4" />
+                <span>View Details</span>
+              </Link>
+            </DropdownMenuItem>
+            <DropdownMenuSeparator />
+          </>
+        )}
+
+        {favoritesEnabled ? (
+          <DropdownMenuItem
+            onClick={(e) => {
+              e.preventDefault();
+              onFavoriteToggle();
+            }}
+            aria-label={
+              isFavorited ? "Remove from favorites" : "Add to favorites"
+            }
+          >
+            <Heart
+              className={`mr-2 h-4 w-4 ${isFavorited ? "fill-current" : ""}`}
+            />
+            <span>
+              {isFavorited ? "Remove from Favorites" : "Add to Favorites"}
+            </span>
+          </DropdownMenuItem>
+        ) : (
+          <TooltipProvider>
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <DropdownMenuItem
+                  disabled={true}
+                  aria-label="Add to favorites (coming soon)"
+                >
+                  <Heart className="mr-2 h-4 w-4" />
+                  <span>Add to Favorites</span>
+                </DropdownMenuItem>
+              </TooltipTrigger>
+              <TooltipContent>
+                <p>{favoritesTooltip}</p>
+              </TooltipContent>
+            </Tooltip>
+          </TooltipProvider>
+        )}
 
         <DropdownMenuItem
           onClick={(e) => {

@@ -21,16 +21,43 @@ import { Badge } from "@/components/primitives/badge";
 import { ArrowUpDown } from "lucide-react";
 import Link from "next/link";
 import { EquipmentItem } from "@/lib/types/equipment";
+import { EquipmentActionMenu } from "./EquipmentActionMenu";
 
 interface EquipmentTableProps {
   equipment: EquipmentItem[];
+  currentUserId?: string;
 }
 
-export function EquipmentTable({ equipment }: EquipmentTableProps) {
+// Wrapper component to render action menu in table cell
+function ActionCell({
+  equipment,
+  userId,
+}: {
+  equipment: EquipmentItem;
+  userId: string;
+}) {
+  return <EquipmentActionMenu equipment={equipment} userId={userId} />;
+}
+
+export function EquipmentTable({
+  equipment,
+  currentUserId,
+}: EquipmentTableProps) {
   const [sorting, setSorting] = useState<SortingState>([]);
 
   const columns: ColumnDef<EquipmentItem>[] = useMemo(
     () => [
+      ...(currentUserId
+        ? [
+            {
+              id: "actions",
+              header: () => "Action",
+              cell: ({ row }: { row: { original: EquipmentItem } }) => (
+                <ActionCell equipment={row.original} userId={currentUserId} />
+              ),
+            } as ColumnDef<EquipmentItem>,
+          ]
+        : []),
       {
         accessorKey: "name",
         header: ({ column }) => {
@@ -136,7 +163,7 @@ export function EquipmentTable({ equipment }: EquipmentTableProps) {
         },
       },
     ],
-    [],
+    [currentUserId],
   );
 
   const table = useReactTable({

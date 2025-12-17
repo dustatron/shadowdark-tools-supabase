@@ -37,7 +37,7 @@ export interface ListSelectorModalProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
   entityId: string;
-  entityType: "monster" | "spell";
+  entityType: "monster" | "spell" | "magic_item" | "equipment";
   lists: UserList[];
   existingListIds: string[];
   onSelectList: (listId: string) => Promise<void>;

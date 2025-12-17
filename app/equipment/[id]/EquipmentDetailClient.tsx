@@ -7,14 +7,17 @@ import { Button } from "@/components/primitives/button";
 import { Card, CardContent, CardHeader } from "@/components/primitives/card";
 import { Badge } from "@/components/primitives/badge";
 import { EquipmentItem } from "@/lib/types/equipment";
+import { EquipmentActionMenu } from "@/components/equipment/EquipmentActionMenu";
 import { generateBackUrl } from "@/lib/utils";
 
 interface EquipmentDetailClientProps {
   equipment: EquipmentItem;
+  currentUserId?: string;
 }
 
 export function EquipmentDetailClient({
   equipment,
+  currentUserId,
 }: EquipmentDetailClientProps) {
   const searchParams = useSearchParams();
   const backUrl = generateBackUrl(searchParams, "/equipment");
@@ -49,6 +52,13 @@ export function EquipmentDetailClient({
                   </div>
                 </div>
               </div>
+              {currentUserId && (
+                <EquipmentActionMenu
+                  equipment={equipment}
+                  userId={currentUserId}
+                  hideViewDetails
+                />
+              )}
             </div>
           </CardHeader>
           <CardContent>
