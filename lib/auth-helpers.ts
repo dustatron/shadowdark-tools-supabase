@@ -15,15 +15,46 @@ export async function getServerUser(): Promise<User | null> {
   }
 }
 
+/**
+ * Gets validated user from Supabase Auth server.
+ * Use this for protected routes that need security validation.
+ */
 export async function getServerSession() {
+  try {
+    const supabase = await createClient();
+    const {
+      data: { user },
+      error,
+    } = await supabase.auth.getUser();
+
+    if (error) {
+      logger.warn("getUser error:", error.message);
+      return null;
+    }
+
+    return user ? { user } : null;
+  } catch (error) {
+    logger.error("Error getting server session:", error);
+    return null;
+  }
+}
+
+/**
+ * Fast session check from cookies without server validation.
+ * Use this only for non-security-critical checks like:
+ * - Redirecting logged-in users away from login page
+ * - UI hints that don't gate functionality
+ * DO NOT use for protecting routes or data access.
+ */
+export async function getSessionFromCookies() {
   try {
     const supabase = await createClient();
     const {
       data: { session },
     } = await supabase.auth.getSession();
-    return session;
+    return session ? { user: session.user } : null;
   } catch (error) {
-    logger.error("Error getting server session:", error);
+    logger.error("Error getting session from cookies:", error);
     return null;
   }
 }

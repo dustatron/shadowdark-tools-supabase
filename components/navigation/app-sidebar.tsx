@@ -24,6 +24,7 @@ import {
   Wand2,
   Scroll,
   Plus,
+  Loader2,
 } from "lucide-react";
 import {
   Sidebar,
@@ -471,19 +472,28 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
           </SidebarGroup>
         )}
 
-        {/* Guest Sign In */}
-        {!user && !loading && (
+        {/* Guest Sign In / Loading */}
+        {!user && (
           <SidebarGroup>
             <SidebarMenu>
               <SidebarMenuItem>
-                <SidebarMenuButton asChild tooltip="Sign In">
-                  <Link href="/auth/login">
-                    <User />
+                {loading ? (
+                  <SidebarMenuButton tooltip="Loading...">
+                    <Loader2 className="animate-spin" />
                     <span className="group-data-[collapsible=icon]:hidden">
-                      Sign In
+                      Loading...
                     </span>
-                  </Link>
-                </SidebarMenuButton>
+                  </SidebarMenuButton>
+                ) : (
+                  <SidebarMenuButton asChild tooltip="Sign In">
+                    <Link href="/auth/login">
+                      <User />
+                      <span className="group-data-[collapsible=icon]:hidden">
+                        Sign In
+                      </span>
+                    </Link>
+                  </SidebarMenuButton>
+                )}
               </SidebarMenuItem>
             </SidebarMenu>
           </SidebarGroup>

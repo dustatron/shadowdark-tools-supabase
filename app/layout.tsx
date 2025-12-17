@@ -5,7 +5,6 @@ import { Toaster } from "@/components/primitives/sonner";
 import { SidebarProvider, SidebarInset } from "@/components/primitives/sidebar";
 import { AppSidebar } from "@/components/navigation/app-sidebar";
 import { PageHeader } from "@/components/navigation/page-header";
-import { getServerSession } from "@/lib/auth-helpers";
 import { Roboto, Source_Code_Pro } from "next/font/google";
 import "./globals.css";
 
@@ -99,15 +98,13 @@ export default async function RootLayout({
 }: Readonly<{
   children: React.ReactNode;
 }>) {
-  const initialSession = await getServerSession();
-
   return (
     <html lang="en" suppressHydrationWarning>
       <body
         className={`${roboto.variable} ${sourceCodePro.variable} antialiased`}
       >
         <ThemeProvider attribute="class" defaultTheme="dark">
-          <RootProvider initialSession={initialSession}>
+          <RootProvider>
             <SidebarProvider>
               <AppSidebar />
               <SidebarInset>
