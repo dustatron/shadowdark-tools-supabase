@@ -30,12 +30,11 @@ const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
 interface AuthProviderProps {
   children: ReactNode;
-  initialSession?: { user: User } | null;
 }
 
 const PROFILE_FETCH_TIMEOUT = 3000;
 
-export function AuthProvider({ children, initialSession }: AuthProviderProps) {
+export function AuthProvider({ children }: AuthProviderProps) {
   const [user, setUser] = useState<UserData | null>(null);
   const [loading, setLoading] = useState(true);
   const supabase = createClient();
@@ -81,32 +80,31 @@ export function AuthProvider({ children, initialSession }: AuthProviderProps) {
     const abortController = new AbortController();
     let timeoutId: NodeJS.Timeout | undefined;
 
+    // Single source of truth: client-side getUser() validates with Supabase Auth
     const getInitialUser = async () => {
       try {
-        const authUser = initialSession?.user;
-
-        if (authUser) {
-          logger.debug("Using initial session from server");
-        } else {
-          logger.debug("Fetching session from client");
-        }
-
+        logger.debug("Fetching user from Supabase Auth");
         const {
-          data: { session },
-        } = initialSession?.user
-          ? { data: { session: initialSession } }
-          : await supabase.auth.getSession();
+          data: { user: authUser },
+          error,
+        } = await supabase.auth.getUser();
 
         if (!mounted) return;
 
-        if (session?.user) {
-          // Set timeout for profile fetch
+        if (error) {
+          logger.warn("getUser error:", error.message);
+          setUser(null);
+          setLoading(false);
+          return;
+        }
+
+        if (authUser) {
           timeoutId = setTimeout(() => {
             abortController.abort();
           }, PROFILE_FETCH_TIMEOUT);
 
           const userData = await fetchUserProfile(
-            session.user,
+            authUser,
             abortController.signal,
           );
 
@@ -119,13 +117,14 @@ export function AuthProvider({ children, initialSession }: AuthProviderProps) {
         } else {
           setUser(null);
         }
+
+        if (mounted) {
+          setLoading(false);
+        }
       } catch (error) {
         logger.error("Error getting user:", error);
         if (mounted) {
           setUser(null);
-        }
-      } finally {
-        if (mounted) {
           setLoading(false);
         }
       }
@@ -133,21 +132,29 @@ export function AuthProvider({ children, initialSession }: AuthProviderProps) {
 
     getInitialUser();
 
-    // Listen to auth state changes
+    // Listen to auth state changes (login/logout/token refresh)
     const {
       data: { subscription },
-    } = supabase.auth.onAuthStateChange(async (_event, session) => {
+    } = supabase.auth.onAuthStateChange(async (event, session) => {
       if (!mounted) return;
 
-      if (session?.user) {
-        const userData = await fetchUserProfile(session.user);
-        if (mounted) {
-          setUser(userData);
+      logger.debug("Auth state change:", event);
+
+      if (event === "SIGNED_IN" || event === "TOKEN_REFRESHED") {
+        if (session?.user) {
+          const userData = await fetchUserProfile(session.user);
+          if (mounted) {
+            setUser(userData);
+            setLoading(false);
+          }
         }
-      } else {
-        setUser(null);
+      } else if (event === "SIGNED_OUT") {
+        if (mounted) {
+          setUser(null);
+          setLoading(false);
+        }
       }
-      setLoading(false);
+      // Ignore INITIAL_SESSION - we handle it in getInitialUser
     });
 
     return () => {
@@ -156,7 +163,7 @@ export function AuthProvider({ children, initialSession }: AuthProviderProps) {
       abortController.abort();
       subscription.unsubscribe();
     };
-  }, [supabase, initialSession, fetchUserProfile]);
+  }, [supabase, fetchUserProfile]);
 
   const signOut = useCallback(async () => {
     try {

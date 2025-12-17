@@ -1,8 +1,5 @@
-import Link from "next/link";
 import type { Metadata } from "next";
-import { Button } from "@/components/primitives/button";
 import { HomeSearchClient } from "@/components/search";
-import { getServerSession } from "@/lib/auth-helpers";
 
 export const metadata: Metadata = {
   title: "Home | Dungeon Exchange",
@@ -16,7 +13,6 @@ export const metadata: Metadata = {
 };
 
 export default async function Home() {
-  const session = await getServerSession();
   return (
     <div>
       <div className="flex flex-col gap-8">

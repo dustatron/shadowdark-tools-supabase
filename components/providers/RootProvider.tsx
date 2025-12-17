@@ -6,10 +6,9 @@ import { AuthProvider } from "./AuthProvider";
 
 interface RootProviderProps {
   children: ReactNode;
-  initialSession?: any;
 }
 
-export function RootProvider({ children, initialSession }: RootProviderProps) {
+export function RootProvider({ children }: RootProviderProps) {
   const [queryClient] = useState(
     () =>
       new QueryClient({
@@ -24,7 +23,7 @@ export function RootProvider({ children, initialSession }: RootProviderProps) {
 
   return (
     <QueryClientProvider client={queryClient}>
-      <AuthProvider initialSession={initialSession}>{children}</AuthProvider>
+      <AuthProvider>{children}</AuthProvider>
     </QueryClientProvider>
   );
 }

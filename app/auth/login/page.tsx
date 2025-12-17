@@ -1,8 +1,6 @@
 import { LoginForm } from "@/components/login-form";
 import type { Metadata } from "next";
 import { Suspense } from "react";
-import { getServerSession } from "@/lib/auth-helpers";
-import { redirect } from "next/navigation";
 
 export const metadata: Metadata = {
   title: "Login",
@@ -14,15 +12,8 @@ export const metadata: Metadata = {
   },
 };
 
-export default async function Page() {
-  // Check if user is already authenticated
-  const session = await getServerSession();
-
-  if (session?.user) {
-    // User is already logged in, redirect to adventure lists
-    redirect("/adventure-lists");
-  }
-
+// Client-side LoginForm handles redirect if user is already logged in
+export default function Page() {
   return (
     <div className="flex min-h-svh w-full justify-center p-2 md:p-5">
       <div className="w-full max-w-md">
