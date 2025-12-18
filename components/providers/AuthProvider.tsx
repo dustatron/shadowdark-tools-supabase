@@ -6,6 +6,7 @@ import {
   useEffect,
   useState,
   useCallback,
+  useMemo,
   ReactNode,
 } from "react";
 import { createClient } from "@/lib/supabase/client";
@@ -37,7 +38,8 @@ const PROFILE_FETCH_TIMEOUT = 3000;
 export function AuthProvider({ children }: AuthProviderProps) {
   const [user, setUser] = useState<UserData | null>(null);
   const [loading, setLoading] = useState(true);
-  const supabase = createClient();
+  // Memoize client to prevent recreation on every render
+  const supabase = useMemo(() => createClient(), []);
 
   const fetchUserProfile = useCallback(
     async (authUser: User, signal?: AbortSignal): Promise<UserData> => {
@@ -138,9 +140,13 @@ export function AuthProvider({ children }: AuthProviderProps) {
     } = supabase.auth.onAuthStateChange(async (event, session) => {
       if (!mounted) return;
 
-      logger.debug("Auth state change:", event);
+      logger.debug("Auth state change:", event, "session:", !!session);
 
-      if (event === "SIGNED_IN" || event === "TOKEN_REFRESHED") {
+      if (
+        event === "SIGNED_IN" ||
+        event === "TOKEN_REFRESHED" ||
+        event === "INITIAL_SESSION"
+      ) {
         if (session?.user) {
           const userData = await fetchUserProfile(session.user);
           if (mounted) {
@@ -154,7 +160,6 @@ export function AuthProvider({ children }: AuthProviderProps) {
           setLoading(false);
         }
       }
-      // Ignore INITIAL_SESSION - we handle it in getInitialUser
     });
 
     return () => {
