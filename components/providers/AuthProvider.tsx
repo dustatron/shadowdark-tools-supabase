@@ -6,6 +6,7 @@ import {
   useEffect,
   useState,
   useCallback,
+  useMemo,
   ReactNode,
 } from "react";
 import { createClient } from "@/lib/supabase/client";
@@ -37,7 +38,8 @@ const PROFILE_FETCH_TIMEOUT = 3000;
 export function AuthProvider({ children }: AuthProviderProps) {
   const [user, setUser] = useState<UserData | null>(null);
   const [loading, setLoading] = useState(true);
-  const supabase = createClient();
+  // Memoize client to prevent recreation on every render
+  const supabase = useMemo(() => createClient(), []);
 
   const fetchUserProfile = useCallback(
     async (authUser: User, signal?: AbortSignal): Promise<UserData> => {
