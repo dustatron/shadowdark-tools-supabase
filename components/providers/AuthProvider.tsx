@@ -36,13 +36,12 @@ interface AuthProviderProps {
 const PROFILE_FETCH_TIMEOUT = 3000;
 const AUTH_CHECK_TIMEOUT = 5000; // Safety timeout for entire auth check
 
-// Get singleton client
-const supabase = createClient();
-
 export function AuthProvider({ children }: AuthProviderProps) {
   const [user, setUser] = useState<UserData | null>(null);
   const [loading, setLoading] = useState(true);
   const initializedRef = useRef(false);
+  // Get singleton client - must be inside component to ensure client-side only
+  const supabase = createClient();
 
   const fetchUserProfile = useCallback(
     async (authUser: User, signal?: AbortSignal): Promise<UserData> => {
@@ -77,7 +76,7 @@ export function AuthProvider({ children }: AuthProviderProps) {
         username_slug,
       };
     },
-    [],
+    [supabase],
   );
 
   useEffect(() => {
