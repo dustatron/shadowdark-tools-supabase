@@ -138,9 +138,13 @@ export function AuthProvider({ children }: AuthProviderProps) {
     } = supabase.auth.onAuthStateChange(async (event, session) => {
       if (!mounted) return;
 
-      logger.debug("Auth state change:", event);
+      logger.debug("Auth state change:", event, "session:", !!session);
 
-      if (event === "SIGNED_IN" || event === "TOKEN_REFRESHED") {
+      if (
+        event === "SIGNED_IN" ||
+        event === "TOKEN_REFRESHED" ||
+        event === "INITIAL_SESSION"
+      ) {
         if (session?.user) {
           const userData = await fetchUserProfile(session.user);
           if (mounted) {
@@ -154,7 +158,6 @@ export function AuthProvider({ children }: AuthProviderProps) {
           setLoading(false);
         }
       }
-      // Ignore INITIAL_SESSION - we handle it in getInitialUser
     });
 
     return () => {
