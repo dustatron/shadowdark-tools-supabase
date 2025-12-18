@@ -66,7 +66,7 @@ export default function SpellsPage() {
         if (favorites) {
           setFavoritesMap(
             createFavoritesMap(
-              favorites.map((fav) => ({
+              favorites.map((fav: { id: string; item_id: string }) => ({
                 item_id: fav.item_id,
                 favorite_id: fav.id,
               })),
@@ -82,7 +82,9 @@ export default function SpellsPage() {
           .eq("adventure_lists.user_id", user.id);
 
         if (listItems) {
-          setInListsSet(new Set(listItems.map((item) => item.item_id)));
+          setInListsSet(
+            new Set(listItems.map((item: { item_id: string }) => item.item_id)),
+          );
         }
 
         // Fetch spells that are in decks
@@ -92,7 +94,11 @@ export default function SpellsPage() {
           .eq("decks.user_id", user.id);
 
         if (deckItems) {
-          setInDecksSet(new Set(deckItems.map((item) => item.spell_id)));
+          setInDecksSet(
+            new Set(
+              deckItems.map((item: { spell_id: string }) => item.spell_id),
+            ),
+          );
         }
       }
     };
@@ -218,7 +224,10 @@ export default function SpellsPage() {
 
           if (favorites) {
             const favMap = new Map<string, string>(
-              favorites.map((fav) => [fav.item_id as string, fav.id as string]),
+              favorites.map((fav: { id: string; item_id: string }) => [
+                fav.item_id,
+                fav.id,
+              ]),
             );
             setFavoritesMap(favMap);
           }

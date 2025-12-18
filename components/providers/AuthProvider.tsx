@@ -6,11 +6,11 @@ import {
   useEffect,
   useState,
   useCallback,
-  useMemo,
+  useRef,
   ReactNode,
 } from "react";
 import { createClient } from "@/lib/supabase/client";
-import { User } from "@supabase/supabase-js";
+import { User, AuthChangeEvent, Session } from "@supabase/supabase-js";
 import { logger } from "@/lib/utils/logger";
 
 export interface UserData {
@@ -34,12 +34,15 @@ interface AuthProviderProps {
 }
 
 const PROFILE_FETCH_TIMEOUT = 3000;
+const AUTH_CHECK_TIMEOUT = 5000; // Safety timeout for entire auth check
+
+// Get singleton client
+const supabase = createClient();
 
 export function AuthProvider({ children }: AuthProviderProps) {
   const [user, setUser] = useState<UserData | null>(null);
   const [loading, setLoading] = useState(true);
-  // Memoize client to prevent recreation on every render
-  const supabase = useMemo(() => createClient(), []);
+  const initializedRef = useRef(false);
 
   const fetchUserProfile = useCallback(
     async (authUser: User, signal?: AbortSignal): Promise<UserData> => {
@@ -74,13 +77,25 @@ export function AuthProvider({ children }: AuthProviderProps) {
         username_slug,
       };
     },
-    [supabase],
+    [],
   );
 
   useEffect(() => {
+    // Prevent double initialization in strict mode
+    if (initializedRef.current) return;
+    initializedRef.current = true;
+
     let mounted = true;
     const abortController = new AbortController();
-    let timeoutId: NodeJS.Timeout | undefined;
+    let profileTimeoutId: NodeJS.Timeout | undefined;
+
+    // Safety timeout - ensure loading is never stuck
+    const safetyTimeoutId = setTimeout(() => {
+      if (mounted) {
+        logger.warn("Auth check timed out, forcing loading=false");
+        setLoading(false);
+      }
+    }, AUTH_CHECK_TIMEOUT);
 
     // Single source of truth: client-side getUser() validates with Supabase Auth
     const getInitialUser = async () => {
@@ -101,7 +116,7 @@ export function AuthProvider({ children }: AuthProviderProps) {
         }
 
         if (authUser) {
-          timeoutId = setTimeout(() => {
+          profileTimeoutId = setTimeout(() => {
             abortController.abort();
           }, PROFILE_FETCH_TIMEOUT);
 
@@ -110,7 +125,7 @@ export function AuthProvider({ children }: AuthProviderProps) {
             abortController.signal,
           );
 
-          clearTimeout(timeoutId);
+          clearTimeout(profileTimeoutId);
 
           if (mounted) {
             logger.debug("Setting user data:", userData);
@@ -137,38 +152,47 @@ export function AuthProvider({ children }: AuthProviderProps) {
     // Listen to auth state changes (login/logout/token refresh)
     const {
       data: { subscription },
-    } = supabase.auth.onAuthStateChange(async (event, session) => {
-      if (!mounted) return;
+    } = supabase.auth.onAuthStateChange(
+      async (event: AuthChangeEvent, session: Session | null) => {
+        if (!mounted) return;
 
-      logger.debug("Auth state change:", event, "session:", !!session);
+        logger.debug("Auth state change:", event, "session:", !!session);
 
-      if (
-        event === "SIGNED_IN" ||
-        event === "TOKEN_REFRESHED" ||
-        event === "INITIAL_SESSION"
-      ) {
-        if (session?.user) {
-          const userData = await fetchUserProfile(session.user);
+        if (
+          event === "SIGNED_IN" ||
+          event === "TOKEN_REFRESHED" ||
+          event === "INITIAL_SESSION"
+        ) {
+          if (session?.user) {
+            const userData = await fetchUserProfile(session.user);
+            if (mounted) {
+              setUser(userData);
+              setLoading(false);
+            }
+          } else if (event === "INITIAL_SESSION") {
+            // INITIAL_SESSION with no user means not logged in
+            if (mounted) {
+              setUser(null);
+              setLoading(false);
+            }
+          }
+        } else if (event === "SIGNED_OUT") {
           if (mounted) {
-            setUser(userData);
+            setUser(null);
             setLoading(false);
           }
         }
-      } else if (event === "SIGNED_OUT") {
-        if (mounted) {
-          setUser(null);
-          setLoading(false);
-        }
-      }
-    });
+      },
+    );
 
     return () => {
       mounted = false;
-      if (timeoutId) clearTimeout(timeoutId);
+      if (profileTimeoutId) clearTimeout(profileTimeoutId);
+      if (safetyTimeoutId) clearTimeout(safetyTimeoutId);
       abortController.abort();
       subscription.unsubscribe();
     };
-  }, [supabase, fetchUserProfile]);
+  }, [fetchUserProfile]);
 
   const signOut = useCallback(async () => {
     try {

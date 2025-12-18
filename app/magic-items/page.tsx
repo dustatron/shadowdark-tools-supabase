@@ -77,7 +77,7 @@ export default function MagicItemsPage() {
 
         if (favorites) {
           const favMap = createFavoritesMap(
-            favorites.map((fav) => ({
+            favorites.map((fav: { id: string; item_id: string }) => ({
               item_id: fav.item_id,
               favorite_id: fav.id,
             })),

@@ -47,14 +47,22 @@ export function useDeckOperations({
         throw error;
       }
 
-      return data.map((deck) => ({
-        id: deck.id,
-        name: deck.name,
-        created_at: deck.created_at,
-        user_id: deck.user_id,
-        spell_count:
-          (deck.deck_items as unknown as { count: number }[])?.[0]?.count || 0,
-      })) as UserDeck[];
+      return data.map(
+        (deck: {
+          id: string;
+          name: string;
+          created_at: string;
+          user_id: string;
+          deck_items: unknown;
+        }) => ({
+          id: deck.id,
+          name: deck.name,
+          created_at: deck.created_at,
+          user_id: deck.user_id,
+          spell_count:
+            (deck.deck_items as { count: number }[])?.[0]?.count || 0,
+        }),
+      ) as UserDeck[];
     },
     staleTime: 5 * 60 * 1000, // 5 minutes
   });
@@ -75,7 +83,7 @@ export function useDeckOperations({
         );
 
       if (error) throw error;
-      return data.map((item) => item.deck_id);
+      return data.map((item: { deck_id: string }) => item.deck_id);
     },
     enabled: !!spellId && decks.length > 0,
   });

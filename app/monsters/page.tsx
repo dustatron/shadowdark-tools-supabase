@@ -108,7 +108,7 @@ export default function MonstersPage() {
         if (favorites) {
           setFavoritesMap(
             createFavoritesMap(
-              favorites.map((fav) => ({
+              favorites.map((fav: { id: string; item_id: string }) => ({
                 item_id: fav.item_id,
                 favorite_id: fav.id,
               })),
@@ -124,7 +124,9 @@ export default function MonstersPage() {
           .eq("adventure_lists.user_id", user.id);
 
         if (listItems) {
-          setInListsSet(new Set(listItems.map((item) => item.item_id)));
+          setInListsSet(
+            new Set(listItems.map((item: { item_id: string }) => item.item_id)),
+          );
         }
       }
     };
@@ -253,7 +255,10 @@ export default function MonstersPage() {
 
           if (favorites) {
             const favMap = new Map<string, string>(
-              favorites.map((fav) => [fav.item_id as string, fav.id as string]),
+              favorites.map((fav: { id: string; item_id: string }) => [
+                fav.item_id,
+                fav.id,
+              ]),
             );
             setFavoritesMap(favMap);
           }
