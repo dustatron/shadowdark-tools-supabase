@@ -2,13 +2,14 @@
 
 import { ReactNode, useState } from "react";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { AuthProvider } from "./AuthProvider";
+import { AuthProvider, UserData } from "./AuthProvider";
 
 interface RootProviderProps {
   children: ReactNode;
+  initialUser?: UserData | null;
 }
 
-export function RootProvider({ children }: RootProviderProps) {
+export function RootProvider({ children, initialUser }: RootProviderProps) {
   const [queryClient] = useState(
     () =>
       new QueryClient({
@@ -23,7 +24,7 @@ export function RootProvider({ children }: RootProviderProps) {
 
   return (
     <QueryClientProvider client={queryClient}>
-      <AuthProvider>{children}</AuthProvider>
+      <AuthProvider initialUser={initialUser}>{children}</AuthProvider>
     </QueryClientProvider>
   );
 }

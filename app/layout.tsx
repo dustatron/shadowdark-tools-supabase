@@ -6,6 +6,7 @@ import { SidebarProvider, SidebarInset } from "@/components/primitives/sidebar";
 import { AppSidebar } from "@/components/navigation/app-sidebar";
 import { PageHeader } from "@/components/navigation/page-header";
 import { Roboto, Source_Code_Pro } from "next/font/google";
+import { createClient } from "@/lib/supabase/server";
 import "./globals.css";
 
 const roboto = Roboto({
@@ -98,13 +99,37 @@ export default async function RootLayout({
 }: Readonly<{
   children: React.ReactNode;
 }>) {
+  // Fetch user server-side
+  const supabase = await createClient();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+
+  // Get user profile if authenticated
+  let initialUser = null;
+  if (user) {
+    const { data: profile } = await supabase
+      .from("user_profiles")
+      .select("username_slug")
+      .eq("id", user.id)
+      .single();
+
+    initialUser = {
+      id: user.id,
+      email: user.email!,
+      display_name: user.user_metadata?.display_name,
+      role: user.app_metadata?.role,
+      username_slug: profile?.username_slug,
+    };
+  }
+
   return (
     <html lang="en" suppressHydrationWarning>
       <body
         className={`${roboto.variable} ${sourceCodePro.variable} antialiased`}
       >
         <ThemeProvider attribute="class" defaultTheme="dark">
-          <RootProvider>
+          <RootProvider initialUser={initialUser}>
             <SidebarProvider>
               <AppSidebar />
               <SidebarInset>

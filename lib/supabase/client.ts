@@ -1,15 +1,10 @@
 import { createBrowserClient } from "@supabase/ssr";
-import type { SupabaseClient } from "@supabase/supabase-js";
 
-// Singleton instance - ensures same client across all components
-let supabaseInstance: SupabaseClient | null = null;
-
+// Create a new client each time - this is the recommended pattern from Supabase
+// The @supabase/ssr package handles cookie management automatically
 export function createClient() {
-  if (!supabaseInstance) {
-    supabaseInstance = createBrowserClient(
-      process.env.NEXT_PUBLIC_SUPABASE_URL!,
-      process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_OR_ANON_KEY!,
-    );
-  }
-  return supabaseInstance;
+  return createBrowserClient(
+    process.env.NEXT_PUBLIC_SUPABASE_URL!,
+    process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_OR_ANON_KEY!,
+  );
 }

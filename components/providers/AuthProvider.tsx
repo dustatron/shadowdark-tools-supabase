@@ -6,7 +6,6 @@ import {
   useEffect,
   useState,
   useCallback,
-  useRef,
   ReactNode,
 } from "react";
 import { createClient } from "@/lib/supabase/client";
@@ -31,16 +30,14 @@ const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
 interface AuthProviderProps {
   children: ReactNode;
+  initialUser?: UserData | null;
 }
 
 const PROFILE_FETCH_TIMEOUT = 3000;
-const AUTH_CHECK_TIMEOUT = 5000; // Safety timeout for entire auth check
 
-export function AuthProvider({ children }: AuthProviderProps) {
-  const [user, setUser] = useState<UserData | null>(null);
-  const [loading, setLoading] = useState(true);
-  const initializedRef = useRef(false);
-  // Get singleton client - must be inside component to ensure client-side only
+export function AuthProvider({ children, initialUser }: AuthProviderProps) {
+  const [user, setUser] = useState<UserData | null>(initialUser ?? null);
+  const [loading, setLoading] = useState(!initialUser); // Not loading if we have initial user
   const supabase = createClient();
 
   const fetchUserProfile = useCallback(
@@ -80,75 +77,10 @@ export function AuthProvider({ children }: AuthProviderProps) {
   );
 
   useEffect(() => {
-    // Prevent double initialization in strict mode
-    if (initializedRef.current) return;
-    initializedRef.current = true;
-
     let mounted = true;
-    const abortController = new AbortController();
-    let profileTimeoutId: NodeJS.Timeout | undefined;
-
-    // Safety timeout - ensure loading is never stuck
-    const safetyTimeoutId = setTimeout(() => {
-      if (mounted) {
-        logger.warn("Auth check timed out, forcing loading=false");
-        setLoading(false);
-      }
-    }, AUTH_CHECK_TIMEOUT);
-
-    // Single source of truth: client-side getUser() validates with Supabase Auth
-    const getInitialUser = async () => {
-      try {
-        logger.debug("Fetching user from Supabase Auth");
-        const {
-          data: { user: authUser },
-          error,
-        } = await supabase.auth.getUser();
-
-        if (!mounted) return;
-
-        if (error) {
-          logger.warn("getUser error:", error.message);
-          setUser(null);
-          setLoading(false);
-          return;
-        }
-
-        if (authUser) {
-          profileTimeoutId = setTimeout(() => {
-            abortController.abort();
-          }, PROFILE_FETCH_TIMEOUT);
-
-          const userData = await fetchUserProfile(
-            authUser,
-            abortController.signal,
-          );
-
-          clearTimeout(profileTimeoutId);
-
-          if (mounted) {
-            logger.debug("Setting user data:", userData);
-            setUser(userData);
-          }
-        } else {
-          setUser(null);
-        }
-
-        if (mounted) {
-          setLoading(false);
-        }
-      } catch (error) {
-        logger.error("Error getting user:", error);
-        if (mounted) {
-          setUser(null);
-          setLoading(false);
-        }
-      }
-    };
-
-    getInitialUser();
 
     // Listen to auth state changes (login/logout/token refresh)
+    // Initial user comes from server, so we only need to react to changes
     const {
       data: { subscription },
     } = supabase.auth.onAuthStateChange(
@@ -157,21 +89,11 @@ export function AuthProvider({ children }: AuthProviderProps) {
 
         logger.debug("Auth state change:", event, "session:", !!session);
 
-        if (
-          event === "SIGNED_IN" ||
-          event === "TOKEN_REFRESHED" ||
-          event === "INITIAL_SESSION"
-        ) {
+        if (event === "SIGNED_IN" || event === "TOKEN_REFRESHED") {
           if (session?.user) {
             const userData = await fetchUserProfile(session.user);
             if (mounted) {
               setUser(userData);
-              setLoading(false);
-            }
-          } else if (event === "INITIAL_SESSION") {
-            // INITIAL_SESSION with no user means not logged in
-            if (mounted) {
-              setUser(null);
               setLoading(false);
             }
           }
@@ -181,17 +103,15 @@ export function AuthProvider({ children }: AuthProviderProps) {
             setLoading(false);
           }
         }
+        // INITIAL_SESSION is handled by server-provided initialUser
       },
     );
 
     return () => {
       mounted = false;
-      if (profileTimeoutId) clearTimeout(profileTimeoutId);
-      if (safetyTimeoutId) clearTimeout(safetyTimeoutId);
-      abortController.abort();
       subscription.unsubscribe();
     };
-  }, [fetchUserProfile]);
+  }, [supabase, fetchUserProfile]);
 
   const signOut = useCallback(async () => {
     try {
