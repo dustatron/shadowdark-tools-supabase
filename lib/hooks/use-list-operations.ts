@@ -71,7 +71,7 @@ export function useListOperations({
         );
 
       if (error) throw error;
-      return data.map((item) => item.list_id);
+      return data.map((item: { list_id: string }) => item.list_id);
     },
     enabled: !!entityId && !!entityType && lists.length > 0,
   });
