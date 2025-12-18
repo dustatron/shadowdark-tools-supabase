@@ -16,6 +16,7 @@ import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
 import { useState, useEffect } from "react";
 import { useAuth } from "@/components/providers/AuthProvider";
+import { OAuthButtons } from "@/components/oauth-buttons";
 
 export function LoginForm({
   className,
@@ -28,6 +29,15 @@ export function LoginForm({
   const router = useRouter();
   const searchParams = useSearchParams();
   const { user } = useAuth();
+  const redirectTo = searchParams.get("redirect") || "/adventure-lists";
+
+  // Check for OAuth error in URL params
+  useEffect(() => {
+    const urlError = searchParams.get("error");
+    if (urlError) {
+      setError(urlError);
+    }
+  }, [searchParams]);
 
   // Redirect if user is already authenticated
   useEffect(() => {
@@ -50,8 +60,6 @@ export function LoginForm({
       });
       if (error) throw error;
 
-      // Check for redirect parameter and use it, otherwise default to /adventure-lists
-      const redirectTo = searchParams.get("redirect") || "/adventure-lists";
       router.push(redirectTo);
     } catch (error: unknown) {
       setError(error instanceof Error ? error.message : "An error occurred");
@@ -70,6 +78,21 @@ export function LoginForm({
           </CardDescription>
         </CardHeader>
         <CardContent>
+          {error && <p className="text-sm text-red-500 mb-4">{error}</p>}
+
+          <OAuthButtons redirectTo={redirectTo} />
+
+          <div className="relative my-6">
+            <div className="absolute inset-0 flex items-center">
+              <span className="w-full border-t" />
+            </div>
+            <div className="relative flex justify-center text-xs uppercase">
+              <span className="bg-card px-2 text-muted-foreground">
+                Or continue with email
+              </span>
+            </div>
+          </div>
+
           <form onSubmit={handleLogin}>
             <div className="flex flex-col gap-6">
               <div className="grid gap-2">
@@ -101,21 +124,18 @@ export function LoginForm({
                   onChange={(e) => setPassword(e.target.value)}
                 />
               </div>
-              {error && <p className="text-sm text-red-500">{error}</p>}
               <Button type="submit" className="w-full" disabled={isLoading}>
                 {isLoading ? "Logging in..." : "Login"}
               </Button>
             </div>
-            <div className="mt-4 text-center text-sm">
-              Don&apos;t have an account?{" "}
-              <Link
-                href="/auth/sign-up"
-                className="underline underline-offset-4"
-              >
-                Sign up
-              </Link>
-            </div>
           </form>
+
+          <div className="mt-6 text-center text-sm">
+            Don&apos;t have an account?{" "}
+            <Link href="/auth/sign-up" className="underline underline-offset-4">
+              Sign up
+            </Link>
+          </div>
         </CardContent>
       </Card>
     </div>

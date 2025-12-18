@@ -15,6 +15,7 @@ import { Label } from "@/components/primitives/label";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
+import { OAuthButtons } from "@/components/oauth-buttons";
 
 export function SignUpForm({
   className,
@@ -64,6 +65,21 @@ export function SignUpForm({
           <CardDescription>Create a new account</CardDescription>
         </CardHeader>
         <CardContent>
+          {error && <p className="text-sm text-red-500 mb-4">{error}</p>}
+
+          <OAuthButtons redirectTo="/adventure-lists" />
+
+          <div className="relative my-6">
+            <div className="absolute inset-0 flex items-center">
+              <span className="w-full border-t" />
+            </div>
+            <div className="relative flex justify-center text-xs uppercase">
+              <span className="bg-card px-2 text-muted-foreground">
+                Or continue with email
+              </span>
+            </div>
+          </div>
+
           <form onSubmit={handleSignUp}>
             <div className="flex flex-col gap-6">
               <div className="grid gap-2">
@@ -101,18 +117,18 @@ export function SignUpForm({
                   onChange={(e) => setRepeatPassword(e.target.value)}
                 />
               </div>
-              {error && <p className="text-sm text-red-500">{error}</p>}
               <Button type="submit" className="w-full" disabled={isLoading}>
                 {isLoading ? "Creating an account..." : "Sign up"}
               </Button>
             </div>
-            <div className="mt-4 text-center text-sm">
-              Already have an account?{" "}
-              <Link href="/auth/login" className="underline underline-offset-4">
-                Login
-              </Link>
-            </div>
           </form>
+
+          <div className="mt-6 text-center text-sm">
+            Already have an account?{" "}
+            <Link href="/auth/login" className="underline underline-offset-4">
+              Login
+            </Link>
+          </div>
         </CardContent>
       </Card>
     </div>
