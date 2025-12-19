@@ -37,7 +37,7 @@ const PROFILE_FETCH_TIMEOUT = 3000;
 
 export function AuthProvider({ children, initialUser }: AuthProviderProps) {
   const [user, setUser] = useState<UserData | null>(initialUser ?? null);
-  const [loading, setLoading] = useState(!initialUser); // Not loading if we have initial user
+  const [loading, setLoading] = useState(false); // Server provides initial state, no loading needed
   const supabase = createClient();
 
   const fetchUserProfile = useCallback(
