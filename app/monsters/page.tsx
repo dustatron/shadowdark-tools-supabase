@@ -10,6 +10,7 @@ import { createClient } from "@/lib/supabase/client";
 import { createFavoritesMap } from "@/lib/utils/favorites";
 import { Plus, FolderOpen } from "lucide-react";
 import { Button } from "@/components/primitives/button";
+import { useAuth } from "@/components/providers/AuthProvider";
 import {
   FilterValues,
   DEFAULT_FILTERS,
@@ -54,6 +55,7 @@ function parseFiltersFromSearchParams(params: URLSearchParams): FilterValues {
 export default function MonstersPage() {
   const router = useRouter();
   const searchParams = useSearchParams();
+  const { user } = useAuth();
 
   // Parse initial values from URL
   const initialFilters = useMemo(
@@ -74,7 +76,7 @@ export default function MonstersPage() {
     totalPages: 0,
   });
 
-  const [currentUserId, setCurrentUserId] = useState<string | null>(null);
+  const currentUserId = user?.id ?? null;
   const [favoritesMap, setFavoritesMap] = useState<Map<string, string>>(
     new Map(),
   );
@@ -87,51 +89,50 @@ export default function MonstersPage() {
   const [availableTypes, setAvailableTypes] = useState<string[]>([]);
   const [availableSources, setAvailableSources] = useState<string[]>([]);
 
-  // Fetch user data and favorites on mount
+  // Fetch user favorites and list items when user changes
   useEffect(() => {
     const fetchUserData = async () => {
+      if (!user) {
+        setFavoritesMap(new Map());
+        setInListsSet(new Set());
+        return;
+      }
+
       const supabase = createClient();
-      const {
-        data: { user },
-      } = await supabase.auth.getUser();
 
-      setCurrentUserId(user?.id || null);
+      // Fetch favorites
+      const { data: favorites } = await supabase
+        .from("favorites")
+        .select("id, item_id")
+        .eq("user_id", user.id)
+        .eq("item_type", "monster");
 
-      if (user) {
-        // Fetch favorites
-        const { data: favorites } = await supabase
-          .from("favorites")
-          .select("id, item_id")
-          .eq("user_id", user.id)
-          .eq("item_type", "monster");
+      if (favorites) {
+        setFavoritesMap(
+          createFavoritesMap(
+            favorites.map((fav: { id: string; item_id: string }) => ({
+              item_id: fav.item_id,
+              favorite_id: fav.id,
+            })),
+          ),
+        );
+      }
 
-        if (favorites) {
-          setFavoritesMap(
-            createFavoritesMap(
-              favorites.map((fav: { id: string; item_id: string }) => ({
-                item_id: fav.item_id,
-                favorite_id: fav.id,
-              })),
-            ),
-          );
-        }
+      // Fetch monsters that are in adventure lists
+      const { data: listItems } = await supabase
+        .from("adventure_list_items")
+        .select("item_id, adventure_lists!inner(user_id)")
+        .eq("item_type", "monster")
+        .eq("adventure_lists.user_id", user.id);
 
-        // Fetch monsters that are in adventure lists
-        const { data: listItems } = await supabase
-          .from("adventure_list_items")
-          .select("item_id, adventure_lists!inner(user_id)")
-          .eq("item_type", "monster")
-          .eq("adventure_lists.user_id", user.id);
-
-        if (listItems) {
-          setInListsSet(
-            new Set(listItems.map((item: { item_id: string }) => item.item_id)),
-          );
-        }
+      if (listItems) {
+        setInListsSet(
+          new Set(listItems.map((item: { item_id: string }) => item.item_id)),
+        );
       }
     };
     fetchUserData();
-  }, []);
+  }, [user]);
 
   // Memoize fetchMonsters to avoid recreating on every render
   const fetchMonsters = useCallback(async () => {

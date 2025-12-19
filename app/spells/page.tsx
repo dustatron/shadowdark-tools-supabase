@@ -10,12 +10,14 @@ import Link from "next/link";
 import { createClient } from "@/lib/supabase/client";
 import { createFavoritesMap } from "@/lib/utils/favorites";
 import { useViewMode } from "@/lib/hooks";
+import { useAuth } from "@/components/providers/AuthProvider";
 import { logger } from "@/lib/utils/logger";
 import type { AllSpell, SpellFilterValues } from "@/lib/types/spells";
 import { DEFAULT_SPELL_FILTERS } from "@/lib/types/spells";
 import type { ViewMode } from "@/lib/types/monsters";
 
 export default function SpellsPage() {
+  const { user } = useAuth();
   const [spells, setSpells] = useState<AllSpell[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -29,7 +31,7 @@ export default function SpellsPage() {
     totalPages: 0,
   });
 
-  const [currentUserId, setCurrentUserId] = useState<string | null>(null);
+  const currentUserId = user?.id ?? null;
   const [favoritesMap, setFavoritesMap] = useState<Map<string, string>>(
     new Map(),
   );
@@ -45,65 +47,63 @@ export default function SpellsPage() {
   const [availableRanges, setAvailableRanges] = useState<string[]>([]);
   const [availableSources, setAvailableSources] = useState<string[]>([]);
 
-  // Fetch user data and favorites on mount
+  // Fetch user favorites and list items when user changes
   useEffect(() => {
     const fetchUserData = async () => {
+      if (!user) {
+        setFavoritesMap(new Map());
+        setInListsSet(new Set());
+        setInDecksSet(new Set());
+        return;
+      }
+
       const supabase = createClient();
-      const {
-        data: { user },
-      } = await supabase.auth.getUser();
 
-      setCurrentUserId(user?.id || null);
+      // Fetch favorites
+      const { data: favorites } = await supabase
+        .from("favorites")
+        .select("id, item_id")
+        .eq("user_id", user.id)
+        .eq("item_type", "spell");
 
-      if (user) {
-        // Fetch favorites
-        const { data: favorites } = await supabase
-          .from("favorites")
-          .select("id, item_id")
-          .eq("user_id", user.id)
-          .eq("item_type", "spell");
+      if (favorites) {
+        setFavoritesMap(
+          createFavoritesMap(
+            favorites.map((fav: { id: string; item_id: string }) => ({
+              item_id: fav.item_id,
+              favorite_id: fav.id,
+            })),
+          ),
+        );
+      }
 
-        if (favorites) {
-          setFavoritesMap(
-            createFavoritesMap(
-              favorites.map((fav: { id: string; item_id: string }) => ({
-                item_id: fav.item_id,
-                favorite_id: fav.id,
-              })),
-            ),
-          );
-        }
+      // Fetch spells that are in adventure lists
+      const { data: listItems } = await supabase
+        .from("adventure_list_items")
+        .select("item_id, adventure_lists!inner(user_id)")
+        .eq("item_type", "spell")
+        .eq("adventure_lists.user_id", user.id);
 
-        // Fetch spells that are in adventure lists
-        const { data: listItems } = await supabase
-          .from("adventure_list_items")
-          .select("item_id, adventure_lists!inner(user_id)")
-          .eq("item_type", "spell")
-          .eq("adventure_lists.user_id", user.id);
+      if (listItems) {
+        setInListsSet(
+          new Set(listItems.map((item: { item_id: string }) => item.item_id)),
+        );
+      }
 
-        if (listItems) {
-          setInListsSet(
-            new Set(listItems.map((item: { item_id: string }) => item.item_id)),
-          );
-        }
+      // Fetch spells that are in decks
+      const { data: deckItems } = await supabase
+        .from("deck_items")
+        .select("spell_id, decks!inner(user_id)")
+        .eq("decks.user_id", user.id);
 
-        // Fetch spells that are in decks
-        const { data: deckItems } = await supabase
-          .from("deck_items")
-          .select("spell_id, decks!inner(user_id)")
-          .eq("decks.user_id", user.id);
-
-        if (deckItems) {
-          setInDecksSet(
-            new Set(
-              deckItems.map((item: { spell_id: string }) => item.spell_id),
-            ),
-          );
-        }
+      if (deckItems) {
+        setInDecksSet(
+          new Set(deckItems.map((item: { spell_id: string }) => item.spell_id)),
+        );
       }
     };
     fetchUserData();
-  }, []);
+  }, [user]);
 
   // Memoize fetchSpells
   const fetchSpells = useCallback(async () => {
