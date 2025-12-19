@@ -1,8 +1,9 @@
 import { type AdventureListItem } from "@/lib/types/adventure-lists";
-import { Card, CardContent } from "../primitives/card";
-import { Link, Trash2 } from "lucide-react";
+import { Card, CardContent, CardHeader } from "../primitives/card";
+import { Ban } from "lucide-react";
 import { Button } from "../primitives/button";
 import { Badge } from "../primitives/badge";
+import Link from "next/link";
 
 type AdventureListItemProps = {
   item: AdventureListItem;
@@ -20,7 +21,10 @@ const getItemLink = (item: AdventureListItem) => {
   if (item.item_type === "magic_item" && item.slug) {
     return `/magic-items/${item.slug}`;
   }
-  return null;
+  if (item.item_type === "equipment") {
+    return `/equipment/${item.item_id}`;
+  }
+  return "";
 };
 
 export function AdventureListDisplayItem({
@@ -30,41 +34,31 @@ export function AdventureListDisplayItem({
 }: AdventureListItemProps) {
   const itemLink = getItemLink(item);
 
+  console.log("display Item", item);
+
   const displayName = item.name || `Unknown ${item.item_type}`;
 
   return (
     <Card>
-      <CardContent className="p-4 flex items-center justify-between">
+      <CardHeader className="p-0">
+        <div className="bg-black text-white px-3 py-2">
+          <Link href={itemLink} className={`font-medium`}>
+            <h2 className="text-xl font-black">{displayName}</h2>
+          </Link>
+        </div>
+      </CardHeader>
+      <CardContent className="flex justify-between p-2">
         <div>
-          <div className="flex items-center gap-2">
-            {itemLink ? (
-              <Link
-                href={itemLink}
-                className={`font-medium hover:underline ${!item.name ? "text-muted-foreground italic" : ""}`}
-              >
-                {displayName}
-              </Link>
-            ) : (
-              <h3
-                className={`font-medium ${!item.name ? "text-muted-foreground italic" : ""}`}
-              >
-                {displayName}
-              </h3>
-            )}
-            {item.quantity > 1 && (
-              <Badge variant="secondary">x{item.quantity}</Badge>
-            )}
-          </div>
-          {item.notes && (
-            <p className="text-sm text-muted-foreground mt-1">{item.notes}</p>
-          )}
+          {item.notes && <p className="text-md mt-1">{item.notes}</p>}
           {item.details && (
-            <div className="text-xs text-muted-foreground mt-1">
+            <div className="text-lg mt-1">
               {item.item_type === "monster" && (
-                <span>
-                  CL {item.details.challenge_level} • HP{" "}
-                  {item.details.hit_points} • AC {item.details.armor_class}
-                </span>
+                <div>
+                  <span>Level {item.details.challenge_level} </span>
+                  <div>
+                    HP {item.details.hit_points} | AC {item.details.armor_class}
+                  </div>
+                </div>
               )}
               {item.item_type === "spell" && (
                 <span>
@@ -90,7 +84,7 @@ export function AdventureListDisplayItem({
             onClick={onRemove}
             className="text-destructive hover:text-destructive"
           >
-            <Trash2 className="w-4 h-4" />
+            <Ban className="w-4 h-4" />
             <span className="sr-only">Remove</span>
           </Button>
         )}

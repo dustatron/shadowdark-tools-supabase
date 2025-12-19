@@ -187,7 +187,7 @@ export function AdventureListDetail({
                 Magic Items ({items.magic_items.length})
               </TabsTrigger>
               <TabsTrigger value="equipment">
-                Equipment ({items.equipment.length})
+                Gear ({items.equipment.length})
               </TabsTrigger>
             </TabsList>
 
@@ -294,7 +294,7 @@ export function AdventureListDetail({
                   onClick={() => openSheet("equipment")}
                 >
                   <Plus className="w-4 h-4 mr-2" />
-                  Add Equipment
+                  Add Gear
                 </Button>
               )}
             </TabsContent>
