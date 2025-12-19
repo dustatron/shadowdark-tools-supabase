@@ -8,6 +8,7 @@ import { ViewModeToggle } from "@/components/shared/ViewModeToggle";
 import { createClient } from "@/lib/supabase/client";
 import { createFavoritesMap } from "@/lib/utils/favorites";
 import { useViewMode } from "@/lib/hooks";
+import { useAuth } from "@/components/providers/AuthProvider";
 import { Plus, FolderOpen } from "lucide-react";
 import Link from "next/link";
 import { logger } from "@/lib/utils/logger";
@@ -28,6 +29,7 @@ const DEFAULT_FILTERS: FilterValues = {
 };
 
 export default function MagicItemsPage() {
+  const { user } = useAuth();
   const [items, setItems] = useState<AllMagicItem[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -39,8 +41,7 @@ export default function MagicItemsPage() {
     total: 0,
     totalPages: 0,
   });
-  const [isAuthenticated, setIsAuthenticated] = useState(false);
-  const [currentUserId, setCurrentUserId] = useState<string | null>(null);
+  const currentUserId = user?.id ?? null;
   const [favoritesMap, setFavoritesMap] = useState<Map<string, string>>(
     new Map(),
   );
@@ -57,37 +58,33 @@ export default function MagicItemsPage() {
     fetchMagicItems();
   }, [filters, pagination.page, pagination.limit]);
 
+  // Fetch user favorites when user changes
   useEffect(() => {
-    const checkAuthAndFavorites = async () => {
+    const fetchFavorites = async () => {
+      if (!user) {
+        setFavoritesMap(new Map());
+        return;
+      }
+
       const supabase = createClient();
-      const {
-        data: { user },
-      } = await supabase.auth.getUser();
+      const { data: favorites } = await supabase
+        .from("favorites")
+        .select("id, item_id")
+        .eq("user_id", user.id)
+        .eq("item_type", "magic_item");
 
-      setIsAuthenticated(!!user);
-      setCurrentUserId(user?.id || null);
-
-      // Fetch user's favorite magic items if authenticated
-      if (user) {
-        const { data: favorites } = await supabase
-          .from("favorites")
-          .select("id, item_id")
-          .eq("user_id", user.id)
-          .eq("item_type", "magic_item");
-
-        if (favorites) {
-          const favMap = createFavoritesMap(
-            favorites.map((fav: { id: string; item_id: string }) => ({
-              item_id: fav.item_id,
-              favorite_id: fav.id,
-            })),
-          );
-          setFavoritesMap(favMap);
-        }
+      if (favorites) {
+        const favMap = createFavoritesMap(
+          favorites.map((fav: { id: string; item_id: string }) => ({
+            item_id: fav.item_id,
+            favorite_id: fav.id,
+          })),
+        );
+        setFavoritesMap(favMap);
       }
     };
-    checkAuthAndFavorites();
-  }, []);
+    fetchFavorites();
+  }, [user]);
 
   const fetchMagicItems = async () => {
     try {
@@ -157,7 +154,7 @@ export default function MagicItemsPage() {
         </div>
         <div className="flex items-center gap-2">
           <ViewModeToggle view={view} onViewChange={setView} />
-          {isAuthenticated && (
+          {user && (
             <>
               <Button variant="outline" asChild>
                 <Link href="/magic-items/my-items">

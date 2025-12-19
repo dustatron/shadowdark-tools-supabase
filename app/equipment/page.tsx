@@ -11,7 +11,7 @@ import { EquipmentList } from "@/components/equipment/EquipmentList";
 import { EquipmentFilters } from "@/components/equipment/EquipmentFilters";
 import { ViewModeToggle } from "@/components/shared/ViewModeToggle";
 import { useViewMode } from "@/lib/hooks";
-import { createClient } from "@/lib/supabase/client";
+import { useAuth } from "@/components/providers/AuthProvider";
 import { logger } from "@/lib/utils/logger";
 
 // Parse filters from URL search params
@@ -28,6 +28,7 @@ function parseFiltersFromSearchParams(params: URLSearchParams): FilterValues {
 export default function EquipmentPage() {
   const router = useRouter();
   const searchParams = useSearchParams();
+  const { user } = useAuth();
 
   // Parse initial values from URL
   const initialFilters = useMemo(
@@ -41,9 +42,7 @@ export default function EquipmentPage() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [filters, setFilters] = useState<FilterValues>(initialFilters);
-  const [currentUserId, setCurrentUserId] = useState<string | undefined>(
-    undefined,
-  );
+  const currentUserId = user?.id;
   const { view, setView } = useViewMode();
   const [pagination, setPagination] = useState({
     page: initialPage,
@@ -51,19 +50,6 @@ export default function EquipmentPage() {
     total: 0,
     totalPages: 0,
   });
-
-  // Fetch user data on mount
-  useEffect(() => {
-    const fetchUserData = async () => {
-      const supabase = createClient();
-      const {
-        data: { user },
-      } = await supabase.auth.getUser();
-
-      setCurrentUserId(user?.id);
-    };
-    fetchUserData();
-  }, []);
 
   const fetchEquipment = useCallback(async () => {
     try {
