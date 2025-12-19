@@ -6,29 +6,9 @@ export async function POST(request: NextRequest) {
   try {
     const supabase = await createClient();
 
-    // Get current session to ensure user is logged in
-    const {
-      data: { user },
-      error: authError,
-    } = await supabase.auth.getUser();
-
-    if (authError || !user) {
-      return NextResponse.json(
-        { error: "No active session found" },
-        { status: 401 },
-      );
-    }
-
-    // Sign out the user
-    const { error: signOutError } = await supabase.auth.signOut();
-
-    if (signOutError) {
-      console.error("Sign out error:", signOutError);
-      return NextResponse.json(
-        { error: "Failed to sign out" },
-        { status: 500 },
-      );
-    }
+    // Always attempt to sign out - don't require active session
+    // This handles edge cases where client/server session state diverges
+    await supabase.auth.signOut();
 
     return NextResponse.json({
       message: "Logout successful",
