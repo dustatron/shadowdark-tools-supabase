@@ -98,12 +98,13 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
     try {
       await signOut();
       toast.success("Logged out successfully");
-      router.push("/");
+      // Use hard redirect to re-run server layout and clear initialUser
+      window.location.href = "/";
     } catch (error) {
       logger.error("Error signing out:", error);
       toast.error("Failed to sign out");
     }
-  }, [signOut, router]);
+  }, [signOut]);
 
   // Category groups
   const categories: CategoryGroup[] = React.useMemo(
