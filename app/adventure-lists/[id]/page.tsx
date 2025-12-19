@@ -1,6 +1,7 @@
 import { createClient } from "@/lib/supabase/server";
 import { AdventureListDetail } from "@/components/adventure-lists/AdventureListDetail";
 import { notFound, redirect } from "next/navigation";
+import { getAdventureListItems } from "@/lib/services/adventure-list-items";
 
 export default async function AdventureListDetailPage({
   params,
@@ -42,23 +43,23 @@ export default async function AdventureListDetailPage({
     }
   }
 
-  // Fetch items
-  const { data: items, error: itemsError } = await supabase.rpc(
-    "get_adventure_list_items",
-    { list_uuid: id },
-  );
-
-  if (itemsError) {
+  // Fetch items using TypeScript helper
+  let items;
+  try {
+    items = await getAdventureListItems(supabase, id);
+  } catch (itemsError) {
     console.error("Error fetching list items:", itemsError);
     // We can still show the list details even if items fail to load
   }
 
   // Group items by type
   const groupedItems = {
-    monsters: items?.filter((i: any) => i.item_type === "monster") || [],
-    spells: items?.filter((i: any) => i.item_type === "spell") || [],
-    magic_items: items?.filter((i: any) => i.item_type === "magic_item") || [],
-    equipment: items?.filter((i: any) => i.item_type === "equipment") || [],
+    monsters: items?.filter((i) => i.item_type === "monster") || [],
+    spells: items?.filter((i) => i.item_type === "spell") || [],
+    magic_items: items?.filter((i) => i.item_type === "magic_item") || [],
+    equipment: items?.filter((i) => i.item_type === "equipment") || [],
+    encounter_tables:
+      items?.filter((i) => i.item_type === "encounter_table") || [],
   };
 
   const isOwner = user?.id === list.user_id;

@@ -1,6 +1,10 @@
 "use client";
 
-import { AdventureList, AdventureListItem } from "@/lib/types/adventure-lists";
+import {
+  AdventureList,
+  AdventureListItem,
+  GroupedAdventureListItems,
+} from "@/lib/types/adventure-lists";
 import { Button } from "@/components/primitives/button";
 import { Badge } from "@/components/primitives/badge";
 import {
@@ -35,15 +39,11 @@ import {
   exportAdventureListAsCsv,
   exportAdventureListAsMarkdown,
 } from "@/lib/utils/export";
+import { AdventureListDisplayItem } from "./AdventureListDisplayItem";
 
 interface AdventureListDetailProps {
   list: AdventureList;
-  items: {
-    monsters: AdventureListItem[];
-    spells: AdventureListItem[];
-    magic_items: AdventureListItem[];
-    equipment: AdventureListItem[];
-  };
+  items: GroupedAdventureListItems;
   isOwner: boolean;
 }
 
@@ -186,7 +186,7 @@ export function AdventureListDetail({
                 Magic Items ({items.magic_items.length})
               </TabsTrigger>
               <TabsTrigger value="equipment">
-                Equipment ({items.equipment.length})
+                Gear ({items.equipment.length})
               </TabsTrigger>
             </TabsList>
 
@@ -197,7 +197,7 @@ export function AdventureListDetail({
                 </div>
               ) : (
                 items.monsters.map((item) => (
-                  <ListItem
+                  <AdventureListDisplayItem
                     key={item.id}
                     item={item}
                     isOwner={isOwner}
@@ -224,7 +224,7 @@ export function AdventureListDetail({
                 </div>
               ) : (
                 items.spells.map((item) => (
-                  <ListItem
+                  <AdventureListDisplayItem
                     key={item.id}
                     item={item}
                     isOwner={isOwner}
@@ -251,7 +251,7 @@ export function AdventureListDetail({
                 </div>
               ) : (
                 items.magic_items.map((item) => (
-                  <ListItem
+                  <AdventureListDisplayItem
                     key={item.id}
                     item={item}
                     isOwner={isOwner}
@@ -278,7 +278,7 @@ export function AdventureListDetail({
                 </div>
               ) : (
                 items.equipment.map((item) => (
-                  <ListItem
+                  <AdventureListDisplayItem
                     key={item.id}
                     item={item}
                     isOwner={isOwner}
@@ -293,7 +293,7 @@ export function AdventureListDetail({
                   onClick={() => openSheet("equipment")}
                 >
                   <Plus className="w-4 h-4 mr-2" />
-                  Add Equipment
+                  Add Gear
                 </Button>
               )}
             </TabsContent>
@@ -363,98 +363,5 @@ export function AdventureListDetail({
         </SheetContent>
       </Sheet>
     </div>
-  );
-}
-
-function ListItem({
-  item,
-  isOwner,
-  onRemove,
-}: {
-  item: AdventureListItem;
-  isOwner: boolean;
-  onRemove: () => void;
-}) {
-  const getItemLink = () => {
-    if (item.item_type === "monster") {
-      return `/monsters/${item.item_id}`;
-    }
-    if (item.item_type === "spell" && item.slug) {
-      return `/spells/${item.slug}`;
-    }
-    if (item.item_type === "magic_item" && item.slug) {
-      return `/magic-items/${item.slug}`;
-    }
-    return null;
-  };
-
-  const itemLink = getItemLink();
-
-  const displayName = item.name || `Unknown ${item.item_type}`;
-
-  return (
-    <Card>
-      <CardContent className="p-4 flex items-center justify-between">
-        <div>
-          <div className="flex items-center gap-2">
-            {itemLink ? (
-              <Link
-                href={itemLink}
-                className={`font-medium hover:underline ${!item.name ? "text-muted-foreground italic" : ""}`}
-              >
-                {displayName}
-              </Link>
-            ) : (
-              <h3
-                className={`font-medium ${!item.name ? "text-muted-foreground italic" : ""}`}
-              >
-                {displayName}
-              </h3>
-            )}
-            {item.quantity > 1 && (
-              <Badge variant="secondary">x{item.quantity}</Badge>
-            )}
-          </div>
-          {item.notes && (
-            <p className="text-sm text-muted-foreground mt-1">{item.notes}</p>
-          )}
-          {item.details && (
-            <div className="text-xs text-muted-foreground mt-1">
-              {item.item_type === "monster" && (
-                <span>
-                  CL {item.details.challenge_level} • HP{" "}
-                  {item.details.hit_points} • AC {item.details.armor_class}
-                </span>
-              )}
-              {item.item_type === "spell" && (
-                <span>
-                  Tier {item.details.tier} • {item.details.range} •{" "}
-                  {item.details.duration}
-                </span>
-              )}
-              {item.item_type === "equipment" && (
-                <span>
-                  {item.details.item_type}
-                  {item.details.cost &&
-                    ` • ${item.details.cost.amount} ${item.details.cost.currency}`}
-                </span>
-              )}
-            </div>
-          )}
-        </div>
-
-        {isOwner && (
-          <Button
-            variant="ghost"
-            size="icon"
-            onClick={onRemove}
-            className="text-destructive hover:text-destructive"
-          >
-            <Trash2 className="w-4 h-4" />
-            <span className="sr-only">Remove</span>
-          </Button>
-        )}
-      </CardContent>
-    </Card>
   );
 }
