@@ -6,6 +6,7 @@ import {
   useEffect,
   useState,
   useCallback,
+  useRef,
   ReactNode,
 } from "react";
 import { createClient } from "@/lib/supabase/client";
@@ -39,6 +40,8 @@ export function AuthProvider({ children, initialUser }: AuthProviderProps) {
   const [user, setUser] = useState<UserData | null>(initialUser ?? null);
   const [loading, setLoading] = useState(false); // Server provides initial state, no loading needed
   const supabase = createClient();
+  // Track if we have initial user from server to avoid stale closure in callback
+  const hasInitialUserRef = useRef(!!initialUser);
 
   const fetchUserProfile = useCallback(
     async (authUser: User, signal?: AbortSignal): Promise<UserData> => {
@@ -89,12 +92,22 @@ export function AuthProvider({ children, initialUser }: AuthProviderProps) {
 
         logger.debug("Auth state change:", event, "session:", !!session);
 
-        if (event === "SIGNED_IN" || event === "TOKEN_REFRESHED") {
+        if (
+          event === "SIGNED_IN" ||
+          event === "TOKEN_REFRESHED" ||
+          event === "INITIAL_SESSION"
+        ) {
           if (session?.user) {
-            const userData = await fetchUserProfile(session.user);
-            if (mounted) {
-              setUser(userData);
-              setLoading(false);
+            // For INITIAL_SESSION: only fetch if server didn't provide initialUser
+            // For SIGNED_IN/TOKEN_REFRESHED: always fetch to ensure fresh data
+            const shouldFetch =
+              event !== "INITIAL_SESSION" || !hasInitialUserRef.current;
+            if (shouldFetch) {
+              const userData = await fetchUserProfile(session.user);
+              if (mounted) {
+                setUser(userData);
+                setLoading(false);
+              }
             }
           }
         } else if (event === "SIGNED_OUT") {
@@ -103,7 +116,6 @@ export function AuthProvider({ children, initialUser }: AuthProviderProps) {
             setLoading(false);
           }
         }
-        // INITIAL_SESSION is handled by server-provided initialUser
       },
     );
 
@@ -115,8 +127,13 @@ export function AuthProvider({ children, initialUser }: AuthProviderProps) {
 
   const signOut = useCallback(async () => {
     try {
-      const { error } = await supabase.auth.signOut();
-      if (error) throw error;
+      // Call server-side logout to clear cookies properly
+      const response = await fetch("/api/auth/logout", { method: "POST" });
+      if (!response.ok) {
+        throw new Error("Server logout failed");
+      }
+      // Also do client-side signOut for local state
+      await supabase.auth.signOut();
       setUser(null);
     } catch (error) {
       logger.error("Error signing out:", error);
