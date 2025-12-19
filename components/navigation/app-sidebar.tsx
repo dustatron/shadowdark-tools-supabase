@@ -98,12 +98,12 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
     try {
       await signOut();
       toast.success("Logged out successfully");
-      // Use hard redirect to re-run server layout and clear initialUser
-      window.location.href = "/";
     } catch (error) {
       logger.error("Error signing out:", error);
-      toast.error("Failed to sign out");
+      // Still redirect even on error - server cookies should be cleared
     }
+    // Always do hard redirect to re-run server layout and clear initialUser
+    window.location.href = "/";
   }, [signOut]);
 
   // Category groups
