@@ -124,6 +124,69 @@ app/
 4. **JSONB for Complex Fields**: Attacks, abilities, treasure stored as JSONB for flexibility
 5. **Fuzzy Search**: PostgreSQL pg_trgm extension for flexible searching
 6. **RLS-First Security**: Database-level security via Row Level Security policies
+7. **TypeScript Services over DB Functions**: Prefer TypeScript helper functions over PostgreSQL RPC functions (see below)
+
+### Data Fetching Architecture (IMPORTANT)
+
+**Prefer TypeScript service functions over Supabase RPC/DB functions.**
+
+```
+❌ AVOID: supabase.rpc("get_adventure_list_items", { list_uuid: id })
+✅ PREFER: getAdventureListItems(supabase, id)
+```
+
+**Why TypeScript services over DB functions:**
+
+- Easier to read, debug, and maintain
+- Full TypeScript type safety
+- Testable without database
+- No migrations needed for logic changes
+- IDE support (autocomplete, refactoring)
+- Parallel queries with Promise.all()
+
+**Service file pattern** (`lib/services/<feature>.ts`):
+
+```typescript
+import { SupabaseClient } from "@supabase/supabase-js";
+
+export async function getAdventureListItems(
+  supabase: SupabaseClient,
+  listId: string,
+) {
+  // 1. Fetch base data
+  const { data: items } = await supabase
+    .from("adventure_list_items")
+    .select("*")
+    .eq("list_id", listId);
+
+  // 2. Group by type for batching
+  const monsterIds = items
+    .filter((i) => i.item_type === "monster")
+    .map((i) => i.item_id);
+
+  // 3. Parallel fetch related data
+  const [monsters, spells] = await Promise.all([
+    supabase.from("official_monsters").select("*").in("id", monsterIds),
+    supabase.from("official_spells").select("*").in("id", spellIds),
+  ]);
+
+  // 4. Merge and return enriched data
+  return items.map((item) => ({ ...item, ...findDetails(item) }));
+}
+```
+
+**Existing RPC calls to migrate** (technical debt):
+
+- `search_monsters` - app/api/search/monsters/route.ts
+- `search_all_content` - app/api/search/route.ts
+- `create_audit_log` - app/api/admin/ routes
+- `get_random_monsters` - encounter generation
+
+**When DB functions are still appropriate:**
+
+- Complex aggregations that benefit from database optimization
+- Operations requiring database-level atomicity
+- Performance-critical paths with large datasets where single query is faster
 
 ## Project Philosophy & Constraints
 
@@ -678,6 +741,7 @@ When working on this project:
 
 ## Last Updated
 
+- **December 19, 2025** - Added TypeScript services pattern, deprecating DB functions/RPC calls
 - **November 12, 2025** - Rebranded from "Shadowdark Monster Manager" to "Dungeon Exchange"
 - **October 22, 2025** - Migrated from Mantine UI to shadcn/ui
 - **October 17, 2025** - Added Next.js 15 API route patterns and async params documentation

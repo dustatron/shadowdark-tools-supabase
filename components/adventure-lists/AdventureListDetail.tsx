@@ -1,6 +1,10 @@
 "use client";
 
-import { AdventureList, AdventureListItem } from "@/lib/types/adventure-lists";
+import {
+  AdventureList,
+  AdventureListItem,
+  GroupedAdventureListItems,
+} from "@/lib/types/adventure-lists";
 import { Button } from "@/components/primitives/button";
 import { Badge } from "@/components/primitives/badge";
 import {
@@ -39,12 +43,7 @@ import { AdventureListDisplayItem } from "./AdventureListDisplayItem";
 
 interface AdventureListDetailProps {
   list: AdventureList;
-  items: {
-    monsters: AdventureListItem[];
-    spells: AdventureListItem[];
-    magic_items: AdventureListItem[];
-    equipment: AdventureListItem[];
-  };
+  items: GroupedAdventureListItems;
   isOwner: boolean;
 }
 

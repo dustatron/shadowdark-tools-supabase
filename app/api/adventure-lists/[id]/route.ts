@@ -2,6 +2,7 @@ import { createClient } from "@/lib/supabase/server";
 import { NextRequest, NextResponse } from "next/server";
 import { adventureListSchema } from "@/lib/validations/adventure-lists";
 import { z } from "zod";
+import { getAdventureListItems } from "@/lib/services/adventure-list-items";
 
 export async function GET(
   req: NextRequest,
@@ -47,13 +48,11 @@ export async function GET(
       }
     }
 
-    // Fetch items using the database function
-    const { data: items, error: itemsError } = await supabase.rpc(
-      "get_adventure_list_items",
-      { list_uuid: id },
-    );
-
-    if (itemsError) {
+    // Fetch items using TypeScript helper
+    let items;
+    try {
+      items = await getAdventureListItems(supabase, id);
+    } catch (itemsError) {
       console.error("Error fetching adventure list items:", itemsError);
       return NextResponse.json(
         { error: "Failed to fetch list items" },
@@ -63,9 +62,11 @@ export async function GET(
 
     // Group items by type
     const groupedItems = {
-      monsters: items.filter((i: any) => i.item_type === "monster"),
-      spells: items.filter((i: any) => i.item_type === "spell"),
-      magic_items: items.filter((i: any) => i.item_type === "magic_item"),
+      monsters: items.filter((i) => i.item_type === "monster"),
+      spells: items.filter((i) => i.item_type === "spell"),
+      magic_items: items.filter((i) => i.item_type === "magic_item"),
+      equipment: items.filter((i) => i.item_type === "equipment"),
+      encounter_tables: items.filter((i) => i.item_type === "encounter_table"),
     };
 
     return NextResponse.json({

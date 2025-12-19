@@ -4,6 +4,7 @@ import { Ban } from "lucide-react";
 import { Button } from "../primitives/button";
 import { Badge } from "../primitives/badge";
 import Link from "next/link";
+import { Span } from "next/dist/trace";
 
 type AdventureListItemProps = {
   item: AdventureListItem;
@@ -33,8 +34,7 @@ export function AdventureListDisplayItem({
   onRemove,
 }: AdventureListItemProps) {
   const itemLink = getItemLink(item);
-
-  console.log("display Item", item);
+  console.log("item", item);
 
   const displayName = item.name || `Unknown ${item.item_type}`;
 
@@ -54,17 +54,33 @@ export function AdventureListDisplayItem({
             <div className="text-lg mt-1">
               {item.item_type === "monster" && (
                 <div>
-                  <span>Level {item.details.challenge_level} </span>
+                  <span>Level {item.details?.challenge_level} </span>
                   <div>
-                    HP {item.details.hit_points} | AC {item.details.armor_class}
+                    HP {item.details?.hit_points} | AC{" "}
+                    {item.details?.armor_class} | MV {item.details?.speed}
+                  </div>
+                  <div>
+                    Locations:{" "}
+                    {item.details.tags?.location?.map((location) => (
+                      <span key={location}>{location}</span>
+                    ))}
+                  </div>
+                  <div>
+                    Types:{" "}
+                    {item.details.tags?.type?.map((type) => (
+                      <span key={type}>{type}</span>
+                    ))}
                   </div>
                 </div>
               )}
               {item.item_type === "spell" && (
                 <span>
-                  Tier {item.details.tier} • {item.details.range} •{" "}
-                  {item.details.duration}
+                  Tier {item.details?.tier} • {item.details?.range} •{" "}
+                  {item.details?.duration}
                 </span>
+              )}
+              {item.item_type === "magic_item" && (
+                <span>{item?.description}</span>
               )}
               {item.item_type === "equipment" && (
                 <span>
