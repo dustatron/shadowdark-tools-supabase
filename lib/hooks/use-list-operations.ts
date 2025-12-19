@@ -1,5 +1,6 @@
 "use client";
 
+import { useState, useEffect } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { createClient } from "@/lib/supabase/client";
 import { toast } from "sonner";
@@ -26,6 +27,29 @@ export function useListOperations({
 }: UseListOperationsParams) {
   const queryClient = useQueryClient();
   const supabase = createClient();
+  const [sessionReady, setSessionReady] = useState(false);
+
+  // Ensure Supabase session is ready before querying
+  useEffect(() => {
+    const checkSession = async () => {
+      const {
+        data: { session },
+      } = await supabase.auth.getSession();
+      if (session) {
+        setSessionReady(true);
+      }
+    };
+    checkSession();
+
+    // Listen for auth changes
+    const {
+      data: { subscription },
+    } = supabase.auth.onAuthStateChange((_event, session) => {
+      setSessionReady(!!session);
+    });
+
+    return () => subscription.unsubscribe();
+  }, [supabase]);
 
   // Fetch user lists with item counts
   const { data: lists = [], isLoading: isLoadingLists } = useQuery({
@@ -52,6 +76,7 @@ export function useListOperations({
       return data as UserList[];
     },
     staleTime: 5 * 60 * 1000, // 5 minutes
+    enabled: !!userId && sessionReady, // Only run when session is ready
   });
 
   // Fetch which lists contain this entity
