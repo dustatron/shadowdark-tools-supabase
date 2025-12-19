@@ -28,7 +28,6 @@ export function AdventureListDisplayItem({
   isOwner,
   onRemove,
 }: AdventureListItemProps) {
-  console.log("item in list", item);
   const itemLink = getItemLink(item);
 
   const displayName = item.name || `Unknown ${item.item_type}`;
