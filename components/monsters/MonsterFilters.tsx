@@ -18,9 +18,7 @@ import {
   SheetHeader,
   SheetTitle,
   SheetTrigger,
-  SheetFooter,
 } from "@/components/primitives/sheet";
-import { cn } from "@/lib/utils";
 import {
   AVAILABLE_SPEED_TYPES,
   AVAILABLE_ALIGNMENTS,

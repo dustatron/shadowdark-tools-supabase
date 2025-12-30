@@ -14,7 +14,6 @@ import {
   LogOut,
   Heart,
   Shield,
-  LayoutDashboard,
   Sun,
   Moon,
   Library,
@@ -31,7 +30,6 @@ import {
   SidebarContent,
   SidebarFooter,
   SidebarGroup,
-  SidebarGroupLabel,
   SidebarHeader,
   SidebarMenu,
   SidebarMenuButton,
@@ -40,7 +38,6 @@ import {
   SidebarMenuSubItem,
   SidebarMenuSubButton,
   SidebarRail,
-  SidebarTrigger,
   useSidebar,
 } from "@/components/primitives/sidebar";
 import {
@@ -452,27 +449,8 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
             </SidebarMenu>
           </SidebarGroup>
         )}
-
-        {/* Logout (visible when logged in) */}
-        {user && (
-          <SidebarGroup>
-            <SidebarMenu>
-              <SidebarMenuItem>
-                <SidebarMenuButton
-                  onClick={handleLogout}
-                  tooltip="Logout"
-                  aria-label="Logout"
-                >
-                  <LogOut />
-                  <span className="group-data-[collapsible=icon]:hidden">
-                    Logout
-                  </span>
-                </SidebarMenuButton>
-              </SidebarMenuItem>
-            </SidebarMenu>
-          </SidebarGroup>
-        )}
-
+      </SidebarContent>
+      <SidebarFooter>
         {/* Guest Sign In / Loading */}
         {!user && (
           <SidebarGroup>
@@ -499,8 +477,25 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
             </SidebarMenu>
           </SidebarGroup>
         )}
-      </SidebarContent>
-      <SidebarFooter>
+        {/* Logout (visible when logged in) */}
+        {user && (
+          <SidebarGroup>
+            <SidebarMenu>
+              <SidebarMenuItem>
+                <SidebarMenuButton
+                  onClick={handleLogout}
+                  tooltip="Logout"
+                  aria-label="Logout"
+                >
+                  <LogOut />
+                  <span className="group-data-[collapsible=icon]:hidden">
+                    Logout
+                  </span>
+                </SidebarMenuButton>
+              </SidebarMenuItem>
+            </SidebarMenu>
+          </SidebarGroup>
+        )}
         {/* Theme Toggle */}
         {mounted && (
           <Button

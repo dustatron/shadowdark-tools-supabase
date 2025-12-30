@@ -175,12 +175,30 @@ export async function getAdventureListItems(
 }
 ```
 
-**Existing RPC calls to migrate** (technical debt):
+**Available TypeScript Services** (`lib/services/`):
 
-- `search_monsters` - app/api/search/monsters/route.ts
-- `search_all_content` - app/api/search/route.ts
-- `create_audit_log` - app/api/admin/ routes
-- `get_random_monsters` - encounter generation
+| Service                   | Functions                                 | Replaces RPC                             |
+| ------------------------- | ----------------------------------------- | ---------------------------------------- |
+| `audit.ts`                | `createAuditLog()`                        | `create_audit_log`                       |
+| `monster-search.ts`       | `searchMonsters()`, `getRandomMonsters()` | `search_monsters`, `get_random_monsters` |
+| `unified-search.ts`       | `searchAllContent()`                      | `search_all_content`                     |
+| `adventure-list-items.ts` | `getAdventureListItems()`                 | `get_adventure_list_items`               |
+
+**Usage in API routes**:
+
+```typescript
+// ✅ CORRECT - Use service
+import { searchMonsters } from "@/lib/services/monster-search";
+const results = await searchMonsters(supabase, {
+  searchQuery: "goblin",
+  limit: 20,
+});
+
+// ❌ AVOID - Direct RPC call
+const { data } = await supabase.rpc("search_monsters", {
+  search_query: "goblin",
+});
+```
 
 **When DB functions are still appropriate:**
 

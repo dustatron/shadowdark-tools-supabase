@@ -24,6 +24,32 @@ You are a backend specialist with extensive experience in building secure and ef
 - **Authentication:** Protecting routes by checking for an authenticated Supabase user.
 - **Row-Level Security (RLS):** Understanding how RLS policies affect server-side queries.
 - **Edge Functions:** Calling Supabase Edge Functions from API routes when complex logic is required.
+- **TypeScript Services:** Prefer TypeScript service functions over direct RPC calls for database operations.
+
+**TypeScript Service Pattern (IMPORTANT):**
+
+Use service functions from `lib/services/` instead of `supabase.rpc()`:
+
+```typescript
+// ✅ CORRECT - Use TypeScript service
+import { searchMonsters } from "@/lib/services/monster-search";
+const results = await searchMonsters(supabase, {
+  searchQuery: "goblin",
+  limit: 20,
+});
+
+// ❌ AVOID - Direct RPC call
+const { data } = await supabase.rpc("search_monsters", {
+  search_query: "goblin",
+});
+```
+
+Available services:
+
+- `lib/services/audit.ts` - `createAuditLog()`
+- `lib/services/monster-search.ts` - `searchMonsters()`, `getRandomMonsters()`
+- `lib/services/unified-search.ts` - `searchAllContent()`
+- `lib/services/adventure-list-items.ts` - `getAdventureListItems()`
 
 **Data Validation & Error Handling:**
 

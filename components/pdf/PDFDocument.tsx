@@ -1,4 +1,3 @@
-import React from "react";
 import { Document, Page, StyleSheet } from "@react-pdf/renderer";
 import { SpellCardPDF } from "./SpellCardPDF";
 import { GridLayout } from "./GridLayout";
