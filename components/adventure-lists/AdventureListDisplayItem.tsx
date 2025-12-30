@@ -2,9 +2,7 @@ import { type AdventureListItem } from "@/lib/types/adventure-lists";
 import { Card, CardContent, CardHeader } from "../primitives/card";
 import { Ban } from "lucide-react";
 import { Button } from "../primitives/button";
-import { Badge } from "../primitives/badge";
 import Link from "next/link";
-import { Span } from "next/dist/trace";
 
 type AdventureListItemProps = {
   item: AdventureListItem;

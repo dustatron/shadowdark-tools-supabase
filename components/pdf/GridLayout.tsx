@@ -1,4 +1,3 @@
-import React from "react";
 import { Page, View, StyleSheet } from "@react-pdf/renderer";
 import { SpellCardPDF } from "./SpellCardPDF";
 import type { SpellForDeck } from "@/lib/validations/deck";

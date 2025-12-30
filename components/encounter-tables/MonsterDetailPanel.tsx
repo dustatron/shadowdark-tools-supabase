@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { Heart, X, Coins } from "lucide-react";
+import { Heart, Coins } from "lucide-react";
 import {
   Sheet,
   SheetContent,

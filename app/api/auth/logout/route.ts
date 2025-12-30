@@ -10,9 +10,20 @@ export async function POST(request: NextRequest) {
     // This handles edge cases where client/server session state diverges
     await supabase.auth.signOut();
 
-    return NextResponse.json({
-      message: "Logout successful",
-    });
+    // Create response and explicitly clear auth cookies
+    // Route handlers can't set cookies via the server client's setAll
+    const response = NextResponse.json({ message: "Logout successful" });
+
+    // Clear all Supabase auth cookies (they start with sb-)
+    const cookiesToClear = request.cookies
+      .getAll()
+      .filter((c) => c.name.startsWith("sb-"));
+
+    for (const cookie of cookiesToClear) {
+      response.cookies.delete(cookie.name);
+    }
+
+    return response;
   } catch (error) {
     console.error("API error:", error);
     return NextResponse.json(
