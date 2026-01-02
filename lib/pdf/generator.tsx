@@ -6,12 +6,13 @@ import {
   StyleSheet,
   renderToBuffer,
 } from "@react-pdf/renderer";
-import type { SpellForDeck } from "@/lib/validations/deck";
+import type { SpellForDeck, MagicItemForDeck } from "@/lib/validations/deck";
 import { SpellCardPDF } from "@/components/pdf/SpellCard";
+import { MagicItemCardPDF } from "@/components/pdf/MagicItemCard";
 
 /**
- * PDF Generator for Spell Card Decks
- * Uses @react-pdf/renderer to generate printable spell cards
+ * PDF Generator for Spell & Magic Item Card Decks
+ * Uses @react-pdf/renderer to generate printable cards
  */
 
 const styles = StyleSheet.create({
@@ -37,35 +38,42 @@ const styles = StyleSheet.create({
   },
 });
 
+// Union type for deck items
+type DeckCard =
+  | { type: "spell"; data: SpellForDeck }
+  | { type: "magic_item"; data: MagicItemForDeck };
+
 interface PDFDocumentProps {
   deckName: string;
-  spells: SpellForDeck[];
+  cards: DeckCard[];
   layout: "grid" | "single";
 }
 
-// SpellCardPDF component imported from @/components/pdf/SpellCard
-// Used for both grid and single layouts
-
 /**
  * Main PDF Document Component
+ * Supports mixed content: spells and magic items
  */
 const DeckPDFDocument: React.FC<PDFDocumentProps> = ({
   deckName,
-  spells,
+  cards,
   layout,
 }) => {
   if (layout === "single") {
     // Single layout: one card per page
     return (
       <Document>
-        {/* One page per spell - 2.5" x 3.5" playing card size */}
-        {spells.map((spell) => (
+        {/* One page per card - 2.5" x 3.5" playing card size */}
+        {cards.map((card, index) => (
           <Page
-            key={spell.id}
+            key={`${card.type}-${card.data.id}-${index}`}
             size={{ width: 180, height: 252 }}
             style={styles.singlePage}
           >
-            <SpellCardPDF spell={spell} />
+            {card.type === "spell" ? (
+              <SpellCardPDF spell={card.data} />
+            ) : (
+              <MagicItemCardPDF magicItem={card.data} />
+            )}
           </Page>
         ))}
       </Document>
@@ -74,21 +82,28 @@ const DeckPDFDocument: React.FC<PDFDocumentProps> = ({
 
   // Grid layout: multiple cards per page (3 columns)
   const cardsPerPage = 9; // 3 columns x 3 rows
-  const pages: SpellForDeck[][] = [];
+  const pages: DeckCard[][] = [];
 
-  // Split spells into pages
-  for (let i = 0; i < spells.length; i += cardsPerPage) {
-    pages.push(spells.slice(i, i + cardsPerPage));
+  // Split cards into pages
+  for (let i = 0; i < cards.length; i += cardsPerPage) {
+    pages.push(cards.slice(i, i + cardsPerPage));
   }
 
   return (
     <Document>
       {/* Grid pages */}
-      {pages.map((pageSpells, pageIndex) => (
+      {pages.map((pageCards, pageIndex) => (
         <Page key={pageIndex} size="LETTER" style={styles.gridPage}>
-          {pageSpells.map((spell) => (
-            <View key={spell.id} style={styles.gridCard}>
-              <SpellCardPDF spell={spell} />
+          {pageCards.map((card, cardIndex) => (
+            <View
+              key={`${card.type}-${card.data.id}-${cardIndex}`}
+              style={styles.gridCard}
+            >
+              {card.type === "spell" ? (
+                <SpellCardPDF spell={card.data} />
+              ) : (
+                <MagicItemCardPDF magicItem={card.data} />
+              )}
             </View>
           ))}
         </Page>
@@ -98,7 +113,7 @@ const DeckPDFDocument: React.FC<PDFDocumentProps> = ({
 };
 
 /**
- * Generate PDF buffer from deck data
+ * Generate PDF buffer from deck data (spells only - legacy)
  * @param deckName - Name of the deck
  * @param spells - Array of spells to include
  * @param layout - Layout style ('grid' or 'single')
@@ -109,8 +124,52 @@ export async function generateDeckPDF(
   spells: SpellForDeck[],
   layout: "grid" | "single" = "grid",
 ): Promise<Buffer> {
+  // Convert spells to cards array for unified handling
+  const cards: DeckCard[] = spells.map((spell) => ({
+    type: "spell",
+    data: spell,
+  }));
+
   const pdfDocument = (
-    <DeckPDFDocument deckName={deckName} spells={spells} layout={layout} />
+    <DeckPDFDocument deckName={deckName} cards={cards} layout={layout} />
+  );
+
+  const buffer = await renderToBuffer(pdfDocument);
+  return buffer;
+}
+
+/**
+ * Generate PDF buffer from mixed deck data (spells + magic items)
+ * @param deckName - Name of the deck
+ * @param spells - Array of spells to include
+ * @param magicItems - Array of magic items to include
+ * @param layout - Layout style ('grid' or 'single')
+ * @returns Promise<Buffer> - PDF buffer ready to send as response
+ */
+export async function generateMixedDeckPDF(
+  deckName: string,
+  spells: SpellForDeck[],
+  magicItems: MagicItemForDeck[],
+  layout: "grid" | "single" = "grid",
+): Promise<Buffer> {
+  // Combine spells and magic items into cards array
+  const cards: DeckCard[] = [
+    ...spells.map(
+      (spell): DeckCard => ({
+        type: "spell",
+        data: spell,
+      }),
+    ),
+    ...magicItems.map(
+      (item): DeckCard => ({
+        type: "magic_item",
+        data: item,
+      }),
+    ),
+  ];
+
+  const pdfDocument = (
+    <DeckPDFDocument deckName={deckName} cards={cards} layout={layout} />
   );
 
   const buffer = await renderToBuffer(pdfDocument);

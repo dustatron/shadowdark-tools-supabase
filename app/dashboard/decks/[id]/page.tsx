@@ -10,17 +10,29 @@ import {
   SpellSelector,
   SpellCardPreview,
   SpellCardPreviewReact,
+  MagicItemSelector,
+  MagicItemCardPreview,
+  MagicItemCardPreviewReact,
 } from "@/components/deck";
 import { Label } from "@/components/primitives/label";
-import { ArrowLeft, Plus, Download, Trash2, Eye } from "lucide-react";
+import {
+  ArrowLeft,
+  Plus,
+  Download,
+  Trash2,
+  Eye,
+  Sparkles,
+  BookOpen,
+} from "lucide-react";
 import Link from "next/link";
-import { SpellTable } from "./SpellTable";
+import { DeckItemsTable } from "./DeckItemsTable";
 import { PageTitle } from "@/components/page-title";
 import { Switch } from "@/components/primitives/switch";
 import { ExportDrawer } from "./ExportDrawer";
 import { DeleteOptionsDrawer } from "./DeleteOptionsDrawer";
 import { fetchDeck } from "./utils/fetchers";
 import { useRemoveMutation } from "./utils/useRemoveMutation";
+import { useRemoveMagicItemMutation } from "./utils/useRemoveMagicItemMutation";
 import { useDeleteDeckMutation } from "./utils/useDeleteDeckMutation";
 import { useRemoveAllMutation } from "./utils/useRemoveAllMutation";
 import { useExportMutation } from "./utils/useExportMutation";
@@ -32,10 +44,14 @@ export default function DeckDetailPage() {
   const deckId = params?.id as string;
 
   const [showSpellSelector, setShowSpellSelector] = useState(false);
+  const [showMagicItemSelector, setShowMagicItemSelector] = useState(false);
   const [showDeleteDrawer, setShowDeleteDrawer] = useState(false);
   const [showExportDialog, setShowExportDialog] = useState(false);
   const [exportLayout, setExportLayout] = useState<ExportLayout>("grid");
-  const [selectedSpellId, setSelectedSpellId] = useState<string | null>(null);
+  const [selectedItemId, setSelectedItemId] = useState<string | null>(null);
+  const [selectedItemType, setSelectedItemType] = useState<
+    "spell" | "magic_item" | null
+  >(null);
   const [showPdfPreview, setShowPdfPreview] = useState(false);
 
   const {
@@ -55,14 +71,34 @@ export default function DeckDetailPage() {
 
   const removeMutation = useRemoveMutation({
     deckId,
-    selectedSpellId,
-    setSelectedSpellId,
+    selectedSpellId: selectedItemType === "spell" ? selectedItemId : null,
+    setSelectedSpellId: (id) => {
+      if (id === null) {
+        setSelectedItemId(null);
+        setSelectedItemType(null);
+      }
+    },
+  });
+
+  const removeMagicItemMutation = useRemoveMagicItemMutation({
+    deckId,
+    selectedItemId: selectedItemType === "magic_item" ? selectedItemId : null,
+    setSelectedItemId: (id) => {
+      if (id === null) {
+        setSelectedItemId(null);
+        setSelectedItemType(null);
+      }
+    },
   });
 
   const removeAllMutation = useRemoveAllMutation({
     deckId,
     spells: deck?.spells,
-    setSelectedSpellId,
+    magicItems: deck?.magic_items,
+    setSelectedItemId: (id) => {
+      setSelectedItemId(id);
+      if (id === null) setSelectedItemType(null);
+    },
     setShowDeleteDrawer,
   });
 
@@ -72,12 +108,18 @@ export default function DeckDetailPage() {
     setShowExportDialog,
   });
 
-  // Default to first spell when deck loads
+  // Default to first item when deck loads
   useEffect(() => {
-    if (deck?.spells && deck.spells.length > 0 && !selectedSpellId) {
-      setSelectedSpellId(deck.spells[0].id);
+    if (deck && !selectedItemId) {
+      if (deck.spells.length > 0) {
+        setSelectedItemId(deck.spells[0].id);
+        setSelectedItemType("spell");
+      } else if (deck.magic_items.length > 0) {
+        setSelectedItemId(deck.magic_items[0].id);
+        setSelectedItemType("magic_item");
+      }
     }
-  }, [deck, selectedSpellId]);
+  }, [deck, selectedItemId]);
 
   if (isLoading) {
     return (
@@ -114,15 +156,31 @@ export default function DeckDetailPage() {
   }
 
   const existingSpellIds = deck.spells.map((s) => s.id);
+  const existingMagicItemIds = deck.magic_items.map((i) => i.id);
+
+  // Find selected item data
+  const selectedSpell =
+    selectedItemType === "spell"
+      ? deck.spells.find((s) => s.id === selectedItemId)
+      : null;
+  const selectedMagicItem =
+    selectedItemType === "magic_item"
+      ? deck.magic_items.find((i) => i.id === selectedItemId)
+      : null;
+
+  const handleSelectItem = (id: string, type: "spell" | "magic_item") => {
+    setSelectedItemId(id);
+    setSelectedItemType(type);
+  };
 
   return (
     <div>
       {/* Header */}
       <div className="mb-2">
-        <div className="flex justify-between p-2">
+        <div className="flex justify-between p-2 flex-wrap gap-2">
           <PageTitle title={deck.name} />
 
-          <div className="flex items-center gap-2">
+          <div className="flex items-center gap-2 flex-wrap">
             <Button
               variant="destructive"
               size="icon"
@@ -130,7 +188,7 @@ export default function DeckDetailPage() {
             >
               <Trash2 className="w-4 h-4" />
             </Button>
-            <Button variant="outline" asChild disabled={deck.spell_count === 0}>
+            <Button variant="outline" asChild disabled={deck.item_count === 0}>
               <Link href={`/dashboard/decks/${deckId}/preview`}>
                 <Eye className="w-4 h-4 mr-2" />
                 Preview Cards
@@ -139,7 +197,7 @@ export default function DeckDetailPage() {
             <Button
               variant="secondary"
               onClick={() => setShowExportDialog(true)}
-              disabled={deck.spell_count === 0}
+              disabled={deck.item_count === 0}
             >
               <Download className="w-4 h-4 mr-2" />
               Export PDF
@@ -147,16 +205,24 @@ export default function DeckDetailPage() {
 
             <Button
               onClick={() => setShowSpellSelector(true)}
-              disabled={deck.spell_count >= 52}
+              disabled={deck.item_count >= 52}
+              variant="outline"
+            >
+              <BookOpen className="w-4 h-4 mr-2" />
+              Add Spells
+            </Button>
+            <Button
+              onClick={() => setShowMagicItemSelector(true)}
+              disabled={deck.item_count >= 52}
               variant="default"
             >
-              <Plus className="w-4 h-4 mr-2" />
-              Add Spells
+              <Sparkles className="w-4 h-4 mr-2" />
+              Add Magic Items
             </Button>
           </div>
         </div>
 
-        <div className="flex items-start justify-between  flex-wrap mt-2">
+        <div className="flex items-start justify-between flex-wrap mt-2">
           <Button variant="ghost" size="sm" asChild className="mb-2">
             <Link href="/dashboard/decks">
               <ArrowLeft className="w-4 h-4 mr-2" />
@@ -164,7 +230,7 @@ export default function DeckDetailPage() {
             </Link>
           </Button>
           <div className="p-2">
-            <Badge variant="destructive">{deck.spell_count} Cards</Badge>
+            <Badge variant="destructive">{deck.item_count} Cards</Badge>
           </div>
         </div>
       </div>
@@ -173,24 +239,27 @@ export default function DeckDetailPage() {
       <div className="grid grid-cols-1 lg:grid-cols-[2fr_1fr] gap-1">
         {/* Left: Table */}
         <div>
-          <SpellTable
-            deck={deck}
-            removeMutation={removeMutation}
-            setShowSpellSelector={setShowSpellSelector}
-            selectedSpellId={selectedSpellId || undefined}
-            onSelectSpell={setSelectedSpellId}
+          <DeckItemsTable
+            spells={deck.spells}
+            magicItems={deck.magic_items}
+            itemCount={deck.item_count}
+            onAddSpell={() => setShowSpellSelector(true)}
+            onAddMagicItem={() => setShowMagicItemSelector(true)}
+            removeSpellMutation={removeMutation}
+            removeMagicItemMutation={removeMagicItemMutation}
+            selectedItemId={selectedItemId || undefined}
+            selectedItemType={selectedItemType || undefined}
+            onSelectItem={handleSelectItem}
           />
         </div>
 
         {/* Right: Preview */}
         <div className="sticky top-4 h-fit">
-          {deck.spell_count === 0 ? (
-            <div className="border-2 border-dashed  p-12 text-center">
-              <p className="text-muted-foreground">
-                Add spells to preview cards
-              </p>
+          {deck.item_count === 0 ? (
+            <div className="border-2 border-dashed p-12 text-center">
+              <p className="text-muted-foreground">Add cards to preview</p>
             </div>
-          ) : selectedSpellId ? (
+          ) : selectedSpell ? (
             <div className="border p-2">
               <div className="flex justify-between items-center mb-4">
                 <h3 className="text-sm font-medium">Card Preview</h3>
@@ -215,18 +284,44 @@ export default function DeckDetailPage() {
                 </div>
               </div>
               {showPdfPreview ? (
-                <SpellCardPreview
-                  spell={deck.spells.find((s) => s.id === selectedSpellId)!}
-                />
+                <SpellCardPreview spell={selectedSpell} />
               ) : (
-                <SpellCardPreviewReact
-                  spell={deck.spells.find((s) => s.id === selectedSpellId)!}
-                />
+                <SpellCardPreviewReact spell={selectedSpell} />
+              )}
+            </div>
+          ) : selectedMagicItem ? (
+            <div className="border p-2">
+              <div className="flex justify-between items-center mb-4">
+                <h3 className="text-sm font-medium">Card Preview</h3>
+                <div className="flex items-center gap-2">
+                  <Label
+                    htmlFor="preview-toggle"
+                    className={`text-xs ${!showPdfPreview ? "font-semibold" : "text-muted-foreground"}`}
+                  >
+                    Card
+                  </Label>
+                  <Switch
+                    id="preview-toggle"
+                    checked={showPdfPreview}
+                    onCheckedChange={setShowPdfPreview}
+                  />
+                  <Label
+                    htmlFor="preview-toggle"
+                    className={`text-xs ${showPdfPreview ? "font-semibold" : "text-muted-foreground"}`}
+                  >
+                    PDF
+                  </Label>
+                </div>
+              </div>
+              {showPdfPreview ? (
+                <MagicItemCardPreview magicItem={selectedMagicItem} />
+              ) : (
+                <MagicItemCardPreviewReact magicItem={selectedMagicItem} />
               )}
             </div>
           ) : (
-            <div className="border-2 border-dashed  p-12 text-center">
-              <p className="text-muted-foreground">Select a spell to preview</p>
+            <div className="border-2 border-dashed p-12 text-center">
+              <p className="text-muted-foreground">Select a card to preview</p>
             </div>
           )}
         </div>
@@ -238,6 +333,16 @@ export default function DeckDetailPage() {
         existingSpellIds={existingSpellIds}
         open={showSpellSelector}
         onOpenChange={setShowSpellSelector}
+        currentCardCount={deck.item_count}
+      />
+
+      {/* Magic Item Selector Dialog */}
+      <MagicItemSelector
+        deckId={deckId}
+        existingItemIds={existingMagicItemIds}
+        open={showMagicItemSelector}
+        onOpenChange={setShowMagicItemSelector}
+        currentCardCount={deck.item_count}
       />
 
       <DeleteOptionsDrawer
@@ -246,7 +351,7 @@ export default function DeckDetailPage() {
         isRemoveAllPending={removeAllMutation.isPending}
         mutate={deleteMutation.mutate}
         setShowDeleteDrawer={setShowDeleteDrawer}
-        spellCount={deck.spell_count}
+        itemCount={deck.item_count}
         removeAll={removeAllMutation.mutate}
       />
       <ExportDrawer

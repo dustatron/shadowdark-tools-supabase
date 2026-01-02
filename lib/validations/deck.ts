@@ -3,7 +3,12 @@ import { z } from "zod";
 /**
  * Zod Validation Schemas for Deck Feature
  * Feature: 008-deck-building-for
+ * Extended: 018-we-already-have (Magic Item Cards in Decks)
  */
+
+// Item type discriminator for deck_items
+export const DeckItemType = z.enum(["spell", "magic_item"]);
+export type DeckItemType = z.infer<typeof DeckItemType>;
 
 // Base Deck Schema (full database entity)
 export const DeckSchema = z.object({
@@ -47,11 +52,13 @@ export const UpdateDeckSchema = z.object({
 
 export type UpdateDeckInput = z.infer<typeof UpdateDeckSchema>;
 
-// Deck Item Schema (junction table entity)
+// Deck Item Schema (junction table entity) - updated for magic items
 export const DeckItemSchema = z.object({
   id: z.string().uuid(),
   deck_id: z.string().uuid(),
-  spell_id: z.string().uuid(),
+  item_type: DeckItemType.default("spell"),
+  spell_id: z.string().uuid().nullable(),
+  magic_item_id: z.string().uuid().nullable(),
   position: z.number().int().positive().nullable(),
   added_at: z.coerce.date(),
 });
@@ -64,6 +71,33 @@ export const AddSpellSchema = z.object({
 });
 
 export type AddSpellInput = z.infer<typeof AddSpellSchema>;
+
+// Add Magic Item to Deck Schema (for POST /api/decks/[id]/magic-items)
+export const AddMagicItemSchema = z.object({
+  magic_item_id: z.string().uuid("Invalid magic item ID"),
+});
+
+export type AddMagicItemInput = z.infer<typeof AddMagicItemSchema>;
+
+// Trait schema for magic items
+export const TraitSchema = z.object({
+  name: z.string(),
+  description: z.string(),
+});
+
+export type Trait = z.infer<typeof TraitSchema>;
+
+// Magic Item schema for deck details (subset of full magic item)
+export const MagicItemForDeckSchema = z.object({
+  id: z.string().uuid(),
+  name: z.string(),
+  slug: z.string(),
+  description: z.string(),
+  traits: z.array(TraitSchema),
+  image_url: z.string().nullable().optional(),
+});
+
+export type MagicItemForDeck = z.infer<typeof MagicItemForDeckSchema>;
 
 // Deck with Spell Count (for list responses)
 export const DeckWithCountSchema = DeckSchema.extend({
@@ -85,13 +119,22 @@ export const SpellForDeckSchema = z.object({
 
 export type SpellForDeck = z.infer<typeof SpellForDeckSchema>;
 
-// Deck with Items (for GET /api/decks/[id])
+// Deck with Items (for GET /api/decks/[id]) - legacy, spell-only
 export const DeckWithSpellsSchema = DeckSchema.extend({
   spell_count: z.number().int().min(0).max(52),
   spells: z.array(SpellForDeckSchema),
 });
 
 export type DeckWithSpells = z.infer<typeof DeckWithSpellsSchema>;
+
+// Deck with all Items including magic items (for GET /api/decks/[id])
+export const DeckWithItemsSchema = DeckSchema.extend({
+  item_count: z.number().int().min(0).max(52),
+  spells: z.array(SpellForDeckSchema),
+  magic_items: z.array(MagicItemForDeckSchema),
+});
+
+export type DeckWithItems = z.infer<typeof DeckWithItemsSchema>;
 
 // Export PDF Schema (for POST /api/decks/[id]/export)
 export const ExportPDFSchema = z.object({

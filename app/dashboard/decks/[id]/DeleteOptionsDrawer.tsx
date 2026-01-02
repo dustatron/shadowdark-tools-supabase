@@ -17,7 +17,7 @@ type DeleteOptionsDrawer = {
   isRemoveAllPending: boolean;
   mutate: () => void;
   removeAll: () => void;
-  spellCount: number;
+  itemCount: number;
 };
 
 export function DeleteOptionsDrawer({
@@ -27,7 +27,7 @@ export function DeleteOptionsDrawer({
   isRemoveAllPending,
   mutate,
   removeAll,
-  spellCount,
+  itemCount,
 }: DeleteOptionsDrawer) {
   return (
     <Drawer
@@ -47,12 +47,12 @@ export function DeleteOptionsDrawer({
             variant="destructive"
             className="w-full justify-start"
             onClick={() => removeAll()}
-            disabled={spellCount === 0 || isRemoveAllPending}
+            disabled={itemCount === 0 || isRemoveAllPending}
           >
             <Trash2 className="w-4 h-4 mr-2" />
             {isRemoveAllPending
               ? "Deleting..."
-              : `Delete All Cards (${spellCount})`}
+              : `Delete All Cards (${itemCount})`}
           </Button>
           <Button
             variant="destructive"

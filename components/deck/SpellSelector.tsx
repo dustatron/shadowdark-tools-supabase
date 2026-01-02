@@ -43,7 +43,8 @@ interface SpellSelectorProps {
   existingSpellIds: string[];
   open: boolean;
   onOpenChange: (open: boolean) => void;
-  maxSpells?: number;
+  maxCards?: number;
+  currentCardCount?: number;
 }
 
 async function fetchSpells(
@@ -112,8 +113,11 @@ export function SpellSelector({
   existingSpellIds,
   open,
   onOpenChange,
-  maxSpells = 52,
+  maxCards = 52,
+  currentCardCount,
 }: SpellSelectorProps) {
+  // Use currentCardCount if provided, otherwise fall back to existingSpellIds.length
+  const cardCount = currentCardCount ?? existingSpellIds.length;
   const [search, setSearch] = useState("");
   const [selectedTiers, setSelectedTiers] = useState<number[]>([]);
   const [selectedClasses, setSelectedClasses] = useState<string[]>([]);
@@ -210,8 +214,8 @@ export function SpellSelector({
   });
 
   const handleAddSpell = (spellId: string, spellName: string) => {
-    if (existingSpellIds.length >= maxSpells) {
-      toast.error(`Deck cannot exceed ${maxSpells} cards`);
+    if (cardCount >= maxCards) {
+      toast.error(`Deck cannot exceed ${maxCards} cards`);
       return;
     }
 
@@ -274,7 +278,7 @@ export function SpellSelector({
     }
 
     // Check deck limit
-    const remainingSpace = maxSpells - existingSpellIds.length;
+    const remainingSpace = maxCards - cardCount;
     const spellsToAddLimited = spellsToAdd.slice(0, remainingSpace);
 
     if (spellsToAddLimited.length < spellsToAdd.length) {
@@ -287,7 +291,7 @@ export function SpellSelector({
   };
 
   const isSpellInDeck = (spellId: string) => existingSpellIds.includes(spellId);
-  const isDeckFull = existingSpellIds.length >= maxSpells;
+  const isDeckFull = cardCount >= maxCards;
   const availableSpellsCount =
     spells?.filter((s) => !isSpellInDeck(s.id)).length || 0;
 
@@ -300,8 +304,8 @@ export function SpellSelector({
         <SheetHeader>
           <SheetTitle>Add Spell to Deck</SheetTitle>
           <SheetDescription>
-            Search and select spells to add to your deck (
-            {existingSpellIds.length}/{maxSpells} cards)
+            Search and select spells to add to your deck ({cardCount}/{maxCards}{" "}
+            cards)
           </SheetDescription>
         </SheetHeader>
 

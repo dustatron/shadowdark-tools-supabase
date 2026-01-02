@@ -2,14 +2,15 @@ import { NextRequest, NextResponse } from "next/server";
 import { createClient } from "@/lib/supabase/server";
 import {
   UpdateDeckSchema,
-  type DeckWithSpells,
+  type DeckWithItems,
   type DeckWithCount,
   type SpellForDeck,
+  type MagicItemForDeck,
 } from "@/lib/validations/deck";
 import { z } from "zod";
 
 /**
- * GET /api/decks/[id] - Get deck with spells
+ * GET /api/decks/[id] - Get deck with spells and magic items
  * Authentication: Required (must be deck owner)
  */
 export async function GET(
@@ -44,10 +45,10 @@ export async function GET(
       return NextResponse.json({ error: "Deck not found" }, { status: 404 });
     }
 
-    // Get deck items with spell data
+    // Get deck items with type info
     const { data: items, error: itemsError } = await supabase
       .from("deck_items")
-      .select("spell_id, added_at")
+      .select("id, item_type, spell_id, magic_item_id, added_at")
       .eq("deck_id", id)
       .order("added_at");
 
@@ -59,25 +60,36 @@ export async function GET(
       );
     }
 
-    // Get spell data (check both official_spells and user_spells)
-    const spellIds = (items || []).map((item) => item.spell_id);
+    // Separate spell and magic item IDs
+    const spellItems = (items || []).filter(
+      (item) => item.item_type === "spell",
+    );
+    const magicItemItems = (items || []).filter(
+      (item) => item.item_type === "magic_item",
+    );
+
+    const spellIds = spellItems.map((item) => item.spell_id).filter(Boolean);
+    const magicItemIds = magicItemItems
+      .map((item) => item.magic_item_id)
+      .filter(Boolean);
+
+    // Fetch spells
     const spells: SpellForDeck[] = [];
-
     if (spellIds.length > 0) {
-      // Fetch from official_spells
-      const { data: officialSpells } = await supabase
-        .from("official_spells")
-        .select("id, name, tier, duration, range, description, classes")
-        .in("id", spellIds);
-
-      // Fetch from user_spells
-      const { data: userSpells } = await supabase
-        .from("user_spells")
-        .select("id, name, tier, duration, range, description, classes")
-        .in("id", spellIds);
+      const [{ data: officialSpells }, { data: userSpells }] =
+        await Promise.all([
+          supabase
+            .from("official_spells")
+            .select("id, name, tier, duration, range, description, classes")
+            .in("id", spellIds),
+          supabase
+            .from("user_spells")
+            .select("id, name, tier, duration, range, description, classes")
+            .in("id", spellIds),
+        ]);
 
       // Combine spells maintaining order from deck_items
-      for (const item of items || []) {
+      for (const item of spellItems) {
         const spell =
           officialSpells?.find((s) => s.id === item.spell_id) ||
           userSpells?.find((s) => s.id === item.spell_id);
@@ -88,14 +100,41 @@ export async function GET(
       }
     }
 
-    const response: DeckWithSpells = {
+    // Fetch magic items
+    const magicItems: MagicItemForDeck[] = [];
+    if (magicItemIds.length > 0) {
+      const [{ data: officialItems }, { data: userItems }] = await Promise.all([
+        supabase
+          .from("official_magic_items")
+          .select("id, name, slug, description, traits, image_url")
+          .in("id", magicItemIds),
+        supabase
+          .from("user_magic_items")
+          .select("id, name, slug, description, traits, image_url")
+          .in("id", magicItemIds),
+      ]);
+
+      // Combine magic items maintaining order from deck_items
+      for (const item of magicItemItems) {
+        const magicItem =
+          officialItems?.find((m) => m.id === item.magic_item_id) ||
+          userItems?.find((m) => m.id === item.magic_item_id);
+
+        if (magicItem) {
+          magicItems.push(magicItem as MagicItemForDeck);
+        }
+      }
+    }
+
+    const response: DeckWithItems = {
       id: deck.id,
       user_id: deck.user_id,
       name: deck.name,
       created_at: new Date(deck.created_at),
       updated_at: new Date(deck.updated_at),
-      spell_count: spells.length,
+      item_count: (items || []).length,
       spells,
+      magic_items: magicItems,
     };
 
     return NextResponse.json(response, { status: 200 });
@@ -205,7 +244,9 @@ export async function PUT(
       if (spell_ids.length > 0) {
         const items = spell_ids.map((spell_id) => ({
           deck_id: id,
+          item_type: "spell" as const,
           spell_id,
+          magic_item_id: null,
         }));
 
         const { error: insertError } = await supabase
