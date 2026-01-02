@@ -6,7 +6,12 @@ import { useQuery } from "@tanstack/react-query";
 import { Button } from "@/components/primitives/button";
 import { Badge } from "@/components/primitives/badge";
 import { Skeleton } from "@/components/primitives/skeleton";
-import { SpellSelector, SpellCardPreview } from "@/components/deck";
+import {
+  SpellSelector,
+  SpellCardPreview,
+  SpellCardPreviewReact,
+} from "@/components/deck";
+import { Label } from "@/components/primitives/label";
 import { ArrowLeft, Plus, Download, Trash2, Eye } from "lucide-react";
 import Link from "next/link";
 import { SpellTable } from "./SpellTable";
@@ -31,6 +36,7 @@ export default function DeckDetailPage() {
   const [showExportDialog, setShowExportDialog] = useState(false);
   const [exportLayout, setExportLayout] = useState<ExportLayout>("grid");
   const [selectedSpellId, setSelectedSpellId] = useState<string | null>(null);
+  const [showPdfPreview, setShowPdfPreview] = useState(false);
 
   const {
     data: deck,
@@ -186,13 +192,37 @@ export default function DeckDetailPage() {
             </div>
           ) : selectedSpellId ? (
             <div className="border p-2">
-              <div className="flex justify-between">
-                <h3 className="text-sm font-medium mb-4">Card Preview</h3>
-                <Switch id="preview-toggle" />
+              <div className="flex justify-between items-center mb-4">
+                <h3 className="text-sm font-medium">Card Preview</h3>
+                <div className="flex items-center gap-2">
+                  <Label
+                    htmlFor="preview-toggle"
+                    className={`text-xs ${!showPdfPreview ? "font-semibold" : "text-muted-foreground"}`}
+                  >
+                    Card
+                  </Label>
+                  <Switch
+                    id="preview-toggle"
+                    checked={showPdfPreview}
+                    onCheckedChange={setShowPdfPreview}
+                  />
+                  <Label
+                    htmlFor="preview-toggle"
+                    className={`text-xs ${showPdfPreview ? "font-semibold" : "text-muted-foreground"}`}
+                  >
+                    PDF
+                  </Label>
+                </div>
               </div>
-              <SpellCardPreview
-                spell={deck.spells.find((s) => s.id === selectedSpellId)!}
-              />
+              {showPdfPreview ? (
+                <SpellCardPreview
+                  spell={deck.spells.find((s) => s.id === selectedSpellId)!}
+                />
+              ) : (
+                <SpellCardPreviewReact
+                  spell={deck.spells.find((s) => s.id === selectedSpellId)!}
+                />
+              )}
             </div>
           ) : (
             <div className="border-2 border-dashed  p-12 text-center">
