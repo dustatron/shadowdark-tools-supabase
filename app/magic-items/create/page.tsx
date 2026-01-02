@@ -38,7 +38,7 @@ export default async function CreateMagicItemPage() {
           </p>
         </div>
 
-        <MagicItemForm mode="create" />
+        <MagicItemForm mode="create" userId={user.id} />
       </div>
     </div>
   );

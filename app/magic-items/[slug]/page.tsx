@@ -9,9 +9,12 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/primitives/card";
-import { ArrowLeft } from "lucide-react";
+import { Badge } from "@/components/primitives/badge";
+import { ArrowLeft, Sparkles, Wand2 } from "lucide-react";
 import Link from "next/link";
+import Image from "next/image";
 import { notFound } from "next/navigation";
+import { getTransformedImageUrl } from "@/lib/utils/cloudinary";
 
 interface MagicItem {
   id: string;
@@ -23,6 +26,8 @@ interface MagicItem {
   user_id?: string | null;
   creator_name?: string | null;
   is_public?: boolean;
+  image_url?: string | null;
+  is_ai_generated?: boolean;
 }
 
 interface PageProps {
@@ -154,28 +159,55 @@ export default async function MagicItemDetailPage({ params }: PageProps) {
           <CardContent>
             {/* Main Info */}
             <CardHeader>
-              <div className="flex items-start justify-between gap-4">
-                <CardTitle className="text-3xl">{magicItem.name}</CardTitle>
-                <SourceBadge
-                  itemType={itemType}
-                  creatorName={creatorName}
-                  userId={userId}
-                />
-              </div>
-              {isOwner && (
-                <div className="mt-4">
-                  <UserMagicItemActions
-                    itemId={magicItem.id}
-                    itemSlug={magicItem.slug}
-                  />
+              <div className="flex gap-6">
+                {/* Image */}
+                <div className="flex-shrink-0">
+                  <div className="relative w-40 h-40 sm:w-52 sm:h-52 rounded-lg overflow-hidden bg-zinc-900 flex items-center justify-center">
+                    {magicItem.image_url ? (
+                      <Image
+                        src={
+                          getTransformedImageUrl(
+                            magicItem.image_url,
+                            "detail",
+                          ) || ""
+                        }
+                        alt={magicItem.name}
+                        fill
+                        className="object-cover"
+                        unoptimized
+                      />
+                    ) : (
+                      <Sparkles className="h-16 w-16 text-muted-foreground" />
+                    )}
+                  </div>
+                  {magicItem.is_ai_generated && (
+                    <Badge variant="secondary" className="mt-2 text-xs">
+                      <Wand2 className="h-3 w-3 mr-1" />
+                      AI Generated
+                    </Badge>
+                  )}
                 </div>
-              )}
+
+                <div className="flex-1 min-w-0">
+                  <div className="flex items-start justify-between gap-4">
+                    <CardTitle className="text-3xl">{magicItem.name}</CardTitle>
+                    <SourceBadge
+                      itemType={itemType}
+                      creatorName={creatorName}
+                      userId={userId}
+                    />
+                  </div>
+                  {isOwner && (
+                    <div className="mt-4">
+                      <UserMagicItemActions itemSlug={magicItem.slug} />
+                    </div>
+                  )}
+                  <p className="text-base leading-relaxed">
+                    {magicItem.description}
+                  </p>
+                </div>
+              </div>
             </CardHeader>
-            <CardContent>
-              <p className="text-base leading-relaxed">
-                {magicItem.description}
-              </p>
-            </CardContent>
 
             {/* Traits Section */}
             {magicItem.traits.length > 0 && (

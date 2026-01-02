@@ -147,7 +147,11 @@
       "Bash(git stash push:*)",
       "Bash(git stash:*)",
       "Bash(npm --version:*)",
-      "Bash(git push:*)"
+      "Bash(git push:*)",
+      "WebFetch(domain:cloudinary.com)",
+      "Skill(specify)",
+      "Bash(source:*)",
+      "WebFetch(domain:game-icons.net)"
     ],
     "deny": [],
     "ask": []

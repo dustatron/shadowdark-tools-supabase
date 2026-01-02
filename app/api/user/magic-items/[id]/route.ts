@@ -158,6 +158,11 @@ export async function PUT(
       updates.is_public = validated.is_public;
     }
 
+    // Handle image_url (can be set to null to clear)
+    if (validated.image_url !== undefined) {
+      updates.image_url = validated.image_url;
+    }
+
     // Update the item
     const { data, error } = await supabase
       .from("user_magic_items")

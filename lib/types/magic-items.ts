@@ -24,6 +24,8 @@ export interface UserMagicItem extends BaseMagicItem {
   user_id: string;
   is_public: boolean;
   item_type: "custom";
+  image_url?: string | null;
+  is_ai_generated?: boolean;
 }
 
 // Combined magic item from all_magic_items view
@@ -32,6 +34,8 @@ export interface AllMagicItem extends BaseMagicItem {
   user_id: string | null;
   creator_name: string | null;
   is_public: boolean;
+  image_url?: string | null;
+  is_ai_generated?: boolean;
 }
 
 // Magic item with author details (for detail pages)
