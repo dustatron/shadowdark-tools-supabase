@@ -161,6 +161,18 @@ export const DEFAULT_MAGIC_ITEM_IMAGES: DefaultMagicItemImage[] = [
     publicId: "shadowdark/default-magic-items/trefoil-shuriken",
     category: "weapon",
   },
+  {
+    id: "bouncing-sword",
+    name: "Bouncing Sword",
+    publicId: "shadowdark/default-magic-items/bouncing-sword",
+    category: "weapon",
+  },
+  {
+    id: "bowie-knife",
+    name: "Bowie Knife",
+    publicId: "shadowdark/default-magic-items/bowie-knife",
+    category: "weapon",
+  },
 
   // Jewelry
   {
@@ -232,6 +244,48 @@ export const DEFAULT_MAGIC_ITEM_IMAGES: DefaultMagicItemImage[] = [
     name: "Compass",
     publicId:
       "shadowdark/default-magic-items/shadowdark/default-magic-items/compass",
+    category: "equipment",
+  },
+  {
+    id: "black-knight-helm",
+    name: "Black Knight Helm",
+    publicId: "shadowdark/default-magic-items/black-knight-helm",
+    category: "equipment",
+  },
+  {
+    id: "cracked-helm",
+    name: "Cracked Helm",
+    publicId: "shadowdark/default-magic-items/cracked-helm",
+    category: "equipment",
+  },
+  {
+    id: "diving-helmet",
+    name: "Diving Helmet",
+    publicId: "shadowdark/default-magic-items/diving-helmet",
+    category: "equipment",
+  },
+  {
+    id: "overlord-helm",
+    name: "Overlord Helm",
+    publicId: "shadowdark/default-magic-items/overlord-helm",
+    category: "equipment",
+  },
+  {
+    id: "pointy-hat",
+    name: "Pointy Hat",
+    publicId: "shadowdark/default-magic-items/pointy-hat",
+    category: "equipment",
+  },
+  {
+    id: "warlord-helmet",
+    name: "Warlord Helmet",
+    publicId: "shadowdark/default-magic-items/warlord-helmet",
+    category: "equipment",
+  },
+  {
+    id: "coiled-nail",
+    name: "Coiled Nail",
+    publicId: "shadowdark/default-magic-items/coiled-nail",
     category: "equipment",
   },
 
@@ -312,6 +366,24 @@ export const DEFAULT_MAGIC_ITEM_IMAGES: DefaultMagicItemImage[] = [
     name: "Wind",
     publicId:
       "shadowdark/default-magic-items/shadowdark/default-magic-items/wind",
+    category: "misc",
+  },
+  {
+    id: "dragon-breath",
+    name: "Dragon Breath",
+    publicId: "shadowdark/default-magic-items/dragon-breath",
+    category: "misc",
+  },
+  {
+    id: "fire-ray",
+    name: "Fire Ray",
+    publicId: "shadowdark/default-magic-items/fire-ray",
+    category: "misc",
+  },
+  {
+    id: "wind-hole",
+    name: "Wind Hole",
+    publicId: "shadowdark/default-magic-items/wind-hole",
     category: "misc",
   },
 ];
