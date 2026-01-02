@@ -313,24 +313,7 @@ export function MagicItemForm({
         </Card>
 
         <div className="flex gap-4 justify-between">
-          <div className="flex gap-4">
-            <Button type="submit" disabled={isSubmitting || isDeleting}>
-              {isSubmitting && (
-                <Loader2 className="h-4 w-4 mr-2 animate-spin" />
-              )}
-              {mode === "create" ? "Create Magic Item" : "Save Changes"}
-            </Button>
-            <Button
-              type="button"
-              variant="outline"
-              onClick={() => router.back()}
-              disabled={isSubmitting || isDeleting}
-            >
-              Cancel
-            </Button>
-          </div>
-
-          {mode === "edit" && initialData && (
+          {mode === "edit" && initialData ? (
             <AlertDialog>
               <AlertDialogTrigger asChild>
                 <Button
@@ -365,7 +348,26 @@ export function MagicItemForm({
                 </AlertDialogFooter>
               </AlertDialogContent>
             </AlertDialog>
+          ) : (
+            <div />
           )}
+
+          <div className="flex gap-4">
+            <Button
+              type="button"
+              variant="outline"
+              onClick={() => router.back()}
+              disabled={isSubmitting || isDeleting}
+            >
+              Cancel
+            </Button>
+            <Button type="submit" disabled={isSubmitting || isDeleting}>
+              {isSubmitting && (
+                <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+              )}
+              {mode === "create" ? "Create Magic Item" : "Save Changes"}
+            </Button>
+          </div>
         </div>
       </form>
     </Form>
