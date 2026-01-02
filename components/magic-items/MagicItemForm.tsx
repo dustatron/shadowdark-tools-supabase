@@ -228,7 +228,7 @@ export function MagicItemForm({
               userId={userId}
               disabled={isSubmitting}
             />
-            {form.watch("image_url") && (
+            {form.watch("image_url")?.startsWith("http") && (
               <FormField
                 control={form.control}
                 name="is_ai_generated"
