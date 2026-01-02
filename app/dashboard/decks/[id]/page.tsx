@@ -1,80 +1,35 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { useParams, useRouter } from "next/navigation";
-import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+import { useParams } from "next/navigation";
+import { useQuery } from "@tanstack/react-query";
 import { Button } from "@/components/primitives/button";
 import { Badge } from "@/components/primitives/badge";
 import { Skeleton } from "@/components/primitives/skeleton";
-import {
-  AlertDialog,
-  AlertDialogAction,
-  AlertDialogCancel,
-  AlertDialogContent,
-  AlertDialogDescription,
-  AlertDialogFooter,
-  AlertDialogHeader,
-  AlertDialogTitle,
-} from "@/components/primitives/alert-dialog";
-import {
-  Drawer,
-  DrawerClose,
-  DrawerContent,
-  DrawerDescription,
-  DrawerFooter,
-  DrawerHeader,
-  DrawerTitle,
-} from "@/components/primitives/drawer";
 import { SpellSelector, SpellCardPreview } from "@/components/deck";
 import { ArrowLeft, Plus, Download, Trash2, Eye } from "lucide-react";
 import Link from "next/link";
-import { toast } from "sonner";
-import type { DeckWithSpells } from "@/lib/validations/deck";
 import { SpellTable } from "./SpellTable";
 import { PageTitle } from "@/components/page-title";
+import { Switch } from "@/components/primitives/switch";
+import { ExportDrawer } from "./ExportDrawer";
+import { DeleteOptionsDrawer } from "./DeleteOptionsDrawer";
+import { fetchDeck } from "./utils/fetchers";
+import { useRemoveMutation } from "./utils/useRemoveMutation";
+import { useDeleteDeckMutation } from "./utils/useDeleteDeckMutation";
+import { useRemoveAllMutation } from "./utils/useRemoveAllMutation";
+import { useExportMutation } from "./utils/useExportMutation";
 
-async function fetchDeck(id: string): Promise<DeckWithSpells> {
-  const response = await fetch(`/api/decks/${id}`);
-
-  if (!response.ok) {
-    throw new Error("Failed to fetch deck");
-  }
-
-  return response.json();
-}
-
-async function deleteDeck(id: string) {
-  const response = await fetch(`/api/decks/${id}`, {
-    method: "DELETE",
-  });
-
-  if (!response.ok) {
-    throw new Error("Failed to delete deck");
-  }
-}
-
-async function removeSpell(deckId: string, spellId: string) {
-  const response = await fetch(`/api/decks/${deckId}/spells/${spellId}`, {
-    method: "DELETE",
-  });
-
-  if (!response.ok) {
-    throw new Error("Failed to remove spell");
-  }
-
-  return response.json();
-}
+export type ExportLayout = "grid" | "single";
 
 export default function DeckDetailPage() {
   const params = useParams();
-  const router = useRouter();
-  const queryClient = useQueryClient();
   const deckId = params?.id as string;
 
   const [showSpellSelector, setShowSpellSelector] = useState(false);
   const [showDeleteDrawer, setShowDeleteDrawer] = useState(false);
   const [showExportDialog, setShowExportDialog] = useState(false);
-  const [exportLayout, setExportLayout] = useState<"grid" | "single">("grid");
+  const [exportLayout, setExportLayout] = useState<ExportLayout>("grid");
   const [selectedSpellId, setSelectedSpellId] = useState<string | null>(null);
 
   const {
@@ -87,61 +42,28 @@ export default function DeckDetailPage() {
     enabled: !!deckId,
   });
 
-  const deleteMutation = useMutation({
-    mutationFn: () => deleteDeck(deckId),
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["decks"] });
-      toast.success("Deck deleted");
-      setShowDeleteDrawer(false);
-      router.push("/dashboard/decks");
-    },
-    onError: () => {
-      toast.error("Failed to delete deck");
-    },
+  const deleteMutation = useDeleteDeckMutation({
+    deckId,
+    setShowDeleteDrawer,
   });
 
-  const removeMutation = useMutation({
-    mutationFn: ({ spellId }: { spellId: string }) =>
-      removeSpell(deckId, spellId),
-    onSuccess: (_, { spellId }) => {
-      // Clear selection if removed spell was selected
-      if (selectedSpellId === spellId) {
-        setSelectedSpellId(null);
-      }
-      queryClient.invalidateQueries({ queryKey: ["deck", deckId] });
-      toast.success("Spell removed from deck");
-    },
-    onError: () => {
-      toast.error("Failed to remove spell");
-    },
+  const removeMutation = useRemoveMutation({
+    deckId,
+    selectedSpellId,
+    setSelectedSpellId,
   });
 
-  const removeAllMutation = useMutation({
-    mutationFn: async () => {
-      // Delete all spells sequentially
-      const results = [];
-      for (const spell of deck?.spells || []) {
-        try {
-          await removeSpell(deckId, spell.id);
-          results.push({ success: true });
-        } catch (error) {
-          results.push({ success: false });
-        }
-      }
-      return results;
-    },
-    onSuccess: (results) => {
-      setSelectedSpellId(null);
-      queryClient.invalidateQueries({ queryKey: ["deck", deckId] });
-      const successCount = results.filter((r) => r.success).length;
-      toast.success(
-        `Removed ${successCount} spell${successCount === 1 ? "" : "s"}`,
-      );
-      setShowDeleteDrawer(false);
-    },
-    onError: () => {
-      toast.error("Failed to remove all spells");
-    },
+  const removeAllMutation = useRemoveAllMutation({
+    deckId,
+    spells: deck?.spells,
+    setSelectedSpellId,
+    setShowDeleteDrawer,
+  });
+
+  const exportMutation = useExportMutation({
+    deckId,
+    deckName: deck?.name,
+    setShowExportDialog,
   });
 
   // Default to first spell when deck loads
@@ -150,37 +72,6 @@ export default function DeckDetailPage() {
       setSelectedSpellId(deck.spells[0].id);
     }
   }, [deck, selectedSpellId]);
-
-  const exportMutation = useMutation({
-    mutationFn: async (layout: "grid" | "single") => {
-      const response = await fetch(`/api/decks/${deckId}/export`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ layout }),
-      });
-
-      if (!response.ok) {
-        throw new Error("Failed to export PDF");
-      }
-
-      const blob = await response.blob();
-      const url = window.URL.createObjectURL(blob);
-      const a = document.createElement("a");
-      a.href = url;
-      a.download = `${deck?.name || "deck"}.pdf`;
-      document.body.appendChild(a);
-      a.click();
-      window.URL.revokeObjectURL(url);
-      document.body.removeChild(a);
-    },
-    onSuccess: () => {
-      toast.success("PDF downloaded");
-      setShowExportDialog(false);
-    },
-    onError: () => {
-      toast.error("Failed to export PDF");
-    },
-  });
 
   if (isLoading) {
     return (
@@ -295,7 +186,10 @@ export default function DeckDetailPage() {
             </div>
           ) : selectedSpellId ? (
             <div className="border p-2">
-              <h3 className="text-sm font-medium mb-4">Card Preview</h3>
+              <div className="flex justify-between">
+                <h3 className="text-sm font-medium mb-4">Card Preview</h3>
+                <Switch id="preview-toggle" />
+              </div>
               <SpellCardPreview
                 spell={deck.spells.find((s) => s.id === selectedSpellId)!}
               />
@@ -316,112 +210,23 @@ export default function DeckDetailPage() {
         onOpenChange={setShowSpellSelector}
       />
 
-      {/* Delete Options Drawer */}
-      <Drawer
-        open={showDeleteDrawer}
-        onOpenChange={setShowDeleteDrawer}
-        direction="right"
-      >
-        <DrawerContent className="bg-background">
-          <DrawerHeader>
-            <DrawerTitle>Delete Options</DrawerTitle>
-            <DrawerDescription>
-              Choose what you&apos;d like to delete
-            </DrawerDescription>
-          </DrawerHeader>
-          <div className="px-4 pb-4 space-y-3">
-            <Button
-              variant="destructive"
-              className="w-full justify-start"
-              onClick={() => removeAllMutation.mutate()}
-              disabled={deck.spell_count === 0 || removeAllMutation.isPending}
-            >
-              <Trash2 className="w-4 h-4 mr-2" />
-              {removeAllMutation.isPending
-                ? "Deleting..."
-                : `Delete All Cards (${deck.spell_count})`}
-            </Button>
-            <Button
-              variant="destructive"
-              className="w-full justify-start"
-              onClick={() => deleteMutation.mutate()}
-              disabled={deleteMutation.isPending}
-            >
-              <Trash2 className="w-4 h-4 mr-2" />
-              {deleteMutation.isPending ? "Deleting..." : "Delete Entire Deck"}
-            </Button>
-          </div>
-          <DrawerFooter>
-            <DrawerClose asChild>
-              <Button variant="outline">Cancel</Button>
-            </DrawerClose>
-          </DrawerFooter>
-        </DrawerContent>
-      </Drawer>
-
-      {/* Export Drawer */}
-      <Drawer
-        open={showExportDialog}
-        onOpenChange={setShowExportDialog}
-        direction="right"
-      >
-        <DrawerContent>
-          <DrawerHeader>
-            <DrawerTitle>Export Deck as PDF</DrawerTitle>
-            <DrawerDescription>
-              Choose a layout for your PDF export
-            </DrawerDescription>
-          </DrawerHeader>
-          <div className="px-4 pb-4 space-y-4">
-            <div className="space-y-4">
-              <label className="flex items-start gap-3 cursor-pointer p-4 border rounded-lg hover:bg-accent transition-colors">
-                <input
-                  type="radio"
-                  name="layout"
-                  value="grid"
-                  checked={exportLayout === "grid"}
-                  onChange={(e) => setExportLayout(e.target.value as "grid")}
-                  className="w-4 h-4 mt-0.5"
-                />
-                <div className="flex-1">
-                  <div className="font-medium">Grid Layout (9 per page)</div>
-                  <div className="text-sm text-muted-foreground">
-                    3x3 grid on 8.5&quot; x 11&quot; pages - efficient for
-                    printing
-                  </div>
-                </div>
-              </label>
-              <label className="flex items-start gap-3 cursor-pointer p-4 border rounded-lg hover:bg-accent transition-colors">
-                <input
-                  type="radio"
-                  name="layout"
-                  value="single"
-                  checked={exportLayout === "single"}
-                  onChange={(e) => setExportLayout(e.target.value as "single")}
-                  className="w-4 h-4 mt-0.5"
-                />
-                <div className="flex-1">
-                  <div className="font-medium">Single Card Layout</div>
-                  <div className="text-sm text-muted-foreground">
-                    One 2.5&quot; x 3.5&quot; card per page - easy to cut
-                  </div>
-                </div>
-              </label>
-            </div>
-          </div>
-          <DrawerFooter>
-            <Button
-              onClick={() => exportMutation.mutate(exportLayout)}
-              disabled={exportMutation.isPending}
-            >
-              {exportMutation.isPending ? "Generating..." : "Export PDF"}
-            </Button>
-            <DrawerClose asChild>
-              <Button variant="outline">Cancel</Button>
-            </DrawerClose>
-          </DrawerFooter>
-        </DrawerContent>
-      </Drawer>
+      <DeleteOptionsDrawer
+        showDeleteDrawer={showDeleteDrawer}
+        isDeletePending={deleteMutation.isPending}
+        isRemoveAllPending={removeAllMutation.isPending}
+        mutate={deleteMutation.mutate}
+        setShowDeleteDrawer={setShowDeleteDrawer}
+        spellCount={deck.spell_count}
+        removeAll={removeAllMutation.mutate}
+      />
+      <ExportDrawer
+        exportLayout={exportLayout}
+        isPending={exportMutation.isPending}
+        mutate={exportMutation.mutate}
+        setExportLayout={setExportLayout}
+        setShowExportDialog={setShowExportDialog}
+        showExportDialog={showExportDialog}
+      />
     </div>
   );
 }
