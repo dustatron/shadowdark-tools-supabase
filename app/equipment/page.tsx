@@ -1,7 +1,8 @@
 "use client";
 
-import { useState, useEffect, useCallback, useMemo } from "react";
+import { useState, useCallback, useMemo } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
+import { useQuery } from "@tanstack/react-query";
 import {
   EquipmentItem,
   FilterValues,
@@ -12,7 +13,6 @@ import { EquipmentFilters } from "@/components/equipment/EquipmentFilters";
 import { ViewModeToggle } from "@/components/shared/ViewModeToggle";
 import { useViewMode } from "@/lib/hooks";
 import { useAuth } from "@/components/providers/AuthProvider";
-import { logger } from "@/lib/utils/logger";
 
 // Parse filters from URL search params
 function parseFiltersFromSearchParams(params: URLSearchParams): FilterValues {
@@ -22,6 +22,60 @@ function parseFiltersFromSearchParams(params: URLSearchParams): FilterValues {
   return {
     search,
     itemType,
+  };
+}
+
+interface FetchEquipmentParams {
+  filters: FilterValues;
+  page: number;
+  limit: number;
+}
+
+interface FetchEquipmentResponse {
+  data: EquipmentItem[];
+  pagination: {
+    totalCount: number;
+  };
+}
+
+async function fetchEquipment({
+  filters,
+  page,
+  limit,
+}: FetchEquipmentParams): Promise<FetchEquipmentResponse> {
+  const offset = (page - 1) * limit;
+
+  const params = new URLSearchParams({
+    offset: offset.toString(),
+    limit: limit.toString(),
+  });
+
+  if (filters.search) {
+    params.append("q", filters.search);
+  }
+
+  if (filters.itemType.length > 0) {
+    params.append("itemType", filters.itemType.join(","));
+  }
+
+  const response = await fetch(`/api/equipment?${params.toString()}`);
+
+  if (!response.ok) {
+    throw new Error("Failed to fetch equipment");
+  }
+
+  const result = await response.json();
+
+  // Parse JSONB fields (cost and properties)
+  const parsedEquipment = (result.data || []).map((item: EquipmentItem) => ({
+    ...item,
+    cost: typeof item.cost === "string" ? JSON.parse(item.cost) : item.cost,
+    properties: item.properties || [],
+  }));
+
+  return {
+    data: parsedEquipment,
+    pagination: result.pagination || { totalCount: 0 },
   };
 }
 
@@ -38,75 +92,27 @@ export default function EquipmentPage() {
   const initialPage = parseInt(searchParams.get("page") || "1", 10);
   const initialLimit = parseInt(searchParams.get("limit") || "20", 10);
 
-  const [equipment, setEquipment] = useState<EquipmentItem[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
   const [filters, setFilters] = useState<FilterValues>(initialFilters);
+  const [page, setPage] = useState(initialPage);
+  const [limit, setLimit] = useState(initialLimit);
   const currentUserId = user?.id;
   const { view, setView } = useViewMode();
-  const [pagination, setPagination] = useState({
-    page: initialPage,
-    limit: initialLimit,
-    total: 0,
-    totalPages: 0,
+
+  const { data, isLoading, error, refetch } = useQuery({
+    queryKey: ["equipment", { filters, page, limit }],
+    queryFn: () => fetchEquipment({ filters, page, limit }),
   });
 
-  const fetchEquipment = useCallback(async () => {
-    try {
-      setLoading(true);
-      setError(null);
+  const equipment = data?.data ?? [];
+  const total = data?.pagination?.totalCount ?? 0;
+  const totalPages = Math.ceil(total / limit);
 
-      const offset = (pagination.page - 1) * pagination.limit;
-
-      const params = new URLSearchParams({
-        offset: offset.toString(),
-        limit: pagination.limit.toString(),
-      });
-
-      if (filters.search) {
-        params.append("q", filters.search);
-      }
-
-      if (filters.itemType.length > 0) {
-        params.append("itemType", filters.itemType.join(","));
-      }
-
-      const response = await fetch(`/api/equipment?${params.toString()}`);
-
-      if (!response.ok) {
-        throw new Error("Failed to fetch equipment");
-      }
-
-      const result = await response.json();
-
-      // Parse JSONB fields (cost and properties)
-      const parsedEquipment = (result.data || []).map((item: any) => ({
-        ...item,
-        cost: typeof item.cost === "string" ? JSON.parse(item.cost) : item.cost,
-        properties: item.properties || [],
-      }));
-
-      setEquipment(parsedEquipment);
-
-      const total = result.pagination?.totalCount || 0;
-      const totalPages = Math.ceil(total / pagination.limit);
-
-      setPagination((prev) => ({
-        ...prev,
-        total,
-        totalPages,
-      }));
-    } catch (err) {
-      logger.error("Error fetching equipment:", err);
-      setError(err instanceof Error ? err.message : "An error occurred");
-    } finally {
-      setLoading(false);
-    }
-  }, [filters, pagination.page, pagination.limit]);
-
-  useEffect(() => {
-    fetchEquipment();
-  }, [fetchEquipment]);
+  const pagination = {
+    page,
+    limit,
+    total,
+    totalPages,
+  };
 
   const updateURL = useCallback(
     (
@@ -126,27 +132,24 @@ export default function EquipmentPage() {
   const handleFiltersChange = useCallback(
     (newFilters: FilterValues) => {
       setFilters(newFilters);
-      const newPagination = { ...pagination, page: 1 };
-      setPagination((prev) => ({ ...prev, page: 1 }));
-
-      updateURL(newFilters, newPagination);
+      setPage(1);
+      updateURL(newFilters, { page: 1, limit });
     },
-    [pagination, updateURL],
+    [limit, updateURL],
   );
 
   const handlePageChange = useCallback(
-    (page: number) => {
-      setPagination((prev) => ({ ...prev, page }));
-
-      updateURL(filters, { page, limit: pagination.limit });
+    (newPage: number) => {
+      setPage(newPage);
+      updateURL(filters, { page: newPage, limit });
     },
-    [filters, pagination.limit, updateURL],
+    [filters, limit, updateURL],
   );
 
   const handlePageSizeChange = useCallback(
     (pageSize: number) => {
-      setPagination((prev) => ({ ...prev, limit: pageSize, page: 1 }));
-
+      setLimit(pageSize);
+      setPage(1);
       updateURL(filters, { page: 1, limit: pageSize });
     },
     [filters, updateURL],
@@ -170,19 +173,19 @@ export default function EquipmentPage() {
         <EquipmentFilters
           filters={filters}
           onFiltersChange={handleFiltersChange}
-          loading={loading}
+          loading={isLoading}
         />
       </div>
 
       <EquipmentList
         equipment={equipment}
         pagination={pagination}
-        loading={loading}
-        error={error || undefined}
+        loading={isLoading}
+        error={error instanceof Error ? error.message : undefined}
         currentUserId={currentUserId}
         onPageChange={handlePageChange}
         onPageSizeChange={handlePageSizeChange}
-        onRetry={fetchEquipment}
+        onRetry={() => refetch()}
         view={view}
       />
     </div>

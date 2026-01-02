@@ -1,84 +1,71 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { useRouter } from "next/navigation";
-import { createClient } from "@/lib/supabase/client";
+import { useQuery } from "@tanstack/react-query";
 import { MagicItemCard } from "@/components/magic-items/MagicItemCard";
 import { MagicItemTable } from "@/components/magic-items/MagicItemTable";
 import { Button } from "@/components/primitives/button";
 import { Input } from "@/components/primitives/input";
 import { Skeleton } from "@/components/primitives/skeleton";
 import { ViewModeToggle } from "@/components/shared/ViewModeToggle";
+import { EmptyState } from "@/components/shared/EmptyState";
+import { ErrorAlert } from "@/components/shared/ErrorAlert";
 import { useViewMode } from "@/lib/hooks";
-import { Plus, Search } from "lucide-react";
+import { Plus, Search, Sparkles } from "lucide-react";
 import Link from "next/link";
 import type { UserMagicItem } from "@/lib/types/magic-items";
 
+interface FetchResponse {
+  data: UserMagicItem[];
+  pagination: {
+    page: number;
+    limit: number;
+    total: number;
+    totalPages: number;
+  };
+}
+
+async function fetchUserMagicItems(query?: string): Promise<FetchResponse> {
+  const params = new URLSearchParams();
+  if (query) {
+    params.append("q", query);
+  }
+
+  const response = await fetch(`/api/user/magic-items?${params.toString()}`);
+
+  if (response.status === 401) {
+    throw new Error("AUTH_REQUIRED");
+  }
+
+  if (!response.ok) {
+    throw new Error("Failed to fetch magic items");
+  }
+
+  return response.json();
+}
+
 export default function MyMagicItemsPage() {
   const router = useRouter();
-  const [items, setItems] = useState<UserMagicItem[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
   const [searchQuery, setSearchQuery] = useState("");
-  const [isAuthenticated, setIsAuthenticated] = useState(false);
+  const [appliedSearch, setAppliedSearch] = useState("");
   const { view, setView } = useViewMode();
 
-  useEffect(() => {
-    checkAuthAndFetch();
-  }, []);
-
-  const checkAuthAndFetch = async () => {
-    const supabase = createClient();
-    const {
-      data: { user },
-    } = await supabase.auth.getUser();
-
-    if (!user) {
-      router.push("/auth/login?redirect=/magic-items/my-items");
-      return;
-    }
-
-    setIsAuthenticated(true);
-    fetchItems();
-  };
-
-  const fetchItems = async (query?: string) => {
-    try {
-      setLoading(true);
-      setError(null);
-
-      const params = new URLSearchParams();
-      if (query) {
-        params.append("q", query);
+  const { data, isLoading, error, refetch } = useQuery({
+    queryKey: ["user-magic-items", appliedSearch],
+    queryFn: () => fetchUserMagicItems(appliedSearch),
+    retry: (failureCount, error) => {
+      // Don't retry auth errors
+      if (error instanceof Error && error.message === "AUTH_REQUIRED") {
+        return false;
       }
+      return failureCount < 2;
+    },
+  });
 
-      const response = await fetch(
-        `/api/user/magic-items?${params.toString()}`,
-      );
-
-      if (!response.ok) {
-        if (response.status === 401) {
-          router.push("/auth/login?redirect=/magic-items/my-items");
-          return;
-        }
-        throw new Error("Failed to fetch magic items");
-      }
-
-      const data = await response.json();
-      setItems(data.data || []);
-    } catch (err) {
-      setError(err instanceof Error ? err.message : "An error occurred");
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  const handleSearch = (e: React.FormEvent) => {
-    e.preventDefault();
-    fetchItems(searchQuery);
-  };
-
-  if (!isAuthenticated) {
+  // Redirect to login on auth error
+  if (error instanceof Error && error.message === "AUTH_REQUIRED") {
+    router.push("/auth/login?redirect=/magic-items/my-items");
     return (
       <div className="container mx-auto px-4 py-8">
         <div className="flex items-center justify-center h-64">
@@ -87,6 +74,13 @@ export default function MyMagicItemsPage() {
       </div>
     );
   }
+
+  const handleSearch = (e: React.FormEvent) => {
+    e.preventDefault();
+    setAppliedSearch(searchQuery);
+  };
+
+  const items = data?.data ?? [];
 
   return (
     <div className="container mx-auto px-4 py-1">
@@ -123,30 +117,33 @@ export default function MyMagicItemsPage() {
         </div>
       </form>
 
-      {error && (
-        <div className="bg-destructive/10 text-destructive px-4 py-3 rounded-md mb-6">
-          {error}
-        </div>
-      )}
+      {error &&
+        !(error instanceof Error && error.message === "AUTH_REQUIRED") && (
+          <ErrorAlert
+            title="Failed to load magic items"
+            message={
+              error instanceof Error ? error.message : "An error occurred"
+            }
+            onRetry={() => refetch()}
+          />
+        )}
 
-      {loading ? (
+      {isLoading ? (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
           {[...Array(6)].map((_, i) => (
             <Skeleton key={i} className="h-48" />
           ))}
         </div>
       ) : items.length === 0 ? (
-        <div className="text-center py-12">
-          <p className="text-muted-foreground mb-4">
-            You haven&apos;t created any magic items yet.
-          </p>
-          <Button asChild>
-            <Link href="/magic-items/create">
-              <Plus className="h-4 w-4 mr-2" />
-              Create Your First Item
-            </Link>
-          </Button>
-        </div>
+        <EmptyState
+          icon={<Sparkles size={48} />}
+          title="No magic items yet"
+          description="Create your first custom magic item to get started."
+          action={{
+            label: "Create Magic Item",
+            onClick: () => router.push("/magic-items/create"),
+          }}
+        />
       ) : view === "table" ? (
         <MagicItemTable
           items={items.map((item) => ({

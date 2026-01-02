@@ -1,6 +1,7 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState } from "react";
+import { useQuery } from "@tanstack/react-query";
 import { MagicItemList } from "@/components/magic-items/MagicItemList";
 import { MagicItemFilters } from "@/components/magic-items/MagicItemFilters";
 import { Button } from "@/components/primitives/button";
@@ -11,7 +12,6 @@ import { useViewMode } from "@/lib/hooks";
 import { useAuth } from "@/components/providers/AuthProvider";
 import { Plus, FolderOpen } from "lucide-react";
 import Link from "next/link";
-import { logger } from "@/lib/utils/logger";
 import type {
   AllMagicItem,
   MagicItemFilterValues,
@@ -28,23 +28,81 @@ const DEFAULT_FILTERS: FilterValues = {
   itemSource: "all",
 };
 
+interface FetchMagicItemsParams {
+  filters: FilterValues;
+  page: number;
+  limit: number;
+}
+
+interface FetchMagicItemsResponse {
+  data: AllMagicItem[];
+  pagination: {
+    totalCount: number;
+    totalPages: number;
+  };
+}
+
+async function fetchMagicItems({
+  filters,
+  page,
+  limit,
+}: FetchMagicItemsParams): Promise<FetchMagicItemsResponse> {
+  const params = new URLSearchParams({
+    page: page.toString(),
+    limit: limit.toString(),
+  });
+
+  if (filters.search) {
+    params.append("q", filters.search);
+  }
+  if (filters.traitTypes.length > 0) {
+    params.append("traitTypes", filters.traitTypes.join(","));
+  }
+  if (filters.itemSource !== "all") {
+    params.append("source", filters.itemSource);
+  }
+
+  const response = await fetch(`/api/search/magic-items?${params.toString()}`);
+
+  if (!response.ok) {
+    throw new Error("Failed to fetch magic items");
+  }
+
+  const result = await response.json();
+
+  return {
+    data: result.data || [],
+    pagination: result.pagination || { totalCount: 0, totalPages: 0 },
+  };
+}
+
+async function fetchFavorites(userId: string): Promise<Map<string, string>> {
+  const supabase = createClient();
+  const { data: favorites } = await supabase
+    .from("favorites")
+    .select("id, item_id")
+    .eq("user_id", userId)
+    .eq("item_type", "magic_item");
+
+  if (favorites) {
+    return createFavoritesMap(
+      favorites.map((fav: { id: string; item_id: string }) => ({
+        item_id: fav.item_id,
+        favorite_id: fav.id,
+      })),
+    );
+  }
+
+  return new Map();
+}
+
 export default function MagicItemsPage() {
   const { user } = useAuth();
-  const [items, setItems] = useState<AllMagicItem[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
   const [filters, setFilters] = useState<FilterValues>(DEFAULT_FILTERS);
   const { view, setView } = useViewMode();
-  const [pagination, setPagination] = useState({
-    page: 1,
-    limit: 20,
-    total: 0,
-    totalPages: 0,
-  });
+  const [page, setPage] = useState(1);
+  const [limit, setLimit] = useState(20);
   const currentUserId = user?.id ?? null;
-  const [favoritesMap, setFavoritesMap] = useState<Map<string, string>>(
-    new Map(),
-  );
 
   // Available filter options
   const [availableTraitTypes] = useState<string[]>([
@@ -54,93 +112,42 @@ export default function MagicItemsPage() {
     "Personality",
   ]);
 
-  useEffect(() => {
-    fetchMagicItems();
-  }, [filters, pagination.page, pagination.limit]);
+  const {
+    data: itemsData,
+    isLoading,
+    error,
+    refetch,
+  } = useQuery({
+    queryKey: ["magic-items", { filters, page, limit }],
+    queryFn: () => fetchMagicItems({ filters, page, limit }),
+  });
 
-  // Fetch user favorites when user changes
-  useEffect(() => {
-    const fetchFavorites = async () => {
-      if (!user) {
-        setFavoritesMap(new Map());
-        return;
-      }
+  const { data: favoritesMap = new Map() } = useQuery({
+    queryKey: ["favorites", "magic_item", user?.id],
+    queryFn: () => fetchFavorites(user!.id),
+    enabled: !!user,
+  });
 
-      const supabase = createClient();
-      const { data: favorites } = await supabase
-        .from("favorites")
-        .select("id, item_id")
-        .eq("user_id", user.id)
-        .eq("item_type", "magic_item");
-
-      if (favorites) {
-        const favMap = createFavoritesMap(
-          favorites.map((fav: { id: string; item_id: string }) => ({
-            item_id: fav.item_id,
-            favorite_id: fav.id,
-          })),
-        );
-        setFavoritesMap(favMap);
-      }
-    };
-    fetchFavorites();
-  }, [user]);
-
-  const fetchMagicItems = async () => {
-    try {
-      setLoading(true);
-      setError(null);
-
-      const params = new URLSearchParams({
-        page: pagination.page.toString(),
-        limit: pagination.limit.toString(),
-      });
-
-      if (filters.search) {
-        params.append("q", filters.search);
-      }
-      if (filters.traitTypes.length > 0) {
-        params.append("traitTypes", filters.traitTypes.join(","));
-      }
-      if (filters.itemSource !== "all") {
-        params.append("source", filters.itemSource);
-      }
-
-      const response = await fetch(
-        `/api/search/magic-items?${params.toString()}`,
-      );
-
-      if (!response.ok) {
-        throw new Error("Failed to fetch magic items");
-      }
-
-      const result = await response.json();
-
-      setItems(result.data || []);
-      setPagination((prev) => ({
-        ...prev,
-        total: result.pagination?.totalCount || 0,
-        totalPages: result.pagination?.totalPages || 0,
-      }));
-    } catch (err) {
-      logger.error("Error fetching magic items:", err);
-      setError(err instanceof Error ? err.message : "An error occurred");
-    } finally {
-      setLoading(false);
-    }
+  const items = itemsData?.data ?? [];
+  const pagination = {
+    page,
+    limit,
+    total: itemsData?.pagination?.totalCount ?? 0,
+    totalPages: itemsData?.pagination?.totalPages ?? 0,
   };
 
   const handleFiltersChange = (newFilters: FilterValues) => {
     setFilters(newFilters);
-    setPagination((prev) => ({ ...prev, page: 1 }));
+    setPage(1);
   };
 
-  const handlePageChange = (page: number) => {
-    setPagination((prev) => ({ ...prev, page }));
+  const handlePageChange = (newPage: number) => {
+    setPage(newPage);
   };
 
   const handlePageSizeChange = (pageSize: number) => {
-    setPagination((prev) => ({ ...prev, limit: pageSize, page: 1 }));
+    setLimit(pageSize);
+    setPage(1);
   };
 
   return (
@@ -178,20 +185,20 @@ export default function MagicItemsPage() {
           filters={filters}
           onFiltersChange={handleFiltersChange}
           availableTraitTypes={availableTraitTypes}
-          loading={loading}
+          loading={isLoading}
         />
       </div>
 
       <MagicItemList
         items={items}
         pagination={pagination}
-        loading={loading}
-        error={error || undefined}
+        loading={isLoading}
+        error={error instanceof Error ? error.message : undefined}
         currentUserId={currentUserId || undefined}
         favoritesMap={favoritesMap}
         onPageChange={handlePageChange}
         onPageSizeChange={handlePageSizeChange}
-        onRetry={fetchMagicItems}
+        onRetry={() => refetch()}
         view={view}
       />
     </div>
