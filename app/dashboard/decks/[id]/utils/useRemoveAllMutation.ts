@@ -1,20 +1,22 @@
 import { useMutation, useQueryClient } from "@tanstack/react-query";
-import { removeSpell } from "./fetchers";
+import { removeSpell, removeMagicItem } from "./fetchers";
 import { toast } from "sonner";
 
-type Spell = { id: string };
+type Item = { id: string };
 
 type RemoveAllMutationProps = {
   deckId: string;
-  spells: Spell[] | undefined;
-  setSelectedSpellId: (id: string | null) => void;
+  spells: Item[] | undefined;
+  magicItems: Item[] | undefined;
+  setSelectedItemId: (id: string | null) => void;
   setShowDeleteDrawer: (show: boolean) => void;
 };
 
 export function useRemoveAllMutation({
   deckId,
   spells,
-  setSelectedSpellId,
+  magicItems,
+  setSelectedItemId,
   setShowDeleteDrawer,
 }: RemoveAllMutationProps) {
   const queryClient = useQueryClient();
@@ -30,19 +32,27 @@ export function useRemoveAllMutation({
           results.push({ success: false });
         }
       }
+      for (const item of magicItems || []) {
+        try {
+          await removeMagicItem(deckId, item.id);
+          results.push({ success: true });
+        } catch {
+          results.push({ success: false });
+        }
+      }
       return results;
     },
     onSuccess: (results) => {
-      setSelectedSpellId(null);
+      setSelectedItemId(null);
       queryClient.invalidateQueries({ queryKey: ["deck", deckId] });
       const successCount = results.filter((r) => r.success).length;
       toast.success(
-        `Removed ${successCount} spell${successCount === 1 ? "" : "s"}`,
+        `Removed ${successCount} card${successCount === 1 ? "" : "s"}`,
       );
       setShowDeleteDrawer(false);
     },
     onError: () => {
-      toast.error("Failed to remove all spells");
+      toast.error("Failed to remove all cards");
     },
   });
 

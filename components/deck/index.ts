@@ -4,3 +4,6 @@ export { SpellCard } from "./SpellCard";
 export { SpellSelector } from "./SpellSelector";
 export { SpellCardPreview } from "./SpellCardPreview";
 export { SpellCardPreviewReact } from "./SpellCardPreviewReact";
+export { MagicItemSelector } from "./MagicItemSelector";
+export { MagicItemCardPreview } from "./MagicItemCardPreview";
+export { MagicItemCardPreviewReact } from "./MagicItemCardPreviewReact";

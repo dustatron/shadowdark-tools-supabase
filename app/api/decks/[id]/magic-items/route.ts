@@ -1,12 +1,12 @@
 import { NextRequest, NextResponse } from "next/server";
 import { createClient } from "@/lib/supabase/server";
-import { AddSpellSchema, type DeckWithCount } from "@/lib/validations/deck";
+import { AddMagicItemSchema, type DeckWithCount } from "@/lib/validations/deck";
 import { z } from "zod";
 
 /**
- * POST /api/decks/[id]/spells - Add spell to deck
+ * POST /api/decks/[id]/magic-items - Add magic item to deck
  * Authentication: Required (must be deck owner)
- * Body: { spell_id: string }
+ * Body: { magic_item_id: string }
  */
 export async function POST(
   request: NextRequest,
@@ -42,7 +42,7 @@ export async function POST(
 
     // Parse and validate request body
     const body = await request.json();
-    const validationResult = AddSpellSchema.safeParse(body);
+    const validationResult = AddMagicItemSchema.safeParse(body);
 
     if (!validationResult.success) {
       return NextResponse.json(
@@ -54,19 +54,30 @@ export async function POST(
       );
     }
 
-    const { spell_id } = validationResult.data;
+    const { magic_item_id } = validationResult.data;
 
-    // Verify spell exists in either official_spells or user_spells
-    const [{ data: officialSpell }, { data: userSpell }] = await Promise.all([
-      supabase.from("official_spells").select("id").eq("id", spell_id).single(),
-      supabase.from("user_spells").select("id").eq("id", spell_id).single(),
+    // Verify magic item exists in either official_magic_items or user_magic_items
+    const [{ data: officialItem }, { data: userItem }] = await Promise.all([
+      supabase
+        .from("official_magic_items")
+        .select("id")
+        .eq("id", magic_item_id)
+        .single(),
+      supabase
+        .from("user_magic_items")
+        .select("id")
+        .eq("id", magic_item_id)
+        .single(),
     ]);
 
-    if (!officialSpell && !userSpell) {
-      return NextResponse.json({ error: "Spell not found" }, { status: 400 });
+    if (!officialItem && !userItem) {
+      return NextResponse.json(
+        { error: "Magic item not found" },
+        { status: 400 },
+      );
     }
 
-    // Check current deck size
+    // Check current deck size (all items: spells + magic items)
     const { count: currentCount } = await supabase
       .from("deck_items")
       .select("*", { count: "exact", head: true })
@@ -79,24 +90,16 @@ export async function POST(
       );
     }
 
-    // Add spell to deck
+    // Add magic item to deck
     const { error: insertError } = await supabase.from("deck_items").insert({
       deck_id: id,
-      item_type: "spell",
-      spell_id,
-      magic_item_id: null,
+      item_type: "magic_item",
+      magic_item_id,
+      spell_id: null,
     });
 
     if (insertError) {
-      console.error("Error adding spell to deck:", insertError);
-
-      // Check for duplicate (unique constraint violation)
-      if (insertError.code === "23505") {
-        return NextResponse.json(
-          { error: "Spell already in deck" },
-          { status: 400 },
-        );
-      }
+      console.error("Error adding magic item to deck:", insertError);
 
       // Check for 52 card limit trigger
       if (insertError.message.includes("52 cards")) {
@@ -107,19 +110,19 @@ export async function POST(
       }
 
       return NextResponse.json(
-        { error: "Failed to add spell to deck" },
+        { error: "Failed to add magic item to deck" },
         { status: 500 },
       );
     }
 
-    // Get updated deck with spell count
+    // Get updated deck with item count
     const { data: updatedDeck } = await supabase
       .from("decks")
       .select("*")
       .eq("id", id)
       .single();
 
-    const { count: spellCount } = await supabase
+    const { count: itemCount } = await supabase
       .from("deck_items")
       .select("*", { count: "exact", head: true })
       .eq("deck_id", id);
@@ -130,7 +133,7 @@ export async function POST(
       name: updatedDeck!.name,
       created_at: new Date(updatedDeck!.created_at),
       updated_at: new Date(updatedDeck!.updated_at),
-      spell_count: spellCount || 0,
+      spell_count: itemCount || 0, // Using spell_count for backward compat
     };
 
     return NextResponse.json(response, { status: 201 });
@@ -145,7 +148,10 @@ export async function POST(
       );
     }
 
-    console.error("Unexpected error in POST /api/decks/[id]/spells:", error);
+    console.error(
+      "Unexpected error in POST /api/decks/[id]/magic-items:",
+      error,
+    );
     return NextResponse.json(
       { error: "Internal server error" },
       { status: 500 },

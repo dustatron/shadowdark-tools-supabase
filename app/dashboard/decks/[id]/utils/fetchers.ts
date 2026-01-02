@@ -1,6 +1,6 @@
-import { DeckWithSpells } from "@/lib/validations/deck";
+import { DeckWithItems } from "@/lib/validations/deck";
 
-export async function fetchDeck(id: string): Promise<DeckWithSpells> {
+export async function fetchDeck(id: string): Promise<DeckWithItems> {
   const response = await fetch(`/api/decks/${id}`);
 
   if (!response.ok) {
@@ -27,6 +27,18 @@ export async function removeSpell(deckId: string, spellId: string) {
 
   if (!response.ok) {
     throw new Error("Failed to remove spell");
+  }
+
+  return response.json();
+}
+
+export async function removeMagicItem(deckId: string, itemId: string) {
+  const response = await fetch(`/api/decks/${deckId}/magic-items/${itemId}`, {
+    method: "DELETE",
+  });
+
+  if (!response.ok) {
+    throw new Error("Failed to remove magic item");
   }
 
   return response.json();
