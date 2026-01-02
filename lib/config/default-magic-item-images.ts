@@ -40,6 +40,55 @@ export const DEFAULT_MAGIC_ITEM_IMAGES: DefaultMagicItemImage[] = [
     publicId: "shadowdark/default-magic-items/wand",
     category: "weapon",
   },
+  {
+    id: "bow",
+    name: "Bow & Arrow",
+    publicId:
+      "shadowdark/default-magic-items/shadowdark/default-magic-items/bow",
+    category: "weapon",
+  },
+  {
+    id: "battle-axe",
+    name: "Battle Axe",
+    publicId:
+      "shadowdark/default-magic-items/shadowdark/default-magic-items/battle-axe",
+    category: "weapon",
+  },
+  {
+    id: "crossed-axes",
+    name: "Crossed Axes",
+    publicId:
+      "shadowdark/default-magic-items/shadowdark/default-magic-items/crossed-axes",
+    category: "weapon",
+  },
+  {
+    id: "fire-axe",
+    name: "Fire Axe",
+    publicId:
+      "shadowdark/default-magic-items/shadowdark/default-magic-items/fire-axe",
+    category: "weapon",
+  },
+  {
+    id: "halberd",
+    name: "Halberd",
+    publicId:
+      "shadowdark/default-magic-items/shadowdark/default-magic-items/halberd",
+    category: "weapon",
+  },
+  {
+    id: "crossed-swords",
+    name: "Crossed Swords",
+    publicId:
+      "shadowdark/default-magic-items/shadowdark/default-magic-items/crossed-swords",
+    category: "weapon",
+  },
+  {
+    id: "hammer",
+    name: "Hammer",
+    publicId:
+      "shadowdark/default-magic-items/shadowdark/default-magic-items/hammer",
+    category: "weapon",
+  },
 
   // Jewelry
   {
@@ -92,6 +141,27 @@ export const DEFAULT_MAGIC_ITEM_IMAGES: DefaultMagicItemImage[] = [
     publicId: "shadowdark/default-magic-items/helmet",
     category: "equipment",
   },
+  {
+    id: "pickaxe",
+    name: "Pickaxe",
+    publicId:
+      "shadowdark/default-magic-items/shadowdark/default-magic-items/pickaxe",
+    category: "equipment",
+  },
+  {
+    id: "rope",
+    name: "Rope",
+    publicId:
+      "shadowdark/default-magic-items/shadowdark/default-magic-items/rope-coil",
+    category: "equipment",
+  },
+  {
+    id: "compass",
+    name: "Compass",
+    publicId:
+      "shadowdark/default-magic-items/shadowdark/default-magic-items/compass",
+    category: "equipment",
+  },
 
   // Consumables
   {
@@ -112,6 +182,64 @@ export const DEFAULT_MAGIC_ITEM_IMAGES: DefaultMagicItemImage[] = [
     id: "gem",
     name: "Gem",
     publicId: "shadowdark/default-magic-items/gem",
+    category: "misc",
+  },
+  {
+    id: "book",
+    name: "Book",
+    publicId:
+      "shadowdark/default-magic-items/shadowdark/default-magic-items/book",
+    category: "misc",
+  },
+  {
+    id: "skull",
+    name: "Skull",
+    publicId:
+      "shadowdark/default-magic-items/shadowdark/default-magic-items/skull",
+    category: "misc",
+  },
+  {
+    id: "crystal-ball",
+    name: "Crystal Ball",
+    publicId:
+      "shadowdark/default-magic-items/shadowdark/default-magic-items/crystal-ball",
+    category: "misc",
+  },
+  {
+    id: "eye",
+    name: "Eye Shield",
+    publicId:
+      "shadowdark/default-magic-items/shadowdark/default-magic-items/eye",
+    category: "misc",
+  },
+
+  // Elemental
+  {
+    id: "fireball",
+    name: "Fireball",
+    publicId:
+      "shadowdark/default-magic-items/shadowdark/default-magic-items/fireball",
+    category: "misc",
+  },
+  {
+    id: "ice-bolt",
+    name: "Ice Bolt",
+    publicId:
+      "shadowdark/default-magic-items/shadowdark/default-magic-items/ice-bolt",
+    category: "misc",
+  },
+  {
+    id: "lightning",
+    name: "Lightning",
+    publicId:
+      "shadowdark/default-magic-items/shadowdark/default-magic-items/lightning",
+    category: "misc",
+  },
+  {
+    id: "wind",
+    name: "Wind",
+    publicId:
+      "shadowdark/default-magic-items/shadowdark/default-magic-items/wind",
     category: "misc",
   },
 ];
