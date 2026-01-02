@@ -1,6 +1,7 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState } from "react";
+import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { AdventureList } from "@/lib/types/adventure-lists";
 import { AdventureListCard } from "@/components/adventure-lists/AdventureListCard";
 import { Button } from "@/components/primitives/button";
@@ -15,68 +16,74 @@ import {
   TabsList,
   TabsTrigger,
 } from "@/components/primitives/tabs";
-import { logger } from "@/lib/utils/logger";
+
+async function fetchLists(
+  type: "my-lists" | "public-lists",
+  search: string,
+): Promise<AdventureList[]> {
+  const endpoint =
+    type === "my-lists"
+      ? "/api/adventure-lists"
+      : "/api/adventure-lists/public";
+
+  const url = new URL(endpoint, window.location.origin);
+  if (search) {
+    url.searchParams.set("search", search);
+  }
+
+  const response = await fetch(url.toString());
+  if (!response.ok) throw new Error("Failed to fetch lists");
+
+  const data = await response.json();
+  return data.data || [];
+}
+
+async function deleteList(id: string): Promise<void> {
+  const response = await fetch(`/api/adventure-lists/${id}`, {
+    method: "DELETE",
+  });
+
+  if (!response.ok) throw new Error("Failed to delete list");
+}
 
 export default function AdventureListsPage() {
-  const [lists, setLists] = useState<AdventureList[]>([]);
-  const [publicLists, setPublicLists] = useState<AdventureList[]>([]);
-  const [isLoading, setIsLoading] = useState(true);
+  const queryClient = useQueryClient();
   const [searchQuery, setSearchQuery] = useState("");
   const debouncedSearch = useDebounce(searchQuery, 500);
-  const [activeTab, setActiveTab] = useState("my-lists");
+  const [activeTab, setActiveTab] = useState<"my-lists" | "public-lists">(
+    "my-lists",
+  );
 
-  useEffect(() => {
-    const fetchLists = async () => {
-      setIsLoading(true);
-      try {
-        const endpoint =
-          activeTab === "my-lists"
-            ? "/api/adventure-lists"
-            : "/api/adventure-lists/public";
+  const { data: lists = [], isLoading: isLoadingMyLists } = useQuery({
+    queryKey: ["adventure-lists", "my-lists", debouncedSearch],
+    queryFn: () => fetchLists("my-lists", debouncedSearch),
+    enabled: activeTab === "my-lists",
+  });
 
-        const url = new URL(endpoint, window.location.origin);
-        if (debouncedSearch) {
-          url.searchParams.set("search", debouncedSearch);
-        }
+  const { data: publicLists = [], isLoading: isLoadingPublicLists } = useQuery({
+    queryKey: ["adventure-lists", "public-lists", debouncedSearch],
+    queryFn: () => fetchLists("public-lists", debouncedSearch),
+    enabled: activeTab === "public-lists",
+  });
 
-        const response = await fetch(url.toString());
-        if (!response.ok) throw new Error("Failed to fetch lists");
-
-        const data = await response.json();
-
-        if (activeTab === "my-lists") {
-          setLists(data.data || []);
-        } else {
-          setPublicLists(data.data || []);
-        }
-      } catch (error) {
-        logger.error("Error fetching lists:", error);
-        toast.error("Failed to load adventure lists");
-      } finally {
-        setIsLoading(false);
-      }
-    };
-
-    fetchLists();
-  }, [debouncedSearch, activeTab]);
-
-  const handleDelete = async (id: string) => {
-    if (!confirm("Are you sure you want to delete this list?")) return;
-
-    try {
-      const response = await fetch(`/api/adventure-lists/${id}`, {
-        method: "DELETE",
-      });
-
-      if (!response.ok) throw new Error("Failed to delete list");
-
-      setLists(lists.filter((list) => list.id !== id));
+  const deleteMutation = useMutation({
+    mutationFn: deleteList,
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["adventure-lists"] });
       toast.success("List deleted successfully");
-    } catch (error) {
-      logger.error("Error deleting list:", error);
+    },
+    onError: () => {
       toast.error("Failed to delete list");
-    }
+    },
+  });
+
+  const handleDelete = (id: string) => {
+    if (!confirm("Are you sure you want to delete this list?")) return;
+    deleteMutation.mutate(id);
   };
+
+  const isLoading =
+    activeTab === "my-lists" ? isLoadingMyLists : isLoadingPublicLists;
 
   return (
     <div className="container mx-auto py-8 space-y-8">
@@ -111,7 +118,9 @@ export default function AdventureListsPage() {
 
       <Tabs
         defaultValue="my-lists"
-        onValueChange={setActiveTab}
+        onValueChange={(value) =>
+          setActiveTab(value as "my-lists" | "public-lists")
+        }
         className="w-full"
       >
         <TabsList>
@@ -163,11 +172,7 @@ export default function AdventureListsPage() {
           ) : publicLists.length > 0 ? (
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
               {publicLists.map((list) => (
-                <AdventureListCard
-                  key={list.id}
-                  list={list}
-                  isOwner={false} // Assuming current user is not owner of public lists for simplicity
-                />
+                <AdventureListCard key={list.id} list={list} isOwner={false} />
               ))}
             </div>
           ) : (
