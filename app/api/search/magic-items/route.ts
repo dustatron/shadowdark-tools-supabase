@@ -72,6 +72,7 @@ export async function GET(request: NextRequest) {
       item_type: "official" | "custom";
       user_id: string | null;
       creator_name: string | null;
+      image_url: string | null;
       created_at: string;
       updated_at: string;
     }> = [];
@@ -104,6 +105,7 @@ export async function GET(request: NextRequest) {
             item_type: "official" as const,
             user_id: null,
             creator_name: null,
+            image_url: item.image_url ?? null,
           })),
         );
       }
@@ -151,6 +153,7 @@ export async function GET(request: NextRequest) {
             creator_name:
               (item.user_profiles as { display_name: string })?.display_name ||
               null,
+            image_url: item.image_url,
             created_at: item.created_at,
             updated_at: item.updated_at,
           })),
