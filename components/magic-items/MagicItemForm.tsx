@@ -31,6 +31,17 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/primitives/card";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from "@/components/primitives/alert-dialog";
 import { Plus, Trash2, Loader2 } from "lucide-react";
 import {
   MagicItemCreateSchema,
@@ -57,7 +68,32 @@ export function MagicItemForm({
 }: MagicItemFormProps) {
   const router = useRouter();
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [isDeleting, setIsDeleting] = useState(false);
   const [error, setError] = useState<string | null>(null);
+
+  const handleDelete = async () => {
+    if (!initialData?.id) return;
+
+    setIsDeleting(true);
+    setError(null);
+
+    try {
+      const response = await fetch(`/api/user/magic-items/${initialData.id}`, {
+        method: "DELETE",
+      });
+
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.error || "Failed to delete magic item");
+      }
+
+      router.push("/magic-items/my-items");
+      router.refresh();
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "An error occurred");
+      setIsDeleting(false);
+    }
+  };
 
   const form = useForm<MagicItemCreateInput>({
     resolver: zodResolver(MagicItemCreateSchema),
@@ -276,19 +312,60 @@ export function MagicItemForm({
           </CardContent>
         </Card>
 
-        <div className="flex gap-4">
-          <Button type="submit" disabled={isSubmitting}>
-            {isSubmitting && <Loader2 className="h-4 w-4 mr-2 animate-spin" />}
-            {mode === "create" ? "Create Magic Item" : "Save Changes"}
-          </Button>
-          <Button
-            type="button"
-            variant="outline"
-            onClick={() => router.back()}
-            disabled={isSubmitting}
-          >
-            Cancel
-          </Button>
+        <div className="flex gap-4 justify-between">
+          <div className="flex gap-4">
+            <Button type="submit" disabled={isSubmitting || isDeleting}>
+              {isSubmitting && (
+                <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+              )}
+              {mode === "create" ? "Create Magic Item" : "Save Changes"}
+            </Button>
+            <Button
+              type="button"
+              variant="outline"
+              onClick={() => router.back()}
+              disabled={isSubmitting || isDeleting}
+            >
+              Cancel
+            </Button>
+          </div>
+
+          {mode === "edit" && initialData && (
+            <AlertDialog>
+              <AlertDialogTrigger asChild>
+                <Button
+                  type="button"
+                  variant="destructive"
+                  disabled={isSubmitting || isDeleting}
+                >
+                  {isDeleting ? (
+                    <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                  ) : (
+                    <Trash2 className="h-4 w-4 mr-2" />
+                  )}
+                  Delete
+                </Button>
+              </AlertDialogTrigger>
+              <AlertDialogContent>
+                <AlertDialogHeader>
+                  <AlertDialogTitle>Delete Magic Item</AlertDialogTitle>
+                  <AlertDialogDescription>
+                    Are you sure you want to delete this magic item? This action
+                    cannot be undone.
+                  </AlertDialogDescription>
+                </AlertDialogHeader>
+                <AlertDialogFooter>
+                  <AlertDialogCancel>Cancel</AlertDialogCancel>
+                  <AlertDialogAction
+                    onClick={handleDelete}
+                    className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+                  >
+                    Delete
+                  </AlertDialogAction>
+                </AlertDialogFooter>
+              </AlertDialogContent>
+            </AlertDialog>
+          )}
         </div>
       </form>
     </Form>

@@ -191,10 +191,7 @@ export default async function MagicItemDetailPage({ params }: PageProps) {
                   </div>
                   {isOwner && (
                     <div className="mt-4">
-                      <UserMagicItemActions
-                        itemId={magicItem.id}
-                        itemSlug={magicItem.slug}
-                      />
+                      <UserMagicItemActions itemSlug={magicItem.slug} />
                     </div>
                   )}
                 </div>
