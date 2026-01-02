@@ -38,10 +38,12 @@ import {
   type TraitType,
 } from "@/lib/schemas/magic-items";
 import type { UserMagicItem } from "@/lib/types/magic-items";
+import { MagicItemImagePicker } from "./MagicItemImagePicker";
 
 interface MagicItemFormProps {
   mode: "create" | "edit";
   initialData?: UserMagicItem;
+  userId: string;
   onSuccess?: (item: UserMagicItem) => void;
 }
 
@@ -50,6 +52,7 @@ const TRAIT_TYPES: TraitType[] = ["Benefit", "Curse", "Bonus", "Personality"];
 export function MagicItemForm({
   mode,
   initialData,
+  userId,
   onSuccess,
 }: MagicItemFormProps) {
   const router = useRouter();
@@ -63,6 +66,7 @@ export function MagicItemForm({
       description: initialData?.description || "",
       traits: initialData?.traits || [],
       is_public: initialData?.is_public || false,
+      image_url: initialData?.image_url || null,
     },
   });
 
@@ -172,6 +176,20 @@ export function MagicItemForm({
                   </FormControl>
                 </FormItem>
               )}
+            />
+          </CardContent>
+        </Card>
+
+        <Card>
+          <CardHeader>
+            <CardTitle>Image</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <MagicItemImagePicker
+              value={form.watch("image_url")}
+              onChange={(url) => form.setValue("image_url", url)}
+              userId={userId}
+              disabled={isSubmitting}
             />
           </CardContent>
         </Card>

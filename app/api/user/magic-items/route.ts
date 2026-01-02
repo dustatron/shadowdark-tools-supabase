@@ -143,6 +143,7 @@ export async function POST(request: NextRequest) {
         description: validated.description,
         traits: validated.traits,
         is_public: validated.is_public,
+        image_url: validated.image_url || null,
       })
       .select()
       .single();

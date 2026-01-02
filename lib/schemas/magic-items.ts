@@ -30,6 +30,8 @@ export const MagicItemCreateSchema = z.object({
     .max(5000, "Description must be 5000 characters or less"),
   traits: z.array(TraitSchema),
   is_public: z.boolean(),
+  // Accepts either a full URL (uploaded images) or a Cloudinary public_id (default icons)
+  image_url: z.string().max(500).nullable().optional(),
 });
 
 export type MagicItemCreateInput = z.infer<typeof MagicItemCreateSchema>;

@@ -9,9 +9,11 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/primitives/card";
-import { ArrowLeft } from "lucide-react";
+import { ArrowLeft, Sparkles } from "lucide-react";
 import Link from "next/link";
+import Image from "next/image";
 import { notFound } from "next/navigation";
+import { getTransformedImageUrl } from "@/lib/utils/cloudinary";
 
 interface MagicItem {
   id: string;
@@ -23,6 +25,7 @@ interface MagicItem {
   user_id?: string | null;
   creator_name?: string | null;
   is_public?: boolean;
+  image_url?: string | null;
 }
 
 interface PageProps {
@@ -154,22 +157,48 @@ export default async function MagicItemDetailPage({ params }: PageProps) {
           <CardContent>
             {/* Main Info */}
             <CardHeader>
-              <div className="flex items-start justify-between gap-4">
-                <CardTitle className="text-3xl">{magicItem.name}</CardTitle>
-                <SourceBadge
-                  itemType={itemType}
-                  creatorName={creatorName}
-                  userId={userId}
-                />
-              </div>
-              {isOwner && (
-                <div className="mt-4">
-                  <UserMagicItemActions
-                    itemId={magicItem.id}
-                    itemSlug={magicItem.slug}
-                  />
+              <div className="flex gap-6">
+                {/* Image */}
+                <div className="flex-shrink-0">
+                  <div className="relative w-32 h-32 sm:w-40 sm:h-40 rounded-lg overflow-hidden bg-muted flex items-center justify-center">
+                    {magicItem.image_url ? (
+                      <Image
+                        src={
+                          getTransformedImageUrl(
+                            magicItem.image_url,
+                            "detail",
+                          ) || ""
+                        }
+                        alt={magicItem.name}
+                        fill
+                        className="object-cover"
+                        unoptimized
+                      />
+                    ) : (
+                      <Sparkles className="h-16 w-16 text-muted-foreground" />
+                    )}
+                  </div>
                 </div>
-              )}
+
+                <div className="flex-1 min-w-0">
+                  <div className="flex items-start justify-between gap-4">
+                    <CardTitle className="text-3xl">{magicItem.name}</CardTitle>
+                    <SourceBadge
+                      itemType={itemType}
+                      creatorName={creatorName}
+                      userId={userId}
+                    />
+                  </div>
+                  {isOwner && (
+                    <div className="mt-4">
+                      <UserMagicItemActions
+                        itemId={magicItem.id}
+                        itemSlug={magicItem.slug}
+                      />
+                    </div>
+                  )}
+                </div>
+              </div>
             </CardHeader>
             <CardContent>
               <p className="text-base leading-relaxed">

@@ -5,6 +5,7 @@ import { Toaster } from "@/components/primitives/sonner";
 import { SidebarProvider, SidebarInset } from "@/components/primitives/sidebar";
 import { AppSidebar } from "@/components/navigation/app-sidebar";
 import { PageHeader } from "@/components/navigation/page-header";
+import { Footer } from "@/components/layout/Footer";
 import { Roboto, Source_Code_Pro } from "next/font/google";
 import { createClient } from "@/lib/supabase/server";
 import "./globals.css";
@@ -135,6 +136,7 @@ export default async function RootLayout({
               <SidebarInset>
                 <PageHeader />
                 <div className="flex-1 overflow-auto p-4">{children}</div>
+                <Footer />
               </SidebarInset>
             </SidebarProvider>
           </RootProvider>

@@ -58,7 +58,11 @@ export default async function EditMagicItemPage({ params }: PageProps) {
           </p>
         </div>
 
-        <MagicItemForm mode="edit" initialData={item as UserMagicItem} />
+        <MagicItemForm
+          mode="edit"
+          initialData={item as UserMagicItem}
+          userId={user.id}
+        />
       </div>
     </div>
   );
