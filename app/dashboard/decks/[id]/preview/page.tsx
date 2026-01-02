@@ -4,7 +4,7 @@ import { useParams, useRouter } from "next/navigation";
 import { useQuery } from "@tanstack/react-query";
 import { Button } from "@/components/primitives/button";
 import { Skeleton } from "@/components/primitives/skeleton";
-import { SpellCardPreview } from "@/components/deck";
+import { SpellCardPreviewReact } from "@/components/deck";
 import { ArrowLeft, Download } from "lucide-react";
 import Link from "next/link";
 import type { DeckWithSpells } from "@/lib/validations/deck";
@@ -83,6 +83,7 @@ export default function DeckPreviewPage() {
             <h1 className="text-4xl font-bold tracking-tight p-2 ">
               Card Preview
             </h1>
+            test
             <p className="text-muted-foreground">
               {deck.name} - {deck.spell_count}{" "}
               {deck.spell_count === 1 ? "card" : "cards"} at print size
@@ -106,9 +107,9 @@ export default function DeckPreviewPage() {
           <p className="text-muted-foreground">No spells in this deck yet</p>
         </div>
       ) : (
-        <div className="flex flex-wrap">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
           {deck.spells.map((spell) => (
-            <SpellCardPreview key={spell.id} spell={spell} />
+            <SpellCardPreviewReact key={spell.id} spell={spell} />
           ))}
         </div>
       )}

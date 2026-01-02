@@ -7,8 +7,26 @@
 /* Beaufort Font for Headings */
 @font-face {
   font-family: "Beaufort";
-  src: url("/fonts/beaufort-w01-regular.woff2") format("woff2");
+  src:
+    url("/fonts/beaufort-w01-regular.woff2") format("woff2"),
+    url("/fonts/beaufort-w01-regular.ttf") format("truetype");
   font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "Beaufort";
+  src: url("/fonts/beaufort-w01-bold.ttf") format("truetype");
+  font-weight: 700;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "Beaufort";
+  src: url("/fonts/beaufort-w01-bold.ttf") format("truetype");
+  font-weight: 900;
   font-style: normal;
   font-display: swap;
 }
@@ -16,7 +34,7 @@
 /* Avenir Next Condensed for Body */
 @font-face {
   font-family: "Avenir Next Condensed";
-  src: url("/fonts/avenir-next-condensed-regular.woff2") format("woff2");
+  src: url("/fonts/avenir-next-condensed-regular.otf") format("opentype");
   font-weight: 400;
   font-style: normal;
   font-display: swap;
@@ -24,16 +42,16 @@
 
 @font-face {
   font-family: "Avenir Next Condensed";
-  src: url("/fonts/avenir-next-condensed-medium.woff2") format("woff2");
-  font-weight: 500;
+  src: url("/fonts/avenir-next-condensed-bold.ttf") format("truetype");
+  font-weight: 700;
   font-style: normal;
   font-display: swap;
 }
 
 @font-face {
   font-family: "Avenir Next Condensed";
-  src: url("/fonts/avenir-next-condensed-bold.woff2") format("woff2");
-  font-weight: 700;
+  src: url("/fonts/avenir-next-condensed-bold.ttf") format("truetype");
+  font-weight: 900;
   font-style: normal;
   font-display: swap;
 }
