@@ -10,6 +10,8 @@ import {
   TabsTrigger,
 } from "@/components/primitives/tabs";
 import { cn } from "@/lib/utils";
+import { Switch } from "@/components/primitives/switch";
+import { Label } from "@/components/primitives/label";
 import { Upload, X, Loader2, ImageIcon } from "lucide-react";
 import { toast } from "sonner";
 import {
@@ -24,6 +26,8 @@ interface MagicItemImagePickerProps {
   onChange: (url: string | null) => void;
   userId: string;
   disabled?: boolean;
+  isAiGenerated?: boolean;
+  onAiGeneratedChange?: (value: boolean) => void;
 }
 
 const MAX_FILE_SIZE = 15 * 1024 * 1024; // 15MB
@@ -33,6 +37,8 @@ export function MagicItemImagePicker({
   onChange,
   userId,
   disabled = false,
+  isAiGenerated = false,
+  onAiGeneratedChange,
 }: MagicItemImagePickerProps) {
   const [isUploading, setIsUploading] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
@@ -208,7 +214,7 @@ export function MagicItemImagePicker({
           </div>
         </TabsContent>
 
-        <TabsContent value="upload" className="mt-4">
+        <TabsContent value="upload" className="mt-4 space-y-4">
           <div className="flex flex-col items-center gap-4 p-6 border-2 border-dashed rounded-lg">
             <input
               ref={fileInputRef}
@@ -245,6 +251,19 @@ export function MagicItemImagePicker({
               </>
             )}
           </div>
+          {value?.startsWith("http") && onAiGeneratedChange && (
+            <div className="flex items-center justify-end gap-3">
+              <Label htmlFor="ai-generated" className="text-sm font-normal">
+                AI-generated image
+              </Label>
+              <Switch
+                id="ai-generated"
+                checked={isAiGenerated}
+                onCheckedChange={onAiGeneratedChange}
+                disabled={disabled}
+              />
+            </div>
+          )}
         </TabsContent>
       </Tabs>
     </div>

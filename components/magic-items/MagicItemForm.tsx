@@ -221,32 +221,17 @@ export function MagicItemForm({
           <CardHeader>
             <CardTitle>Image</CardTitle>
           </CardHeader>
-          <CardContent className="space-y-4">
+          <CardContent>
             <MagicItemImagePicker
               value={form.watch("image_url")}
               onChange={(url) => form.setValue("image_url", url)}
               userId={userId}
               disabled={isSubmitting}
+              isAiGenerated={form.watch("is_ai_generated") ?? false}
+              onAiGeneratedChange={(value) =>
+                form.setValue("is_ai_generated", value)
+              }
             />
-            {form.watch("image_url")?.startsWith("http") && (
-              <FormField
-                control={form.control}
-                name="is_ai_generated"
-                render={({ field }) => (
-                  <FormItem className="flex flex-row items-center gap-3 space-y-0">
-                    <FormControl>
-                      <Switch
-                        checked={field.value}
-                        onCheckedChange={field.onChange}
-                      />
-                    </FormControl>
-                    <FormLabel className="text-sm font-normal">
-                      AI-generated image
-                    </FormLabel>
-                  </FormItem>
-                )}
-              />
-            )}
           </CardContent>
         </Card>
 
