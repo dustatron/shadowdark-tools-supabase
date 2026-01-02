@@ -32,6 +32,7 @@ export const MagicItemCreateSchema = z.object({
   is_public: z.boolean(),
   // Accepts either a full URL (uploaded images) or a Cloudinary public_id (default icons)
   image_url: z.string().max(500).nullable().optional(),
+  is_ai_generated: z.boolean().optional(),
 });
 
 export type MagicItemCreateInput = z.infer<typeof MagicItemCreateSchema>;

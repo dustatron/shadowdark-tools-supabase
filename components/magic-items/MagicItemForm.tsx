@@ -103,6 +103,7 @@ export function MagicItemForm({
       traits: initialData?.traits || [],
       is_public: initialData?.is_public || false,
       image_url: initialData?.image_url || null,
+      is_ai_generated: initialData?.is_ai_generated || false,
     },
   });
 
@@ -220,13 +221,32 @@ export function MagicItemForm({
           <CardHeader>
             <CardTitle>Image</CardTitle>
           </CardHeader>
-          <CardContent>
+          <CardContent className="space-y-4">
             <MagicItemImagePicker
               value={form.watch("image_url")}
               onChange={(url) => form.setValue("image_url", url)}
               userId={userId}
               disabled={isSubmitting}
             />
+            {form.watch("image_url") && (
+              <FormField
+                control={form.control}
+                name="is_ai_generated"
+                render={({ field }) => (
+                  <FormItem className="flex flex-row items-center gap-3 space-y-0">
+                    <FormControl>
+                      <Switch
+                        checked={field.value}
+                        onCheckedChange={field.onChange}
+                      />
+                    </FormControl>
+                    <FormLabel className="text-sm font-normal">
+                      AI-generated image
+                    </FormLabel>
+                  </FormItem>
+                )}
+              />
+            )}
           </CardContent>
         </Card>
 

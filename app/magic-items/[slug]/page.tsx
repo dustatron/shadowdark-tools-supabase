@@ -9,7 +9,8 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/primitives/card";
-import { ArrowLeft, Sparkles } from "lucide-react";
+import { Badge } from "@/components/primitives/badge";
+import { ArrowLeft, Sparkles, Wand2 } from "lucide-react";
 import Link from "next/link";
 import Image from "next/image";
 import { notFound } from "next/navigation";
@@ -26,6 +27,7 @@ interface MagicItem {
   creator_name?: string | null;
   is_public?: boolean;
   image_url?: string | null;
+  is_ai_generated?: boolean;
 }
 
 interface PageProps {
@@ -178,6 +180,12 @@ export default async function MagicItemDetailPage({ params }: PageProps) {
                       <Sparkles className="h-16 w-16 text-muted-foreground" />
                     )}
                   </div>
+                  {magicItem.is_ai_generated && (
+                    <Badge variant="secondary" className="mt-2 text-xs">
+                      <Wand2 className="h-3 w-3 mr-1" />
+                      AI Generated
+                    </Badge>
+                  )}
                 </div>
 
                 <div className="flex-1 min-w-0">
