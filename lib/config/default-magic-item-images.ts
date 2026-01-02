@@ -89,6 +89,78 @@ export const DEFAULT_MAGIC_ITEM_IMAGES: DefaultMagicItemImage[] = [
       "shadowdark/default-magic-items/shadowdark/default-magic-items/hammer",
     category: "weapon",
   },
+  {
+    id: "thor-hammer",
+    name: "Thor Hammer",
+    publicId: "shadowdark/default-magic-items/thor-hammer",
+    category: "weapon",
+  },
+  {
+    id: "war-axe",
+    name: "War Axe",
+    publicId: "shadowdark/default-magic-items/war-axe",
+    category: "weapon",
+  },
+  {
+    id: "all-for-one",
+    name: "All For One",
+    publicId: "shadowdark/default-magic-items/all-for-one",
+    category: "weapon",
+  },
+  {
+    id: "wave-strike",
+    name: "Wave Strike",
+    publicId: "shadowdark/default-magic-items/wave-strike",
+    category: "weapon",
+  },
+  {
+    id: "trident",
+    name: "Trident",
+    publicId: "shadowdark/default-magic-items/trident",
+    category: "weapon",
+  },
+  {
+    id: "missile-swarm",
+    name: "Missile Swarm",
+    publicId: "shadowdark/default-magic-items/missile-swarm",
+    category: "weapon",
+  },
+  {
+    id: "grapple",
+    name: "Grapple",
+    publicId: "shadowdark/default-magic-items/grapple",
+    category: "weapon",
+  },
+  {
+    id: "battered-axe",
+    name: "Battered Axe",
+    publicId: "shadowdark/default-magic-items/battered-axe",
+    category: "weapon",
+  },
+  {
+    id: "tomahawk",
+    name: "Tomahawk",
+    publicId: "shadowdark/default-magic-items/tomahawk",
+    category: "weapon",
+  },
+  {
+    id: "bo",
+    name: "Bo Staff",
+    publicId: "shadowdark/default-magic-items/bo",
+    category: "weapon",
+  },
+  {
+    id: "shuriken",
+    name: "Shuriken",
+    publicId: "shadowdark/default-magic-items/shuriken",
+    category: "weapon",
+  },
+  {
+    id: "trefoil-shuriken",
+    name: "Trefoil Shuriken",
+    publicId: "shadowdark/default-magic-items/trefoil-shuriken",
+    category: "weapon",
+  },
 
   // Jewelry
   {
