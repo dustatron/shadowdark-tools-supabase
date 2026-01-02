@@ -14,10 +14,12 @@ const MonsterUpdateSchema = z
       .array(
         z.object({
           name: z.string(),
-          type: z.enum(["melee", "ranged"]),
+          type: z.enum(["melee", "ranged", "spell"]),
           damage: z.string(),
           range: z.string(),
           description: z.string().optional(),
+          numberOfAttacks: z.number().int().min(1).max(20).optional(),
+          attackBonus: z.number().int().min(-10).max(20).optional(),
         }),
       )
       .optional(),

@@ -56,7 +56,7 @@ export function AttacksSection({
 
   const addAttack = (template?: keyof typeof ATTACK_TEMPLATES) => {
     if (template && ATTACK_TEMPLATES[template]) {
-      appendAttack(ATTACK_TEMPLATES[template]);
+      appendAttack({ ...ATTACK_TEMPLATES[template], numberOfAttacks: 1 });
     } else {
       appendAttack({
         name: "",
@@ -64,6 +64,7 @@ export function AttacksSection({
         damage: "",
         range: "close",
         description: "",
+        numberOfAttacks: 1,
       });
     }
   };
@@ -193,6 +194,32 @@ export function AttacksSection({
                               ))}
                             </SelectContent>
                           </Select>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+
+                    <FormField
+                      control={form.control}
+                      name={`attacks.${index}.numberOfAttacks`}
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormControl>
+                            <Input
+                              type="number"
+                              min={1}
+                              max={20}
+                              placeholder="# of attacks"
+                              {...field}
+                              value={field.value ?? ""}
+                              onChange={(e) => {
+                                const val = e.target.value;
+                                field.onChange(
+                                  val === "" ? undefined : parseInt(val, 10),
+                                );
+                              }}
+                            />
+                          </FormControl>
                           <FormMessage />
                         </FormItem>
                       )}

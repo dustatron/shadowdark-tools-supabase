@@ -408,7 +408,7 @@ export function MonsterDetailClient({
                       <div className="flex items-center gap-3 flex-wrap text-xs text-muted-foreground">
                         {attack.numberOfAttacks !== undefined && (
                           <span>
-                            <strong>Num:</strong> {attack.numberOfAttacks}
+                            <strong>Attacks:</strong> {attack.numberOfAttacks}
                           </span>
                         )}
                         {attack.attackBonus !== undefined && (
