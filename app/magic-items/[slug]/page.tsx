@@ -160,7 +160,7 @@ export default async function MagicItemDetailPage({ params }: PageProps) {
               <div className="flex gap-6">
                 {/* Image */}
                 <div className="flex-shrink-0">
-                  <div className="relative w-32 h-32 sm:w-40 sm:h-40 rounded-lg overflow-hidden bg-muted flex items-center justify-center">
+                  <div className="relative w-32 h-32 sm:w-40 sm:h-40 rounded-lg overflow-hidden bg-zinc-900 flex items-center justify-center">
                     {magicItem.image_url ? (
                       <Image
                         src={

@@ -118,7 +118,7 @@ export function MagicItemImagePicker({
       {/* Preview Section */}
       {value && previewUrl && (
         <div className="flex items-center gap-4">
-          <div className="relative w-24 h-24 rounded-lg overflow-hidden border bg-muted">
+          <div className="relative w-24 h-24 rounded-lg overflow-hidden border bg-zinc-900">
             <Image
               src={previewUrl}
               alt="Selected preview"
@@ -176,7 +176,7 @@ export function MagicItemImagePicker({
                         disabled={disabled}
                         aria-label={`Select ${image.name} icon`}
                         className={cn(
-                          "relative w-16 h-16 rounded-lg border-2 overflow-hidden transition-all",
+                          "relative w-16 h-16 rounded-lg border-2 overflow-hidden transition-all bg-zinc-900",
                           "hover:border-primary hover:ring-2 hover:ring-primary/20",
                           "focus:outline-none focus:ring-2 focus:ring-primary",
                           "disabled:opacity-50 disabled:cursor-not-allowed",

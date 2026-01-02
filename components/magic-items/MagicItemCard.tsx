@@ -50,7 +50,7 @@ export function MagicItemCard({ item, showSource = true }: MagicItemCardProps) {
         <div className="flex">
           {/* Thumbnail */}
           <div className="flex-shrink-0 p-4 pr-0">
-            <div className="relative w-20 h-20 rounded-lg overflow-hidden bg-muted flex items-center justify-center">
+            <div className="relative w-20 h-20 rounded-lg overflow-hidden bg-zinc-900 flex items-center justify-center">
               {thumbnailUrl ? (
                 <Image
                   src={thumbnailUrl}
