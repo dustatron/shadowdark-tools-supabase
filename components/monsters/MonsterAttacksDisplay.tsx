@@ -35,11 +35,12 @@ export function MonsterAttacksDisplay({ attacks }: MonsterAttacksDisplayProps) {
                 <Badge variant="outline">{attack.type}</Badge>
               </div>
               <div className="flex items-center gap-4 flex-wrap">
-                {attack.numberOfAttacks !== undefined && (
-                  <p className="text-sm text-muted-foreground">
-                    <strong>Number:</strong> {attack.numberOfAttacks}
-                  </p>
-                )}
+                {attack.numberOfAttacks !== undefined &&
+                  attack.numberOfAttacks > 1 && (
+                    <p className="text-sm text-muted-foreground">
+                      <strong>Number:</strong> {attack.numberOfAttacks}
+                    </p>
+                  )}
                 {attack.attackBonus !== undefined && (
                   <p className="text-sm text-muted-foreground">
                     <strong>To Hit:</strong>{" "}
