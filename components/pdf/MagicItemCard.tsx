@@ -217,8 +217,8 @@ function getCloudinaryPdfUrl(url: string | null | undefined): string | null {
   if (!url) return null;
 
   // Build transform string for PDF (smaller size for cards)
-  // Simple scale transform for PDF
-  const transforms = "w_100,c_scale,q_auto,f_png";
+  // Simple transform - just set width and format
+  const transforms = "w_80,f_png";
   const cloudName =
     process.env.NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME || "dvmzgveqf";
 
