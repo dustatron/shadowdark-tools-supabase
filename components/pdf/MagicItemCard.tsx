@@ -136,17 +136,14 @@ export const pdfMagicItemCardStyles = StyleSheet.create({
   },
 
   imageContainer: {
-    display: "flex",
-    alignItems: "center",
-    justifyContent: "center",
     backgroundColor: "black",
     marginBottom: 0,
+    textAlign: "center",
   },
 
   magicItemImage: {
-    width: "35pt",
-    height: "35pt",
-    objectFit: "contain",
+    width: "40pt",
+    height: "40pt",
   },
 
   separator: {
