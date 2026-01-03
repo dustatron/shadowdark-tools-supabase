@@ -187,6 +187,7 @@ export const pdfMagicItemCardStyles = StyleSheet.create({
     position: "absolute",
     top: "3pt",
     left: "8pt",
+    fontFamily: "Avenir Next Condensed",
     fontWeight: "bold",
     fontSize: "8pt",
     color: "white",
