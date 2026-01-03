@@ -19,7 +19,10 @@ if (typeof window === "undefined") {
       process.env.NEXT_PUBLIC_SITE_URL || `https://${process.env.VERCEL_URL}`;
     Font.register({
       family: "Beaufort",
-      src: `${baseUrl}/fonts/beaufort-w01-bold.ttf`,
+      fonts: [
+        { src: `${baseUrl}/fonts/beaufort-w01-regular.ttf`, fontWeight: 400 },
+        { src: `${baseUrl}/fonts/beaufort-w01-bold.ttf`, fontWeight: 700 },
+      ],
     });
 
     Font.register({
@@ -35,7 +38,26 @@ if (typeof window === "undefined") {
     // Local: Use filesystem paths (synchronous)
     Font.register({
       family: "Beaufort",
-      src: path.join(process.cwd(), "public", "fonts", "beaufort-w01-bold.ttf"),
+      fonts: [
+        {
+          src: path.join(
+            process.cwd(),
+            "public",
+            "fonts",
+            "beaufort-w01-regular.ttf",
+          ),
+          fontWeight: 400,
+        },
+        {
+          src: path.join(
+            process.cwd(),
+            "public",
+            "fonts",
+            "beaufort-w01-bold.ttf",
+          ),
+          fontWeight: 700,
+        },
+      ],
     });
 
     Font.register({
@@ -62,7 +84,10 @@ if (typeof window === "undefined") {
   // Browser-side: use relative URLs
   Font.register({
     family: "Beaufort",
-    src: "/fonts/beaufort-w01-bold.ttf",
+    fonts: [
+      { src: "/fonts/beaufort-w01-regular.ttf", fontWeight: 400 },
+      { src: "/fonts/beaufort-w01-bold.ttf", fontWeight: 700 },
+    ],
   });
 
   Font.register({
@@ -131,7 +156,7 @@ export const pdfMagicItemCardStyles = StyleSheet.create({
   itemName: {
     fontFamily: "Beaufort",
     fontSize: "12pt",
-    fontWeight: "900",
+    fontWeight: 700,
     textTransform: "uppercase",
     textAlign: "center",
     color: "white",
@@ -196,6 +221,7 @@ export const pdfMagicItemCardStyles = StyleSheet.create({
     fontFamily: "Avenir Next Condensed",
     fontWeight: "bold",
     fontSize: titleFontSize,
+    textTransform: "uppercase",
     color: "white",
   },
 
