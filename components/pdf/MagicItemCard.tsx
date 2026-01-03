@@ -135,15 +135,11 @@ export const pdfMagicItemCardStyles = StyleSheet.create({
     marginTop: "1.5pt",
   },
 
-  imageContainer: {
-    backgroundColor: "black",
-    marginBottom: 0,
-    textAlign: "center",
-  },
-
   magicItemImage: {
     width: "40pt",
     height: "40pt",
+    backgroundColor: "black",
+    alignSelf: "center",
   },
 
   separator: {
@@ -299,12 +295,10 @@ export const MagicItemCardPDF = ({
 
         {/* Magic Item Image */}
         {magicItemImageUrl && (
-          <View style={pdfMagicItemCardStyles.imageContainer}>
-            <Image
-              src={magicItemImageUrl}
-              style={pdfMagicItemCardStyles.magicItemImage}
-            />
-          </View>
+          <Image
+            src={magicItemImageUrl}
+            style={pdfMagicItemCardStyles.magicItemImage}
+          />
         )}
 
         {/* Separator */}
