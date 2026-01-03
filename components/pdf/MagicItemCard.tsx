@@ -296,8 +296,9 @@ export const MagicItemCardPDF = ({
         {/* Magic Item Name */}
         <Text style={pdfMagicItemCardStyles.itemName}>{magicItem.name}</Text>
 
-        {/* Magic Item Image */}
-        {magicItemImageUrl && (
+        {/* Magic Item Image - disabled due to rendering issues with default icons */}
+        {/* TODO: Fix image rendering for default magic item icons */}
+        {false && magicItemImageUrl && (
           <View style={pdfMagicItemCardStyles.imageContainer}>
             <Image
               src={magicItemImageUrl}
