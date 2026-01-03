@@ -217,8 +217,8 @@ function getCloudinaryPdfUrl(url: string | null | undefined): string | null {
   if (!url) return null;
 
   // Build transform string for PDF (smaller size for cards)
-  // Just convert to PNG for PDF compatibility (source might be SVG)
-  const transforms = "f_png";
+  // Match React preview transform but use PNG for PDF compatibility
+  const transforms = "w_80,h_80,c_fill,q_auto,f_png";
   const cloudName =
     process.env.NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME || "dvmzgveqf";
 
