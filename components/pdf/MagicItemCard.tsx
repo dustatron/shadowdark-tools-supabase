@@ -217,8 +217,8 @@ function getCloudinaryPdfUrl(url: string | null | undefined): string | null {
   if (!url) return null;
 
   // Build transform string for PDF (smaller size for cards)
-  // Use c_fit to preserve aspect ratio, f_png for PDF compatibility
-  const transforms = "w_100,h_100,c_fit,q_auto,f_png,bg_transparent";
+  // Use c_pad to preserve aspect ratio with padding
+  const transforms = "w_100,h_100,c_pad,q_auto,f_png";
   const cloudName =
     process.env.NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME || "dvmzgveqf";
 
