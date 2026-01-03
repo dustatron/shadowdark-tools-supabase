@@ -193,6 +193,10 @@ function getCloudinaryPdfUrl(url: string | null | undefined): string | null {
 
   // Build transform string for PDF (smaller size for cards)
   const transforms = "w_150,h_150,c_fill,q_auto,f_png";
+  const cloudName =
+    process.env.NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME || "dvmzgveqf";
+
+  let directUrl: string;
 
   // Check if it's a full Cloudinary URL
   const cloudinaryMatch = url.match(
@@ -200,19 +204,23 @@ function getCloudinaryPdfUrl(url: string | null | undefined): string | null {
   );
 
   if (cloudinaryMatch) {
-    const [, cloudName, pathWithVersion] = cloudinaryMatch;
+    const [, matchedCloudName, pathWithVersion] = cloudinaryMatch;
     const cleanPath = pathWithVersion.replace(/^v\d+\//, "");
-    const directUrl = `https://res.cloudinary.com/${cloudName}/image/upload/${transforms}/${cleanPath}`;
-
-    // In browser, use proxy to avoid CORS issues with PDF renderer
-    if (typeof window !== "undefined") {
-      return `/api/image-proxy?url=${encodeURIComponent(directUrl)}`;
-    }
-
-    return directUrl;
+    directUrl = `https://res.cloudinary.com/${matchedCloudName}/image/upload/${transforms}/${cleanPath}`;
+  } else if (!url.startsWith("http")) {
+    // It's a public_id, build full URL
+    directUrl = `https://res.cloudinary.com/${cloudName}/image/upload/${transforms}/${url}`;
+  } else {
+    // Unknown URL format
+    return url;
   }
 
-  return url;
+  // In browser, use proxy to avoid CORS issues with PDF renderer
+  if (typeof window !== "undefined") {
+    return `/api/image-proxy?url=${encodeURIComponent(directUrl)}`;
+  }
+
+  return directUrl;
 }
 
 // Helper to group traits by name
