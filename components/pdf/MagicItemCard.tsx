@@ -144,8 +144,8 @@ export const pdfMagicItemCardStyles = StyleSheet.create({
   },
 
   magicItemImage: {
-    width: "50pt",
-    height: "50pt",
+    width: "35pt",
+    height: "35pt",
     objectFit: "contain",
   },
 
@@ -217,8 +217,8 @@ function getCloudinaryPdfUrl(url: string | null | undefined): string | null {
   if (!url) return null;
 
   // Build transform string for PDF (smaller size for cards)
-  // Use c_pad to preserve aspect ratio with padding
-  const transforms = "w_100,h_100,c_pad,q_auto,f_png";
+  // Simple scale transform for PDF
+  const transforms = "w_100,c_scale,q_auto,f_png";
   const cloudName =
     process.env.NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME || "dvmzgveqf";
 
