@@ -123,8 +123,8 @@ export const pdfMagicItemCardStyles = StyleSheet.create({
   },
 
   magicItemImage: {
-    width: "75pt",
-    height: "75pt",
+    width: "100%",
+    height: "45pt",
     objectFit: "contain",
   },
 
@@ -157,10 +157,15 @@ export const pdfMagicItemCardStyles = StyleSheet.create({
   traitHeaderContainer: {
     position: "relative",
     marginBottom: "1pt",
+    height: "15pt",
   },
 
   traitHeaderBar: {
+    position: "absolute",
+    top: 0,
+    left: 0,
     width: "100%",
+    height: "15pt",
   },
 
   traitHeaderText: {
@@ -171,6 +176,7 @@ export const pdfMagicItemCardStyles = StyleSheet.create({
     fontWeight: "bold",
     fontSize: "8pt",
     color: "white",
+    zIndex: 1,
   },
 
   traitDescription: {
