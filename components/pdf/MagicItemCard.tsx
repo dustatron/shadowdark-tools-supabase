@@ -26,6 +26,11 @@ if (typeof window === "undefined") {
       family: "Avenir Next Condensed",
       src: `${baseUrl}/fonts/avenir-next-condensed-bold.ttf`,
     });
+
+    Font.register({
+      family: "Avenir Next Condensed Regular",
+      src: `${baseUrl}/fonts/avenir-next-condensed-regular.otf`,
+    });
   } else {
     // Local: Use filesystem paths (synchronous)
     Font.register({
@@ -42,6 +47,16 @@ if (typeof window === "undefined") {
         "avenir-next-condensed-bold.ttf",
       ),
     });
+
+    Font.register({
+      family: "Avenir Next Condensed Regular",
+      src: path.join(
+        process.cwd(),
+        "public",
+        "fonts",
+        "avenir-next-condensed-regular.otf",
+      ),
+    });
   }
 } else {
   // Browser-side: use relative URLs
@@ -53,6 +68,11 @@ if (typeof window === "undefined") {
   Font.register({
     family: "Avenir Next Condensed",
     src: "/fonts/avenir-next-condensed-bold.ttf",
+  });
+
+  Font.register({
+    family: "Avenir Next Condensed Regular",
+    src: "/fonts/avenir-next-condensed-regular.otf",
   });
 }
 
@@ -133,7 +153,7 @@ export const pdfMagicItemCardStyles = StyleSheet.create({
   },
 
   description: {
-    fontFamily: "Avenir Next Condensed",
+    fontFamily: "Avenir Next Condensed Regular",
     paddingHorizontal: "8pt",
     paddingBottom: "4pt",
     fontSize: "7pt",
@@ -143,7 +163,7 @@ export const pdfMagicItemCardStyles = StyleSheet.create({
   },
 
   traitsContainer: {
-    fontFamily: "Avenir Next Condensed",
+    fontFamily: "Avenir Next Condensed Regular",
     fontSize: "7pt",
     lineHeight: 1.3,
     color: "#000000",
