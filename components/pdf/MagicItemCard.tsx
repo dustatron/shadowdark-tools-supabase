@@ -202,7 +202,14 @@ function getCloudinaryPdfUrl(url: string | null | undefined): string | null {
   if (cloudinaryMatch) {
     const [, cloudName, pathWithVersion] = cloudinaryMatch;
     const cleanPath = pathWithVersion.replace(/^v\d+\//, "");
-    return `https://res.cloudinary.com/${cloudName}/image/upload/${transforms}/${cleanPath}`;
+    const directUrl = `https://res.cloudinary.com/${cloudName}/image/upload/${transforms}/${cleanPath}`;
+
+    // In browser, use proxy to avoid CORS issues with PDF renderer
+    if (typeof window !== "undefined") {
+      return `/api/image-proxy?url=${encodeURIComponent(directUrl)}`;
+    }
+
+    return directUrl;
   }
 
   return url;
