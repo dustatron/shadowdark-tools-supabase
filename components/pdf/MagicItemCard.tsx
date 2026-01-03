@@ -127,12 +127,12 @@ export const pdfMagicItemCardStyles = StyleSheet.create({
 
   itemName: {
     fontFamily: "Beaufort",
-    fontSize: "11pt",
+    fontSize: "9.5pt",
     fontWeight: "900",
     textTransform: "uppercase",
     textAlign: "center",
     color: "white",
-    marginTop: "2pt",
+    marginTop: "1.5pt",
   },
 
   imageContainer: {
@@ -140,23 +140,25 @@ export const pdfMagicItemCardStyles = StyleSheet.create({
     alignItems: "center",
     justifyContent: "center",
     backgroundColor: "black",
+    marginBottom: 0,
   },
 
   magicItemImage: {
     width: "100%",
-    height: "45pt",
+    height: "35pt",
     objectFit: "contain",
   },
 
   separator: {
     width: "100%",
+    marginTop: 0,
   },
 
   description: {
     fontFamily: "Avenir Next Condensed Regular",
-    paddingHorizontal: "8pt",
-    paddingBottom: "4pt",
-    fontSize: "7pt",
+    paddingHorizontal: "6pt",
+    paddingBottom: "2pt",
+    fontSize: "7px",
     lineHeight: 1.4,
     textAlign: "left",
     color: "#000000",
@@ -181,22 +183,24 @@ export const pdfMagicItemCardStyles = StyleSheet.create({
 
   traitHeaderBar: {
     width: "100%",
+    height: "10pt",
   },
 
   traitHeaderText: {
     position: "absolute",
-    top: "3pt",
+    top: "1pt",
     left: "8pt",
     fontFamily: "Avenir Next Condensed",
     fontWeight: "bold",
-    fontSize: "8pt",
+    fontSize: "7px",
     color: "white",
   },
 
   traitDescription: {
-    paddingHorizontal: "8pt",
-    paddingBottom: "2pt",
-    fontSize: "6pt",
+    paddingHorizontal: "6pt",
+    paddingBottom: "2.4pt",
+    fontSize: "7px",
+    lineHeight: 1.2,
   },
 });
 
