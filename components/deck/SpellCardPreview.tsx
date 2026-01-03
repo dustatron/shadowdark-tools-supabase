@@ -54,6 +54,7 @@ export function SpellCardPreview({ spell }: SpellCardPreviewProps) {
 
   return (
     <PDFViewer
+      key={spell.id}
       width="100%"
       height="100%"
       showToolbar={true}

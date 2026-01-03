@@ -57,6 +57,7 @@ export function MagicItemCardPreview({ magicItem }: MagicItemCardPreviewProps) {
 
   return (
     <PDFViewer
+      key={magicItem.id}
       width="100%"
       height="100%"
       showToolbar={true}
