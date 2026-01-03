@@ -123,8 +123,8 @@ export const pdfMagicItemCardStyles = StyleSheet.create({
   },
 
   magicItemImage: {
-    maxWidth: "75pt",
-    maxHeight: "75pt",
+    width: "75pt",
+    height: "75pt",
     objectFit: "contain",
   },
 
