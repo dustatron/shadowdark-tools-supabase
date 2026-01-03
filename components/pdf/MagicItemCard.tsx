@@ -217,8 +217,8 @@ function getCloudinaryPdfUrl(url: string | null | undefined): string | null {
   if (!url) return null;
 
   // Build transform string for PDF (smaller size for cards)
-  // Simple transform - just set width and format
-  const transforms = "w_80,f_png";
+  // No transforms - use original image
+  const transforms = "";
   const cloudName =
     process.env.NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME || "dvmzgveqf";
 
@@ -232,10 +232,14 @@ function getCloudinaryPdfUrl(url: string | null | undefined): string | null {
   if (cloudinaryMatch) {
     const [, matchedCloudName, pathWithVersion] = cloudinaryMatch;
     const cleanPath = pathWithVersion.replace(/^v\d+\//, "");
-    directUrl = `https://res.cloudinary.com/${matchedCloudName}/image/upload/${transforms}/${cleanPath}`;
+    directUrl = transforms
+      ? `https://res.cloudinary.com/${matchedCloudName}/image/upload/${transforms}/${cleanPath}`
+      : `https://res.cloudinary.com/${matchedCloudName}/image/upload/${cleanPath}`;
   } else if (!url.startsWith("http")) {
     // It's a public_id, build full URL
-    directUrl = `https://res.cloudinary.com/${cloudName}/image/upload/${transforms}/${url}`;
+    directUrl = transforms
+      ? `https://res.cloudinary.com/${cloudName}/image/upload/${transforms}/${url}`
+      : `https://res.cloudinary.com/${cloudName}/image/upload/${url}`;
   } else {
     // Unknown URL format
     return url;
@@ -296,9 +300,8 @@ export const MagicItemCardPDF = ({
         {/* Magic Item Name */}
         <Text style={pdfMagicItemCardStyles.itemName}>{magicItem.name}</Text>
 
-        {/* Magic Item Image - disabled due to rendering issues with default icons */}
-        {/* TODO: Fix image rendering for default magic item icons */}
-        {false && magicItemImageUrl && (
+        {/* Magic Item Image */}
+        {magicItemImageUrl && (
           <View style={pdfMagicItemCardStyles.imageContainer}>
             <Image
               src={magicItemImageUrl}
