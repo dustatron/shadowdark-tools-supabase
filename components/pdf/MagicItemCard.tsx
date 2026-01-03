@@ -165,20 +165,17 @@ export const pdfMagicItemCardStyles = StyleSheet.create({
 
   traitHeaderText: {
     position: "absolute",
-    top: 0,
+    top: "3pt",
     left: "8pt",
-    right: 0,
-    bottom: 0,
     fontWeight: "bold",
     fontSize: "8pt",
     color: "white",
-    display: "flex",
-    alignItems: "center",
   },
 
   traitDescription: {
     paddingHorizontal: "8pt",
     paddingBottom: "2pt",
+    fontSize: "6pt",
   },
 });
 
