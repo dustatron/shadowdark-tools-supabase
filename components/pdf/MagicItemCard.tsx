@@ -151,7 +151,7 @@ export const pdfMagicItemCardStyles = StyleSheet.create({
 
   separator: {
     width: "100%",
-    marginTop: 0,
+    marginTop: "-1pt",
   },
 
   description: {
