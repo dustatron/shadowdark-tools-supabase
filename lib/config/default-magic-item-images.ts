@@ -386,6 +386,196 @@ export const DEFAULT_MAGIC_ITEM_IMAGES: DefaultMagicItemImage[] = [
     publicId: "shadowdark/default-magic-items/wind-hole",
     category: "misc",
   },
+
+  // New batch - weapons
+  {
+    id: "aerodynamic-harpoon",
+    name: "Aerodynamic Harpoon",
+    publicId:
+      "shadowdark/default-magic-items/shadowdark/default-magic-items/aerodynamic-harpoon",
+    category: "weapon",
+  },
+  {
+    id: "arrowhead",
+    name: "Arrowhead",
+    publicId:
+      "shadowdark/default-magic-items/shadowdark/default-magic-items/arrowhead",
+    category: "weapon",
+  },
+  {
+    id: "bloody-sword",
+    name: "Bloody Sword",
+    publicId:
+      "shadowdark/default-magic-items/shadowdark/default-magic-items/bloody-sword",
+    category: "weapon",
+  },
+  {
+    id: "boomerang",
+    name: "Boomerang",
+    publicId:
+      "shadowdark/default-magic-items/shadowdark/default-magic-items/boomerang",
+    category: "weapon",
+  },
+  {
+    id: "chemical-arrow",
+    name: "Chemical Arrow",
+    publicId:
+      "shadowdark/default-magic-items/shadowdark/default-magic-items/chemical-arrow",
+    category: "weapon",
+  },
+  {
+    id: "crystal-wand",
+    name: "Crystal Wand",
+    publicId:
+      "shadowdark/default-magic-items/shadowdark/default-magic-items/crystal-wand",
+    category: "weapon",
+  },
+  {
+    id: "dripping-knife",
+    name: "Dripping Knife",
+    publicId:
+      "shadowdark/default-magic-items/shadowdark/default-magic-items/dripping-knife",
+    category: "weapon",
+  },
+  {
+    id: "energy-arrow",
+    name: "Energy Arrow",
+    publicId:
+      "shadowdark/default-magic-items/shadowdark/default-magic-items/energy-arrow",
+    category: "weapon",
+  },
+  {
+    id: "flying-dagger",
+    name: "Flying Dagger",
+    publicId:
+      "shadowdark/default-magic-items/shadowdark/default-magic-items/flying-dagger",
+    category: "weapon",
+  },
+  {
+    id: "fragmented-sword",
+    name: "Fragmented Sword",
+    publicId:
+      "shadowdark/default-magic-items/shadowdark/default-magic-items/fragmented-sword",
+    category: "weapon",
+  },
+  {
+    id: "gooey-sword",
+    name: "Gooey Sword",
+    publicId:
+      "shadowdark/default-magic-items/shadowdark/default-magic-items/gooey-sword",
+    category: "weapon",
+  },
+  {
+    id: "sun-spear",
+    name: "Sun Spear",
+    publicId:
+      "shadowdark/default-magic-items/shadowdark/default-magic-items/sun-spear",
+    category: "weapon",
+  },
+  {
+    id: "sword-wound",
+    name: "Sword Wound",
+    publicId:
+      "shadowdark/default-magic-items/shadowdark/default-magic-items/sword-wound",
+    category: "weapon",
+  },
+  {
+    id: "zeus-sword",
+    name: "Zeus Sword",
+    publicId:
+      "shadowdark/default-magic-items/shadowdark/default-magic-items/zeus-sword",
+    category: "weapon",
+  },
+
+  // New batch - equipment
+  {
+    id: "barbute",
+    name: "Barbute",
+    publicId:
+      "shadowdark/default-magic-items/shadowdark/default-magic-items/barbute",
+    category: "equipment",
+  },
+  {
+    id: "light-backpack",
+    name: "Light Backpack",
+    publicId:
+      "shadowdark/default-magic-items/shadowdark/default-magic-items/light-backpack",
+    category: "equipment",
+  },
+  {
+    id: "quiver",
+    name: "Quiver",
+    publicId:
+      "shadowdark/default-magic-items/shadowdark/default-magic-items/quiver",
+    category: "equipment",
+  },
+  {
+    id: "swap-bag",
+    name: "Swap Bag",
+    publicId:
+      "shadowdark/default-magic-items/shadowdark/default-magic-items/swap-bag",
+    category: "equipment",
+  },
+
+  // New batch - consumable
+  {
+    id: "potion-of-madness",
+    name: "Potion of Madness",
+    publicId:
+      "shadowdark/default-magic-items/shadowdark/default-magic-items/potion-of-madness",
+    category: "consumable",
+  },
+
+  // New batch - misc
+  {
+    id: "beam-wake",
+    name: "Beam Wake",
+    publicId:
+      "shadowdark/default-magic-items/shadowdark/default-magic-items/beam-wake",
+    category: "misc",
+  },
+  {
+    id: "biohazard",
+    name: "Biohazard",
+    publicId:
+      "shadowdark/default-magic-items/shadowdark/default-magic-items/biohazard",
+    category: "misc",
+  },
+  {
+    id: "cube",
+    name: "Cube",
+    publicId:
+      "shadowdark/default-magic-items/shadowdark/default-magic-items/cube",
+    category: "misc",
+  },
+  {
+    id: "cultist",
+    name: "Cultist",
+    publicId:
+      "shadowdark/default-magic-items/shadowdark/default-magic-items/cultist",
+    category: "misc",
+  },
+  {
+    id: "falling-boulder",
+    name: "Falling Boulder",
+    publicId:
+      "shadowdark/default-magic-items/shadowdark/default-magic-items/falling-boulder",
+    category: "misc",
+  },
+  {
+    id: "ice-cube",
+    name: "Ice Cube",
+    publicId:
+      "shadowdark/default-magic-items/shadowdark/default-magic-items/ice-cube",
+    category: "misc",
+  },
+  {
+    id: "spray",
+    name: "Spray",
+    publicId:
+      "shadowdark/default-magic-items/shadowdark/default-magic-items/spray",
+    category: "misc",
+  },
 ];
 
 /**
