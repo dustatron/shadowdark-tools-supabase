@@ -230,20 +230,15 @@ function groupTraitsByName(
  */
 export const MagicItemCardPDF = ({
   magicItem,
-  isPreview = false,
 }: {
   magicItem: MagicItemForDeck;
-  isPreview?: boolean;
 }) => {
   const frameUrl = getPdfImageUrl("/magic-item/magic-item-card-frame.png");
   const separatorUrl = getPdfImageUrl("/magic-item/magic-item-seperator.png");
   const headerBarUrl = getPdfImageUrl("/magic-item/magic-item-header-bar.png");
 
-  // Skip external images in preview mode (browser CORS issues)
-  // They will work in actual export (server-side)
-  const magicItemImageUrl = isPreview
-    ? null
-    : getCloudinaryPdfUrl(magicItem.image_url);
+  // Get Cloudinary image URL - Cloudinary supports CORS
+  const magicItemImageUrl = getCloudinaryPdfUrl(magicItem.image_url);
 
   // Group traits by name
   const groupedTraits = magicItem.traits
@@ -260,7 +255,7 @@ export const MagicItemCardPDF = ({
         {/* Magic Item Name */}
         <Text style={pdfMagicItemCardStyles.itemName}>{magicItem.name}</Text>
 
-        {/* Magic Item Image - skipped in preview due to CORS */}
+        {/* Magic Item Image */}
         {magicItemImageUrl && (
           <View style={pdfMagicItemCardStyles.imageContainer}>
             <Image

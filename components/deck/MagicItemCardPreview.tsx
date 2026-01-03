@@ -64,7 +64,7 @@ export function MagicItemCardPreview({ magicItem }: MagicItemCardPreviewProps) {
     >
       <Document>
         <Page size={{ width: width.pt, height: height.pt }}>
-          <MagicItemCardPDF magicItem={magicItem} isPreview={true} />
+          <MagicItemCardPDF magicItem={magicItem} />
         </Page>
       </Document>
     </PDFViewer>
