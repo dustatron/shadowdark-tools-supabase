@@ -19,7 +19,10 @@ if (typeof window === "undefined") {
       process.env.NEXT_PUBLIC_SITE_URL || `https://${process.env.VERCEL_URL}`;
     Font.register({
       family: "Beaufort",
-      src: `${baseUrl}/fonts/beaufort-w01-bold.ttf`,
+      fonts: [
+        { src: `${baseUrl}/fonts/beaufort-w01-regular.ttf`, fontWeight: 400 },
+        { src: `${baseUrl}/fonts/beaufort-w01-bold.ttf`, fontWeight: 700 },
+      ],
     });
 
     Font.register({
@@ -35,7 +38,26 @@ if (typeof window === "undefined") {
     // Local: Use filesystem paths (synchronous)
     Font.register({
       family: "Beaufort",
-      src: path.join(process.cwd(), "public", "fonts", "beaufort-w01-bold.ttf"),
+      fonts: [
+        {
+          src: path.join(
+            process.cwd(),
+            "public",
+            "fonts",
+            "beaufort-w01-regular.ttf",
+          ),
+          fontWeight: 400,
+        },
+        {
+          src: path.join(
+            process.cwd(),
+            "public",
+            "fonts",
+            "beaufort-w01-bold.ttf",
+          ),
+          fontWeight: 700,
+        },
+      ],
     });
 
     Font.register({
@@ -62,7 +84,10 @@ if (typeof window === "undefined") {
   // Browser-side: use relative URLs
   Font.register({
     family: "Beaufort",
-    src: "/fonts/beaufort-w01-bold.ttf",
+    fonts: [
+      { src: "/fonts/beaufort-w01-regular.ttf", fontWeight: 400 },
+      { src: "/fonts/beaufort-w01-bold.ttf", fontWeight: 700 },
+    ],
   });
 
   Font.register({
@@ -98,6 +123,9 @@ export const MAGIC_ITEM_CARD_DESIGN = {
 // PDF VERSION (for @react-pdf/renderer)
 // ============================================================================
 
+const bodyFontSize = "8pt";
+const titleFontSize = "9.5px";
+
 /** PDF-specific styles using @react-pdf/renderer StyleSheet */
 export const pdfMagicItemCardStyles = StyleSheet.create({
   singleCard: {
@@ -127,19 +155,25 @@ export const pdfMagicItemCardStyles = StyleSheet.create({
 
   itemName: {
     fontFamily: "Beaufort",
-    fontSize: "9.5pt",
-    fontWeight: "900",
+    fontSize: "12pt",
+    fontWeight: 700,
     textTransform: "uppercase",
     textAlign: "center",
     color: "white",
-    marginTop: "1.5pt",
+    marginTop: "5pt",
+  },
+
+  magicItemImageContainer: {
+    width: "100%",
+    backgroundColor: "black",
+    alignItems: "center",
+    justifyContent: "center",
+    paddingVertical: "1pt",
   },
 
   magicItemImage: {
-    width: "40pt",
-    height: "40pt",
-    backgroundColor: "black",
-    alignSelf: "center",
+    width: "35pt",
+    height: "35pt",
   },
 
   separator: {
@@ -149,9 +183,10 @@ export const pdfMagicItemCardStyles = StyleSheet.create({
 
   description: {
     fontFamily: "Avenir Next Condensed Regular",
+    marginTop: "-1.5pt",
     paddingHorizontal: "6pt",
     paddingBottom: "2pt",
-    fontSize: "7px",
+    fontSize: bodyFontSize,
     lineHeight: 1.4,
     textAlign: "left",
     color: "#000000",
@@ -159,7 +194,7 @@ export const pdfMagicItemCardStyles = StyleSheet.create({
 
   traitsContainer: {
     fontFamily: "Avenir Next Condensed Regular",
-    fontSize: "7pt",
+    fontSize: bodyFontSize,
     lineHeight: 1.3,
     color: "#000000",
     flex: 1,
@@ -176,23 +211,24 @@ export const pdfMagicItemCardStyles = StyleSheet.create({
 
   traitHeaderBar: {
     width: "100%",
-    height: "10pt",
+    height: "11pt",
   },
 
   traitHeaderText: {
     position: "absolute",
-    top: "1pt",
-    left: "8pt",
+    top: "-0.8pt",
+    left: "7.5pt",
     fontFamily: "Avenir Next Condensed",
     fontWeight: "bold",
-    fontSize: "7px",
+    fontSize: titleFontSize,
+    textTransform: "uppercase",
     color: "white",
   },
 
   traitDescription: {
     paddingHorizontal: "6pt",
     paddingBottom: "2.4pt",
-    fontSize: "7px",
+    fontSize: bodyFontSize,
     lineHeight: 1.2,
   },
 });
@@ -209,11 +245,11 @@ function getPdfImageUrl(relativePath: string): string {
 function getCloudinaryPdfUrl(url: string | null | undefined): string | null {
   if (!url) return null;
 
-  // Build transform string for PDF (smaller size for cards)
-  // Match React preview transform but use PNG for PDF compatibility
-  const transforms = "w_80,h_80,c_fill,q_auto,f_png";
+  // Build transform string for PDF - use JPEG to avoid react-pdf PNG duplication bug
+  // See: https://github.com/diegomura/react-pdf/issues/664
+  const transforms = "w_200,h_200,c_fit,b_black,q_auto:best,f_jpg";
   const cloudName =
-    process.env.NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME || "dvmzgveqf";
+    process.env.NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME || "dnuiluwxy";
 
   let directUrl: string;
 
@@ -239,8 +275,9 @@ function getCloudinaryPdfUrl(url: string | null | undefined): string | null {
   }
 
   // In browser, use proxy to avoid CORS issues with PDF renderer
+  // Add cache buster to force fresh fetch
   if (typeof window !== "undefined") {
-    return `/api/image-proxy?url=${encodeURIComponent(directUrl)}`;
+    return `/api/image-proxy?url=${encodeURIComponent(directUrl)}&v=${Date.now()}`;
   }
 
   return directUrl;
@@ -295,10 +332,12 @@ export const MagicItemCardPDF = ({
 
         {/* Magic Item Image */}
         {magicItemImageUrl && (
-          <Image
-            src={magicItemImageUrl}
-            style={pdfMagicItemCardStyles.magicItemImage}
-          />
+          <View style={pdfMagicItemCardStyles.magicItemImageContainer}>
+            <Image
+              src={magicItemImageUrl}
+              style={pdfMagicItemCardStyles.magicItemImage}
+            />
+          </View>
         )}
 
         {/* Separator */}
@@ -324,7 +363,7 @@ export const MagicItemCardPDF = ({
                     style={pdfMagicItemCardStyles.traitHeaderBar}
                   />
                   <Text style={pdfMagicItemCardStyles.traitHeaderText}>
-                    {traitName}:
+                    {traitName}
                   </Text>
                 </View>
                 {/* Trait descriptions */}

@@ -107,20 +107,13 @@ const styles = StyleSheet.create({
   },
   description: {
     fontFamily: "Avenir Next Condensed",
-    fontSize: 9,
+    padding: "5px 10px",
+    fontSize: "9.5pt",
+    fontWeight: "400",
     lineHeight: 1.4,
-    color: "#374151",
-  },
-  footer: {
-    marginTop: "auto",
-    paddingTop: 8,
-    borderTop: "1pt solid #e5e7eb",
-  },
-  footerText: {
-    fontFamily: "Avenir Next Condensed",
-    fontSize: 7,
-    color: "#9ca3af",
-    textAlign: "center",
+    textAlign: "left",
+    color: "#000000",
+    flex: 1,
   },
 });
 
@@ -138,10 +131,6 @@ export function SpellCardPDF({ spell }: SpellCardPDFProps) {
 
       <View style={styles.body}>
         <Text style={styles.description}>{spell.description}</Text>
-      </View>
-
-      <View style={styles.footer}>
-        <Text style={styles.footerText}>Shadowdark RPG</Text>
       </View>
     </View>
   );
