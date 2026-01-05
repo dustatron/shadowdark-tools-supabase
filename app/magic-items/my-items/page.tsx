@@ -67,7 +67,7 @@ export default function MyMagicItemsPage() {
   if (error instanceof Error && error.message === "AUTH_REQUIRED") {
     router.push("/auth/login?redirect=/magic-items/my-items");
     return (
-      <div className="container mx-auto px-4 py-8">
+      <div>
         <div className="flex items-center justify-center h-64">
           <Skeleton className="h-8 w-48" />
         </div>
@@ -83,7 +83,7 @@ export default function MyMagicItemsPage() {
   const items = data?.data ?? [];
 
   return (
-    <div className="container mx-auto px-4 py-1">
+    <div>
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-6">
         <div>
           <h1 className="text-3xl font-bold">My Magic Items</h1>
