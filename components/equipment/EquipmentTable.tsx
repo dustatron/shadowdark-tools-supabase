@@ -110,6 +110,18 @@ export function EquipmentTable({
         ),
       },
       {
+        accessorKey: "creator_name",
+        header: "Creator",
+        cell: ({ row }) =>
+          row.original.source_type === "custom" && row.original.creator_name ? (
+            <span className="text-sm">{row.original.creator_name}</span>
+          ) : (
+            <Badge variant="outline" className="text-xs">
+              Official
+            </Badge>
+          ),
+      },
+      {
         accessorKey: "cost",
         header: "Cost",
         cell: ({ row }) => (

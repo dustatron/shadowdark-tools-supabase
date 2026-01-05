@@ -3,6 +3,9 @@
 import { useState, useCallback, useMemo } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { useQuery } from "@tanstack/react-query";
+import Link from "next/link";
+import { Plus } from "lucide-react";
+import { Button } from "@/components/primitives/button";
 import {
   EquipmentItem,
   FilterValues,
@@ -165,6 +168,14 @@ export default function EquipmentPage() {
           </p>
         </div>
         <div className="flex items-center gap-2">
+          {user && (
+            <Button asChild>
+              <Link href="/equipment/create">
+                <Plus className="h-4 w-4 mr-2" />
+                Create Equipment
+              </Link>
+            </Button>
+          )}
           <ViewModeToggle view={view} onViewChange={setView} />
         </div>
       </div>

@@ -14,8 +14,8 @@ export async function GET(request: NextRequest) {
     // Build pagination parameters
     const pagination = buildPaginationParams(searchParams);
 
-    // Start query
-    let query = supabase.from("equipment").select("*", { count: "exact" });
+    // Start query - use all_equipment view to include public user equipment
+    let query = supabase.from("all_equipment").select("*", { count: "exact" });
 
     // Apply search filter
     const searchTerm = searchParams.get("q") || undefined;

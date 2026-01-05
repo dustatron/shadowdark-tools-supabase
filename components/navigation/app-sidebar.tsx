@@ -24,6 +24,7 @@ import {
   Scroll,
   Plus,
   Loader2,
+  Package,
 } from "lucide-react";
 import {
   Sidebar,
@@ -115,7 +116,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
           pathname.includes("/dashboard/monsters") ||
           pathname.includes("/favorites/monsters"),
         items: [
-          { href: "/monsters", label: "Search", icon: Search },
+          { href: "/monsters", label: "Browse", icon: Search },
           {
             href: "/dashboard/monsters",
             label: "Your Monsters",
@@ -145,7 +146,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
           pathname.includes("/dashboard/spells") ||
           pathname.includes("/favorites/spells"),
         items: [
-          { href: "/spells", label: "Search", icon: Search },
+          { href: "/spells", label: "Browse", icon: Search },
           {
             href: "/dashboard/spells",
             label: "Your Spells",
@@ -174,7 +175,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
           pathname.startsWith("/magic-items") ||
           pathname.includes("/dashboard/magic-items"),
         items: [
-          { href: "/magic-items", label: "Search", icon: Search },
+          { href: "/magic-items", label: "Browse", icon: Search },
           {
             href: "/magic-items/my-items",
             label: "Your Magic Items",
@@ -191,10 +192,26 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
       },
       {
         label: "Equipment",
-        icon: Library, // Using Library icon for now, could be changed to something more specific like a gear or backpack
+        icon: Package,
         defaultLink: "/equipment",
-        defaultOpen: pathname.startsWith("/equipment"),
-        items: [{ href: "/equipment", label: "Browse", icon: Search }],
+        defaultOpen:
+          pathname.startsWith("/equipment") ||
+          pathname.includes("/dashboard/equipment"),
+        items: [
+          { href: "/equipment", label: "Browse", icon: Search },
+          {
+            href: "/equipment/my-equipment",
+            label: "Your Equipment",
+            icon: Package,
+            requiresAuth: true,
+          },
+          {
+            href: "/equipment/create",
+            label: "Create Equipment",
+            icon: Plus,
+            requiresAuth: true,
+          },
+        ],
       },
       {
         label: "Encounters",
@@ -204,7 +221,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
           pathname.startsWith("/encounter-tables") ||
           pathname.includes("/dashboard/encounters"),
         items: [
-          { href: "/encounter-tables", label: "Browse Tables", icon: Search },
+          { href: "/encounter-tables", label: "Browse", icon: Search },
           {
             href: "/dashboard/encounters",
             label: "Your Encounters",

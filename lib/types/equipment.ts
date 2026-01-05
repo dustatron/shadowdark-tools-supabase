@@ -15,7 +15,32 @@ export interface EquipmentItem {
   properties: string[];
   slot: number;
   quantity?: string;
-  uuid: string;
+  source_type?: "official" | "custom";
+  creator_name?: string;
+  user_id?: string;
+  created_at: string;
+  updated_at: string;
+}
+
+export interface UserEquipment {
+  id: string;
+  user_id: string;
+  name: string;
+  slug: string;
+  description?: string;
+  item_type: string;
+  cost: {
+    amount: number;
+    currency: string;
+  };
+  attack_type?: string;
+  range?: string;
+  damage?: string;
+  armor?: string;
+  properties: string[];
+  slot: number;
+  quantity?: string;
+  is_public: boolean;
   created_at: string;
   updated_at: string;
 }
@@ -119,3 +144,5 @@ export function serializeFiltersToSearchParams(
 
   return params;
 }
+
+export type AllEquipmentItem = EquipmentItem | UserEquipment;

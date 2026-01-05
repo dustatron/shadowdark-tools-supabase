@@ -151,7 +151,10 @@
       "WebFetch(domain:cloudinary.com)",
       "Skill(specify)",
       "Bash(source:*)",
-      "WebFetch(domain:game-icons.net)"
+      "WebFetch(domain:game-icons.net)",
+      "Bash(echo $NEXT_PUBLIC_SUPABASE_URL)",
+      "Bash(git reset:*)",
+      "Bash(git rm:*)"
     ],
     "deny": [],
     "ask": []

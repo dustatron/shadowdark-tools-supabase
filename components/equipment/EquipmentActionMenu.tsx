@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { useRouter } from "next/navigation";
 import { EntityActionMenu } from "@/components/entity-action-menu";
 import { ListSelectorModal } from "@/components/list-selector-modal";
 import { useListOperations } from "@/lib/hooks/use-list-operations";
@@ -20,6 +21,10 @@ export function EquipmentActionMenu({
   onListChange,
 }: EquipmentActionMenuProps) {
   const [listModalOpen, setListModalOpen] = useState(false);
+  const router = useRouter();
+
+  // Check if current user owns this equipment (for user equipment)
+  const isOwner = "user_id" in equipment && equipment.user_id === userId;
 
   // List operations hook
   const { lists, existingListIds, addToList, createList } = useListOperations({
@@ -31,6 +36,10 @@ export function EquipmentActionMenu({
   // Handlers
   const handleAddToList = () => {
     setListModalOpen(true);
+  };
+
+  const handleEdit = () => {
+    router.push(`/equipment/${equipment.id}/edit`);
   };
 
   // Favorites not yet implemented for equipment
@@ -62,9 +71,10 @@ export function EquipmentActionMenu({
         entityType="equipment"
         detailUrl={hideViewDetails ? undefined : `/equipment/${equipment.id}`}
         isFavorited={false}
-        isOwner={false}
+        isOwner={isOwner}
         onFavoriteToggle={handleFavoriteToggle}
         onAddToList={handleAddToList}
+        onEdit={isOwner ? handleEdit : undefined}
         config={{
           showDeck: true,
           deckEnabled: false,

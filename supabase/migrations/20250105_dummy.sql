@@ -1,0 +1,2 @@
+-- Dummy migration to fix sync issue
+-- Already applied to database

@@ -22,11 +22,29 @@ export default async function EquipmentDetailPage({
 
   const backUrl = generateBackUrl(resolvedSearchParams, "/equipment");
 
-  const { data: equipment, error } = await supabase
+  // First try to find in official equipment
+  let { data: equipment, error } = await supabase
     .from("equipment")
     .select("*")
     .eq("id", equipmentId)
     .single();
+
+  let isUserEquipment = false;
+
+  // If not found in official, try user equipment
+  if (error || !equipment) {
+    const userEquipmentResult = await supabase
+      .from("user_equipment")
+      .select("*")
+      .eq("id", equipmentId)
+      .single();
+
+    if (userEquipmentResult.data) {
+      equipment = userEquipmentResult.data;
+      isUserEquipment = true;
+      error = null;
+    }
+  }
 
   if (error || !equipment) {
     return (
@@ -59,6 +77,7 @@ export default async function EquipmentDetailPage({
     <EquipmentDetailClient
       equipment={parsedEquipment}
       currentUserId={user?.id}
+      isUserEquipment={isUserEquipment}
     />
   );
 }
