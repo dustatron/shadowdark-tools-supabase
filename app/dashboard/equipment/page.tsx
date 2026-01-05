@@ -1,13 +1,16 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { useAuth } from "@/components/providers/AuthProvider";
 import { EquipmentList } from "@/components/equipment/EquipmentList";
 import { Button } from "@/components/primitives/button";
+import { ViewModeToggle } from "@/components/shared/ViewModeToggle";
 import { Plus, Package } from "lucide-react";
 import Link from "next/link";
+import { useViewMode } from "@/lib/hooks";
 import type { UserEquipment } from "@/lib/types/equipment";
+import type { ViewMode } from "@/lib/types/monsters";
 
 interface FetchResponse {
   data: UserEquipment[];
@@ -41,6 +44,7 @@ export default function MyEquipmentPage() {
   const { user } = useAuth();
   const [page, setPage] = useState(1);
   const [limit, setLimit] = useState(20);
+  const { view, setView } = useViewMode();
 
   const { data, isLoading, error, refetch } = useQuery({
     queryKey: ["user-equipment", page, limit],
@@ -58,6 +62,13 @@ export default function MyEquipmentPage() {
     total,
     totalPages,
   };
+
+  const handleViewChange = useCallback(
+    (newView: ViewMode) => {
+      setView(newView);
+    },
+    [setView],
+  );
 
   if (!user) {
     return (
@@ -81,12 +92,15 @@ export default function MyEquipmentPage() {
             Manage your custom equipment items
           </p>
         </div>
-        <Button asChild>
-          <Link href="/equipment/create">
-            <Plus className="h-4 w-4 mr-2" />
-            Create Equipment
-          </Link>
-        </Button>
+        <div className="flex items-center gap-2">
+          <ViewModeToggle view={view} onViewChange={handleViewChange} />
+          <Button asChild>
+            <Link href="/equipment/create">
+              <Plus className="h-4 w-4 mr-2" />
+              Create Equipment
+            </Link>
+          </Button>
+        </div>
       </div>
 
       {equipment.length === 0 && !isLoading ? (
@@ -116,7 +130,7 @@ export default function MyEquipmentPage() {
             setPage(1);
           }}
           onRetry={() => refetch()}
-          view="cards"
+          view={view}
         />
       )}
     </div>
