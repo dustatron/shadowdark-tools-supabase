@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { getBaseUrl } from "@/lib/utils";
+import { createClient } from "@/lib/supabase/server";
 
 type Props = {
   params: Promise<{ slug: string }>;
@@ -9,17 +9,19 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const { slug } = await params;
 
   try {
-    const response = await fetch(`${getBaseUrl()}/api/spells/${slug}`, {
-      cache: "no-store",
-    });
+    const supabase = await createClient();
+    const { data: spell } = await supabase
+      .from("all_spells")
+      .select("name, tier, description, classes, range, duration")
+      .eq("slug", slug)
+      .single();
 
-    if (response.ok) {
-      const spell = await response.json();
-
+    if (spell) {
+      const classes = Array.isArray(spell.classes) ? spell.classes : [];
       const title = `${spell.name} (Tier ${spell.tier})`;
       const description = spell.description
         ? `${spell.description.substring(0, 160)}...`
-        : `Tier ${spell.tier} spell for ${spell.classes.join(", ")}. Range: ${spell.range}. Duration: ${spell.duration}.`;
+        : `Tier ${spell.tier} spell for ${classes.join(", ")}. Range: ${spell.range}. Duration: ${spell.duration}.`;
 
       return {
         title,

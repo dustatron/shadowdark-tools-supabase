@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { createClient } from "@/lib/supabase/server";
 
 type Props = {
   params: Promise<{ id: string }>;
@@ -8,13 +9,14 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const { id } = await params;
 
   try {
-    const response = await fetch(
-      `${process.env.NEXT_PUBLIC_SUPABASE_URL ? `https://${process.env.VERCEL_URL || "localhost:3000"}` : "http://localhost:3000"}/api/monsters/${id}`,
-      { cache: "no-store" },
-    );
+    const supabase = await createClient();
+    const { data: monster } = await supabase
+      .from("user_monsters")
+      .select("name")
+      .eq("id", id)
+      .single();
 
-    if (response.ok) {
-      const monster = await response.json();
+    if (monster) {
       return {
         title: `Edit ${monster.name}`,
         description: `Edit your custom Shadowdark monster: ${monster.name}`,
