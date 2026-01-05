@@ -1,10 +1,14 @@
 "use client";
 
-import { useState } from "react";
 import { useForm, useFieldArray } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useRouter } from "next/navigation";
 import { Button } from "@/components/primitives/button";
+import {
+  useCreateEquipment,
+  useUpdateEquipment,
+  useDeleteEquipment,
+} from "@/lib/hooks/use-equipment-mutations";
 import { Input } from "@/components/primitives/input";
 import { Textarea } from "@/components/primitives/textarea";
 import { Switch } from "@/components/primitives/switch";
@@ -68,32 +72,27 @@ export function EquipmentForm({
   onSuccess,
 }: EquipmentFormProps) {
   const router = useRouter();
-  const [isSubmitting, setIsSubmitting] = useState(false);
-  const [isDeleting, setIsDeleting] = useState(false);
-  const [error, setError] = useState<string | null>(null);
 
-  const handleDelete = async () => {
+  // TanStack Query mutations
+  const createMutation = useCreateEquipment();
+  const updateMutation = useUpdateEquipment(initialData?.id || "");
+  const deleteMutation = useDeleteEquipment();
+
+  // Determine which mutation is active for loading states
+  const isSubmitting = createMutation.isPending || updateMutation.isPending;
+  const isDeleting = deleteMutation.isPending;
+  const mutationError =
+    createMutation.error || updateMutation.error || deleteMutation.error;
+
+  const handleDelete = () => {
     if (!initialData?.id) return;
 
-    setIsDeleting(true);
-    setError(null);
-
-    try {
-      const response = await fetch(`/api/user/equipment/${initialData.id}`, {
-        method: "DELETE",
-      });
-
-      if (!response.ok) {
-        const errorData = await response.json();
-        throw new Error(errorData.error || "Failed to delete equipment");
-      }
-
-      router.push("/dashboard/equipment");
-      router.refresh();
-    } catch (err) {
-      setError(err instanceof Error ? err.message : "An error occurred");
-      setIsDeleting(false);
-    }
+    deleteMutation.mutate(initialData.id, {
+      onSuccess: () => {
+        router.push("/dashboard/equipment");
+        router.refresh();
+      },
+    });
   };
 
   const form = useForm<EquipmentCreateInput>({
@@ -121,48 +120,38 @@ export function EquipmentForm({
 
   const itemType = form.watch("item_type");
 
-  const onSubmit = async (data: EquipmentCreateInput) => {
-    setIsSubmitting(true);
-    setError(null);
-
-    try {
-      const url =
-        mode === "create"
-          ? "/api/user/equipment"
-          : `/api/user/equipment/${initialData?.id}`;
-
-      const response = await fetch(url, {
-        method: mode === "create" ? "POST" : "PUT",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(data),
+  const onSubmit = (data: EquipmentCreateInput) => {
+    if (mode === "create") {
+      createMutation.mutate(data, {
+        onSuccess: (savedItem) => {
+          if (onSuccess) {
+            onSuccess(savedItem);
+          } else {
+            router.push(`/equipment/${savedItem.id}`);
+            router.refresh();
+          }
+        },
       });
-
-      if (!response.ok) {
-        const errorData = await response.json();
-        throw new Error(errorData.error || "Failed to save equipment");
-      }
-
-      const savedItem = await response.json();
-
-      if (onSuccess) {
-        onSuccess(savedItem);
-      } else {
-        router.push(`/equipment/${savedItem.id}`);
-        router.refresh();
-      }
-    } catch (err) {
-      setError(err instanceof Error ? err.message : "An error occurred");
-    } finally {
-      setIsSubmitting(false);
+    } else {
+      updateMutation.mutate(data, {
+        onSuccess: (savedItem) => {
+          if (onSuccess) {
+            onSuccess(savedItem);
+          } else {
+            router.push(`/equipment/${savedItem.id}`);
+            router.refresh();
+          }
+        },
+      });
     }
   };
 
   return (
     <Form {...form}>
       <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
-        {error && (
+        {mutationError && (
           <div className="bg-destructive/10 text-destructive px-4 py-3 rounded-md">
-            {error}
+            {mutationError.message}
           </div>
         )}
 
