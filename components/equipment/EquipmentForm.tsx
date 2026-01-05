@@ -100,8 +100,13 @@ export function EquipmentForm({
     defaultValues: {
       name: initialData?.name || "",
       description: initialData?.description || "",
-      item_type: initialData?.item_type || "gear",
-      cost: initialData?.cost || { amount: 0, currency: "gp" },
+      item_type: (initialData?.item_type || "gear") as ItemType,
+      cost: initialData?.cost
+        ? {
+            amount: initialData.cost.amount,
+            currency: initialData.cost.currency as Currency,
+          }
+        : { amount: 0, currency: "gp" as Currency },
       attack_type: initialData?.attack_type || "",
       range: initialData?.range || "",
       damage: initialData?.damage || "",
@@ -115,6 +120,7 @@ export function EquipmentForm({
 
   const { fields, append, remove } = useFieldArray({
     control: form.control,
+    // @ts-expect-error - TypeScript has issues with useFieldArray typing
     name: "properties",
   });
 

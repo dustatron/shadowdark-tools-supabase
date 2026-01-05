@@ -15,7 +15,6 @@ export interface EquipmentItem {
   properties: string[];
   slot: number;
   quantity?: string;
-  uuid: string;
   source_type?: "official" | "custom";
   creator_name?: string;
   user_id?: string;

@@ -34,12 +34,12 @@ export const EquipmentCreateSchema = z.object({
   range: z.string().max(100).optional(),
   damage: z.string().max(100).optional(),
   armor: z.string().max(50).optional(),
-  properties: z
-    .array(z.string().max(50, "Property must be 50 characters or less"))
-    .default([]),
-  slot: z.number().int().min(0).max(10).default(1),
+  properties: z.array(
+    z.string().max(50, "Property must be 50 characters or less"),
+  ),
+  slot: z.number().int().min(0).max(10),
   quantity: z.string().max(50).optional(),
-  is_public: z.boolean().default(false),
+  is_public: z.boolean(),
 });
 
 export type EquipmentCreateInput = z.infer<typeof EquipmentCreateSchema>;

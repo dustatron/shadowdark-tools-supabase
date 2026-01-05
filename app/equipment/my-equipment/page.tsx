@@ -123,7 +123,7 @@ export default function YourEquipmentPage() {
             setPage(1);
           }}
           onRetry={() => refetch()}
-          view="grid"
+          view="cards"
         />
       )}
     </div>
