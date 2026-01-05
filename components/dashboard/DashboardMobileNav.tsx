@@ -2,7 +2,7 @@
 
 import { usePathname, useRouter } from "next/navigation";
 import { Tabs, TabsList, TabsTrigger } from "@/components/primitives/tabs";
-import { Swords, Sparkles, Dice6, Heart, Layers } from "lucide-react";
+import { Swords, Sparkles, Dice6, Heart, Layers, Package } from "lucide-react";
 
 export function DashboardMobileNav() {
   const pathname = usePathname();
@@ -12,6 +12,7 @@ export function DashboardMobileNav() {
     if (pathname?.startsWith("/dashboard/decks")) return "decks";
     if (pathname === "/dashboard/monsters") return "monsters";
     if (pathname === "/dashboard/spells") return "spells";
+    if (pathname === "/dashboard/equipment") return "equipment";
     if (pathname === "/dashboard/encounters") return "encounters";
     if (pathname === "/dashboard/favorites/monsters") return "fav-monsters";
     if (pathname === "/dashboard/favorites/spells") return "fav-spells";
@@ -23,6 +24,7 @@ export function DashboardMobileNav() {
       decks: "/dashboard/decks",
       monsters: "/dashboard/monsters",
       spells: "/dashboard/spells",
+      equipment: "/dashboard/equipment",
       encounters: "/dashboard/encounters",
       "fav-monsters": "/dashboard/favorites/monsters",
       "fav-spells": "/dashboard/favorites/spells",
@@ -54,6 +56,13 @@ export function DashboardMobileNav() {
           >
             <Sparkles className="h-4 w-4" />
             <span className="hidden sm:inline">Spells</span>
+          </TabsTrigger>
+          <TabsTrigger
+            value="equipment"
+            className="flex items-center gap-2 rounded-none border-b-2 border-transparent data-[state=active]:border-primary data-[state=active]:bg-transparent"
+          >
+            <Package className="h-4 w-4" />
+            <span className="hidden sm:inline">Equipment</span>
           </TabsTrigger>
           <TabsTrigger
             value="encounters"

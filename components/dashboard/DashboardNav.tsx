@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { Swords, Sparkles, Dice6, Heart, Layers } from "lucide-react";
+import { Swords, Sparkles, Dice6, Heart, Layers, Package } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 export function DashboardNav() {
@@ -51,6 +51,19 @@ export function DashboardNav() {
       >
         <Sparkles className="h-4 w-4" />
         Spells
+      </Link>
+
+      <Link
+        href="/dashboard/equipment"
+        className={cn(
+          "flex items-center gap-3 rounded-lg px-3 py-2 text-sm font-medium transition-colors",
+          pathname === "/dashboard/equipment"
+            ? "bg-primary text-primary-foreground"
+            : "text-muted-foreground hover:bg-muted hover:text-foreground",
+        )}
+      >
+        <Package className="h-4 w-4" />
+        My Equipment
       </Link>
 
       <Link

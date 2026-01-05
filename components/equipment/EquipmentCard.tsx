@@ -5,7 +5,7 @@ import { Badge } from "@/components/primitives/badge";
 import { EquipmentItem } from "@/lib/types/equipment";
 import { EquipmentActionMenu } from "./EquipmentActionMenu";
 import Link from "next/link";
-import { Shield, Sword, ScrollText, DollarSign } from "lucide-react";
+import { Shield, Sword, ScrollText, DollarSign, User } from "lucide-react";
 
 interface EquipmentCardProps {
   item: EquipmentItem;
@@ -34,11 +34,19 @@ export function EquipmentCard({
             )}
           </div>
         </div>
-        <div className="flex items-center gap-2 mt-1">
-          <DollarSign className="h-4 w-4 text-green-500" />
-          <span className="text-sm font-medium">
-            {item.cost.amount} {item.cost.currency}
-          </span>
+        <div className="flex flex-col gap-1 mt-1">
+          <div className="flex items-center gap-2">
+            <DollarSign className="h-4 w-4 text-green-500" />
+            <span className="text-sm font-medium">
+              {item.cost.amount} {item.cost.currency}
+            </span>
+          </div>
+          {item.source_type === "custom" && item.creator_name && (
+            <div className="flex items-center gap-1 text-xs text-muted-foreground">
+              <User className="h-3 w-3" />
+              <span>Created by {item.creator_name}</span>
+            </div>
+          )}
         </div>
       </CardHeader>
       <Link href={`/equipment/${item.id}`}>

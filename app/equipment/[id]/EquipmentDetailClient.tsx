@@ -6,21 +6,33 @@ import Link from "next/link";
 import { Button } from "@/components/primitives/button";
 import { Card, CardContent, CardHeader } from "@/components/primitives/card";
 import { Badge } from "@/components/primitives/badge";
-import { EquipmentItem } from "@/lib/types/equipment";
+import {
+  EquipmentItem,
+  UserEquipment,
+  AllEquipmentItem,
+} from "@/lib/types/equipment";
 import { EquipmentActionMenu } from "@/components/equipment/EquipmentActionMenu";
 import { generateBackUrl } from "@/lib/utils";
 
 interface EquipmentDetailClientProps {
-  equipment: EquipmentItem;
+  equipment: AllEquipmentItem;
   currentUserId?: string;
+  isUserEquipment?: boolean;
 }
 
 export function EquipmentDetailClient({
   equipment,
   currentUserId,
+  isUserEquipment,
 }: EquipmentDetailClientProps) {
   const searchParams = useSearchParams();
   const backUrl = generateBackUrl(searchParams, "/equipment");
+
+  // Check if current user owns this equipment
+  const isOwner =
+    isUserEquipment &&
+    "user_id" in equipment &&
+    equipment.user_id === currentUserId;
 
   return (
     <div className="container mx-auto py-6 px-4 lg:px-8 max-w-5xl">
