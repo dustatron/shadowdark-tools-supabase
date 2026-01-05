@@ -1,127 +1,70 @@
-"use client";
-
-import { useEffect, useState } from "react";
-import { useRouter } from "next/navigation";
-import { createClient } from "@/lib/supabase/client";
-import { LoadingSpinner } from "@/components/shared/LoadingSpinner";
-import { SpellForm } from "@/components/spells/SpellForm";
-import { Alert, AlertDescription } from "@/components/primitives/alert";
+import { redirect } from "next/navigation";
+import { createClient } from "@/lib/supabase/server";
 import { AlertCircle } from "lucide-react";
+import { Alert, AlertDescription } from "@/components/primitives/alert";
+import { EditSpellClient } from "./EditSpellClient";
 
-interface EditSpellPageProps {
+type Props = {
   params: Promise<{ slug: string }>;
-}
+};
 
-export default function EditSpellPage({ params }: EditSpellPageProps) {
-  const router = useRouter();
-  const [isAuthenticated, setIsAuthenticated] = useState(false);
-  const [isChecking, setIsChecking] = useState(true);
-  const [spell, setSpell] = useState<any>(null);
-  const [error, setError] = useState<string | null>(null);
-  const [slug, setSlug] = useState<string | null>(null);
+export default async function EditSpellPage({ params }: Props) {
+  const { slug } = await params;
+  const supabase = await createClient();
 
-  useEffect(() => {
-    const loadData = async () => {
-      const resolvedParams = await params;
-      setSlug(resolvedParams.slug);
+  // Check auth
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
 
-      const supabase = createClient();
-      const {
-        data: { user },
-      } = await supabase.auth.getUser();
-
-      if (!user) {
-        // Redirect to login with return URL
-        router.push(
-          "/auth/login?redirect=" +
-            encodeURIComponent(`/spells/${resolvedParams.slug}/edit`),
-        );
-        return;
-      }
-
-      setIsAuthenticated(true);
-
-      // Load spell data
-      const { data: spellData, error: spellError } = await supabase
-        .from("user_spells")
-        .select("*")
-        .eq("slug", resolvedParams.slug)
-        .single();
-
-      if (spellError || !spellData) {
-        setError("Spell not found or you don't have permission to edit it");
-        setIsChecking(false);
-        return;
-      }
-
-      // Check ownership
-      if (spellData.user_id !== user.id) {
-        setError("You don't have permission to edit this spell");
-        setIsChecking(false);
-        return;
-      }
-
-      // Parse JSONB classes field if needed
-      const parsedSpell = {
-        ...spellData,
-        classes:
-          typeof spellData.classes === "string"
-            ? JSON.parse(spellData.classes)
-            : spellData.classes,
-      };
-
-      setSpell(parsedSpell);
-      setIsChecking(false);
-    };
-
-    loadData();
-  }, [params, router]);
-
-  if (isChecking) {
-    return (
-      <div className="container mx-auto px-4 py-8">
-        <div className="flex items-center justify-center min-h-[400px]">
-          <LoadingSpinner size="lg" />
-        </div>
-      </div>
+  if (!user) {
+    redirect(
+      `/auth/login?redirect=${encodeURIComponent(`/spells/${slug}/edit`)}`,
     );
   }
 
-  if (!isAuthenticated) {
-    return null; // Will redirect
-  }
+  // Fetch spell
+  const { data: spell, error } = await supabase
+    .from("user_spells")
+    .select("*")
+    .eq("slug", slug)
+    .single();
 
-  if (error) {
+  if (error || !spell) {
     return (
       <div className="container mx-auto px-4 py-8 max-w-3xl">
         <Alert variant="destructive">
           <AlertCircle className="h-4 w-4" />
-          <AlertDescription>{error}</AlertDescription>
+          <AlertDescription>
+            Spell not found or you don&apos;t have permission to edit it
+          </AlertDescription>
         </Alert>
       </div>
     );
   }
 
-  if (!spell) {
+  // Check ownership
+  if (spell.user_id !== user.id) {
     return (
       <div className="container mx-auto px-4 py-8 max-w-3xl">
-        <Alert>
+        <Alert variant="destructive">
           <AlertCircle className="h-4 w-4" />
-          <AlertDescription>Loading spell data...</AlertDescription>
+          <AlertDescription>
+            You don&apos;t have permission to edit this spell
+          </AlertDescription>
         </Alert>
       </div>
     );
   }
 
-  return (
-    <div className="container mx-auto px-4 py-8 max-w-3xl">
-      <div className="mb-6">
-        <h1 className="text-3xl font-bold">Edit Spell</h1>
-        <p className="text-muted-foreground mt-2">
-          Update {spell.name} for your Shadowdark campaign
-        </p>
-      </div>
-      <SpellForm mode="edit" initialData={spell} />
-    </div>
-  );
+  // Parse JSONB classes field if needed
+  const spellData = {
+    ...spell,
+    classes:
+      typeof spell.classes === "string"
+        ? JSON.parse(spell.classes)
+        : spell.classes,
+  };
+
+  return <EditSpellClient spell={spellData} />;
 }

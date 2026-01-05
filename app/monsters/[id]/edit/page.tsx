@@ -1,108 +1,80 @@
-"use client";
-
-import { useState, useEffect } from "react";
-import { useParams, useRouter } from "next/navigation";
-import { MonsterCreateEditForm } from "@/components/monsters/MonsterCreateEditForm";
+import { redirect } from "next/navigation";
+import { createClient } from "@/lib/supabase/server";
 import { AlertCircle } from "lucide-react";
-import { createClient } from "@/lib/supabase/client";
-import { LoadingSpinner } from "@/components/shared/LoadingSpinner";
 import {
   Alert,
   AlertDescription,
   AlertTitle,
 } from "@/components/primitives/alert";
+import { EditMonsterClient } from "./EditMonsterClient";
 
-export default function EditMonsterPage() {
-  const params = useParams();
-  const router = useRouter();
-  const monsterId = params?.id as string;
+type Props = {
+  params: Promise<{ id: string }>;
+};
 
-  const [monster, setMonster] = useState<any>(null);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
+export default async function EditMonsterPage({ params }: Props) {
+  const { id } = await params;
+  const supabase = await createClient();
 
-  useEffect(() => {
-    if (monsterId) {
-      fetchMonster();
-    }
-  }, [monsterId]);
+  // Check auth
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
 
-  const fetchMonster = async () => {
-    try {
-      setLoading(true);
-      setError(null);
-
-      // First check if user is authenticated
-      const supabase = createClient();
-      const {
-        data: { user },
-      } = await supabase.auth.getUser();
-
-      if (!user) {
-        router.push("/auth/login");
-        return;
-      }
-
-      const response = await fetch(`/api/monsters/${monsterId}`);
-
-      if (!response.ok) {
-        if (response.status === 404) {
-          setError("Monster not found");
-        } else {
-          setError("Failed to load monster");
-        }
-        return;
-      }
-
-      const data = await response.json();
-
-      // Check if user owns this monster
-      if (data.user_id !== user.id) {
-        setError("You can only edit your own monsters");
-        return;
-      }
-
-      setMonster(data);
-    } catch (err) {
-      console.error("Error fetching monster:", err);
-      setError("An error occurred while loading the monster");
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  if (loading) {
-    return (
-      <div className="container mx-auto px-4 py-8">
-        <div className="flex items-center justify-center min-h-[400px]">
-          <LoadingSpinner size="lg" />
-        </div>
-      </div>
-    );
+  if (!user) {
+    redirect("/auth/login");
   }
 
-  if (error) {
+  // Fetch monster
+  const { data: monster, error } = await supabase
+    .from("user_monsters")
+    .select("*")
+    .eq("id", id)
+    .single();
+
+  if (error || !monster) {
     return (
       <div className="container mx-auto px-4 py-8">
         <Alert variant="destructive">
           <AlertCircle className="h-4 w-4" />
           <AlertTitle>Error</AlertTitle>
-          <AlertDescription>{error}</AlertDescription>
+          <AlertDescription>Monster not found</AlertDescription>
         </Alert>
       </div>
     );
   }
 
-  return (
-    <div className="container mx-auto px-4 py-8">
-      <h1 className="text-3xl font-bold mb-6">Edit Monster</h1>
-      {monster && (
-        <MonsterCreateEditForm
-          mode="edit"
-          initialData={{ ...monster, id: monsterId }}
-          onCancel={() => router.push(`/monsters/${monsterId}`)}
-        />
-      )}
-    </div>
-  );
+  // Check ownership
+  if (monster.user_id !== user.id) {
+    return (
+      <div className="container mx-auto px-4 py-8">
+        <Alert variant="destructive">
+          <AlertCircle className="h-4 w-4" />
+          <AlertTitle>Error</AlertTitle>
+          <AlertDescription>
+            You can only edit your own monsters
+          </AlertDescription>
+        </Alert>
+      </div>
+    );
+  }
+
+  // Parse JSON fields
+  const monsterData = {
+    ...monster,
+    attacks:
+      typeof monster.attacks === "string"
+        ? JSON.parse(monster.attacks)
+        : monster.attacks,
+    abilities:
+      typeof monster.abilities === "string"
+        ? JSON.parse(monster.abilities)
+        : monster.abilities,
+    tags:
+      typeof monster.tags === "string"
+        ? JSON.parse(monster.tags)
+        : monster.tags,
+  };
+
+  return <EditMonsterClient monster={monsterData} />;
 }
