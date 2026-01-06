@@ -97,29 +97,32 @@ export function MonsterTable({
   };
 
   const columns = [
-    // Action menu column (non-sortable)
-    columnHelper.display({
-      id: "actions",
-      header: () => (
-        <Tooltip>
-          <TooltipTrigger asChild>
-            <span className="text-muted-foreground">Actions</span>
-          </TooltipTrigger>
-          <TooltipContent>Monster actions menu</TooltipContent>
-        </Tooltip>
-      ),
-      cell: ({ row }) =>
-        currentUserId ? (
-          <MonsterActionMenu
-            monster={row.original as MonsterWithAuthor}
-            userId={currentUserId}
-            initialFavoriteId={favoritesMap?.get(row.original.id)}
-            onFavoriteChange={onFavoriteChange}
-            onListChange={onListChange}
-          />
-        ) : null,
-      size: 40,
-    }),
+    // Action menu column (non-sortable) - only shown when logged in
+    ...(currentUserId
+      ? [
+          columnHelper.display({
+            id: "actions",
+            header: () => (
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <span className="text-muted-foreground">Actions</span>
+                </TooltipTrigger>
+                <TooltipContent>Monster actions menu</TooltipContent>
+              </Tooltip>
+            ),
+            cell: ({ row }) => (
+              <MonsterActionMenu
+                monster={row.original as MonsterWithAuthor}
+                userId={currentUserId}
+                initialFavoriteId={favoritesMap?.get(row.original.id)}
+                onFavoriteChange={onFavoriteChange}
+                onListChange={onListChange}
+              />
+            ),
+            size: 40,
+          }),
+        ]
+      : []),
 
     // Name column (sortable)
     columnHelper.accessor("name", {

@@ -73,7 +73,7 @@ export function SpellFilters({
           disabled={loading}
         />
 
-        <div className="flex flex-col sm:flex-row gap-4">
+        <div className="flex flex-col gap-4">
           <SearchInput
             value={filters.search}
             onChange={(value) => handleFilterChange("search", value)}
@@ -82,7 +82,20 @@ export function SpellFilters({
             debounceMs={300}
           />
 
-          <div className="flex gap-2">
+          <div className="flex gap-2 justify-end">
+            {hasActiveFilters && (
+              <Button
+                variant="ghost"
+                size="icon"
+                onClick={clearFilters}
+                title="Clear all filters"
+                aria-label="Clear all filters"
+                className="text-destructive hover:text-destructive"
+              >
+                <FilterX size={16} />
+              </Button>
+            )}
+
             <Collapsible open={expanded} onOpenChange={setExpanded}>
               <CollapsibleTrigger asChild>
                 <Button
@@ -102,19 +115,6 @@ export function SpellFilters({
                 </Button>
               </CollapsibleTrigger>
             </Collapsible>
-
-            {hasActiveFilters && (
-              <Button
-                variant="ghost"
-                size="icon"
-                onClick={clearFilters}
-                title="Clear all filters"
-                aria-label="Clear all filters"
-                className="text-destructive hover:text-destructive"
-              >
-                <FilterX size={16} />
-              </Button>
-            )}
           </div>
         </div>
 

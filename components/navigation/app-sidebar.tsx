@@ -283,29 +283,6 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
           },
         ],
       },
-      {
-        label: "Account",
-        icon: User,
-        defaultLink: user?.username_slug
-          ? `/users/${user.username_slug}`
-          : "/settings",
-        defaultOpen:
-          pathname.startsWith("/settings") || pathname.startsWith("/users/"),
-        items: [
-          {
-            href: user?.username_slug ? `/users/${user.username_slug}` : "#",
-            label: "Profile",
-            icon: User,
-            requiresAuth: true,
-          },
-          {
-            href: "/settings",
-            label: "Settings",
-            icon: Settings,
-            requiresAuth: true,
-          },
-        ],
-      },
     ],
     [pathname, user],
   );
@@ -477,48 +454,81 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
       <SidebarFooter>
         {/* Guest Sign In / Loading */}
         {!user && (
-          <SidebarGroup>
-            <SidebarMenu>
-              <SidebarMenuItem>
-                {loading ? (
-                  <SidebarMenuButton tooltip="Loading...">
-                    <Loader2 className="animate-spin" />
-                    <span className="group-data-[collapsible=icon]:hidden">
-                      Loading...
-                    </span>
-                  </SidebarMenuButton>
-                ) : (
-                  <SidebarMenuButton asChild tooltip="Sign In">
-                    <Link href="/auth/login">
-                      <User />
-                      <span className="group-data-[collapsible=icon]:hidden">
-                        Sign In
-                      </span>
-                    </Link>
-                  </SidebarMenuButton>
-                )}
-              </SidebarMenuItem>
-            </SidebarMenu>
-          </SidebarGroup>
-        )}
-        {/* Logout (visible when logged in) */}
-        {user && (
-          <SidebarGroup>
-            <SidebarMenu>
-              <SidebarMenuItem>
-                <SidebarMenuButton
-                  onClick={handleLogout}
-                  tooltip="Logout"
-                  aria-label="Logout"
-                >
-                  <LogOut />
+          <SidebarMenu>
+            <SidebarMenuItem>
+              {loading ? (
+                <SidebarMenuButton tooltip="Loading...">
+                  <Loader2 className="animate-spin" />
                   <span className="group-data-[collapsible=icon]:hidden">
-                    Logout
+                    Loading...
                   </span>
                 </SidebarMenuButton>
-              </SidebarMenuItem>
-            </SidebarMenu>
-          </SidebarGroup>
+              ) : (
+                <SidebarMenuButton asChild tooltip="Sign In">
+                  <Link href="/auth/login">
+                    <User />
+                    <span className="group-data-[collapsible=icon]:hidden">
+                      Sign In
+                    </span>
+                  </Link>
+                </SidebarMenuButton>
+              )}
+            </SidebarMenuItem>
+          </SidebarMenu>
+        )}
+        {/* Account & Logout (visible when logged in) */}
+        {user && (
+          <SidebarMenu>
+            <SidebarMenuItem>
+              <SidebarMenuButton
+                asChild
+                isActive={
+                  pathname.startsWith("/users/") ||
+                  pathname.startsWith("/settings")
+                }
+                tooltip="Profile"
+              >
+                <Link
+                  href={
+                    user.username_slug
+                      ? `/users/${user.username_slug}`
+                      : "/settings"
+                  }
+                >
+                  <User />
+                  <span className="group-data-[collapsible=icon]:hidden">
+                    Profile
+                  </span>
+                </Link>
+              </SidebarMenuButton>
+            </SidebarMenuItem>
+            <SidebarMenuItem>
+              <SidebarMenuButton
+                asChild
+                isActive={pathname === "/settings"}
+                tooltip="Settings"
+              >
+                <Link href="/settings">
+                  <Settings />
+                  <span className="group-data-[collapsible=icon]:hidden">
+                    Settings
+                  </span>
+                </Link>
+              </SidebarMenuButton>
+            </SidebarMenuItem>
+            <SidebarMenuItem>
+              <SidebarMenuButton
+                onClick={handleLogout}
+                tooltip="Logout"
+                aria-label="Logout"
+              >
+                <LogOut />
+                <span className="group-data-[collapsible=icon]:hidden">
+                  Logout
+                </span>
+              </SidebarMenuButton>
+            </SidebarMenuItem>
+          </SidebarMenu>
         )}
         {/* Theme Toggle */}
         {mounted && (

@@ -62,30 +62,33 @@ export function SpellTable({
   const [sorting, setSorting] = useState<SortingState>([]);
 
   const columns = [
-    // Action menu column (non-sortable)
-    columnHelper.display({
-      id: "actions",
-      header: () => (
-        <Tooltip>
-          <TooltipTrigger asChild>
-            <span className="text-muted-foreground">Actions</span>
-          </TooltipTrigger>
-          <TooltipContent>Spell actions menu</TooltipContent>
-        </Tooltip>
-      ),
-      cell: ({ row }) =>
-        currentUserId ? (
-          <SpellActionMenu
-            spell={row.original as SpellWithAuthor}
-            userId={currentUserId}
-            initialFavoriteId={favoritesMap?.get(row.original.id)}
-            onFavoriteChange={onFavoriteChange}
-            onListChange={onListChange}
-            onDeckChange={onDeckChange}
-          />
-        ) : null,
-      size: 40,
-    }),
+    // Action menu column (non-sortable) - only shown when logged in
+    ...(currentUserId
+      ? [
+          columnHelper.display({
+            id: "actions",
+            header: () => (
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <span className="text-muted-foreground">Actions</span>
+                </TooltipTrigger>
+                <TooltipContent>Spell actions menu</TooltipContent>
+              </Tooltip>
+            ),
+            cell: ({ row }) => (
+              <SpellActionMenu
+                spell={row.original as SpellWithAuthor}
+                userId={currentUserId}
+                initialFavoriteId={favoritesMap?.get(row.original.id)}
+                onFavoriteChange={onFavoriteChange}
+                onListChange={onListChange}
+                onDeckChange={onDeckChange}
+              />
+            ),
+            size: 40,
+          }),
+        ]
+      : []),
 
     // Name column (sortable)
     columnHelper.accessor("name", {

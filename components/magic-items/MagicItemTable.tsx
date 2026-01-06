@@ -50,29 +50,32 @@ export function MagicItemTable({
   const [sorting, setSorting] = useState<SortingState>([]);
 
   const columns = [
-    // Action menu column (non-sortable)
-    columnHelper.display({
-      id: "actions",
-      header: () => (
-        <Tooltip>
-          <TooltipTrigger asChild>
-            <span className="text-muted-foreground">Actions</span>
-          </TooltipTrigger>
-          <TooltipContent>Magic item actions menu</TooltipContent>
-        </Tooltip>
-      ),
-      cell: ({ row }) =>
-        currentUserId ? (
-          <MagicItemActionMenu
-            item={row.original}
-            userId={currentUserId}
-            initialFavoriteId={favoritesMap?.get(row.original.id)}
-            onFavoriteChange={onFavoriteChange}
-            onListChange={onListChange}
-          />
-        ) : null,
-      size: 40,
-    }),
+    // Action menu column (non-sortable) - only shown when logged in
+    ...(currentUserId
+      ? [
+          columnHelper.display({
+            id: "actions",
+            header: () => (
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <span className="text-muted-foreground">Actions</span>
+                </TooltipTrigger>
+                <TooltipContent>Magic item actions menu</TooltipContent>
+              </Tooltip>
+            ),
+            cell: ({ row }) => (
+              <MagicItemActionMenu
+                item={row.original}
+                userId={currentUserId}
+                initialFavoriteId={favoritesMap?.get(row.original.id)}
+                onFavoriteChange={onFavoriteChange}
+                onListChange={onListChange}
+              />
+            ),
+            size: 40,
+          }),
+        ]
+      : []),
 
     // Name column (sortable)
     columnHelper.accessor("name", {
