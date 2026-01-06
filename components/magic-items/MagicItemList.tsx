@@ -8,14 +8,7 @@ import { ErrorAlert } from "@/components/shared/ErrorAlert";
 import { Pagination } from "@/components/shared/Pagination";
 import { Sparkles } from "lucide-react";
 import { ViewMode } from "@/lib/types/monsters";
-
-interface MagicItem {
-  id: string;
-  name: string;
-  slug: string;
-  description: string;
-  traits: { name: string; description: string }[];
-}
+import type { MagicItemWithAuthor } from "@/lib/types/magic-items";
 
 interface PaginationInfo {
   page: number;
@@ -25,7 +18,7 @@ interface PaginationInfo {
 }
 
 interface MagicItemListProps {
-  items: MagicItem[];
+  items: MagicItemWithAuthor[];
   pagination?: PaginationInfo;
   loading?: boolean;
   error?: string;
@@ -35,6 +28,9 @@ interface MagicItemListProps {
   onPageSizeChange?: (pageSize: number) => void;
   onRetry?: () => void;
   view?: ViewMode;
+  onFavoriteChange?: (itemId: string, favoriteId: string | undefined) => void;
+  onListChange?: (itemId: string, inList: boolean) => void;
+  onDeckChange?: (itemId: string, inDeck: boolean) => void;
 }
 
 export function MagicItemList({
@@ -48,6 +44,9 @@ export function MagicItemList({
   onPageSizeChange,
   onRetry,
   view = "cards",
+  onFavoriteChange,
+  onListChange,
+  onDeckChange,
 }: MagicItemListProps) {
   if (loading) {
     return <LoadingSpinner message="Loading magic items..." />;
@@ -80,11 +79,21 @@ export function MagicItemList({
           items={items}
           currentUserId={currentUserId}
           favoritesMap={favoritesMap}
+          onFavoriteChange={onFavoriteChange}
+          onListChange={onListChange}
         />
       ) : (
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
           {items.map((item) => (
-            <MagicItemCard key={item.id} item={item} />
+            <MagicItemCard
+              key={item.id}
+              item={item}
+              currentUserId={currentUserId}
+              favoriteId={favoritesMap?.get(item.id) || null}
+              onFavoriteChange={onFavoriteChange}
+              onListChange={onListChange}
+              onDeckChange={onDeckChange}
+            />
           ))}
         </div>
       )}

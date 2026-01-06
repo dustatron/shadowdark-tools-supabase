@@ -98,3 +98,36 @@ export async function getFavoriteSpells(userId: string) {
     spell: spellsMap.get(fav.item_id) || null,
   }));
 }
+
+export async function getFavoriteMagicItems(userId: string) {
+  const supabase = await createClient();
+
+  // First get the favorites
+  const { data: favorites } = await supabase
+    .from("favorites")
+    .select("*")
+    .eq("user_id", userId)
+    .eq("item_type", "magic_item")
+    .order("created_at", { ascending: false });
+
+  if (!favorites || favorites.length === 0) {
+    return [];
+  }
+
+  // Get all magic item IDs
+  const magicItemIds = favorites.map((f) => f.item_id);
+
+  // Fetch the magic items
+  const { data: magicItems } = await supabase
+    .from("all_magic_items")
+    .select("*")
+    .in("id", magicItemIds);
+
+  // Combine the data
+  const magicItemsMap = new Map(magicItems?.map((m) => [m.id, m]) || []);
+
+  return favorites.map((fav) => ({
+    ...fav,
+    magic_item: magicItemsMap.get(fav.item_id) || null,
+  }));
+}

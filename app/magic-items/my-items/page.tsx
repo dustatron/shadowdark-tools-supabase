@@ -12,12 +12,19 @@ import { ViewModeToggle } from "@/components/shared/ViewModeToggle";
 import { EmptyState } from "@/components/shared/EmptyState";
 import { ErrorAlert } from "@/components/shared/ErrorAlert";
 import { useViewMode } from "@/lib/hooks";
+import { useAuth } from "@/components/providers/AuthProvider";
 import { Plus, Search, Sparkles } from "lucide-react";
 import Link from "next/link";
-import type { UserMagicItem } from "@/lib/types/magic-items";
+import { useQuery as useReactQuery } from "@tanstack/react-query";
+import { createClient } from "@/lib/supabase/client";
+import { createFavoritesMap } from "@/lib/utils/favorites";
+import type {
+  UserMagicItem,
+  MagicItemWithAuthor,
+} from "@/lib/types/magic-items";
 
 interface FetchResponse {
-  data: UserMagicItem[];
+  data: MagicItemWithAuthor[];
   pagination: {
     page: number;
     limit: number;
@@ -26,7 +33,10 @@ interface FetchResponse {
   };
 }
 
-async function fetchUserMagicItems(query?: string): Promise<FetchResponse> {
+async function fetchUserMagicItems(
+  query?: string,
+  userId?: string,
+): Promise<FetchResponse> {
   const params = new URLSearchParams();
   if (query) {
     params.append("q", query);
@@ -42,18 +52,60 @@ async function fetchUserMagicItems(query?: string): Promise<FetchResponse> {
     throw new Error("Failed to fetch magic items");
   }
 
-  return response.json();
+  const result = await response.json();
+
+  // Transform data to MagicItemWithAuthor type
+  const transformedData: MagicItemWithAuthor[] = (result.data || []).map(
+    (item: UserMagicItem) => ({
+      ...item,
+      creator_name: null,
+      is_public: item.is_public,
+      author: userId
+        ? {
+            id: userId,
+            display_name: null,
+            avatar_url: null,
+          }
+        : null,
+    }),
+  );
+
+  return {
+    data: transformedData,
+    pagination: result.pagination,
+  };
+}
+
+async function fetchFavorites(userId: string): Promise<Map<string, string>> {
+  const supabase = createClient();
+  const { data: favorites } = await supabase
+    .from("favorites")
+    .select("id, item_id")
+    .eq("user_id", userId)
+    .eq("item_type", "magic_item");
+
+  if (favorites) {
+    return createFavoritesMap(
+      favorites.map((fav: { id: string; item_id: string }) => ({
+        item_id: fav.item_id,
+        favorite_id: fav.id,
+      })),
+    );
+  }
+
+  return new Map();
 }
 
 export default function MyMagicItemsPage() {
   const router = useRouter();
+  const { user } = useAuth();
   const [searchQuery, setSearchQuery] = useState("");
   const [appliedSearch, setAppliedSearch] = useState("");
   const { view, setView } = useViewMode();
 
   const { data, isLoading, error, refetch } = useQuery({
-    queryKey: ["user-magic-items", appliedSearch],
-    queryFn: () => fetchUserMagicItems(appliedSearch),
+    queryKey: ["user-magic-items", appliedSearch, user?.id],
+    queryFn: () => fetchUserMagicItems(appliedSearch, user?.id),
     retry: (failureCount, error) => {
       // Don't retry auth errors
       if (error instanceof Error && error.message === "AUTH_REQUIRED") {
@@ -61,6 +113,12 @@ export default function MyMagicItemsPage() {
       }
       return failureCount < 2;
     },
+  });
+
+  const { data: favoritesMap = new Map() } = useReactQuery({
+    queryKey: ["favorites", "magic_item", user?.id],
+    queryFn: () => fetchFavorites(user!.id),
+    enabled: !!user,
   });
 
   // Redirect to login on auth error
@@ -78,6 +136,22 @@ export default function MyMagicItemsPage() {
   const handleSearch = (e: React.FormEvent) => {
     e.preventDefault();
     setAppliedSearch(searchQuery);
+  };
+
+  const handleFavoriteChange = (
+    itemId: string,
+    favoriteId: string | undefined,
+  ) => {
+    // This will be handled by the action menu's internal state
+    // and will refetch favorites on the next query
+  };
+
+  const handleListChange = (itemId: string, inList: boolean) => {
+    // This will be handled by the action menu's internal state
+  };
+
+  const handleDeckChange = (itemId: string, inDeck: boolean) => {
+    // This will be handled by the action menu's internal state
   };
 
   const items = data?.data ?? [];
@@ -151,18 +225,23 @@ export default function MyMagicItemsPage() {
             item_type: "custom" as const,
             creator_name: null,
           }))}
+          currentUserId={user?.id}
+          favoritesMap={favoritesMap}
+          onFavoriteChange={handleFavoriteChange}
+          onListChange={handleListChange}
         />
       ) : (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
           {items.map((item) => (
             <MagicItemCard
               key={item.id}
-              item={{
-                ...item,
-                item_type: "custom" as const,
-                creator_name: null,
-              }}
+              item={item}
               showSource={false}
+              currentUserId={user?.id}
+              favoriteId={favoritesMap?.get(item.id) || null}
+              onFavoriteChange={handleFavoriteChange}
+              onListChange={handleListChange}
+              onDeckChange={handleDeckChange}
             />
           ))}
         </div>

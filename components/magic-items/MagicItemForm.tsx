@@ -157,165 +157,176 @@ export function MagicItemForm({
           </div>
         )}
 
-        <Card>
-          <CardHeader>
-            <CardTitle>Basic Information</CardTitle>
-          </CardHeader>
-          <CardContent className="space-y-4">
-            <FormField
-              control={form.control}
-              name="name"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Name *</FormLabel>
-                  <FormControl>
-                    <Input placeholder="Sword of Flames" {...field} />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
+        {/* Two column layout on desktop, single column on mobile */}
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+          {/* Left column - Basic Information and Traits */}
+          <div className="space-y-6">
+            <Card>
+              <CardHeader>
+                <CardTitle>Basic Information</CardTitle>
+              </CardHeader>
+              <CardContent className="space-y-4">
+                <FormField
+                  control={form.control}
+                  name="name"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Name *</FormLabel>
+                      <FormControl>
+                        <Input placeholder="Sword of Flames" {...field} />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
 
-            <FormField
-              control={form.control}
-              name="description"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Description *</FormLabel>
-                  <FormControl>
-                    <Textarea
-                      placeholder="A sword that burns with magical fire..."
-                      className="min-h-[120px]"
-                      {...field}
-                    />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
+                <FormField
+                  control={form.control}
+                  name="description"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Description *</FormLabel>
+                      <FormControl>
+                        <Textarea
+                          placeholder="A sword that burns with magical fire..."
+                          className="min-h-[120px]"
+                          {...field}
+                        />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
 
-            <FormField
-              control={form.control}
-              name="is_public"
-              render={({ field }) => (
-                <FormItem className="flex flex-row items-center justify-between rounded-lg border p-4">
-                  <div className="space-y-0.5">
-                    <FormLabel className="text-base">Public</FormLabel>
-                    <FormDescription>
-                      Make this item visible to other users
-                    </FormDescription>
-                  </div>
-                  <FormControl>
-                    <Switch
-                      checked={field.value}
-                      onCheckedChange={field.onChange}
-                    />
-                  </FormControl>
-                </FormItem>
-              )}
-            />
-          </CardContent>
-        </Card>
+                <FormField
+                  control={form.control}
+                  name="is_public"
+                  render={({ field }) => (
+                    <FormItem className="flex flex-row items-center justify-between rounded-lg border p-4">
+                      <div className="space-y-0.5">
+                        <FormLabel className="text-base">Public</FormLabel>
+                        <FormDescription>
+                          Make this item visible to other users
+                        </FormDescription>
+                      </div>
+                      <FormControl>
+                        <Switch
+                          checked={field.value}
+                          onCheckedChange={field.onChange}
+                        />
+                      </FormControl>
+                    </FormItem>
+                  )}
+                />
+              </CardContent>
+            </Card>
 
-        <Card>
-          <CardHeader>
-            <CardTitle>Image</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <MagicItemImagePicker
-              value={form.watch("image_url")}
-              onChange={(url) => form.setValue("image_url", url)}
-              userId={userId}
-              disabled={isSubmitting}
-              isAiGenerated={form.watch("is_ai_generated") ?? false}
-              onAiGeneratedChange={(value) =>
-                form.setValue("is_ai_generated", value)
-              }
-            />
-          </CardContent>
-        </Card>
-
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between">
-            <CardTitle>Traits</CardTitle>
-            <Button
-              type="button"
-              variant="outline"
-              size="sm"
-              onClick={() => append({ name: "Benefit", description: "" })}
-            >
-              <Plus className="h-4 w-4 mr-2" />
-              Add Trait
-            </Button>
-          </CardHeader>
-          <CardContent className="space-y-4">
-            {fields.length === 0 && (
-              <p className="text-sm text-muted-foreground text-center py-4">
-                No traits added yet. Click &quot;Add Trait&quot; to add one.
-              </p>
-            )}
-
-            {fields.map((field, index) => (
-              <div
-                key={field.id}
-                className="flex gap-4 items-start p-4 border rounded-lg"
-              >
-                <div className="flex-1 space-y-4">
-                  <div className="flex gap-4">
-                    <div className="w-40">
-                      <Label>Type</Label>
-                      <Select
-                        value={form.watch(`traits.${index}.name`)}
-                        onValueChange={(value) =>
-                          form.setValue(
-                            `traits.${index}.name`,
-                            value as TraitType,
-                          )
-                        }
-                      >
-                        <SelectTrigger>
-                          <SelectValue />
-                        </SelectTrigger>
-                        <SelectContent>
-                          {TRAIT_TYPES.map((type) => (
-                            <SelectItem key={type} value={type}>
-                              {type}
-                            </SelectItem>
-                          ))}
-                        </SelectContent>
-                      </Select>
-                    </div>
-                    <div className="flex-1">
-                      <Label>Description</Label>
-                      <Input
-                        {...form.register(`traits.${index}.description`)}
-                        placeholder="Trait description..."
-                      />
-                      {form.formState.errors.traits?.[index]?.description && (
-                        <p className="text-sm text-destructive mt-1">
-                          {
-                            form.formState.errors.traits[index]?.description
-                              ?.message
-                          }
-                        </p>
-                      )}
-                    </div>
-                  </div>
-                </div>
+            {/* Traits card - also in left column */}
+            <Card>
+              <CardHeader className="flex flex-row items-center justify-between">
+                <CardTitle>Traits</CardTitle>
                 <Button
                   type="button"
-                  variant="ghost"
-                  size="icon"
-                  onClick={() => remove(index)}
-                  className="mt-6"
-                  aria-label={`Remove trait ${index + 1}`}
+                  variant="outline"
+                  size="sm"
+                  onClick={() => append({ name: "Benefit", description: "" })}
                 >
-                  <Trash2 className="h-4 w-4 text-destructive" />
+                  <Plus className="h-4 w-4 mr-2" />
+                  Add Trait
                 </Button>
-              </div>
-            ))}
-          </CardContent>
-        </Card>
+              </CardHeader>
+              <CardContent className="space-y-4">
+                {fields.length === 0 && (
+                  <p className="text-sm text-muted-foreground text-center py-4">
+                    No traits added yet. Click &quot;Add Trait&quot; to add one.
+                  </p>
+                )}
+
+                {fields.map((field, index) => (
+                  <div
+                    key={field.id}
+                    className="flex gap-4 items-start p-4 border rounded-lg"
+                  >
+                    <div className="flex-1 space-y-4">
+                      <div className="flex gap-4">
+                        <div className="w-40">
+                          <Label>Type</Label>
+                          <Select
+                            value={form.watch(`traits.${index}.name`)}
+                            onValueChange={(value) =>
+                              form.setValue(
+                                `traits.${index}.name`,
+                                value as TraitType,
+                              )
+                            }
+                          >
+                            <SelectTrigger>
+                              <SelectValue />
+                            </SelectTrigger>
+                            <SelectContent>
+                              {TRAIT_TYPES.map((type) => (
+                                <SelectItem key={type} value={type}>
+                                  {type}
+                                </SelectItem>
+                              ))}
+                            </SelectContent>
+                          </Select>
+                        </div>
+                        <div className="flex-1">
+                          <Label>Description</Label>
+                          <Input
+                            {...form.register(`traits.${index}.description`)}
+                            placeholder="Trait description..."
+                          />
+                          {form.formState.errors.traits?.[index]
+                            ?.description && (
+                            <p className="text-sm text-destructive mt-1">
+                              {
+                                form.formState.errors.traits[index]?.description
+                                  ?.message
+                              }
+                            </p>
+                          )}
+                        </div>
+                      </div>
+                    </div>
+                    <Button
+                      type="button"
+                      variant="ghost"
+                      size="icon"
+                      onClick={() => remove(index)}
+                      className="mt-6"
+                      aria-label={`Remove trait ${index + 1}`}
+                    >
+                      <Trash2 className="h-4 w-4 text-destructive" />
+                    </Button>
+                  </div>
+                ))}
+              </CardContent>
+            </Card>
+          </div>
+
+          {/* Right column - Image */}
+          <div className="space-y-6 lg:sticky lg:top-4 lg:h-fit">
+            <Card>
+              <CardHeader>
+                <CardTitle>Image</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <MagicItemImagePicker
+                  value={form.watch("image_url")}
+                  onChange={(url) => form.setValue("image_url", url)}
+                  userId={userId}
+                  disabled={isSubmitting}
+                  isAiGenerated={form.watch("is_ai_generated") ?? false}
+                  onAiGeneratedChange={(value) =>
+                    form.setValue("is_ai_generated", value)
+                  }
+                />
+              </CardContent>
+            </Card>
+          </div>
+        </div>
 
         <div className="flex gap-4 justify-between">
           {mode === "edit" && initialData ? (

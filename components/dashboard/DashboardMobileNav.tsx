@@ -16,6 +16,8 @@ export function DashboardMobileNav() {
     if (pathname === "/dashboard/encounters") return "encounters";
     if (pathname === "/dashboard/favorites/monsters") return "fav-monsters";
     if (pathname === "/dashboard/favorites/spells") return "fav-spells";
+    if (pathname === "/dashboard/favorites/magic-items")
+      return "fav-magic-items";
     return "monsters";
   };
 
@@ -28,6 +30,7 @@ export function DashboardMobileNav() {
       encounters: "/dashboard/encounters",
       "fav-monsters": "/dashboard/favorites/monsters",
       "fav-spells": "/dashboard/favorites/spells",
+      "fav-magic-items": "/dashboard/favorites/magic-items",
     };
     router.push(routes[value]);
   };
@@ -84,6 +87,13 @@ export function DashboardMobileNav() {
           >
             <Heart className="h-4 w-4" />
             <span className="hidden sm:inline">Fav Spells</span>
+          </TabsTrigger>
+          <TabsTrigger
+            value="fav-magic-items"
+            className="flex items-center gap-2 rounded-none border-b-2 border-transparent data-[state=active]:border-primary data-[state=active]:bg-transparent"
+          >
+            <Heart className="h-4 w-4" />
+            <span className="hidden sm:inline">Fav Magic</span>
           </TabsTrigger>
         </TabsList>
       </Tabs>

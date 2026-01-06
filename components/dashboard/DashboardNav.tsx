@@ -104,6 +104,19 @@ export function DashboardNav() {
         <Heart className="h-4 w-4" />
         Fav Spells
       </Link>
+
+      <Link
+        href="/dashboard/favorites/magic-items"
+        className={cn(
+          "flex items-center gap-3 rounded-lg px-3 py-2 text-sm font-medium transition-colors",
+          pathname === "/dashboard/favorites/magic-items"
+            ? "bg-primary text-primary-foreground"
+            : "text-muted-foreground hover:bg-muted hover:text-foreground",
+        )}
+      >
+        <Heart className="h-4 w-4" />
+        Fav Magic Items
+      </Link>
     </nav>
   );
 }

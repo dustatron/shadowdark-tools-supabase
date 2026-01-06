@@ -15,6 +15,7 @@ import Link from "next/link";
 import type {
   AllMagicItem,
   MagicItemFilterValues,
+  MagicItemWithAuthor,
 } from "@/lib/types/magic-items";
 import { DEFAULT_MAGIC_ITEM_FILTERS } from "@/lib/types/magic-items";
 
@@ -35,7 +36,7 @@ interface FetchMagicItemsParams {
 }
 
 interface FetchMagicItemsResponse {
-  data: AllMagicItem[];
+  data: MagicItemWithAuthor[];
   pagination: {
     totalCount: number;
     totalPages: number;
@@ -70,8 +71,23 @@ async function fetchMagicItems({
 
   const result = await response.json();
 
+  // Transform data to include author field
+  const transformedData: MagicItemWithAuthor[] = (result.data || []).map(
+    (item: AllMagicItem) => ({
+      ...item,
+      author:
+        item.user_id && item.creator_name
+          ? {
+              id: item.user_id,
+              display_name: item.creator_name,
+              avatar_url: null,
+            }
+          : null,
+    }),
+  );
+
   return {
-    data: result.data || [],
+    data: transformedData,
     pagination: result.pagination || { totalCount: 0, totalPages: 0 },
   };
 }
@@ -150,6 +166,22 @@ export default function MagicItemsPage() {
     setPage(1);
   };
 
+  const handleFavoriteChange = (
+    itemId: string,
+    favoriteId: string | undefined,
+  ) => {
+    // This will be handled by the action menu's internal state
+    // and will refetch favorites on the next query
+  };
+
+  const handleListChange = (itemId: string, inList: boolean) => {
+    // This will be handled by the action menu's internal state
+  };
+
+  const handleDeckChange = (itemId: string, inDeck: boolean) => {
+    // This will be handled by the action menu's internal state
+  };
+
   return (
     <div>
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-6">
@@ -200,6 +232,9 @@ export default function MagicItemsPage() {
         onPageSizeChange={handlePageSizeChange}
         onRetry={() => refetch()}
         view={view}
+        onFavoriteChange={handleFavoriteChange}
+        onListChange={handleListChange}
+        onDeckChange={handleDeckChange}
       />
     </div>
   );
