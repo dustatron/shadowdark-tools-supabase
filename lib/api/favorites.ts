@@ -3,7 +3,7 @@ import { Favorite } from "@/lib/types/profile.types";
 
 export async function addToFavorites(
   userId: string,
-  itemType: "monster" | "spell",
+  itemType: "monster" | "spell" | "magic_item",
   itemId: string,
 ): Promise<Favorite> {
   const supabase = await createClient();
@@ -31,7 +31,7 @@ export async function removeFromFavorites(favoriteId: string): Promise<void> {
 
 export async function getFavoriteId(
   userId: string,
-  itemType: "monster" | "spell",
+  itemType: "monster" | "spell" | "magic_item",
   itemId: string,
 ): Promise<string | null> {
   const supabase = await createClient();
@@ -49,7 +49,7 @@ export async function getFavoriteId(
 
 export async function getUserFavoriteIds(
   userId: string,
-  itemType: "monster" | "spell",
+  itemType: "monster" | "spell" | "magic_item",
 ): Promise<Array<{ item_id: string; favorite_id: string }>> {
   const supabase = await createClient();
 

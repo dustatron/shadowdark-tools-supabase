@@ -1,7 +1,7 @@
 import { createClient } from "@/lib/supabase/server";
 import { TraitsSection } from "@/components/magic-items/TraitsSection";
 import { SourceBadge } from "@/components/magic-items/SourceBadge";
-import { UserMagicItemActions } from "@/components/magic-items/UserMagicItemActions";
+import { MagicItemDetailClient } from "./MagicItemDetailClient";
 import { Button } from "@/components/primitives/button";
 import {
   Card,
@@ -15,6 +15,7 @@ import Link from "next/link";
 import Image from "next/image";
 import { notFound } from "next/navigation";
 import { getTransformedImageUrl } from "@/lib/utils/cloudinary";
+import type { MagicItemWithAuthor } from "@/lib/types/magic-items";
 
 interface MagicItem {
   id: string;
@@ -41,11 +42,15 @@ async function fetchMagicItem(
   slug: string,
   currentUserId: string | null,
 ): Promise<{
-  item: MagicItem | null;
+  item: MagicItemWithAuthor | null;
   itemType: "official" | "custom";
   creatorName: string | null;
   userId: string | null;
+  favoriteId: string | null;
 }> {
+  // Check for favorite if user is logged in
+  let favoriteId: string | null = null;
+
   // First try to find in official_magic_items
   const { data: officialItem } = await supabase
     .from("official_magic_items")
@@ -54,11 +59,34 @@ async function fetchMagicItem(
     .single();
 
   if (officialItem) {
+    // Check if user has favorited this item
+    if (currentUserId) {
+      const { data: favorite } = await supabase
+        .from("favorites")
+        .select("id")
+        .eq("user_id", currentUserId)
+        .eq("item_type", "magic_item")
+        .eq("item_id", officialItem.id)
+        .single();
+
+      favoriteId = favorite?.id || null;
+    }
+
+    const item: MagicItemWithAuthor = {
+      ...officialItem,
+      item_type: "official",
+      user_id: null,
+      creator_name: null,
+      is_public: true,
+      author: null,
+    };
+
     return {
-      item: officialItem,
+      item,
       itemType: "official",
       creatorName: null,
       userId: null,
+      favoriteId,
     };
   }
 
@@ -76,13 +104,39 @@ async function fetchMagicItem(
     .single();
 
   if (userItem) {
+    // Check if user has favorited this item
+    if (currentUserId) {
+      const { data: favorite } = await supabase
+        .from("favorites")
+        .select("id")
+        .eq("user_id", currentUserId)
+        .eq("item_type", "magic_item")
+        .eq("item_id", userItem.id)
+        .single();
+
+      favoriteId = favorite?.id || null;
+    }
+
+    const creator = userItem.user_profiles as { display_name: string } | null;
+    const item: MagicItemWithAuthor = {
+      ...userItem,
+      item_type: "custom",
+      creator_name: creator?.display_name || null,
+      author: userItem.user_id
+        ? {
+            id: userItem.user_id,
+            display_name: creator?.display_name || null,
+            avatar_url: null,
+          }
+        : null,
+    };
+
     return {
-      item: userItem,
+      item,
       itemType: "custom",
-      creatorName:
-        (userItem.user_profiles as { display_name: string })?.display_name ||
-        null,
+      creatorName: creator?.display_name || null,
       userId: userItem.user_id,
+      favoriteId,
     };
   }
 
@@ -96,16 +150,45 @@ async function fetchMagicItem(
       .single();
 
     if (ownItem) {
+      // Get favorite for own item
+      const { data: favorite } = await supabase
+        .from("favorites")
+        .select("id")
+        .eq("user_id", currentUserId)
+        .eq("item_type", "magic_item")
+        .eq("item_id", ownItem.id)
+        .single();
+
+      favoriteId = favorite?.id || null;
+
+      const item: MagicItemWithAuthor = {
+        ...ownItem,
+        item_type: "custom",
+        creator_name: null,
+        author: {
+          id: currentUserId,
+          display_name: null,
+          avatar_url: null,
+        },
+      };
+
       return {
-        item: ownItem,
+        item,
         itemType: "custom",
         creatorName: null,
         userId: ownItem.user_id,
+        favoriteId,
       };
     }
   }
 
-  return { item: null, itemType: "official", creatorName: null, userId: null };
+  return {
+    item: null,
+    itemType: "official",
+    creatorName: null,
+    userId: null,
+    favoriteId: null,
+  };
 }
 
 export default async function MagicItemDetailPage({ params }: PageProps) {
@@ -117,17 +200,14 @@ export default async function MagicItemDetailPage({ params }: PageProps) {
     data: { user },
   } = await supabase.auth.getUser();
 
-  const { item, itemType, creatorName, userId } = await fetchMagicItem(
-    supabase,
-    slug,
-    user?.id || null,
-  );
+  const { item, itemType, creatorName, userId, favoriteId } =
+    await fetchMagicItem(supabase, slug, user?.id || null);
 
   if (!item) {
     notFound();
   }
 
-  const magicItem = item as MagicItem;
+  const magicItem = item;
   const isOwner = user && userId === user.id;
 
   // Group traits by type
@@ -156,76 +236,72 @@ export default async function MagicItemDetailPage({ params }: PageProps) {
 
       <div className="space-y-6">
         <Card>
-          <CardContent>
+          <CardHeader>
             {/* Main Info */}
-            <CardHeader>
-              <div className="flex gap-6">
-                {/* Image */}
-                <div className="flex-shrink-0">
-                  <div className="relative w-40 h-40 sm:w-52 sm:h-52 rounded-lg overflow-hidden bg-zinc-900 flex items-center justify-center">
-                    {magicItem.image_url ? (
-                      <Image
-                        src={
-                          getTransformedImageUrl(
-                            magicItem.image_url,
-                            "detail",
-                          ) || ""
-                        }
-                        alt={magicItem.name}
-                        fill
-                        className="object-cover"
-                        unoptimized
-                      />
-                    ) : (
-                      <Sparkles className="h-16 w-16 text-muted-foreground" />
-                    )}
-                  </div>
-                  {magicItem.is_ai_generated && (
-                    <Badge variant="secondary" className="mt-2 text-xs">
-                      <Wand2 className="h-3 w-3 mr-1" />
-                      AI Generated
-                    </Badge>
+            <div className="flex gap-6">
+              {/* Image */}
+              <div className="flex-shrink-0">
+                <div className="relative w-40 h-40 sm:w-52 sm:h-52 rounded-lg overflow-hidden bg-zinc-900 flex items-center justify-center">
+                  {magicItem.image_url ? (
+                    <Image
+                      src={
+                        getTransformedImageUrl(magicItem.image_url, "detail") ||
+                        ""
+                      }
+                      alt={magicItem.name}
+                      fill
+                      className="object-cover"
+                      unoptimized
+                    />
+                  ) : (
+                    <Sparkles className="h-16 w-16 text-muted-foreground" />
                   )}
                 </div>
+                {magicItem.is_ai_generated && (
+                  <Badge variant="secondary" className="mt-2 text-xs">
+                    <Wand2 className="h-3 w-3 mr-1" />
+                    AI Generated
+                  </Badge>
+                )}
+              </div>
 
-                <div className="flex-1 min-w-0">
-                  <div className="flex items-start justify-between gap-4">
-                    <CardTitle className="text-3xl">{magicItem.name}</CardTitle>
+              <div className="flex-1 min-w-0">
+                <div className="flex items-start justify-between gap-4">
+                  <CardTitle className="text-3xl">{magicItem.name}</CardTitle>
+                  <div className="flex items-center gap-2">
                     <SourceBadge
                       itemType={itemType}
                       creatorName={creatorName}
                       userId={userId}
                     />
+                    <MagicItemDetailClient
+                      item={magicItem}
+                      userId={user?.id || null}
+                      favoriteId={favoriteId}
+                      isOwner={isOwner}
+                    />
                   </div>
-                  {isOwner && (
-                    <div className="mt-4">
-                      <UserMagicItemActions itemSlug={magicItem.slug} />
-                    </div>
-                  )}
-                  <p className="text-base leading-relaxed">
-                    {magicItem.description}
-                  </p>
                 </div>
+                <p className="text-base leading-relaxed mt-4">
+                  {magicItem.description}
+                </p>
               </div>
-            </CardHeader>
-
-            {/* Traits Section */}
-            {magicItem.traits.length > 0 && (
-              <>
-                <CardHeader>
-                  <CardTitle className="text-xl">Traits</CardTitle>
-                </CardHeader>
-                <TraitsSection
-                  groupedTraits={{
-                    Benefit: groupedTraits.Benefit,
-                    Curse: groupedTraits.Curse,
-                    Bonus: groupedTraits.Bonus,
-                    Personality: groupedTraits.Personality,
-                  }}
-                />
-              </>
-            )}
-          </CardContent>
+            </div>
+          </CardHeader>
+          {/* Traits Section */}
+          {magicItem.traits.length > 0 && (
+            <CardContent>
+              <CardTitle className="text-xl mb-4">Traits</CardTitle>
+              <TraitsSection
+                groupedTraits={{
+                  Benefit: groupedTraits.Benefit,
+                  Curse: groupedTraits.Curse,
+                  Bonus: groupedTraits.Bonus,
+                  Personality: groupedTraits.Personality,
+                }}
+              />
+            </CardContent>
+          )}
         </Card>
       </div>
     </div>

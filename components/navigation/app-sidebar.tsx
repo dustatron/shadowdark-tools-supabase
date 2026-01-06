@@ -173,13 +173,20 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
         defaultLink: "/magic-items",
         defaultOpen:
           pathname.startsWith("/magic-items") ||
-          pathname.includes("/dashboard/magic-items"),
+          pathname.includes("/dashboard/magic-items") ||
+          pathname.includes("/favorites/magic-items"),
         items: [
           { href: "/magic-items", label: "Browse", icon: Search },
           {
             href: "/magic-items/my-items",
             label: "Your Magic Items",
             icon: Wand2,
+            requiresAuth: true,
+          },
+          {
+            href: "/dashboard/favorites/magic-items",
+            label: "Favorites",
+            icon: Heart,
             requiresAuth: true,
           },
           {

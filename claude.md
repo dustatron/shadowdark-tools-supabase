@@ -12,9 +12,12 @@
 
 ## Supabase Database
 
+- **IMPORTANT: We are NOT using local Supabase/Docker - we link directly to the deployed Supabase instance**
 - Your primary method for interacting with the Supabase database should be through the Supabase MCP server
 - Use MCP tools for: querying tables, executing SQL, applying migrations, checking schemas, getting logs
 - Project ID: anradzoxmwjpzlldneac
+- Do NOT use `supabase start`, `supabase stop`, or `npx supabase db push --local`
+- Migrations should be applied directly to the deployed instance using `npx supabase db push`
 
 ## Plans
 

@@ -9,7 +9,7 @@ import {
 } from "@/lib/api/favorites";
 
 export async function toggleFavorite(
-  itemType: "monster" | "spell",
+  itemType: "monster" | "spell" | "magic_item",
   itemId: string,
   currentFavoriteId?: string,
 ) {

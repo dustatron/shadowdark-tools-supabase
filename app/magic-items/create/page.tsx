@@ -22,13 +22,15 @@ export default async function CreateMagicItemPage() {
   }
 
   return (
-    <div className="container mx-auto px-4 py-8 max-w-3xl">
-      <Button variant="ghost" asChild className="mb-6">
-        <Link href="/magic-items">
-          <ArrowLeft className="h-4 w-4 mr-2" />
-          Back to Magic Items
-        </Link>
-      </Button>
+    <div className="py-8">
+      <div className="mb-6">
+        <Button variant="ghost" asChild>
+          <Link href="/magic-items">
+            <ArrowLeft className="h-4 w-4 mr-2" />
+            Back to Magic Items
+          </Link>
+        </Button>
+      </div>
 
       <div className="space-y-6">
         <div>
