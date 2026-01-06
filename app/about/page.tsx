@@ -7,20 +7,12 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/primitives/card";
-import {
-  Sword,
-  Wand2,
-  Users,
-  Share2,
-  BookOpen,
-  Dice6,
-  Sparkles,
-} from "lucide-react";
+import { Sword, Wand2, Users, Share2, BookOpen, Sparkles } from "lucide-react";
 
 export const metadata: Metadata = {
   title: "About | Dungeon Exchange",
   description:
-    "Learn about Dungeon Exchange - a community-driven reference and toolkit for Shadowdark RPG. Browse official content, create custom monsters and spells, and share with the community.",
+    "Dungeon Exchange - A free stat reference and sharing platform for Shadowdark RPG. Find monsters, items, and spells to convert your favorite adventures.",
 };
 
 export default function AboutPage() {
@@ -33,10 +25,7 @@ export default function AboutPage() {
             About Dungeon Exchange
           </h1>
           <p className="text-xl text-muted-foreground">
-            Your community-powered toolkit for running epic Shadowdark sessions
-          </p>
-          <p className="text-sm text-muted-foreground">
-            Compatible with Shadowdark RPG
+            A free stat reference for converting adventures to Shadowdark
           </p>
         </div>
 
@@ -45,36 +34,19 @@ export default function AboutPage() {
           <h2 className="font-heading text-3xl font-bold">What is this?</h2>
           <div className="flex flex-col gap-4 text-muted-foreground">
             <p>
-              Dungeon Exchange is a free community resource and toolkit designed
-              for Shadowdark RPG Game Masters. We provide comprehensive
-              reference databases for monsters, spells, and magic items from the
-              core rules, plus powerful tools to create and share your own
-              homebrew content with the community.
-            </p>
-            <p className="text-sm font-medium">
-              ✨ Fully compatible with Shadowdark RPG | 100% Free
+              Dungeon Exchange is a community-powered stat reference for
+              Shadowdark RPG. We help GMs convert and run published adventures -
+              whether it&apos;s Curse of Strahd, a classic TSR module, or any
+              other system&apos;s content.
             </p>
             <p>
-              This isn&apos;t a replacement for the{" "}
-              <a
-                href="https://www.thearcanelibrary.com/collections/shadowdark-rpg/products/shadowdark-rpg-quickstart-set-pdf"
-                target="_blank"
-                rel="noopener noreferrer"
-                className="text-primary hover:underline font-medium"
-              >
-                core rules
-              </a>{" "}
-              - you&apos;ll still need those to play. Instead, we&apos;re here
-              to inspire and improve your game with quick reference tools and
-              quality content, whether you&apos;re running a VTT session or
-              playing at the table.
+              When you convert monsters or items for your game, share them here
+              so other GMs don&apos;t have to do the same work. Find what you
+              need, use it at your table, and contribute back to the community.
             </p>
             <p>
-              Create custom monsters, spells, and magic items. Build random
-              encounter tables. Generate print-and-play reference cards to hand
-              out at your table. Share your creative ideas with other GMs and
-              discover thousands of community-created stat blocks. Our goal? Get
-              you to the table quicker with high-quality, playable content.
+              We also provide print-and-play cards for spells and magic items -
+              hand them directly to players at your table.
             </p>
           </div>
         </section>
@@ -87,14 +59,13 @@ export default function AboutPage() {
               <CardHeader>
                 <CardTitle className="flex items-center gap-2">
                   <BookOpen className="h-5 w-5" />
-                  Quick Reference
+                  Stat Reference
                 </CardTitle>
               </CardHeader>
               <CardContent>
                 <p className="text-sm text-muted-foreground">
-                  Fast access to official Shadowdark monsters, spells, and magic
-                  items. Search and filter by challenge level, tier, type, and
-                  more. Perfect for quick lookups during sessions.
+                  Quick access to monsters, spells, and items. Search by name,
+                  filter by challenge level or type. Find what you need fast.
                 </p>
               </CardContent>
             </Card>
@@ -103,14 +74,13 @@ export default function AboutPage() {
               <CardHeader>
                 <CardTitle className="flex items-center gap-2">
                   <Sword className="h-5 w-5" />
-                  Custom Monster Creation
+                  Convert & Share
                 </CardTitle>
               </CardHeader>
               <CardContent>
                 <p className="text-sm text-muted-foreground">
-                  Build your own monsters with our easy-to-use creator. Define
-                  stats, attacks, abilities, and treasure. Keep them private or
-                  share with the community.
+                  Create Shadowdark stat blocks for creatures from other
+                  systems. Share your conversions so other GMs can use them too.
                 </p>
               </CardContent>
             </Card>
@@ -119,30 +89,13 @@ export default function AboutPage() {
               <CardHeader>
                 <CardTitle className="flex items-center gap-2">
                   <Wand2 className="h-5 w-5" />
-                  Spell & Item Library
+                  Magic Items & Spells
                 </CardTitle>
               </CardHeader>
               <CardContent>
                 <p className="text-sm text-muted-foreground">
-                  Create custom spells and magic items for your campaigns. Track
-                  your favorites and discover unique homebrew content from other
-                  GMs.
-                </p>
-              </CardContent>
-            </Card>
-
-            <Card>
-              <CardHeader>
-                <CardTitle className="flex items-center gap-2">
-                  <Dice6 className="h-5 w-5" />
-                  Random Encounter Tables
-                </CardTitle>
-              </CardHeader>
-              <CardContent>
-                <p className="text-sm text-muted-foreground">
-                  Generate random encounter tables filtered by challenge level,
-                  monster type, and environment. Roll on tables during sessions
-                  or share them publicly.
+                  Browse and create custom spells and magic items. Perfect for
+                  adapting treasure from published adventures.
                 </p>
               </CardContent>
             </Card>
@@ -156,9 +109,8 @@ export default function AboutPage() {
               </CardHeader>
               <CardContent>
                 <p className="text-sm text-muted-foreground">
-                  Build custom card decks from any monster, spell, or item.
-                  Print professional-looking reference cards to bring to your
-                  table.
+                  Generate printable cards for spells and magic items. Hand them
+                  to players at the table for easy reference.
                 </p>
               </CardContent>
             </Card>
@@ -167,43 +119,16 @@ export default function AboutPage() {
               <CardHeader>
                 <CardTitle className="flex items-center gap-2">
                   <Users className="h-5 w-5" />
-                  Community Database
+                  Community Library
                 </CardTitle>
               </CardHeader>
               <CardContent>
                 <p className="text-sm text-muted-foreground">
-                  Browse thousands of user-created monsters, spells, and items.
-                  Save favorites, leave feedback, and contribute your own
-                  creations for everyone&apos;s games.
+                  Browse content shared by other GMs. Save favorites, discover
+                  conversions, and skip the prep work others have already done.
                 </p>
               </CardContent>
             </Card>
-          </div>
-        </section>
-
-        {/* Community */}
-        <section className="flex flex-col gap-4">
-          <h2 className="font-heading text-3xl font-bold">Community</h2>
-          <div className="flex flex-col gap-4 text-muted-foreground">
-            <p>
-              The heart of Dungeon Exchange is sharing creative ideas. When you
-              create a monster, spell, or magic item, you can publish it for
-              other GMs to discover, use, and save to their favorites. Every
-              contribution helps fellow GMs get to the table quicker with
-              quality content.
-            </p>
-            <p>
-              Got a unique undead variant? A clever spell for NPCs? An
-              interesting magic item? Share it! Browse the community library for
-              inspiration, discover creative stat blocks, and save favorites to
-              your collection. We&apos;re building a shared resource that makes
-              prep faster and games more interesting.
-            </p>
-            <p>
-              Quality matters. Content can be flagged for review if it
-              doesn&apos;t meet community standards, and our moderation team
-              keeps things running smoothly.
-            </p>
           </div>
         </section>
 
@@ -212,34 +137,18 @@ export default function AboutPage() {
           <h2 className="font-heading text-3xl font-bold">Getting Started</h2>
           <div className="flex flex-col gap-4 text-muted-foreground">
             <p>
-              New to Shadowdark? Grab the{" "}
-              <a
-                href="https://www.thearcanelibrary.com/collections/shadowdark-rpg/products/shadowdark-rpg-quickstart-set-pdf"
-                target="_blank"
-                rel="noopener noreferrer"
-                className="text-primary hover:underline font-medium"
-              >
-                free quickstart rules
-              </a>{" "}
-              first - you&apos;ll need those to play. Then come back here for
-              tools and inspiration.
+              Browse monsters, spells, and items without an account. Search,
+              filter, and use whatever you find.
             </p>
             <p>
-              Browse monsters, spells, and magic items without signing up. Click
-              around, explore the reference databases, and see what the
-              community has created.
-            </p>
-            <p>
-              Want to create custom content or save favorites?{" "}
+              Want to contribute?{" "}
               <Link
                 href="/auth/sign-up"
                 className="text-primary hover:underline font-medium"
               >
                 Create a free account
               </Link>{" "}
-              to unlock the full toolkit. Build monsters, spells, magic items,
-              encounter tables, and print-and-play card decks. Share your
-              creations or keep them private - your choice.
+              to add your own conversions and share them with the community.
             </p>
           </div>
         </section>
@@ -248,11 +157,11 @@ export default function AboutPage() {
         <div className="flex flex-col gap-4 items-center text-center p-8 bg-muted rounded-lg">
           <Share2 className="h-12 w-12 text-primary" />
           <h3 className="font-heading text-2xl font-bold">
-            Ready to get started?
+            Help other GMs run great games
           </h3>
           <p className="text-muted-foreground max-w-2xl">
-            Create an account to start building custom content and sharing with
-            the Shadowdark community.
+            Share your monster conversions and custom items. Every contribution
+            makes it easier for someone else to run their next session.
           </p>
           <div className="flex items-center gap-4 mt-4">
             <Button size="lg" asChild>

@@ -288,8 +288,8 @@ export function MonsterFilters({
           />
 
           {/* Search and Filter Button */}
-          <div className="flex gap-2">
-            <div className="relative flex-1">
+          <div className="flex flex-col gap-4">
+            <div className="relative">
               <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
               <Input
                 placeholder="Search monsters by name or description..."
@@ -306,70 +306,73 @@ export function MonsterFilters({
                 disabled={loading}
               />
             </div>
-            <Button onClick={applyFilters} disabled={loading}>
-              <Search className="h-4 w-4 mr-2" />
-              Search
-            </Button>
 
-            {/* Mobile Filter Button - Opens Sheet */}
-            <Sheet open={mobileSheetOpen} onOpenChange={setMobileSheetOpen}>
-              <SheetTrigger asChild>
+            <div className="flex gap-2 justify-end">
+              {hasActiveFilters && (
                 <Button
-                  variant={activeFilterCount > 0 ? "default" : "outline"}
-                  className="md:hidden"
+                  variant="ghost"
+                  size="icon"
+                  onClick={clearFilters}
+                  title="Clear all filters"
+                  aria-label="Clear all filters"
                 >
-                  <Filter className="h-4 w-4" />
-                  {activeFilterCount > 0 && (
-                    <Badge variant="secondary" className="ml-2">
-                      {activeFilterCount}
-                    </Badge>
-                  )}
+                  <FilterX className="h-4 w-4 text-destructive" />
                 </Button>
-              </SheetTrigger>
-              <SheetContent
-                side="bottom"
-                className="h-[90vh] px-4 pb-8 sm:px-6"
-              >
-                <SheetHeader className="pb-4">
-                  <SheetTitle>Filter Monsters</SheetTitle>
-                </SheetHeader>
-                <div className="overflow-y-auto h-[calc(90vh-80px)] px-1">
-                  {FilterContent}
-                </div>
-              </SheetContent>
-            </Sheet>
-
-            {/* Desktop Filter Button - Toggles Collapsible */}
-            <Button
-              variant={expanded ? "default" : "outline"}
-              onClick={() => setExpanded(!expanded)}
-              className="hidden md:flex"
-            >
-              <Filter className="h-4 w-4 mr-2" />
-              Filters
-              {activeFilterCount > 0 && (
-                <Badge variant="secondary" className="ml-2">
-                  {activeFilterCount}
-                </Badge>
               )}
-              {expanded ? (
-                <ChevronUp className="h-3.5 w-3.5 ml-2" />
-              ) : (
-                <ChevronDown className="h-3.5 w-3.5 ml-2" />
-              )}
-            </Button>
 
-            {hasActiveFilters && (
+              {/* Mobile Filter Button - Opens Sheet */}
+              <Sheet open={mobileSheetOpen} onOpenChange={setMobileSheetOpen}>
+                <SheetTrigger asChild>
+                  <Button
+                    variant={activeFilterCount > 0 ? "default" : "outline"}
+                    className="md:hidden"
+                  >
+                    <Filter className="h-4 w-4" />
+                    {activeFilterCount > 0 && (
+                      <Badge variant="secondary" className="ml-2">
+                        {activeFilterCount}
+                      </Badge>
+                    )}
+                  </Button>
+                </SheetTrigger>
+                <SheetContent
+                  side="bottom"
+                  className="h-[90vh] px-4 pb-8 sm:px-6"
+                >
+                  <SheetHeader className="pb-4">
+                    <SheetTitle>Filter Monsters</SheetTitle>
+                  </SheetHeader>
+                  <div className="overflow-y-auto h-[calc(90vh-80px)] px-1">
+                    {FilterContent}
+                  </div>
+                </SheetContent>
+              </Sheet>
+
+              {/* Desktop Filter Button - Toggles Collapsible */}
               <Button
-                variant="ghost"
-                size="icon"
-                onClick={clearFilters}
-                title="Clear all filters"
-                aria-label="Clear all filters"
+                variant={expanded ? "default" : "outline"}
+                onClick={() => setExpanded(!expanded)}
+                className="hidden md:flex"
               >
-                <FilterX className="h-4 w-4 text-destructive" />
+                <Filter className="h-4 w-4 mr-2" />
+                Filters
+                {activeFilterCount > 0 && (
+                  <Badge variant="secondary" className="ml-2">
+                    {activeFilterCount}
+                  </Badge>
+                )}
+                {expanded ? (
+                  <ChevronUp className="h-3.5 w-3.5 ml-2" />
+                ) : (
+                  <ChevronDown className="h-3.5 w-3.5 ml-2" />
+                )}
               </Button>
-            )}
+
+              <Button onClick={applyFilters} disabled={loading}>
+                <Search className="h-4 w-4 mr-2" />
+                Search
+              </Button>
+            </div>
           </div>
 
           {/* Desktop Advanced Filters - Collapsible */}

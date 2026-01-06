@@ -71,7 +71,7 @@ export function MagicItemFilters({
           disabled={loading}
         />
 
-        <div className="space-y-4">
+        <div className="flex flex-col gap-4">
           {/* Search Input */}
           <SearchInput
             value={filters.search}
@@ -81,13 +81,30 @@ export function MagicItemFilters({
             debounceMs={300}
           />
 
-          {/* Collapsible Advanced Filters */}
-          <Collapsible open={expanded} onOpenChange={setExpanded}>
-            <div className="flex items-center justify-between">
+          {/* Filter Buttons */}
+          <div className="flex gap-2 justify-end">
+            {hasActiveFilters && (
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={clearFilters}
+                className="gap-2"
+                disabled={loading}
+              >
+                <FilterX className="h-4 w-4" />
+                Clear All
+              </Button>
+            )}
+
+            <Collapsible open={expanded} onOpenChange={setExpanded}>
               <CollapsibleTrigger asChild>
-                <Button variant="ghost" size="sm" className="gap-2">
+                <Button
+                  variant={expanded ? "default" : "outline"}
+                  size="sm"
+                  className="gap-2"
+                >
                   <Filter className="h-4 w-4" />
-                  Advanced Filters
+                  Filters
                   {expanded ? (
                     <ChevronUp className="h-4 w-4" />
                   ) : (
@@ -95,22 +112,12 @@ export function MagicItemFilters({
                   )}
                 </Button>
               </CollapsibleTrigger>
+            </Collapsible>
+          </div>
 
-              {hasActiveFilters && (
-                <Button
-                  variant="ghost"
-                  size="sm"
-                  onClick={clearFilters}
-                  className="gap-2"
-                  disabled={loading}
-                >
-                  <FilterX className="h-4 w-4" />
-                  Clear All
-                </Button>
-              )}
-            </div>
-
-            <CollapsibleContent className="space-y-4 mt-4">
+          {/* Collapsible Advanced Filters */}
+          <Collapsible open={expanded} onOpenChange={setExpanded}>
+            <CollapsibleContent className="space-y-4">
               {/* Trait Types Filter */}
               <div className="space-y-2">
                 <label className="text-sm font-medium">Trait Types</label>

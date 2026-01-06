@@ -22,11 +22,8 @@ export default async function Home() {
             Dungeon Exchange
           </h1>
           <p className="text-xl text-muted-foreground max-w-2xl">
-            A free community resource for Shadowdark RPG. Search monsters, magic
-            items, and equipment. Discover content from GMs worldwide.
-          </p>
-          <p className="text-sm text-muted-foreground">
-            Compatible with Shadowdark RPG | 100% Free
+            Find and share simple stats and equipment for running and converting
+            adventures in Shadowdark.
           </p>
         </div>
 

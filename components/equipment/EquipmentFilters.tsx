@@ -6,19 +6,12 @@ import { useDebounce } from "use-debounce";
 import { Card, CardContent } from "@/components/primitives/card";
 import { Input } from "@/components/primitives/input";
 import { Button } from "@/components/primitives/button";
-import { Badge } from "@/components/primitives/badge";
 import { MultiSelect } from "@/components/primitives/multi-select";
 import {
   Collapsible,
   CollapsibleContent,
+  CollapsibleTrigger,
 } from "@/components/primitives/collapsible";
-import {
-  Sheet,
-  SheetContent,
-  SheetHeader,
-  SheetTitle,
-  SheetTrigger,
-} from "@/components/primitives/sheet";
 import {
   AVAILABLE_ITEM_TYPES,
   FilterValues,
@@ -37,7 +30,6 @@ export function EquipmentFilters({
   loading = false,
 }: EquipmentFiltersProps) {
   const [expanded, setExpanded] = useState(false);
-  const [mobileSheetOpen, setMobileSheetOpen] = useState(false);
   const [localSearch, setLocalSearch] = useState(filters.search);
 
   const [debouncedSearch] = useDebounce(localSearch, 500);
@@ -70,129 +62,92 @@ export function EquipmentFilters({
     filters.itemType.length > 0,
   ].filter(Boolean).length;
 
-  const FilterContent = () => (
-    <div className="flex flex-col gap-4">
-      {/* Item Types */}
-      <MultiSelect
-        label="Item Types"
-        placeholder="Select item types"
-        options={AVAILABLE_ITEM_TYPES.map((type) => ({
-          value: type,
-          label: type,
-        }))}
-        selected={filters.itemType}
-        onChange={(value) => handleFilterChange("itemType", value)}
-        searchable
-        clearable
-        disabled={loading}
-      />
-
-      {/* Filter Actions */}
-      <div className="flex justify-end">
-        <Button
-          variant="ghost"
-          size="sm"
-          onClick={clearFilters}
-          disabled={!hasActiveFilters || loading}
-        >
-          Clear All
-        </Button>
-      </div>
-    </div>
-  );
-
   return (
     <Card>
-      <CardContent className="pt-6">
+      <CardContent className="p-4 space-y-4">
         <div className="flex flex-col gap-4">
-          {/* Search and Filter Button */}
-          <div className="flex gap-2">
-            <div className="relative flex-1">
-              <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-              <Input
-                placeholder="Search equipment by name..."
-                value={localSearch}
-                onChange={(e) => setLocalSearch(e.target.value)}
-                className="pl-9"
-              />
-            </div>
-
-            <div className="flex gap-2">
-              {/* Mobile Filter Button - Opens Sheet */}
-              <Sheet open={mobileSheetOpen} onOpenChange={setMobileSheetOpen}>
-                <SheetTrigger asChild>
-                  <Button
-                    variant={activeFilterCount > 0 ? "default" : "outline"}
-                    className="md:hidden"
-                  >
-                    <Filter className="h-4 w-4" />
-                    {activeFilterCount > 0 && (
-                      <Badge variant="secondary" className="ml-2">
-                        {activeFilterCount}
-                      </Badge>
-                    )}
-                  </Button>
-                </SheetTrigger>
-                <SheetContent
-                  side="bottom"
-                  className="h-[90vh] px-4 pb-8 sm:px-6"
-                >
-                  <SheetHeader className="pb-4">
-                    <SheetTitle>Filter Equipment</SheetTitle>
-                  </SheetHeader>
-                  <div className="overflow-y-auto h-[calc(90vh-80px)] px-1">
-                    <FilterContent />
-                  </div>
-                </SheetContent>
-              </Sheet>
-
-              {/* Desktop Filter Button - Toggles Collapsible */}
-              <Button
-                variant={expanded ? "default" : "outline"}
-                onClick={() => setExpanded(!expanded)}
-                className="hidden md:flex"
-              >
-                <Filter className="h-4 w-4 mr-2" />
-                Filters
-                {activeFilterCount > 0 && (
-                  <Badge variant="secondary" className="ml-2">
-                    {activeFilterCount}
-                  </Badge>
-                )}
-                {expanded ? (
-                  <ChevronUp className="h-3.5 w-3.5 ml-2" />
-                ) : (
-                  <ChevronDown className="h-3.5 w-3.5 ml-2" />
-                )}
-              </Button>
-
-              {hasActiveFilters && (
-                <Button
-                  variant="ghost"
-                  size="icon"
-                  onClick={clearFilters}
-                  title="Clear all filters"
-                  aria-label="Clear all filters"
-                >
-                  <FilterX className="h-4 w-4 text-destructive" />
-                </Button>
-              )}
-            </div>
+          {/* Search Input - Full Width */}
+          <div className="relative">
+            <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+            <Input
+              placeholder="Search equipment by name..."
+              value={localSearch}
+              onChange={(e) => setLocalSearch(e.target.value)}
+              className="pl-9"
+              disabled={loading}
+            />
           </div>
 
-          {/* Desktop Advanced Filters - Collapsible */}
-          <Collapsible
-            open={expanded}
-            onOpenChange={setExpanded}
-            className="hidden md:block"
-          >
-            <CollapsibleContent>
-              <div className="pt-4 border-t">
-                <FilterContent />
-              </div>
-            </CollapsibleContent>
-          </Collapsible>
+          {/* Filter Buttons - Right Aligned */}
+          <div className="flex gap-2 justify-end">
+            {hasActiveFilters && (
+              <Button
+                variant="ghost"
+                size="icon"
+                onClick={clearFilters}
+                title="Clear all filters"
+                aria-label="Clear all filters"
+                className="text-destructive hover:text-destructive"
+              >
+                <FilterX className="h-4 w-4" />
+              </Button>
+            )}
+
+            <Collapsible open={expanded} onOpenChange={setExpanded}>
+              <CollapsibleTrigger asChild>
+                <Button
+                  variant={expanded ? "default" : "outline"}
+                  className="gap-2"
+                >
+                  <Filter className="h-4 w-4" />
+                  Filters
+                  {activeFilterCount > 0 && (
+                    <span className="text-xs">({activeFilterCount})</span>
+                  )}
+                  {expanded ? (
+                    <ChevronUp className="h-4 w-4" />
+                  ) : (
+                    <ChevronDown className="h-4 w-4" />
+                  )}
+                </Button>
+              </CollapsibleTrigger>
+            </Collapsible>
+          </div>
         </div>
+
+        {/* Collapsible Filters */}
+        <Collapsible open={expanded} onOpenChange={setExpanded}>
+          <CollapsibleContent>
+            <div className="space-y-4 pt-4">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <MultiSelect
+                  label="Item Types"
+                  placeholder="Select item types"
+                  options={AVAILABLE_ITEM_TYPES.map((type) => ({
+                    value: type,
+                    label: type,
+                  }))}
+                  selected={filters.itemType}
+                  onChange={(value) => handleFilterChange("itemType", value)}
+                  searchable
+                  clearable
+                  disabled={loading}
+                />
+              </div>
+
+              <div className="flex justify-end">
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  onClick={clearFilters}
+                  disabled={!hasActiveFilters || loading}
+                >
+                  Clear All
+                </Button>
+              </div>
+            </div>
+          </CollapsibleContent>
+        </Collapsible>
       </CardContent>
     </Card>
   );
