@@ -1,8 +1,16 @@
 "use client";
 
 import { useSearchParams } from "next/navigation";
-import { ArrowLeft, DollarSign, ScrollText, Shield, Sword } from "lucide-react";
+import {
+  ArrowLeft,
+  DollarSign,
+  Package,
+  ScrollText,
+  Shield,
+  Sword,
+} from "lucide-react";
 import Link from "next/link";
+import Image from "next/image";
 import { Button } from "@/components/primitives/button";
 import { Card, CardContent, CardHeader } from "@/components/primitives/card";
 import { Badge } from "@/components/primitives/badge";
@@ -13,6 +21,21 @@ import {
 } from "@/lib/types/equipment";
 import { EquipmentActionMenu } from "@/components/equipment/EquipmentActionMenu";
 import { generateBackUrl } from "@/lib/utils";
+import { getTransformedImageUrl } from "@/lib/utils/cloudinary";
+
+// Get fallback icon based on equipment type
+function getTypeIcon(itemType: string) {
+  switch (itemType) {
+    case "weapon":
+      return <Sword className="h-16 w-16 text-muted-foreground" />;
+    case "armor":
+      return <Shield className="h-16 w-16 text-muted-foreground" />;
+    case "gear":
+      return <Package className="h-16 w-16 text-muted-foreground" />;
+    default:
+      return <ScrollText className="h-16 w-16 text-muted-foreground" />;
+  }
+}
 
 interface EquipmentDetailClientProps {
   equipment: AllEquipmentItem;
@@ -27,6 +50,9 @@ export function EquipmentDetailClient({
 }: EquipmentDetailClientProps) {
   const searchParams = useSearchParams();
   const backUrl = generateBackUrl(searchParams, "/equipment");
+  const imageUrl = equipment.image_url
+    ? getTransformedImageUrl(equipment.image_url, "detail")
+    : null;
 
   // Check if current user owns this equipment
   const isOwner =
@@ -47,7 +73,22 @@ export function EquipmentDetailClient({
         {/* Header */}
         <Card className="shadow-sm border">
           <CardHeader>
-            <div className="flex justify-between items-start mb-4">
+            <div className="flex justify-between items-start mb-4 gap-4">
+              {/* Image */}
+              <div className="flex-shrink-0 w-24 h-24 rounded-lg overflow-hidden border bg-zinc-900 flex items-center justify-center">
+                {imageUrl ? (
+                  <Image
+                    src={imageUrl}
+                    alt={equipment.name}
+                    width={96}
+                    height={96}
+                    className="object-cover w-full h-full"
+                    unoptimized
+                  />
+                ) : (
+                  getTypeIcon(equipment.item_type)
+                )}
+              </div>
               <div className="flex-1">
                 <h1 className="text-3xl font-bold mb-3 capitalize">
                   {equipment.name}

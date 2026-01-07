@@ -190,6 +190,10 @@ export async function PUT(
       updates.is_public = validated.is_public;
     }
 
+    if (validated.image_url !== undefined) {
+      updates.image_url = validated.image_url;
+    }
+
     // Update the item
     const { data, error } = await supabase
       .from("user_equipment")

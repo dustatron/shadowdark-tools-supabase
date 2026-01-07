@@ -54,6 +54,7 @@ import {
   type Currency,
 } from "@/lib/schemas/equipment";
 import type { UserEquipment } from "@/lib/types/equipment";
+import { EquipmentImagePicker } from "./EquipmentImagePicker";
 
 interface EquipmentFormProps {
   mode: "create" | "edit";
@@ -115,6 +116,7 @@ export function EquipmentForm({
       slot: initialData?.slot || 1,
       quantity: initialData?.quantity || "",
       is_public: initialData?.is_public || false,
+      image_url: initialData?.image_url || null,
     },
   });
 
@@ -460,6 +462,34 @@ export function EquipmentForm({
                 </Button>
               </div>
             ))}
+          </CardContent>
+        </Card>
+
+        <Card>
+          <CardHeader>
+            <CardTitle>Image</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <FormField
+              control={form.control}
+              name="image_url"
+              render={({ field }) => (
+                <FormItem>
+                  <FormControl>
+                    <EquipmentImagePicker
+                      value={field.value}
+                      onChange={field.onChange}
+                      userId={userId}
+                      disabled={isSubmitting || isDeleting}
+                    />
+                  </FormControl>
+                  <FormDescription>
+                    Choose a default icon or upload a custom image
+                  </FormDescription>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
           </CardContent>
         </Card>
 
