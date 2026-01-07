@@ -151,6 +151,7 @@ export async function POST(request: NextRequest) {
         slot: validated.slot,
         quantity: validated.quantity || null,
         is_public: validated.is_public,
+        image_url: validated.image_url || null,
       })
       .select()
       .single();

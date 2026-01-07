@@ -5,7 +5,16 @@ import { Badge } from "@/components/primitives/badge";
 import { EquipmentItem } from "@/lib/types/equipment";
 import { EquipmentActionMenu } from "./EquipmentActionMenu";
 import Link from "next/link";
-import { Shield, Sword, ScrollText, DollarSign, User } from "lucide-react";
+import Image from "next/image";
+import {
+  Shield,
+  Sword,
+  ScrollText,
+  DollarSign,
+  User,
+  Package,
+} from "lucide-react";
+import { getTransformedImageUrl } from "@/lib/utils/cloudinary";
 
 interface EquipmentCardProps {
   item: EquipmentItem;
@@ -13,16 +22,52 @@ interface EquipmentCardProps {
   showActions?: boolean;
 }
 
+// Get fallback icon based on equipment type
+function getTypeIcon(itemType: string) {
+  switch (itemType) {
+    case "weapon":
+      return <Sword className="h-8 w-8 text-muted-foreground" />;
+    case "armor":
+      return <Shield className="h-8 w-8 text-muted-foreground" />;
+    case "gear":
+      return <Package className="h-8 w-8 text-muted-foreground" />;
+    default:
+      return <ScrollText className="h-8 w-8 text-muted-foreground" />;
+  }
+}
+
 export function EquipmentCard({
   item,
   currentUserId,
   showActions = true,
 }: EquipmentCardProps) {
+  const thumbnailUrl = item.image_url
+    ? getTransformedImageUrl(item.image_url, "thumb")
+    : null;
+
   return (
     <Card className="hover:shadow-md transition-shadow">
       <CardHeader>
-        <div className="flex justify-between items-start">
-          <Link href={`/equipment/${item.id}`} className="flex-1">
+        <div className="flex justify-between items-start gap-3">
+          {/* Thumbnail */}
+          <Link
+            href={`/equipment/${item.id}`}
+            className="flex-shrink-0 w-16 h-16 rounded-lg overflow-hidden border bg-zinc-900 flex items-center justify-center"
+          >
+            {thumbnailUrl ? (
+              <Image
+                src={thumbnailUrl}
+                alt={item.name}
+                width={64}
+                height={64}
+                className="object-cover w-full h-full"
+                unoptimized
+              />
+            ) : (
+              getTypeIcon(item.item_type)
+            )}
+          </Link>
+          <Link href={`/equipment/${item.id}`} className="flex-1 min-w-0">
             <h3 className="text-xl font-semibold line-clamp-1 hover:underline">
               {item.name}
             </h3>

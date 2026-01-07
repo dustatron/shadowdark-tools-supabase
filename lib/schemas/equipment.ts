@@ -40,6 +40,7 @@ export const EquipmentCreateSchema = z.object({
   slot: z.number().int().min(0).max(10),
   quantity: z.string().max(50).optional(),
   is_public: z.boolean(),
+  image_url: z.string().max(500).nullable().optional(),
 });
 
 export type EquipmentCreateInput = z.infer<typeof EquipmentCreateSchema>;
