@@ -32,16 +32,16 @@ paths:
             type: string
             maxLength: 200
       responses:
-        '200':
+        "200":
           description: Paginated list of user equipment
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/EquipmentListResponse'
-        '401':
-          $ref: '#/components/responses/Unauthorized'
-        '500':
-          $ref: '#/components/responses/InternalError'
+                $ref: "#/components/schemas/EquipmentListResponse"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "500":
+          $ref: "#/components/responses/InternalError"
 
     post:
       summary: Create new equipment
@@ -53,20 +53,20 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/EquipmentCreateInput'
+              $ref: "#/components/schemas/EquipmentCreateInput"
       responses:
-        '201':
+        "201":
           description: Equipment created
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/UserEquipment'
-        '400':
-          $ref: '#/components/responses/ValidationError'
-        '401':
-          $ref: '#/components/responses/Unauthorized'
-        '500':
-          $ref: '#/components/responses/InternalError'
+                $ref: "#/components/schemas/UserEquipment"
+        "400":
+          $ref: "#/components/responses/ValidationError"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "500":
+          $ref: "#/components/responses/InternalError"
 
   /api/user/equipment/{id}:
     parameters:
@@ -83,22 +83,22 @@ paths:
       security:
         - bearerAuth: []
       responses:
-        '200':
+        "200":
           description: Equipment details
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/UserEquipment'
-        '400':
+                $ref: "#/components/schemas/UserEquipment"
+        "400":
           description: Invalid ID format
-        '401':
-          $ref: '#/components/responses/Unauthorized'
-        '403':
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "403":
           description: Access denied
-        '404':
+        "404":
           description: Not found
-        '500':
-          $ref: '#/components/responses/InternalError'
+        "500":
+          $ref: "#/components/responses/InternalError"
 
     put:
       summary: Update equipment
@@ -110,24 +110,24 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/EquipmentUpdateInput'
+              $ref: "#/components/schemas/EquipmentUpdateInput"
       responses:
-        '200':
+        "200":
           description: Equipment updated
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/UserEquipment'
-        '400':
-          $ref: '#/components/responses/ValidationError'
-        '401':
-          $ref: '#/components/responses/Unauthorized'
-        '403':
+                $ref: "#/components/schemas/UserEquipment"
+        "400":
+          $ref: "#/components/responses/ValidationError"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "403":
           description: Access denied
-        '404':
+        "404":
           description: Not found
-        '500':
-          $ref: '#/components/responses/InternalError'
+        "500":
+          $ref: "#/components/responses/InternalError"
 
     delete:
       summary: Delete equipment
@@ -135,18 +135,18 @@ paths:
       security:
         - bearerAuth: []
       responses:
-        '204':
+        "204":
           description: Equipment deleted
-        '400':
+        "400":
           description: Invalid ID format
-        '401':
-          $ref: '#/components/responses/Unauthorized'
-        '403':
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "403":
           description: Access denied
-        '404':
+        "404":
           description: Not found
-        '500':
-          $ref: '#/components/responses/InternalError'
+        "500":
+          $ref: "#/components/responses/InternalError"
 
 components:
   securitySchemes:
@@ -186,7 +186,7 @@ components:
           type: string
           enum: [armor, weapon, gear]
         cost:
-          $ref: '#/components/schemas/Cost'
+          $ref: "#/components/schemas/Cost"
         attack_type:
           type: string
           maxLength: 50
@@ -231,7 +231,7 @@ components:
           type: string
           enum: [armor, weapon, gear]
         cost:
-          $ref: '#/components/schemas/Cost'
+          $ref: "#/components/schemas/Cost"
         attack_type:
           type: string
           maxLength: 50
@@ -278,7 +278,7 @@ components:
         item_type:
           type: string
         cost:
-          $ref: '#/components/schemas/Cost'
+          $ref: "#/components/schemas/Cost"
         attack_type:
           type: string
           nullable: true
@@ -327,9 +327,9 @@ components:
         data:
           type: array
           items:
-            $ref: '#/components/schemas/UserEquipment'
+            $ref: "#/components/schemas/UserEquipment"
         pagination:
-          $ref: '#/components/schemas/Pagination'
+          $ref: "#/components/schemas/Pagination"
 
   responses:
     Unauthorized:

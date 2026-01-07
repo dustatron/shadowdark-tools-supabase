@@ -30,44 +30,44 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/MagicItemUpdate'
+              $ref: "#/components/schemas/MagicItemUpdate"
       responses:
-        '200':
+        "200":
           description: Magic item updated successfully
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/MagicItem'
-        '400':
+                $ref: "#/components/schemas/MagicItem"
+        "400":
           description: Validation error
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/ValidationError'
-        '401':
+                $ref: "#/components/schemas/ValidationError"
+        "401":
           description: Not authenticated
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/Error'
-        '403':
+                $ref: "#/components/schemas/Error"
+        "403":
           description: Not authorized (not admin)
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/Error'
-        '404':
+                $ref: "#/components/schemas/Error"
+        "404":
           description: Magic item not found
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/Error'
-        '500':
+                $ref: "#/components/schemas/Error"
+        "500":
           description: Internal server error
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/Error'
+                $ref: "#/components/schemas/Error"
 
 components:
   securitySchemes:
@@ -97,7 +97,7 @@ components:
         traits:
           type: array
           items:
-            $ref: '#/components/schemas/Trait'
+            $ref: "#/components/schemas/Trait"
           description: Array of trait objects
       additionalProperties: false
 
@@ -144,7 +144,7 @@ components:
         traits:
           type: array
           items:
-            $ref: '#/components/schemas/Trait'
+            $ref: "#/components/schemas/Trait"
         created_at:
           type: string
           format: date-time
