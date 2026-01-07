@@ -36,6 +36,7 @@ import {
   FormMessage,
 } from "@/components/primitives/form";
 import { spellCreateSchema, type SpellCreate } from "@/lib/validations/spell";
+import { OfficialEditWarning } from "@/components/magic-items/OfficialEditWarning";
 
 // Spell tiers (Shadowdark standard)
 const SPELL_TIERS = [1, 2, 3, 4, 5];
@@ -51,6 +52,7 @@ interface SpellFormProps {
   onSubmit?: (data: SpellCreate) => Promise<void>;
   onCancel?: () => void;
   mode?: "create" | "edit";
+  isOfficial?: boolean;
 }
 
 export function SpellForm({
@@ -58,9 +60,12 @@ export function SpellForm({
   onSubmit,
   onCancel,
   mode = "create",
+  isOfficial = false,
 }: SpellFormProps) {
   const router = useRouter();
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [showOfficialWarning, setShowOfficialWarning] = useState(false);
+  const [pendingData, setPendingData] = useState<SpellCreate | null>(null);
 
   const form = useForm({
     resolver: zodResolver(spellCreateSchema),
@@ -76,17 +81,21 @@ export function SpellForm({
     },
   });
 
-  const handleSubmit = async (data: SpellCreate) => {
+  const performSubmit = async (data: SpellCreate) => {
     setIsSubmitting(true);
     try {
       if (onSubmit) {
         await onSubmit(data);
       } else {
         // Default submit behavior - call API
-        const url =
-          mode === "edit" && initialData?.id
-            ? `/api/spells/${initialData.id}`
-            : "/api/spells";
+        let url: string;
+        if (mode === "create") {
+          url = "/api/spells";
+        } else if (isOfficial) {
+          url = `/api/official/spells/${initialData?.id}`;
+        } else {
+          url = `/api/spells/${initialData?.id}`;
+        }
         const method = mode === "edit" ? "PUT" : "POST";
 
         const response = await fetch(url, {
@@ -119,6 +128,24 @@ export function SpellForm({
       );
     } finally {
       setIsSubmitting(false);
+    }
+  };
+
+  const handleSubmit = async (data: SpellCreate) => {
+    // Show warning for official items before saving
+    if (isOfficial && mode === "edit") {
+      setPendingData(data);
+      setShowOfficialWarning(true);
+      return;
+    }
+    await performSubmit(data);
+  };
+
+  const handleOfficialWarningConfirm = async () => {
+    setShowOfficialWarning(false);
+    if (pendingData) {
+      await performSubmit(pendingData);
+      setPendingData(null);
     }
   };
 
@@ -327,27 +354,30 @@ export function SpellForm({
               )}
             />
 
-            {/* Public toggle */}
-            <FormField
-              control={form.control}
-              name="is_public"
-              render={({ field }) => (
-                <FormItem className="flex flex-row items-center justify-between rounded-lg border p-4">
-                  <div className="space-y-0.5">
-                    <FormLabel className="text-base">Public Spell</FormLabel>
-                    <FormDescription>
-                      Make this spell visible to all users (defaults to private)
-                    </FormDescription>
-                  </div>
-                  <FormControl>
-                    <Switch
-                      checked={field.value}
-                      onCheckedChange={field.onChange}
-                    />
-                  </FormControl>
-                </FormItem>
-              )}
-            />
+            {/* Public toggle - hide for official items */}
+            {!isOfficial && (
+              <FormField
+                control={form.control}
+                name="is_public"
+                render={({ field }) => (
+                  <FormItem className="flex flex-row items-center justify-between rounded-lg border p-4">
+                    <div className="space-y-0.5">
+                      <FormLabel className="text-base">Public Spell</FormLabel>
+                      <FormDescription>
+                        Make this spell visible to all users (defaults to
+                        private)
+                      </FormDescription>
+                    </div>
+                    <FormControl>
+                      <Switch
+                        checked={field.value}
+                        onCheckedChange={field.onChange}
+                      />
+                    </FormControl>
+                  </FormItem>
+                )}
+              />
+            )}
           </CardContent>
         </Card>
 
@@ -368,6 +398,12 @@ export function SpellForm({
           </Button>
         </div>
       </form>
+
+      <OfficialEditWarning
+        open={showOfficialWarning}
+        onOpenChange={setShowOfficialWarning}
+        onConfirm={handleOfficialWarningConfirm}
+      />
     </Form>
   );
 }

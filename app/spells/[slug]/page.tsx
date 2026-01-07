@@ -43,18 +43,27 @@ export default async function SpellDetailPage({
     );
   }
 
-  // Fetch favorite status if user is logged in
+  // Fetch favorite status and admin status if user is logged in
   let favoriteId: string | null = null;
+  let isAdmin = false;
   if (user) {
-    const { data: favorite } = await supabase
-      .from("favorites")
-      .select("id")
-      .eq("user_id", user.id)
-      .eq("item_type", "spell")
-      .eq("item_id", spell.id)
-      .single();
+    const [favoriteResult, profileResult] = await Promise.all([
+      supabase
+        .from("favorites")
+        .select("id")
+        .eq("user_id", user.id)
+        .eq("item_type", "spell")
+        .eq("item_id", spell.id)
+        .single(),
+      supabase
+        .from("user_profiles")
+        .select("is_admin")
+        .eq("id", user.id)
+        .single(),
+    ]);
 
-    favoriteId = favorite?.id || null;
+    favoriteId = favoriteResult.data?.id || null;
+    isAdmin = profileResult.data?.is_admin === true;
   }
 
   return (
@@ -62,6 +71,7 @@ export default async function SpellDetailPage({
       spell={spell}
       currentUserId={user?.id || null}
       favoriteId={favoriteId}
+      isAdmin={isAdmin}
     />
   );
 }

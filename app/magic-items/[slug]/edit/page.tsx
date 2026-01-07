@@ -29,15 +29,64 @@ export default async function EditMagicItemPage({ params }: PageProps) {
     redirect(`/auth/login?redirect=/magic-items/${slug}/edit`);
   }
 
-  // Fetch the magic item by slug for this user
-  const { data: item, error } = await supabase
+  // Check if user is admin
+  const { data: profile } = await supabase
+    .from("user_profiles")
+    .select("is_admin")
+    .eq("id", user.id)
+    .single();
+
+  const isAdmin = profile?.is_admin === true;
+
+  // Try to find the item - check multiple sources based on permissions
+  let item: UserMagicItem | null = null;
+  let isOfficial = false;
+
+  // First, try user's own items
+  const { data: userItem } = await supabase
     .from("user_magic_items")
     .select("*")
     .eq("user_id", user.id)
     .eq("slug", slug)
     .single();
 
-  if (error || !item) {
+  if (userItem) {
+    item = userItem as UserMagicItem;
+    isOfficial = false;
+  } else if (isAdmin) {
+    // Admin can edit any user's item
+    const { data: anyUserItem } = await supabase
+      .from("user_magic_items")
+      .select("*")
+      .eq("slug", slug)
+      .single();
+
+    if (anyUserItem) {
+      item = anyUserItem as UserMagicItem;
+      isOfficial = false;
+    } else {
+      // Admin can also edit official items
+      const { data: officialItem } = await supabase
+        .from("official_magic_items")
+        .select("*")
+        .eq("slug", slug)
+        .single();
+
+      if (officialItem) {
+        // Convert official item to UserMagicItem-like structure for form
+        item = {
+          ...officialItem,
+          user_id: null,
+          is_public: true,
+          image_url: null,
+          is_ai_generated: false,
+        } as unknown as UserMagicItem;
+        isOfficial = true;
+      }
+    }
+  }
+
+  if (!item) {
     notFound();
   }
 
@@ -54,16 +103,21 @@ export default async function EditMagicItemPage({ params }: PageProps) {
 
       <div className="space-y-6">
         <div>
-          <h1 className="text-3xl font-bold">Edit Magic Item</h1>
+          <h1 className="text-3xl font-bold">
+            {isOfficial ? "Edit Official Magic Item" : "Edit Magic Item"}
+          </h1>
           <p className="text-muted-foreground mt-1">
-            Update your magic item details
+            {isOfficial
+              ? "You are editing official Shadowdark content"
+              : "Update your magic item details"}
           </p>
         </div>
 
         <MagicItemForm
           mode="edit"
-          initialData={item as UserMagicItem}
+          initialData={item}
           userId={user.id}
+          isOfficial={isOfficial}
         />
       </div>
     </div>

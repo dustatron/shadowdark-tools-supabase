@@ -12,6 +12,7 @@ import type { MagicItemWithAuthor } from "@/lib/types/magic-items";
 interface MagicItemActionMenuProps {
   item: MagicItemWithAuthor;
   userId: string;
+  isAdmin?: boolean;
   initialFavoriteId?: string;
   hideViewDetails?: boolean;
   onFavoriteChange?: (itemId: string, favoriteId: string | undefined) => void;
@@ -22,6 +23,7 @@ interface MagicItemActionMenuProps {
 export function MagicItemActionMenu({
   item,
   userId,
+  isAdmin = false,
   initialFavoriteId,
   hideViewDetails = false,
   onFavoriteChange,
@@ -49,6 +51,8 @@ export function MagicItemActionMenu({
   // Check if user owns the item
   const isOwner = item.user_id === userId;
   const isFavorited = !!favoriteId;
+  // Can edit if owner or admin
+  const canEdit = isOwner || isAdmin;
 
   // Handlers
   const handleFavoriteToggle = () => {
@@ -105,9 +109,10 @@ export function MagicItemActionMenu({
         detailUrl={hideViewDetails ? undefined : `/magic-items/${item.slug}`}
         isFavorited={isFavorited}
         isOwner={isOwner}
+        isAdmin={isAdmin}
         onFavoriteToggle={handleFavoriteToggle}
         onAddToList={handleAddToList}
-        onEdit={isOwner ? handleEdit : undefined}
+        onEdit={canEdit ? handleEdit : undefined}
         config={{
           showDeck: false,
           deckEnabled: false,

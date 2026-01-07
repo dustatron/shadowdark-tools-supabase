@@ -23,6 +23,7 @@ export interface EntityActionMenuProps<T extends { id: string }> {
   detailUrl?: string;
   isFavorited: boolean;
   isOwner: boolean;
+  isAdmin?: boolean;
   onFavoriteToggle: () => void;
   onAddToList: () => void;
   onAddToDeck?: () => void;
@@ -42,6 +43,7 @@ export function EntityActionMenu<T extends { id: string }>({
   detailUrl,
   isFavorited,
   isOwner,
+  isAdmin = false,
   onFavoriteToggle,
   onAddToList,
   onAddToDeck,
@@ -154,7 +156,7 @@ export function EntityActionMenu<T extends { id: string }>({
             </TooltipProvider>
           ))}
 
-        {isOwner && onEdit && (
+        {(isOwner || isAdmin) && onEdit && (
           <>
             <DropdownMenuSeparator />
             <DropdownMenuItem
