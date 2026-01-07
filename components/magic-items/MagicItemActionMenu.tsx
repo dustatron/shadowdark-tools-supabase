@@ -4,7 +4,6 @@ import { useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
 import { EntityActionMenu } from "@/components/entity-action-menu";
 import { ListSelectorModal } from "@/components/list-selector-modal";
-import { OfficialEditWarning } from "@/components/magic-items/OfficialEditWarning";
 import { useListOperations } from "@/lib/hooks/use-list-operations";
 import { toggleFavorite } from "@/app/actions/favorites";
 import { toast } from "sonner";
@@ -33,7 +32,6 @@ export function MagicItemActionMenu({
 }: MagicItemActionMenuProps) {
   const router = useRouter();
   const [listModalOpen, setListModalOpen] = useState(false);
-  const [warningModalOpen, setWarningModalOpen] = useState(false);
   const [favoriteId, setFavoriteId] = useState(initialFavoriteId);
   const [isPending, startTransition] = useTransition();
 
@@ -53,9 +51,6 @@ export function MagicItemActionMenu({
   // Check if user owns the item
   const isOwner = item.user_id === userId;
   const isFavorited = !!favoriteId;
-
-  // Check if item is official (no user_id means official content)
-  const isOfficialItem = !item.user_id;
   // Can edit if owner or admin
   const canEdit = isOwner || isAdmin;
 
@@ -86,16 +81,6 @@ export function MagicItemActionMenu({
   };
 
   const handleEdit = () => {
-    // If admin editing official item, show warning first
-    if (isAdmin && isOfficialItem) {
-      setWarningModalOpen(true);
-    } else {
-      router.push(`/magic-items/${item.slug}/edit`);
-    }
-  };
-
-  const handleWarningConfirm = () => {
-    setWarningModalOpen(false);
     router.push(`/magic-items/${item.slug}/edit`);
   };
 
@@ -143,12 +128,6 @@ export function MagicItemActionMenu({
         existingListIds={existingListIds}
         onSelectList={handleSelectList}
         onCreateList={handleCreateList}
-      />
-
-      <OfficialEditWarning
-        open={warningModalOpen}
-        onOpenChange={setWarningModalOpen}
-        onConfirm={handleWarningConfirm}
       />
     </>
   );

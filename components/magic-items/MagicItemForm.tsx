@@ -50,6 +50,7 @@ import {
 } from "@/lib/schemas/magic-items";
 import type { UserMagicItem } from "@/lib/types/magic-items";
 import { MagicItemImagePicker } from "./MagicItemImagePicker";
+import { OfficialEditWarning } from "./OfficialEditWarning";
 
 interface MagicItemFormProps {
   mode: "create" | "edit";
@@ -72,6 +73,10 @@ export function MagicItemForm({
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isDeleting, setIsDeleting] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [showOfficialWarning, setShowOfficialWarning] = useState(false);
+  const [pendingData, setPendingData] = useState<MagicItemCreateInput | null>(
+    null,
+  );
 
   const handleDelete = async () => {
     if (!initialData?.id) return;
@@ -114,7 +119,7 @@ export function MagicItemForm({
     name: "traits",
   });
 
-  const onSubmit = async (data: MagicItemCreateInput) => {
+  const performSubmit = async (data: MagicItemCreateInput) => {
     setIsSubmitting(true);
     setError(null);
 
@@ -151,6 +156,24 @@ export function MagicItemForm({
       setError(err instanceof Error ? err.message : "An error occurred");
     } finally {
       setIsSubmitting(false);
+    }
+  };
+
+  const onSubmit = async (data: MagicItemCreateInput) => {
+    // Show warning for official items before saving
+    if (isOfficial && mode === "edit") {
+      setPendingData(data);
+      setShowOfficialWarning(true);
+      return;
+    }
+    await performSubmit(data);
+  };
+
+  const handleOfficialWarningConfirm = async () => {
+    setShowOfficialWarning(false);
+    if (pendingData) {
+      await performSubmit(pendingData);
+      setPendingData(null);
     }
   };
 
@@ -394,6 +417,12 @@ export function MagicItemForm({
           </div>
         </div>
       </form>
+
+      <OfficialEditWarning
+        open={showOfficialWarning}
+        onOpenChange={setShowOfficialWarning}
+        onConfirm={handleOfficialWarningConfirm}
+      />
     </Form>
   );
 }
