@@ -1,7 +1,5 @@
-import { redirect } from "next/navigation";
+import { redirect, notFound } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
-import { AlertCircle } from "lucide-react";
-import { Alert, AlertDescription } from "@/components/primitives/alert";
 import { EditSpellClient } from "./EditSpellClient";
 
 type Props = {
@@ -23,38 +21,58 @@ export default async function EditSpellPage({ params }: Props) {
     );
   }
 
-  // Fetch spell
-  const { data: spell, error } = await supabase
+  // Check if user is admin
+  const { data: profile } = await supabase
+    .from("user_profiles")
+    .select("is_admin")
+    .eq("id", user.id)
+    .single();
+
+  const isAdmin = profile?.is_admin === true;
+
+  // Try to find the spell - check multiple sources based on permissions
+  let spell: Record<string, unknown> | null = null;
+  let isOfficial = false;
+
+  // First, try user's own spells
+  const { data: userSpell } = await supabase
     .from("user_spells")
     .select("*")
+    .eq("user_id", user.id)
     .eq("slug", slug)
     .single();
 
-  if (error || !spell) {
-    return (
-      <div className="container mx-auto px-4 py-8 max-w-3xl">
-        <Alert variant="destructive">
-          <AlertCircle className="h-4 w-4" />
-          <AlertDescription>
-            Spell not found or you don&apos;t have permission to edit it
-          </AlertDescription>
-        </Alert>
-      </div>
-    );
+  if (userSpell) {
+    spell = userSpell;
+    isOfficial = false;
+  } else if (isAdmin) {
+    // Admin can edit any user's spell
+    const { data: anyUserSpell } = await supabase
+      .from("user_spells")
+      .select("*")
+      .eq("slug", slug)
+      .single();
+
+    if (anyUserSpell) {
+      spell = anyUserSpell;
+      isOfficial = false;
+    } else {
+      // Admin can also edit official spells
+      const { data: officialSpell } = await supabase
+        .from("official_spells")
+        .select("*")
+        .eq("slug", slug)
+        .single();
+
+      if (officialSpell) {
+        spell = officialSpell;
+        isOfficial = true;
+      }
+    }
   }
 
-  // Check ownership
-  if (spell.user_id !== user.id) {
-    return (
-      <div className="container mx-auto px-4 py-8 max-w-3xl">
-        <Alert variant="destructive">
-          <AlertCircle className="h-4 w-4" />
-          <AlertDescription>
-            You don&apos;t have permission to edit this spell
-          </AlertDescription>
-        </Alert>
-      </div>
-    );
+  if (!spell) {
+    notFound();
   }
 
   // Parse JSONB classes field if needed
@@ -66,5 +84,5 @@ export default async function EditSpellPage({ params }: Props) {
         : spell.classes,
   };
 
-  return <EditSpellClient spell={spellData} />;
+  return <EditSpellClient spell={spellData} isOfficial={isOfficial} />;
 }

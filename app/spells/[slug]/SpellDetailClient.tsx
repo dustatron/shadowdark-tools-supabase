@@ -34,12 +34,14 @@ interface SpellDetailClientProps {
   spell: SpellWithAuthor;
   currentUserId: string | null;
   favoriteId: string | null;
+  isAdmin?: boolean;
 }
 
 export function SpellDetailClient({
   spell,
   currentUserId,
   favoriteId,
+  isAdmin = false,
 }: SpellDetailClientProps) {
   const router = useRouter();
   const [isDeleting, setIsDeleting] = useState(false);
@@ -102,6 +104,7 @@ export function SpellDetailClient({
                   <SpellActionMenu
                     spell={spell}
                     userId={currentUserId}
+                    isAdmin={isAdmin}
                     initialFavoriteId={favoriteId || undefined}
                     hideViewDetails
                   />

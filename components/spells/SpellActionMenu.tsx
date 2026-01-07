@@ -14,6 +14,7 @@ import type { SpellWithAuthor } from "@/lib/types/spells";
 interface SpellActionMenuProps {
   spell: SpellWithAuthor;
   userId: string;
+  isAdmin?: boolean;
   initialFavoriteId?: string;
   hideViewDetails?: boolean;
   onFavoriteChange?: (spellId: string, favoriteId: string | undefined) => void;
@@ -24,6 +25,7 @@ interface SpellActionMenuProps {
 export function SpellActionMenu({
   spell,
   userId,
+  isAdmin = false,
   initialFavoriteId,
   hideViewDetails = false,
   onFavoriteChange,
@@ -64,6 +66,8 @@ export function SpellActionMenu({
   // Check if user owns the spell
   const isOwner = spell.user_id === userId;
   const isFavorited = !!favoriteId;
+  // Can edit if owner or admin
+  const canEdit = isOwner || isAdmin;
 
   // Handlers
   const handleFavoriteToggle = () => {
@@ -137,10 +141,11 @@ export function SpellActionMenu({
         detailUrl={hideViewDetails ? undefined : `/spells/${spell.slug}`}
         isFavorited={isFavorited}
         isOwner={isOwner}
+        isAdmin={isAdmin}
         onFavoriteToggle={handleFavoriteToggle}
         onAddToList={handleAddToList}
         onAddToDeck={handleAddToDeck}
-        onEdit={isOwner ? handleEdit : undefined}
+        onEdit={canEdit ? handleEdit : undefined}
         config={{
           showDeck: true,
           deckEnabled: true,
