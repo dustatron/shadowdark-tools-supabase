@@ -55,6 +55,7 @@ interface MagicItemFormProps {
   mode: "create" | "edit";
   initialData?: UserMagicItem;
   userId: string;
+  isOfficial?: boolean;
   onSuccess?: (item: UserMagicItem) => void;
 }
 
@@ -64,6 +65,7 @@ export function MagicItemForm({
   mode,
   initialData,
   userId,
+  isOfficial = false,
   onSuccess,
 }: MagicItemFormProps) {
   const router = useRouter();
@@ -117,10 +119,14 @@ export function MagicItemForm({
     setError(null);
 
     try {
-      const url =
-        mode === "create"
-          ? "/api/user/magic-items"
-          : `/api/user/magic-items/${initialData?.id}`;
+      let url: string;
+      if (mode === "create") {
+        url = "/api/user/magic-items";
+      } else if (isOfficial) {
+        url = `/api/official/magic-items/${initialData?.id}`;
+      } else {
+        url = `/api/user/magic-items/${initialData?.id}`;
+      }
 
       const response = await fetch(url, {
         method: mode === "create" ? "POST" : "PUT",
@@ -198,26 +204,28 @@ export function MagicItemForm({
                   )}
                 />
 
-                <FormField
-                  control={form.control}
-                  name="is_public"
-                  render={({ field }) => (
-                    <FormItem className="flex flex-row items-center justify-between rounded-lg border p-4">
-                      <div className="space-y-0.5">
-                        <FormLabel className="text-base">Public</FormLabel>
-                        <FormDescription>
-                          Make this item visible to other users
-                        </FormDescription>
-                      </div>
-                      <FormControl>
-                        <Switch
-                          checked={field.value}
-                          onCheckedChange={field.onChange}
-                        />
-                      </FormControl>
-                    </FormItem>
-                  )}
-                />
+                {!isOfficial && (
+                  <FormField
+                    control={form.control}
+                    name="is_public"
+                    render={({ field }) => (
+                      <FormItem className="flex flex-row items-center justify-between rounded-lg border p-4">
+                        <div className="space-y-0.5">
+                          <FormLabel className="text-base">Public</FormLabel>
+                          <FormDescription>
+                            Make this item visible to other users
+                          </FormDescription>
+                        </div>
+                        <FormControl>
+                          <Switch
+                            checked={field.value}
+                            onCheckedChange={field.onChange}
+                          />
+                        </FormControl>
+                      </FormItem>
+                    )}
+                  />
+                )}
               </CardContent>
             </Card>
 
@@ -329,7 +337,7 @@ export function MagicItemForm({
         </div>
 
         <div className="flex gap-4 justify-between">
-          {mode === "edit" && initialData ? (
+          {mode === "edit" && initialData && !isOfficial ? (
             <AlertDialog>
               <AlertDialogTrigger asChild>
                 <Button

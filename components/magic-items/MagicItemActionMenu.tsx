@@ -4,6 +4,7 @@ import { useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
 import { EntityActionMenu } from "@/components/entity-action-menu";
 import { ListSelectorModal } from "@/components/list-selector-modal";
+import { OfficialEditWarning } from "@/components/magic-items/OfficialEditWarning";
 import { useListOperations } from "@/lib/hooks/use-list-operations";
 import { toggleFavorite } from "@/app/actions/favorites";
 import { toast } from "sonner";
@@ -12,6 +13,7 @@ import type { MagicItemWithAuthor } from "@/lib/types/magic-items";
 interface MagicItemActionMenuProps {
   item: MagicItemWithAuthor;
   userId: string;
+  isAdmin?: boolean;
   initialFavoriteId?: string;
   hideViewDetails?: boolean;
   onFavoriteChange?: (itemId: string, favoriteId: string | undefined) => void;
@@ -22,6 +24,7 @@ interface MagicItemActionMenuProps {
 export function MagicItemActionMenu({
   item,
   userId,
+  isAdmin = false,
   initialFavoriteId,
   hideViewDetails = false,
   onFavoriteChange,
@@ -30,6 +33,7 @@ export function MagicItemActionMenu({
 }: MagicItemActionMenuProps) {
   const router = useRouter();
   const [listModalOpen, setListModalOpen] = useState(false);
+  const [warningModalOpen, setWarningModalOpen] = useState(false);
   const [favoriteId, setFavoriteId] = useState(initialFavoriteId);
   const [isPending, startTransition] = useTransition();
 
@@ -49,6 +53,11 @@ export function MagicItemActionMenu({
   // Check if user owns the item
   const isOwner = item.user_id === userId;
   const isFavorited = !!favoriteId;
+
+  // Check if item is official (no user_id means official content)
+  const isOfficialItem = !item.user_id;
+  // Can edit if owner or admin
+  const canEdit = isOwner || isAdmin;
 
   // Handlers
   const handleFavoriteToggle = () => {
@@ -77,6 +86,16 @@ export function MagicItemActionMenu({
   };
 
   const handleEdit = () => {
+    // If admin editing official item, show warning first
+    if (isAdmin && isOfficialItem) {
+      setWarningModalOpen(true);
+    } else {
+      router.push(`/magic-items/${item.slug}/edit`);
+    }
+  };
+
+  const handleWarningConfirm = () => {
+    setWarningModalOpen(false);
     router.push(`/magic-items/${item.slug}/edit`);
   };
 
@@ -105,9 +124,10 @@ export function MagicItemActionMenu({
         detailUrl={hideViewDetails ? undefined : `/magic-items/${item.slug}`}
         isFavorited={isFavorited}
         isOwner={isOwner}
+        isAdmin={isAdmin}
         onFavoriteToggle={handleFavoriteToggle}
         onAddToList={handleAddToList}
-        onEdit={isOwner ? handleEdit : undefined}
+        onEdit={canEdit ? handleEdit : undefined}
         config={{
           showDeck: false,
           deckEnabled: false,
@@ -123,6 +143,12 @@ export function MagicItemActionMenu({
         existingListIds={existingListIds}
         onSelectList={handleSelectList}
         onCreateList={handleCreateList}
+      />
+
+      <OfficialEditWarning
+        open={warningModalOpen}
+        onOpenChange={setWarningModalOpen}
+        onConfirm={handleWarningConfirm}
       />
     </>
   );

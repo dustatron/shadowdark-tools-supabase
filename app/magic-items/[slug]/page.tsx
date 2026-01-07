@@ -207,6 +207,17 @@ export default async function MagicItemDetailPage({ params }: PageProps) {
     notFound();
   }
 
+  // Check if user is admin
+  let isAdmin = false;
+  if (user) {
+    const { data: profile } = await supabase
+      .from("user_profiles")
+      .select("is_admin")
+      .eq("id", user.id)
+      .single();
+    isAdmin = profile?.is_admin === true;
+  }
+
   const magicItem = item;
   const isOwner = user && userId === user.id;
 
@@ -279,6 +290,7 @@ export default async function MagicItemDetailPage({ params }: PageProps) {
                       userId={user?.id || null}
                       favoriteId={favoriteId}
                       isOwner={isOwner}
+                      isAdmin={isAdmin}
                     />
                   </div>
                 </div>

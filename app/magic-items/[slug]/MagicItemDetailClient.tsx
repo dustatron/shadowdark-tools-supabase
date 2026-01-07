@@ -9,6 +9,7 @@ interface MagicItemDetailClientProps {
   userId?: string | null;
   favoriteId?: string | null;
   isOwner?: boolean | null;
+  isAdmin?: boolean;
 }
 
 export function MagicItemDetailClient({
@@ -16,6 +17,7 @@ export function MagicItemDetailClient({
   userId,
   favoriteId,
   isOwner,
+  isAdmin = false,
 }: MagicItemDetailClientProps) {
   if (!userId) {
     // If user is not logged in, show only the edit button for owners
@@ -30,6 +32,7 @@ export function MagicItemDetailClient({
     <MagicItemActionMenu
       item={item}
       userId={userId}
+      isAdmin={isAdmin}
       initialFavoriteId={favoriteId || undefined}
       hideViewDetails={true} // Hide view details since we're already on the detail page
     />
