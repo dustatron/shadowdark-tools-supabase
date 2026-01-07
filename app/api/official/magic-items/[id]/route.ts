@@ -17,6 +17,7 @@ const OfficialMagicItemUpdateSchema = z.object({
     .max(5000, "Description must be 5000 characters or less")
     .optional(),
   traits: z.array(TraitSchema).optional(),
+  image_url: z.string().nullable().optional(),
 });
 
 // GET /api/official/magic-items/[id] - Get a specific official magic item
@@ -144,6 +145,10 @@ export async function PUT(
 
     if (validated.traits !== undefined) {
       updates.traits = validated.traits;
+    }
+
+    if (validated.image_url !== undefined) {
+      updates.image_url = validated.image_url;
     }
 
     // Update the item
